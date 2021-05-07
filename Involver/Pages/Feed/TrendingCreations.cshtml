@@ -1,0 +1,63 @@
+﻿@page
+@model Involver.Pages.Feed.TrendingCreationsModel
+@{
+    ViewData["Title"] = "屬於每個人的創作";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-4">
+        <h4>追蹤</h4>
+        <hr />
+        <a asp-page="/Index"
+           class="btn btn-xs btn-outline-info">創作</a>
+        &nbsp&nbsp
+        <a asp-page="/Feed/FollowArticles"
+           asp-route-id="@Model.UserProfileID"
+           class="btn btn-xs btn-outline-info">討論</a>
+        <hr />
+    </div>
+    <div class="col-4">
+        <h4>熱門</h4>
+        <hr />
+        <a asp-page="/Feed/TrendingCreations"
+           asp-route-id="@Model.UserProfileID"
+           class="btn btn-xs btn-danger disabled">創作</a>
+        <hr />
+    </div>
+    <div class="col-4">
+        <h4>推薦</h4>
+        <hr />
+        <a asp-page="/Feed/RecommendCreations"
+           asp-route-id="@Model.UserProfileID"
+           class="btn btn-xs btn-secondary disabled">創作</a>
+        <hr />
+    </div>
+</div>
+<p></p>
+<div>
+    @if (Model.Novels != null)
+    {
+        @foreach (var novel in Model.Novels)
+        {
+            if (novel.Block != true)
+            {
+                <div class="row">
+                    <div class="col-md-5">
+                        <a asp-page="/Articles/Details"
+                           asp-route-id="@novel.NovelID">
+                            @Html.DisplayFor(modelItem => novel.Title)
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        @Html.DisplayFor(modelItem => novel.Profile.UserName)
+                    </div>
+                    <div class="col-md-3">
+                        @Html.DisplayFor(modelItem => novel.UpdateTime)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    }
+</div>

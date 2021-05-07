@@ -1,0 +1,99 @@
+﻿@page
+@model Involver.Pages.Novels.DeleteModel
+
+@{
+    ViewData["Title"] = "刪除";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    NovelTypeDetermination novelTypeDetermination = new NovelTypeDetermination();
+}
+
+    <h1>刪除</h1>
+
+    <h3>你確定要刪除嗎？</h3>
+    <div>
+        <h4>創作</h4>
+        <form method="post">
+            <a asp-page="./Details" asp-route-id="@Model.Novel.NovelID" 
+               class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-up"></i> 回到目錄</a>&nbsp&nbsp
+            <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i>回到清單</a>&nbsp&nbsp
+            <input type="hidden" asp-for="Novel.NovelID" />
+            <input type="submit" value="刪除" class="btn btn-danger" />
+        </form>
+        <hr />
+        <div class="col-md-6">
+            @if (Model.Novel.Image != null)
+            {
+
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.Novel.Image)"
+                     asp-append-version="true"
+                     alt="讀取失敗"
+                     title="@Model.Novel.Title"
+                     style="width: 100%; height: auto">
+            }
+            else
+            {
+                <img src="https://generative-placeholders.glitch.me/image?width=600&height=300&style=triangles&gap=100"
+                     alt="讀取失敗"
+                     title="主題圖片"
+                     style="width: 100%; height: auto" />
+            }
+        </div>
+        
+
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.Title)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.Title)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.Introduction)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.Raw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.Type)
+            </dt>
+            <dd class="col-sm-10">
+                @novelTypeDetermination.GetTypeName(Model.Novel.Type)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.UpdateTime)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.UpdateTime)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.TotalCoins)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.TotalCoins)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.MonthlyCoins)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.MonthlyCoins)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.PrimeRead)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.PrimeRead)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.End)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.End)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Novel.Views)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Novel.Views)
+            </dd>
+        </dl>
+    </div>

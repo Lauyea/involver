@@ -1,0 +1,47 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.ArticlesModel
+@{
+    ViewData["Title"] = "文章";
+    ViewData["ActivePage"] = ManageNavPages.Articles;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        @if (Model.Articles != null)
+        {
+            foreach (var article in Model.Articles)
+            {
+                <div class="row">
+                    <div class="col-md-6">
+                        <a asp-page="/Novels/Details" asp-route-id="@article.ArticleID">@Html.DisplayFor(modelItem => article.Title)</a>
+                    </div>
+                    <div class="col-md-3">
+                        <p>
+                            <small>總計 @Html.DisplayFor(modelItem => article.TotalCoins)</small>
+                        </p>
+                        <small>月計 @Html.DisplayFor(modelItem => article.MonthlyCoins)</small>
+                    </div>
+                    <div class="col-md-3">
+                        <p>
+                            <small>@Html.DisplayFor(modelItem => article.UpdateTime)</small>
+                        </p>
+                        <small>觀看數： @Html.DisplayFor(modelItem => article.Views)</small>
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

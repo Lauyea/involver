@@ -1,0 +1,26 @@
+﻿@page
+@model Involver.Pages.Descriptions.VotingModel
+@{
+    ViewData["Title"] = "投票說明";
+}
+<h1>@ViewData["Title"]</h1>
+<hr />
+<div>
+    <a asp-page="/Descriptions/Explanation"
+       class="btn btn-xs btn-outline-info">說明目錄</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/InCoin"
+       class="btn btn-xs btn-outline-info">In幣相關說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/Voting"
+       class="btn btn-xs btn-info disabled">投票說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/UsefulHTML"
+       class="btn btn-xs btn-outline-info">常用HTML範例</a>
+</div>
+<hr />
+<p><b>限時：</b>有限定時間內才能投票的形式，最普通的投票。</p>
+<p><b>限量：</b>有限定投票數量的投票，希望有限的數量可以讓參與者更踴躍贊助作者。</p>
+<p><b>限值：</b>有限定數值的投票，可能會變成類似累積到一定金額後，就出新作品的集資型創作形式。</p>
+<p><b>自由模式：</b>贊助者可以自由選擇投票的價值，特約作者才可以選擇此模式。</p>
+<p><b>平等模式：</b>每張選票價值相同。</p>

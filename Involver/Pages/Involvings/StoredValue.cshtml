@@ -1,0 +1,73 @@
+﻿@page
+@model Involver.Pages.Involvings.StoredValueModel
+@{
+    ViewData["Title"] = "儲值";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string UserID = userManager.GetUserId(User);
+}
+<h1>儲值</h1>
+<hr />
+<div>
+    @Html.Raw((string)TempData["PostForm"])
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="alert alert-warning" role="alert">
+            <p>
+                <strong>因為儲值功能需要申請足額履約保證，因此先暫用Patreon贊助功能代替</strong>
+            </p>
+        </div>
+        <div class="alert alert-info" role="alert">
+            <p>
+                <strong>感謝您的贊助使得Involver成長</strong>
+            </p>
+        </div>
+        <div>
+            <a href="https://www.patreon.com/Lauyea"
+               class="btn btn-xs btn-outline-danger" target="_blank">贊助連結</a>
+        </div>
+        <p></p>
+        <div class="alert alert-danger" role="alert">
+            <p>
+                <strong>注意：贊助金額並不會加入到用戶實體In幣中</strong>
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <p>實體150 In幣 × </p>
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" class="form-control" disabled/>
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    <input class="form-check-input"
+                           style="display:none"
+                           value="@UserID"
+                           asp-for="UserID" />
+                </label>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <p>
+                    <strong>儲值概不接受退款，建議小金額儲值</strong>
+                </p>
+                <p>
+                    <strong>按下綠界支付當下會跳轉至綠界儲值頁面，完成儲值動作後請勿再次儲值；待完成儲值動作後，個人帳戶的實體In幣便會增加</strong>
+                </p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="綠界支付" class="btn btn-primary" formtarget="_blank" disabled />
+            </div>
+        </form>
+        @*<p>
+                聯絡信箱： lauyea.shea@gmail.com
+            </p>*@
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,43 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.ChangeProfileModel
+@{
+    ViewData["Title"] = "基本資料";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div class="row">
+    <div class="col-md-4">
+        <form enctype="multipart/form-data" method="post">
+            @*<div asp-validation-summary="All" class="text-danger"></div>*@
+            <div class="form-group">
+                <label asp-for="Profile.Introduction" class="control-label"></label>
+                <textarea asp-for="Profile.Introduction" class="form-control" rows="6" placeholder="在這裡寫些東西..."></textarea>
+                <span asp-validation-for="Profile.Introduction" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FileUpload.FormFile" class="control-label"></label>
+                <input asp-for="FileUpload.FormFile" type="file" class="form-control" />
+                <span asp-validation-for="FileUpload" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">上傳橫幅圖片</label>
+                <input asp-for="BannerUpload.FormFile" type="file" class="form-control" />
+                <span asp-validation-for="BannerUpload" class="text-danger"></span>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <p>
+                    <strong>圖片檔案大小限制在260KB以下</strong>
+                </p>
+            </div>
+            <button id="update-profile-button" type="submit" class="btn btn-primary">儲存</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

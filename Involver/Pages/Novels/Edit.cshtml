@@ -1,0 +1,61 @@
+﻿@page
+@model Involver.Pages.Novels.EditModel
+
+@{
+    ViewData["Title"] = "編輯";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>編輯</h1>
+
+<h4>創作 @Model.Novel.Title</h4>
+<hr />
+
+<div>
+    <a asp-page="./Details" asp-route-id="@Model.Novel.NovelID"
+       class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i>回到目錄</a>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form enctype="multipart/form-data" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Novel.NovelID" />
+            <input type="hidden" asp-for="Novel.ProfileID" />
+            <input type="hidden" asp-for="Novel.Title" class="form-control" />
+            <div class="form-group">
+                <label asp-for="Novel.Introduction" class="control-label"></label>
+                <textarea asp-for="Novel.Introduction" class="form-control" rows="6" placeholder="在這裡寫些東西..."></textarea>
+                <span asp-validation-for="Novel.Introduction" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FileUpload.FormFile" class="control-label"></label>
+                <input asp-for="FileUpload.FormFile" type="file" class="form-control" />
+                <p class="text-danger">@Model.ErrorMessage</p>
+                <span asp-validation-for="Novel.Image" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Novel.Type" class="control-label"></label>
+                <select asp-for="Novel.Type" asp-items="Model.Types"></select>
+                <span asp-validation-for="Novel.Type" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label" title="只有付費會員才能閱讀最新章節">
+                    <input class="form-check-input" asp-for="Novel.PrimeRead" /> @Html.DisplayNameFor(model => model.Novel.PrimeRead)
+                </label>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Novel.End" /> @Html.DisplayNameFor(model => model.Novel.End)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="儲存" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

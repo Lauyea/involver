@@ -1,0 +1,128 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.InvolversModel
+@{
+    ViewData["Title"] = "Involvers";
+    ViewData["ActivePage"] = ManageNavPages.Involving;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+
+    string TitleSub = "";
+    string RecentBtnStyle;
+    string MonthlyBtnStyle;
+    string TotalTimeBtnStyle;
+    RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
+    if (Model.TimeSpan == "TotalTime")
+    {
+        TitleSub = "總共（按程度排序）";
+        TotalTimeBtnStyle = "btn-info disabled";
+    }
+    else if (Model.TimeSpan == "Monthly")
+    {
+        TitleSub = "每月（按程度排序）";
+        MonthlyBtnStyle = "btn-info disabled";
+    }
+    else
+    {
+        TitleSub = "最近（按時間排序）";
+        RecentBtnStyle = "btn-info disabled";
+    }
+}
+
+<h4>@ViewData["Title"] - @TitleSub</h4>
+<hr />
+
+<div>
+    <div class="row">
+        <div class="dropdown col-md-3">
+            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
+                Involving <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-menu">
+                <a class="btn btn-xs btn-outline-info"
+                   asp-page="./Involving"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   title="Recent">最近</a>
+                <a class="btn btn-xs btn-outline-info"
+                   asp-page="./Involving"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   asp-route-TimeSpan="Monthly"
+                   title="Monthly">每月</a>
+                <a class="btn btn-xs btn-outline-info"
+                   asp-page="./Involving"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   asp-route-TimeSpan="TotalTime"
+                   title="TotalTime">總共</a>
+            </div>
+        </div>
+        <div class="dropdown col-md-3">
+            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
+                Involvers <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-menu">
+                <a class="btn btn-xs @RecentBtnStyle"
+                   asp-page="./Involvers"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   title="Recent">最近</a>
+                <a class="btn btn-xs @MonthlyBtnStyle"
+                   asp-page="./Involvers"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   asp-route-TimeSpan="Monthly"
+                   title="Monthly">每月</a>
+                <a class="btn btn-xs @TotalTimeBtnStyle"
+                   asp-page="./Involvers"
+                   asp-route-id="@Model.Profile.ProfileID"
+                   asp-route-TimeSpan="TotalTime"
+                   title="TotalTime">總共</a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Involvers != null)
+        {
+            @foreach (Involving involving in Model.Involvers)
+            {
+                <div class="row">
+                    <div class="col-md-5">
+                        <a asp-page="./Index"
+                           asp-route-id="@involving.InvolverID">
+                            @if (involving.Involver.Image != null)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(involving.Involver.Image)"
+                                     asp-append-version="true"
+                                     alt="讀取失敗"
+                                     title="@involving.Involver.UserName"
+                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
+                            }
+                            @Html.DisplayFor(modelItem => involving.Involver.UserName)
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        @if (Model.TimeSpan == "TotalTime")
+                        {
+                            @involving.TotalValue
+                        }
+                        else if (Model.TimeSpan == "Monthly")
+                        {
+                            @involving.MonthlyValue
+                        }
+                        else
+                        {
+                            @involving.Value
+                        }
+                         In幣
+                    </div>
+                    <div class="col-md-3">
+                        @involving.LastTime
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>

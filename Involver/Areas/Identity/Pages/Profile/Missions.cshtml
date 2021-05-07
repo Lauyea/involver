@@ -1,0 +1,65 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.MissionsModel
+@{
+    ViewData["Title"] = "每週任務";
+    ViewData["ActivePage"] = ManageNavPages.Missions;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+<dl class="row">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.WatchArticle)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.WatchArticle)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.Vote)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.Vote)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.LeaveComment)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.LeaveComment)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.ViewAnnouncement)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.ViewAnnouncement)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.ShareCreation)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.ShareCreation)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.BeAgreed)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.BeAgreed)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.CompleteOtherMissions)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.CompleteOtherMissions)
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Missions.DailyLogin)
+    </dt>
+    <dd class="col-sm-8">
+        @Html.DisplayFor(model => model.Missions.DailyLogin)
+    </dd>
+</dl>

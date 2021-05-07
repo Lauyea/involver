@@ -1,0 +1,41 @@
+﻿@page
+@model Involver.Pages.StatisticalData.IndexModel
+@{
+    ViewData["Title"] = "統計資料";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string disabled = "disabled";
+    @if (User.IsInRole(Authorization.Payment.Payments.PaymentManagersRole) ||
+User.IsInRole(Authorization.Payment.Payments.PaymentAdministratorsRole))
+    {
+        disabled = "";
+    }
+}
+<h1>統計資料</h1>
+<hr />
+<div class="row">
+    <div class="col-4">
+        <a asp-page="/StatisticalData/Index"
+           class="btn btn-xs btn-info disabled">統計資料</a>
+    </div>
+    <div class="col-4">
+        <a asp-page="/StatisticalData/Payments/Index"
+           class="btn btn-xs btn-outline-info @disabled">訂單紀錄</a>
+    </div>
+    <div class="col-4">
+        <a asp-page="/StatisticalData/ProfitSharings/Index"
+           class="btn btn-xs btn-outline-info @disabled">分潤清單</a>
+    </div>
+</div>
+<hr />
+@*<h1>尚未完成</h1>*@
+<h4>總用戶數：@Model.Profiles.Count()</h4>
+
+@foreach(var profile in Model.Profiles)
+{
+    <p>
+        <a asp-area="Identity"
+           asp-page="/Profile/Index"
+           asp-route-id="@profile.ProfileID"
+           target="_blank">@Html.DisplayFor(modelItem => profile.UserName)</a>
+    </p>
+}

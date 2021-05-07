@@ -1,0 +1,254 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.IndexModel
+@{
+    ViewData["Title"] = "基本資料";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<div>
+    <div>
+        @if ((await AuthorizationService.AuthorizeAsync(
+        User, Model.Profile,
+        ProfileOperations.Update)).Succeeded)
+        {
+            <a asp-page="./ChangeProfile"
+               asp-route-id="@Model.Profile.ProfileID"
+               class="btn btn-xs btn-outline-primary">
+                <i class="far fa-edit"></i>
+                編輯
+            </a>
+        }
+        &nbsp&nbsp
+        @if (!Model.ProfileOwner)
+        {
+            @if (Model.Followed)
+            {
+                <form style="display:inline;" method="post">
+                    <button type="submit" asp-page-handler="follow"
+                            asp-route-id="@Model.Profile.ProfileID"
+                            class="btn btn-xs btn-primary disabled">
+                        取消追蹤
+                    </button>
+                </form>
+            }
+            else
+            {
+                <form style="display:inline;" method="post">
+                    <button type="submit" asp-page-handler="follow"
+                            asp-route-id="@Model.Profile.ProfileID"
+                            class="btn btn-xs btn-primary">
+                        追蹤作者
+                    </button>
+                </form>
+            }
+        }
+        &nbsp&nbsp
+        @if (!Model.Profile.Banned)
+        {
+            @if ((await AuthorizationService.AuthorizeAsync(
+          User, Model.Profile, ProfileOperations.Ban)).Succeeded)
+            {
+                <form style="display:inline;" method="post">
+                    <input type="hidden" name="id" value="@Model.Profile.ProfileID" />
+                    <input type="hidden" name="ban" value="@true " />
+                    <button type="submit" class="btn btn-xs btn-danger">Ban</button>
+                </form>
+            }
+        }
+        else
+        {
+            @if ((await AuthorizationService.AuthorizeAsync(
+          User, Model.Profile, ProfileOperations.Ban)).Succeeded)
+            {
+                <form style="display:inline;" method="post">
+                    <input type="hidden" name="id" value="@Model.Profile.ProfileID" />
+                    <input type="hidden" name="ban" value="@false" />
+                    <button type="submit" class="btn btn-xs btn-success">Unban</button>
+                </form>
+            }
+        }
+    </div>
+    <p></p>
+    <div class="row">
+        <div class="col-md-9">
+            <dl class="row">
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.UserName)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Profile.UserName)
+                    @if (Model.Profile.CanChangeUserName && Model.ProfileOwner)
+                    {
+                        <a class="btn btn-xs btn-outline-primary"
+                           asp-area="Identity"
+                           asp-page="/Account/Manage/Index">
+                            可變更用戶名一次
+                        </a>
+                    }
+                </dd>
+                @if (Model.Profile.Introduction != null)
+                {
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Profile.Introduction)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.Raw(Model.Profile.Introduction.Replace("\r\n", "<br />"))
+                    </dd>
+                }
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.RealCoins)
+                </dt>
+                <dd class="col-sm-10 row">
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                  User, Model.Profile,
+                  ProfileOperations.Update)).Succeeded)
+                    {
+                        <div class="col-sm-3">
+                            @Html.DisplayFor(model => model.Profile.RealCoins)
+                        </div>
+                        <div class="col-sm-6">
+                            <a class="btn btn-xs btn-outline-success"
+                               asp-page="/Involvings/StoredValue"
+                               asp-route-id="@Model.Profile.ProfileID">
+                                <i class="fas fa-donate"></i> 儲值In幣
+                            </a>
+                        </div>
+                    }
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.VirtualCoins)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Profile.VirtualCoins)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.MonthlyCoins)
+                </dt>
+                <dd class="col-sm-10 row">
+                    <div class="col-sm-3">
+                        @Html.DisplayFor(model => model.Profile.MonthlyCoins)
+                    </div>
+                    <div class="col-sm-6">
+                        <a class="btn btn-xs btn-outline-danger"
+                           asp-page="/Involvings/InvolveCreator"
+                           asp-route-id="@Model.Profile.ProfileID">
+                            <i class="fas fa-coins"></i> Involve
+                        </a>
+                    </div>
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.EnrollmentDate)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Profile.EnrollmentDate)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.LastTimeLogin)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Profile.LastTimeLogin)
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.Prime)
+                </dt>
+                <dd class="col-sm-10 row">
+                    <div class="col-sm-3">
+                        @Html.DisplayFor(model => model.Profile.Prime)
+                    </div>
+                    @if (!Model.Profile.Prime && (await AuthorizationService.AuthorizeAsync(
+                   User, Model.Profile,
+                   ProfileOperations.Update)).Succeeded)
+                    {
+                        <div class="col-sm-6">
+                            <a class="btn btn-xs btn-outline-success"
+                               asp-page="/Involvings/BecomePrime"
+                               asp-route-id="@Model.Profile.ProfileID"
+                               title="成為付費會員，每月可獲得實體與虛擬In幣各150枚">
+                                <i class="fas fa-fist-raised"></i> 成為付費會員
+                            </a>
+                            <a asp-page="/Descriptions/InCoin"
+                               asp-fragment="prime"
+                               target="_blank"
+                               title="成為付費會員，每月可獲得實體與虛擬In幣各150枚">
+                                <i class="far fa-question-circle"></i>
+                            </a>
+                        </div>
+                    }
+                </dd>
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.Professioal)
+                </dt>
+                <dd class="col-sm-10 row">
+                    <div class="col-sm-3">
+                        @Html.DisplayFor(model => model.Profile.Professioal)
+                    </div>
+                    @if (!Model.Profile.Professioal && (await AuthorizationService.AuthorizeAsync(
+                    User, Model.Profile,
+                    ProfileOperations.Update)).Succeeded)
+                    {
+                        <div class="col-sm-6">
+                            <a class="btn btn-xs btn-outline-success"
+                               asp-page="/Involvings/BecomeProfessioal"
+                               asp-route-id="@Model.Profile.ProfileID"
+                               title="成為特約作家，可獲得月收入分潤">
+                                <i class="fas fa-feather-alt"></i> 成為特約作家
+                            </a>
+                            <a asp-page="/Descriptions/InCoin"
+                               asp-fragment="professional"
+                               target="_blank"
+                               title="成為特約作家，可獲得月收入分潤">
+                                <i class="far fa-question-circle"></i>
+                            </a>
+                        </div>
+                    }
+                </dd>
+                @if (Model.Profile.Banned == true)
+                {
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Profile.Banned)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.DisplayFor(model => model.Profile.Banned)
+                    </dd>
+                }
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.Profile.Views)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.DisplayFor(model => model.Profile.Views)
+                </dd>
+                <dt class="col-sm-2">
+                    追蹤數
+                </dt>
+                <dd class="col-sm-10">
+                    <a asp-page="./Followers"
+                       asp-route-id="@Model.Profile.ProfileID">
+                        @Model.Profile.Follows.Count() 個追蹤者
+                    </a>
+                </dd>
+            </dl>
+        </div>
+        <div class="col-md-3">
+            @if (Model.Profile.Image != null)
+            {
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.Profile.Image)"
+                     asp-append-version="true"
+                     alt="讀取失敗"
+                     title="@Model.Profile.UserName"
+                     style="max-width: 100%; max-height: 150px; display:inline; border-radius:50%">
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

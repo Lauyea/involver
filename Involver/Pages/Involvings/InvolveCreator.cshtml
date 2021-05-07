@@ -1,0 +1,103 @@
+﻿@page
+@model Involver.Pages.Involvings.InvolveCreatorModel
+@{
+    ViewData["Title"] = "Involve";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string UserID = userManager.GetUserId(User);
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<hr />
+<div>
+    <a asp-area="Identity"
+       asp-page="/Profile/Index"
+       asp-route-id="@Model.ProfileID"
+       class="btn btn-xs btn-outline-info">
+        <i class="fas fa-chevron-left"></i> 回到個人檔案
+    </a>
+</div>
+<p></p>
+<div class="row card-deck">
+    <div class="card col-md-3">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group card-title">
+                <text>直接Involve In幣</text>
+                <input asp-for="Involving.Value"
+                       class="form-control" style="display:inline;width:100px" />
+                <span asp-validation-for="Involving.Value" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    <input class="form-check-input"
+                           style="display:none"
+                           value="@UserID"
+                           asp-for="Involving.InvolverID" />
+                </label>
+            </div>
+            <p></p>
+            <div class="alert alert-warning card-text" role="alert">
+                <p>
+                    <strong>Involve都是使用實體In幣</strong>
+                </p>
+            </div>
+            <input type="submit" value="Involve"
+                   asp-page-handler="SingleInvolve"
+                   asp-route-id="@Model.ProfileID"
+                   class="btn btn-outline-danger" />
+        </form>
+    </div>
+    <div class="col-md-3 card">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group card-title">
+                <text>每月Involve 150 In幣</text>
+            </div>
+            <div class="alert alert-warning card-text" role="alert">
+                <p>
+                    <strong>Involve當下直接扣款，每月初再扣款，餘額不足則自動取消；建議月初Involve</strong>
+                </p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Involve"
+                       asp-page-handler="MonthlyInvolve"
+                       asp-route-id="@Model.ProfileID"
+                       class="btn btn-outline-danger" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3 card">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group card-title">
+                <text>取消Involve</text>
+            </div>
+            <div class="alert alert-warning card-text" role="alert">
+                <p>
+                    <strong>一旦取消Involve立即失去Involve獎勵，如無緊迫性，建議月底再取消</strong>
+                </p>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="UnInvolve"
+                       asp-page-handler="UnInvolve"
+                       asp-route-id="@Model.ProfileID"
+                       class="btn btn-outline-danger" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-3">
+        <div>
+            <b>Involve創作者</b>
+            <p>@Model.Profile.UserName</p>
+        </div>
+        <div>
+            <b>您的實體In幣</b>
+            <p>@Model.Involver.RealCoins</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

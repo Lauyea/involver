@@ -1,0 +1,55 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Involver.Data;
+@inject SignInManager<InvolverUser> SignInManager
+@inject UserManager<InvolverUser> UserManager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
+            <div class="gcse-search"></div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-page="/Involvings/StoredValue">儲值</a>
+        </li>
+        <li class="nav-item">
+            <div class="dropdown">
+                <button type="button" class="nav-link btn btn-link text-dark" data-toggle="dropdown">
+                    @UserManager.GetUserName(User)
+                </button>
+                <div class="dropdown-menu">
+                    <a class="nav-link text-dark"
+                       asp-area="Identity"
+                       asp-page="/Profile/Index"
+                       asp-route-id="@UserManager.GetUserId(User)"
+                       title="Profile">個人檔案</a>
+                    <a class="nav-link text-dark"
+                       asp-area="Identity"
+                       asp-page="/Account/Manage/Index"
+                       title="Manage">帳號管理</a>
+                    <form class="form-inline"
+                          asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                        <button type="submit" class="nav-link btn btn-link text-dark">登出</button>
+                    </form>
+                </div>
+            </div>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
+            <div class="gcse-search"></div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">註冊</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">登入</a>
+        </li>
+    }
+</ul>
+

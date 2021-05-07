@@ -1,0 +1,526 @@
+﻿@page
+@using Involver.Models.NovelModel;
+@using System.Text.Json
+@model Involver.Pages.Episodes.DetailsModel
+
+@{
+    ViewData["Title"] = Model.Episode.Title;
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    int CountDownIndex = 0;
+    bool Voted = false;
+    bool Record = false;
+
+    string GetCountDownID()
+    {
+        CountDownIndex++;
+        string CountDownID = "CountDown" + CountDownIndex.ToString();
+        return CountDownID;
+    }
+
+    string GetValuePercent(Voting voting, int Value)
+    {
+        int TotalCoins = 0;
+        double ratio = 0;
+        foreach (NormalOption option in voting.NormalOptions)
+        {
+            TotalCoins += option.TotalCoins;
+        }
+        if (TotalCoins != 0)
+        {
+            ratio = double.Parse(Value.ToString()) / double.Parse(TotalCoins.ToString());
+        }
+        string percent = (ratio * 100).ToString() + "%";
+        return percent;
+    }
+    string GetNumberPercent(Voting voting, int Number)
+    {
+        int TotalNumber = 0;
+        double ratio = 0;
+        foreach (NormalOption option in voting.NormalOptions)
+        {
+            TotalNumber += option.Votes.Count();
+        }
+        if (TotalNumber != 0)
+        {
+            ratio = double.Parse(Number.ToString()) / double.Parse(TotalNumber.ToString());
+        }
+        string percent = (ratio * 100).ToString() + "%";
+        return percent;
+    }
+}
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<h1>@Html.DisplayFor(model => model.Episode.Title)</h1>
+
+<h4>章節</h4>
+<hr />
+
+<div>
+    <a asp-page="../Novels/Details" asp-route-id="@Model.Novel.NovelID"
+       class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到目錄</a>
+    &nbsp&nbsp
+    @if ((await AuthorizationService.AuthorizeAsync(
+User, Model.Novel,
+NovelOperations.Update)).Succeeded)
+    {
+        <a asp-page="./Edit" asp-route-id="@Model.Episode.EpisodeID"
+           class="btn btn-xs btn-outline-info">
+            <i class="far fa-edit"></i>
+            編輯
+        </a>
+    }
+    &nbsp&nbsp
+    @if ((await AuthorizationService.AuthorizeAsync(
+User, Model.Novel,
+NovelOperations.Delete)).Succeeded)
+    {
+        <a asp-page="./Delete" asp-route-id="@Model.Episode.EpisodeID"
+           class="btn btn-xs btn-outline-info">
+            <i class="far fa-trash-alt"></i>
+            刪除
+        </a>
+    }
+    &nbsp&nbsp
+    <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
+    &nbsp&nbsp
+    <a href="#Voting" class="btn btn-xs btn-outline-info"><i class="fas fa-vote-yea"></i>投票</a>
+    &nbsp&nbsp
+    @if (Model.ShowCommentByCreator)
+    {
+        <a asp-page="./Details"
+           asp-route-id="@Model.Episode.EpisodeID"
+           asp-route-showCommentByCreator="@false"
+           class="btn btn-xs btn-outline-primary "><i class="far fa-eye"></i>看所有評論</a>
+    }
+    else
+    {
+        <a asp-page="./Details"
+           asp-route-id="@Model.Episode.EpisodeID"
+           asp-route-showCommentByCreator="@true"
+           class="btn btn-xs btn-outline-primary"><i class="far fa-eye"></i>一頁只看作者</a>
+    }
+</div>
+<p></p>
+<div>
+    @if (Model.PreviousEpisode != null)
+    {
+        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID"><i class="fas fa-arrow-left"></i>上一章</a>
+    }
+    else
+    {
+        <a><i class="fas fa-arrow-left"></i>上一章</a>
+    }
+    &nbsp&nbsp
+    @if (Model.NextEpisode != null)
+    {
+        <a asp-page="./Details" asp-route-id="@Model.NextEpisode.EpisodeID">下一章<i class="fas fa-arrow-right"></i></a>
+    }
+    else
+    {
+        <a>下一章<i class="fas fa-arrow-right"></i></a>
+    }
+</div>
+<p></p>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Episode.UpdateTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Episode.UpdateTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Episode.Views)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Episode.Views)
+        </dd>
+    </dl>
+</div>
+
+<hr />
+
+<article>
+    @if (Model.Episode.Content != null)
+    {
+        @Html.Raw(Model.Episode.Content.Replace("\r\n", "<br />"))
+    }
+</article>
+
+<p></p>
+<div>
+    @if (Model.PreviousEpisode != null)
+    {
+        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID"><i class="fas fa-arrow-left"></i>上一章</a>
+    }
+    else
+    {
+        <a><i class="fas fa-arrow-left"></i>上一章</a>
+    }
+    &nbsp&nbsp
+    @if (Model.NextEpisode != null)
+    {
+        <a asp-page="./Details" asp-route-id="@Model.NextEpisode.EpisodeID">下一章<i class="fas fa-arrow-right"></i></a>
+    }
+    else
+    {
+        <a>下一章<i class="fas fa-arrow-right"></i></a>
+    }
+</div>
+<p></p>
+
+@{
+    string ShareURL = "https://involver.tw/Episodes/Details?id=" + Model.Episode.EpisodeID.ToString();
+}
+<!-- Your share button code -->
+<div class="fb-share-button"
+     data-href="@ShareURL"
+     data-layout="button_count">
+</div>
+<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
+<p></p>
+<!-- 複製連結到剪貼簿以分享 -->
+<input class="form-control"
+       type="text" value="@ShareURL"
+       id="myInput" style="width: auto; display: inline">
+<div id="Share" class="tooltip">
+    <form style="display:inline;" method="post">
+        <button class="btn btn-primary"
+                type="submit"
+                onclick="myFunction()"
+                onmouseover="outFunc()"
+                asp-page-handler="Share"
+                asp-route-id="@Model.Episode.EpisodeID">
+            <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
+            分享連結
+        </button>
+    </form>
+</div>
+
+<hr />
+
+<div id="Voting">
+    @if ((await AuthorizationService.AuthorizeAsync(
+User, Model.Votings[0],
+VotingOperations.Create)).Succeeded)
+    {
+        <p>
+            <a asp-page="../Votings/Create"
+               asp-route-id="@Model.Episode.EpisodeID"
+               class="btn btn-xs btn-outline-info">新增投票</a>
+            <a asp-page="/Descriptions/Voting" target="_blank">投票說明</a>
+        </p>
+        <hr />
+    }
+    @foreach (Voting voting in Model.Votings)
+    {
+        @if (voting.NormalOptions.Count == 0)
+        {
+            continue;
+        }
+        {
+            foreach (NormalOption option in voting.NormalOptions)
+            {
+                Record = Voted;
+                Voted = option.Votes.Any(v => v.OwnerID == Model.UserID);
+                Voted = Voted || Record;
+            }
+        }
+        <div>
+            @if (voting.Limit == Voting.LimitType.Time)
+            {
+                <span title="這個投票有限制時間">限時： @voting.DeadLine.ToString()</span>
+                <span style="text-align: right"> 剩餘： </span>
+                <span id=@GetCountDownID()></span>
+            }
+            else if (voting.Limit == Voting.LimitType.Number)
+            {
+                <span title="這個投票有限制投票人數上限">限量上限： @voting.NumberLimit</span>
+                <span>現量： @voting.TotalNumber</span>
+            }
+            else if (voting.Limit == Voting.LimitType.Value)
+            {
+                <span title="這個投票有限制總Coins上限">限值上限： @voting.CoinLimit</span>
+                <span>現值： @voting.TotalCoins</span>
+            }
+            <p></p>
+            <div>
+                <div style="float: left">
+                    <span>投票標題： @voting.Title</span>
+                </div>
+                <div style="text-align: right">
+                    @if (voting.Policy == Voting.PolicyType.Equality)
+                    {
+                        <span title="這個投票的每張票價值有限">平等</span>
+                    }
+                    else if (voting.Policy == Voting.PolicyType.Liberty)
+                    {
+                        <span title="這個投票的每張票價值無限">自由</span>
+                    }
+                </div>
+            </div>
+        </div>
+        foreach (NormalOption option in voting.NormalOptions)
+        {
+            if (option.OwnerID == null)
+            {
+                continue;
+            }
+            //{
+            //    Voted = option.Votes.Any(v => v.OwnerID == Model.UserID);
+            //}
+            if (voting.Policy == Voting.PolicyType.Liberty)
+            {
+                <div>
+                    <div class="side">
+                        <a asp-page="../Votings/Details"
+                           asp-route-id="@voting.VotingID"
+                           title="@option.Content">
+                            @if (option.Content.Length < 3)
+                            {
+                                @option.Content
+                            }
+                            else
+                            {
+                                @(option.Content.Substring(0, 3)+"...")
+                            }
+                        </a>
+                        @*<text title="@option.Content">
+                                @if (option.Content.Length < 5)
+                                {
+                                    @option.Content
+                                }
+                                else
+                                {
+                                    @(option.Content.Substring(0, 5)+"...")
+                                }
+                            </text>*@
+                    </div>
+                    <div class="middle">
+                        <div class="bar-container">
+                            @if (Voted || voting.End)
+                            {
+                                <div style="width: @GetValuePercent(voting, option.TotalCoins); height: 18px; background-color: #e66532;"></div>
+                            }
+                            else
+                            {
+                                <div style="width: 0; height: 18px; background-color: #e66532;"></div>
+                            }
+                        </div>
+                    </div>
+                    <div class="side right">
+                        <div>@option.TotalCoins In幣</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <div class="side">
+                        <a asp-page="../Votings/Details"
+                           asp-route-id="@voting.VotingID"
+                           title="@option.Content">
+                            @if (option.Content.Length < 3)
+                            {
+                                @option.Content
+                            }
+                            else
+                            {
+                                @(option.Content.Substring(0, 3)+"...")
+                            }
+                        </a>
+                        @*<a asp-page="../NormalOptions/Details"
+                               asp-route-id="@option.NormalOptionID"
+                               title="@option.Content">
+                                @if (option.Content.Length < 5)
+                                {
+                                    @option.Content
+                                }
+                                else
+                                {
+                                    @(option.Content.Substring(0, 5)+"...")
+                                }
+                            </a>*@
+                    </div>
+                    <div class="middle">
+                        <div class="bar-container">
+                            @if (Voted || voting.End)
+                            {
+                                <div style="width: @GetNumberPercent(voting, option.Votes.Count()); height: 18px; background-color: #e66532;"></div>
+                            }
+                            else
+                            {
+                                <div style="width: 0; height: 18px; background-color: #e66532;"></div>
+                            }
+
+                        </div>
+                    </div>
+                    <div class="side right">
+                        @if (Voted || voting.End)
+                        {
+                            <div>@option.Votes.Count() 票</div>
+                        }
+                        else
+                        {
+                            <div>? 票</div>
+                        }
+                    </div>
+                </div>
+            }
+        }
+        <div style="text-align: right">
+            @if (!voting.End)
+            {
+                <a asp-page="../Votings/Details"
+                   asp-route-id="@voting.VotingID"
+                   class="btn btn-xs btn-outline-primary"><i class="fas fa-vote-yea"></i>投票</a>
+            }
+            else
+            {
+                <a class="btn btn-xs btn-outline-primary disabled"><i class="fas fa-vote-yea"></i>投票結束</a>
+            }
+        </div>
+        <hr />
+    }
+</div>
+<p></p>
+<div>
+    <partial name="Comments/PartialComments" for="@Model.Comments" />
+</div>
+
+@section Styles{
+    <style>
+        /* Three column layout */
+        .side {
+            float: left;
+            width: 20%;
+            margin-top: 10px;
+        }
+
+        .middle {
+            margin-top: 10px;
+            float: left;
+            width: 60%;
+        }
+
+        /* Place text to the right */
+        .right {
+            text-align: right;
+        }
+
+        /* The bar container */
+        .bar-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            text-align: center;
+            color: white;
+        }
+        /* Share function's CSS */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            opacity: 1;
+        }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 140px;
+                background-color: #555;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px;
+                position: absolute;
+                z-index: 1;
+                bottom: 150%;
+                left: 50%;
+                margin-left: -75px;
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+                .tooltip .tooltiptext::after {
+                    content: "";
+                    position: absolute;
+                    top: 100%;
+                    left: 50%;
+                    margin-left: -5px;
+                    border-width: 5px;
+                    border-style: solid;
+                    border-color: #555 transparent transparent transparent;
+                }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
+    </style>
+}
+
+@section Scripts{
+    <script>
+        //Share function's JS
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function myFunction() {
+            var copyText = document.getElementById("myInput");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+
+            var tooltip = document.getElementById("myTooltip");
+            tooltip.innerHTML = "複製成功";
+        }
+
+        function outFunc() {
+            var tooltip = document.getElementById("myTooltip");
+            tooltip.innerHTML = "複製";
+        }
+
+        //Timer function's JS
+        var countDownArray = JSON.parse('@Html.Raw(Model.CountDownArrayJSON)');
+        countDownArray.forEach(function (item) {
+            var countDownTime = item.countDownTime;
+            var id = item.id;
+            countDown(countDownTime, id);
+        });
+        function countDown(countDownTime, id)
+        {
+            // Set the date we're counting down to
+            var countDownDate = new Date(countDownTime).getTime();
+
+            // Update the count down every 1 second
+            var x = setInterval(function () {
+
+                // Get today's date and time
+                var now = new Date().getTime();
+
+                // Find the distance between now and the count down date
+                var distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                // Output the result in an element with id="demo"
+                document.getElementById(id).innerHTML = days + "天 " + hours + "時 "
+                    + minutes + "分 " + seconds + "秒 ";
+
+                // If the count down is over, write some text
+                if (distance < 0) {
+                    clearInterval(x);
+                    document.getElementById(id).innerHTML = "投票截止";
+                }
+            }, 1000);
+        }
+    </script>
+}

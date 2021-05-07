@@ -1,0 +1,76 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.FollowCreatorsModel
+@{
+    ViewData["Title"] = "追蹤";
+    ViewData["ActivePage"] = ManageNavPages.Follow;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Follow"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">創作</a>
+        &nbsp&nbsp
+        <a asp-page="./FollowArticles"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">討論</a>
+        &nbsp&nbsp
+        <a asp-page="./FollowCreators"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">創作者</a>
+        &nbsp&nbsp
+        <a asp-page="./Followers"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">追蹤者</a>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Follows != null)
+        {
+            @foreach (Follow follow in Model.Follows)
+            {
+                @if (follow.Profile == null)
+                {
+                    continue;
+                }
+                <div class="row">
+                    <div class="col-md-5">
+                        <a asp-page="./Index"
+                           asp-route-id="@follow.ProfileID">
+                            @if (follow.Profile.Image != null)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(follow.Profile.Image)"
+                                     asp-append-version="true"
+                                     alt="讀取失敗"
+                                     title="@follow.Profile.UserName"
+                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
+                            }
+                            @Html.DisplayFor(modelItem => follow.Profile.UserName)
+                        </a>
+                        @if (follow.ProfileMonthlyInvolver)
+                        {
+                            <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        @Html.DisplayFor(modelItem => follow.Profile.Introduction)
+                    </div>
+                    <div class="col-md-3">
+                        @Html.DisplayFor(modelItem => follow.UpdateTime)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>

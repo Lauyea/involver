@@ -1,0 +1,109 @@
+﻿@page
+@model Involver.Pages.Involvings.ArticleInvolversModel
+@{
+    ViewData["Title"] = "Involvers";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+
+    string TitleSub = "";
+    string RecentBtnStyle;
+    string MonthlyBtnStyle;
+    string TotalTimeBtnStyle;
+    RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
+    if (Model.TimeSpan == "TotalTime")
+    {
+        TitleSub = "總共（按程度排序）";
+        TotalTimeBtnStyle = "btn-info disabled";
+    }
+    else if (Model.TimeSpan == "Monthly")
+    {
+        TitleSub = "每月（按程度排序）";
+        MonthlyBtnStyle = "btn-info disabled";
+    }
+    else
+    {
+        TitleSub = "最近（按時間排序）";
+        RecentBtnStyle = "btn-info disabled";
+    }
+}
+
+<h4>@ViewData["Title"] - @TitleSub</h4>
+<hr />
+
+<div>
+    <div class="row">
+        <div class="dropdown col-md-2">
+            <a asp-page="../Articles/Details" asp-route-id="@Model.ArticleID"
+               class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到文章</a>
+        </div>
+        <div class="dropdown col-md-3">
+            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
+                Involvers <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-menu">
+                <a class="btn btn-xs @RecentBtnStyle"
+                   asp-page="./ArticleInvolvers"
+                   asp-route-id="@Model.ArticleID"
+                   title="Recent">最近</a>
+                <a class="btn btn-xs @MonthlyBtnStyle"
+                   asp-page="./ArticleInvolvers"
+                   asp-route-id="@Model.ArticleID"
+                   asp-route-TimeSpan="Monthly"
+                   title="Monthly">每月</a>
+                <a class="btn btn-xs @TotalTimeBtnStyle"
+                   asp-page="./ArticleInvolvers"
+                   asp-route-id="@Model.ArticleID"
+                   asp-route-TimeSpan="TotalTime"
+                   title="TotalTime">總共</a>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Involvings != null)
+        {
+            @foreach (Involving involving in Model.Involvings)
+            {
+                <div class="row">
+                    @if (involving.InvolverID != null)
+                    {
+                        <div class="col-md-5">
+                            <a asp-area="Indentify"
+                               asp-page="/Profile/Index"
+                               asp-route-id="@involving.InvolverID">
+                                @if (involving.Involver.Image != null)
+                                {
+                                    <img src="data:image/png;base64,@Convert.ToBase64String(involving.Involver.Image)"
+                                         asp-append-version="true"
+                                         alt="讀取失敗"
+                                         title="@involving.Involver.UserName"
+                                         style="width: 25%; height: auto; display:inline; border-radius:10%">
+                                }
+                                @Html.DisplayFor(modelItem => involving.Involver.UserName)
+                            </a>
+                        </div>
+                    }
+                    <div class="col-md-3">
+                        @if (Model.TimeSpan == "TotalTime")
+                        {
+                            @involving.TotalValue
+                        }
+                        else if (Model.TimeSpan == "Monthly")
+                        {
+                            @involving.MonthlyValue
+                        }
+                        else
+                        {
+                            @involving.Value
+                        }
+                        In幣
+                    </div>
+                    <div class="col-md-4">
+                        @involving.LastTime
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>

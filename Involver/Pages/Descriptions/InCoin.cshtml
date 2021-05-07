@@ -1,0 +1,96 @@
+﻿@page
+@model Involver.Pages.Descriptions.InCoinModel
+@{
+    ViewData["Title"] = "In幣相關說明";
+}
+<h1>@ViewData["Title"]</h1>
+<hr />
+<div>
+    <a asp-page="/Descriptions/Explanation"
+       class="btn btn-xs btn-outline-info">說明目錄</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/InCoin"
+       class="btn btn-xs btn-info disabled">In幣相關說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/Voting"
+       class="btn btn-xs btn-outline-info">投票說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/UsefulHTML"
+       class="btn btn-xs btn-outline-info">常用HTML範例</a>
+</div>
+<hr />
+<h2 style="color:red">目前實體 In幣還未實裝</h2>
+<h3>獲得來源</h3>
+<p>每日登入，每週任務，付費會員每月提供，回報有價值的意見或是Bug。</p>
+<table class="text-center" style="width: 50%;" border="1" cellpadding="5">
+    <tbody>
+        <tr>
+            <td>每日登入</td>
+            <td>虛擬In幣5枚</td>
+        </tr>
+        <tr>
+            <td>每週任務</td>
+            <td>每項任務虛擬In幣5枚</td>
+        </tr>
+        <tr>
+            <td>付費會員</td>
+            <td>每月實體與虛擬In幣各150枚</td>
+        </tr>
+        <tr>
+            <td>回報錯誤</td>
+            <td>虛擬In幣50枚</td>
+        </tr>
+        <tr>
+            <td>採納意見</td>
+            <td>虛擬In幣50枚</td>
+        </tr>
+    </tbody>
+</table>
+<h3>實體與虛擬</h3>
+<p>儲值與每月付費可以獲得實體In幣，其餘獲得來源的都是虛擬In幣。</p>
+<p>兩種In幣都同樣會影響作品的曝光程度。</p>
+<h3>創作分潤</h3>
+<table class="text-center" style="width: 50%;" border="1" cellpadding="5">
+    <tbody>
+        <tr>
+            <td>文章直接贊助</td>
+            <td>作者50%分潤</td>
+        </tr>
+        <tr>
+            <td>作者直接贊助</td>
+            <td>作者50%分潤</td>
+        </tr>
+        <tr>
+            <td>作者每月贊助</td>
+            <td>作者60%分潤</td>
+        </tr>
+        <tr>
+            <td>創作直接贊助</td>
+            <td>作者50%分潤</td>
+        </tr>
+        <tr>
+            <td>創作每月贊助</td>
+            <td>作者60%分潤</td>
+        </tr>
+        <tr>
+            <td>自由模式投票</td>
+            <td>作者60%分潤</td>
+        </tr>
+        <tr>
+            <td>平等模式投票</td>
+            <td>作者70%分潤</td>
+        </tr>
+    </tbody>
+</table>
+<!-- DivTable.com -->
+
+<h3 id="professional">特約作者說明</h3>
+<p>每個月以月計的數值，例如作者的、作品的、文章的月收入都會歸零。</p>
+<p>特約作者可以獲得月收入的分潤。</p>
+<p>每月 Involve 人數達到100人，以及月收入達1000 In幣，可以申請成為特約作者。</p>
+
+<h3 id="prime">付費會員說明</h3>
+<p>定期每月扣款實體150 In幣，帳號增加虛擬150 In幣。</p>
+
+<h3>關於二次創作</h3>
+<p>二次創作不能營利，如果有侵權行為，本平台概不負責，一切責任由發布者承擔。</p>

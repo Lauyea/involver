@@ -1,0 +1,19 @@
+﻿@using Involver.Data;
+    <ul class="nav nav-pills flex-column">
+        <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" 
+                                asp-page="./Index" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">基本資料</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.CreationsNavClass(ViewContext)" id="Creations" 
+                                asp-page="./Creations" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">創作</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.ArticlesNavClass(ViewContext)" id="Articles" 
+                                asp-page="./Articles" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">文章</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.FollowNavClass(ViewContext)" id="Follow" 
+                                asp-page="./Follow" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">追蹤</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.InteractionNavClass(ViewContext)" id="Interaction" 
+                                asp-page="./Interaction" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">互動紀錄</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.InvolvingNavClass(ViewContext)" id="Involving" 
+                                asp-page="./Involving" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">Involving</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.MissionsNavClass(ViewContext)" id="Missions" 
+                                asp-page="./Missions" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">每週任務</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.AchievementsNavClass(ViewContext)" id="Achievements" 
+                                asp-page="./Achievements" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">成就</a></li>
+    </ul>

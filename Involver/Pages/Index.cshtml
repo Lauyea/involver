@@ -1,0 +1,119 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "屬於每個人的創作";
+}
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+@if (Model.UserProfile != null)
+{
+    <div class="row">
+        <div class="col-4">
+            <h4>追蹤</h4>
+            <hr />
+            <a asp-page="/Index"
+               class="btn btn-xs btn-info disabled">創作</a>
+            &nbsp&nbsp
+            <a asp-page="/Feed/FollowArticles"
+               asp-route-id="@Model.UserProfile.ProfileID"
+               class="btn btn-xs btn-outline-info">討論</a>
+            <hr />
+        </div>
+        <div class="col-4">
+            <h4>熱門</h4>
+            <hr />
+            <a asp-page="/Feed/TrendingCreations"
+               asp-route-id="@Model.UserProfile.ProfileID"
+               class="btn btn-xs btn-outline-danger">創作</a>
+            <hr />
+        </div>
+        <div class="col-4">
+            <h4>推薦</h4>
+            <hr />
+            <a asp-page="/Feed/RecommendCreations"
+               asp-route-id="@Model.UserProfile.ProfileID"
+               class="btn btn-xs btn-secondary disabled">創作</a>
+            <hr />
+        </div>
+    </div>
+    <p></p>
+    <div>
+        @if (Model.Follows != null)
+        {
+            @foreach (Follow follow in Model.Follows)
+            {
+                @if (follow.Novel == null)
+                {
+                    continue;
+                }
+                if(follow.Novel.Episodes.Count() == 0)
+                {
+                    continue;
+                }
+                <div class="row">
+                    <div class="col-md-5">
+                        <a asp-page="/Episodes/Details"
+                           asp-route-id="@follow.Novel.Episodes.LastOrDefault().EpisodeID">
+                            @Html.DisplayFor(modelItem => follow.Novel.Episodes.LastOrDefault().Title)
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@Html.DisplayFor(modelItem => follow.Novel.Title)</a>
+                        @if (follow.NovelMonthlyInvolver)
+                        {
+                            <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        <p>
+                            <a asp-area="Identity"
+                               asp-page="/Profile/Index"
+                               asp-route-id="@follow.Novel.Profile.ProfileID">
+                                <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small>
+                            </a>
+                        </p>
+                        <small>@Html.DisplayFor(modelItem => follow.Novel.UpdateTime)</small>
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Welcome to Involver!</h1>
+        <a asp-page="/Novels/Index">在這裡找到喜歡的作品，並參與創作吧！</a>
+        <p></p>
+        <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="img-fluid" /></a>
+    </div>
+}
+
+<p></p>
+<!-- Your share button code -->
+<div class="fb-share-button"
+     data-href="https://involver.tw"
+     data-layout="button_count">
+</div>
+<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
+<p></p>
+@section Scripts{
+    <script>
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
+}
+@*TODO Temp use*@
+@*<div>
+        <video autoplay="" data-object-fit="cover" loop="" muted="" playsinline="" style="width: 100%; height: auto">
+            <source src="https://d33yashko74f1s.cloudfront.net/assets/blissart-bgvideo-24297558c832968878cd596f824105f0f09e8a936e4b00ab142db122dab9fb03.mp4" type="video/mp4">
+            <source src="https://d33yashko74f1s.cloudfront.net/assets/blissart-bgvideo-4b920dec1c8eb1688210824fb99465bbfbe59dfbc04cdd29d4f8261e6c062caa.flv" type="video/flv">
+        </video>
+    </div>*@

@@ -1,0 +1,60 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.FollowArticlesModel
+@{
+    ViewData["Title"] = "追蹤";
+    ViewData["ActivePage"] = ManageNavPages.Follow;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Follow"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">創作</a>
+        &nbsp&nbsp
+        <a asp-page="./FollowArticles"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">討論</a>
+        &nbsp&nbsp
+        <a asp-page="./FollowCreators"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">創作者</a>
+        &nbsp&nbsp
+        <a asp-page="./Followers"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">追蹤者</a>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Articles != null)
+        {
+            @foreach (Article article in Model.Articles)
+            {
+                <div class="row">
+                    <div class="col-md-5">
+                        <a asp-page="/Articles/Details"
+                           asp-route-id="@article.ArticleID">
+                            @Html.DisplayFor(modelItem => article.Title)
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        @Html.DisplayFor(modelItem => article.Profile.UserName)
+                    </div>
+                    <div class="col-md-3">
+                        @Html.DisplayFor(modelItem => article.UpdateTime)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>

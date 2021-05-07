@@ -1,0 +1,94 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.InteractionModel
+@{
+    ViewData["Title"] = "互動紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Interaction;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+    //DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Interaction"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">評論</a>
+        &nbsp&nbsp
+        <a asp-page="./Messages"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">留言</a>
+        &nbsp&nbsp
+        <a asp-page="./Agrees"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">贊同</a>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Comments != null)
+        {
+            @foreach (Comment comment in Model.Comments)
+            {
+                //if(comment.UpdateTime.CompareTo(Date2020) == -1)
+                //{
+                //    continue;
+                //}
+                <div class="row">
+                    <div class="col-md-5">
+                        @if (comment.Content.Length < 200)
+                        {
+                            @comment.Content;
+                        }
+                        else
+                        {
+                            @(comment.Content.Substring(0, 200)+"...");
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        @if (comment.NovelID != null)
+                        {
+                            <a asp-page="/Novels/Details"
+                               asp-route-id="@comment.NovelID"
+                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Novel.Title)</a>
+                        }
+                        else if (comment.EpisodeID != null)
+                        {
+                            <a asp-page="/Episodes/Details"
+                               asp-route-id="@comment.EpisodeID"
+                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Episode.Title)</a>
+                        }
+                        else if (comment.AnnouncementID != null)
+                        {
+                            <a asp-page="/Announcements/Details"
+                               asp-route-id="@comment.AnnouncementID"
+                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Announcement.Title)</a>
+                        }
+                        else if (comment.FeedbackID != null)
+                        {
+                            <a asp-page="/Feedbacks/Details"
+                               asp-route-id="@comment.FeedbackID"
+                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Feedback.Title)</a>
+                        }
+                        else if (comment.ArticleID != null)
+                        {
+                            <a asp-page="/Articles/Details"
+                               asp-route-id="@comment.ArticleID"
+                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Article.Title)</a>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        @Html.DisplayFor(modelItem => comment.UpdateTime)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>

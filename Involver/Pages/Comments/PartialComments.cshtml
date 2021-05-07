@@ -1,0 +1,509 @@
+﻿@using Involver.Models;
+@model PaginatedList<Comment>
+
+@{
+    //註明Comment從哪來，與它的ID
+    string from = "";
+    int? fromID = 0;
+    if (Model[0].Feedback != null)
+    {
+        from = "Feedbacks";
+        fromID = Model[0].FeedbackID;
+    }
+    else if (Model[0].Announcement != null)
+    {
+        from = "Announcements";
+        fromID = Model[0].AnnouncementID;
+    }
+    else if (Model[0].Article != null)
+    {
+        from = "Articles";
+        fromID = Model[0].ArticleID;
+    }
+    else if (Model[0].Novel != null)
+    {
+        from = "Novels";
+        fromID = Model[0].NovelID;
+    }
+    else if (Model[0].Episode != null)
+    {
+        from = "Episodes";
+        fromID = Model[0].EpisodeID;
+    }
+    DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
+
+    string[] AgreeCommentArray = new string[Model.Count()];
+    string[] AgreeCountArray = new string[Model.Count()];
+    int AgreeCommentIndex = 0;
+
+    int GetCommentID(string AgreeComment)
+    {
+        string a = AgreeComment;
+        string b = string.Empty;
+        int val = 0;
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            if (Char.IsDigit(a[i]))
+                b += a[i];
+        }
+
+        if (b.Length > 0)
+            val = int.Parse(b);
+
+        return val;
+    }
+}
+
+
+<p id="CommentHead">
+    <a href="#TopHead" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-up"></i>回到最上面</a>&nbsp&nbsp
+    <a asp-page="../Comments/Create"
+       asp-route-from="@from"
+       asp-route-fromID="@fromID"
+       class="btn btn-xs btn-outline-primary">新評論</a>
+</p>
+
+<p></p>
+
+@if (Model.Count != 0)
+{
+    @foreach (var item in Model)
+    {
+        if (!item.Block && item.Profile != null)
+        {
+            <div class="row" id="@item.CommentID" style="margin-left:auto">
+                <div class="col-md-8 row">
+                    <div class="col-md-4">
+                        <p>
+                            <a asp-area="Identity"
+                               asp-page="/Profile/Index"
+                               asp-route-id="@item.ProfileID">
+                                @if (item.Profile.Image != null)
+                                {
+                                    <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
+                                         asp-append-version="true"
+                                         alt="讀取失敗"
+                                         title="@item.Profile.UserName"
+                                         style="width: 25%; height: auto; display:inline; border-radius:50%">
+                                }
+                                <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
+                            </a>
+                        </p>
+                        <a asp-page="./Details"
+                           asp-route-id="@fromID"
+                           asp-route-pageIndex="@Model.PageIndex"
+                           asp-fragment="@item.CommentID"><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></a>
+                    </div>
+                    <div class="col-md-4">
+                        @if (item.EpisodeID != null)
+                        {
+                            var involverInfo = item.Episode.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
+                            if (involverInfo != null)
+                            {
+                                <p>
+                                    <small>月 Involve: @involverInfo.MonthlyValue In幣</small>
+                                </p>
+                                <p>
+                                    <small>總 Involve: @involverInfo.TotalValue In幣</small>
+                                </p>
+                            }
+                        }
+                        else if (item.NovelID != null)
+                        {
+                            var involverInfo = item.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
+                            if (involverInfo != null)
+                            {
+                                <p>
+                                    <small>月 Involve: @involverInfo.MonthlyValue In幣</small>
+                                </p>
+                                <p>
+                                    <small>總 Involve: @involverInfo.TotalValue In幣</small>
+                                </p>
+                            }
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-page="../Comments/Details"
+                           asp-route-id="@item.CommentID"
+                           asp-route-from="@from"
+                           asp-route-fromID="@fromID"
+                           asp-route-pageIndex="1"
+                           title="留言"
+                           target="_blank">
+                            <i class="far fa-comments"></i>
+                            @if (item.Messages != null)
+                            {
+                                @item.Messages.Count
+                            }
+                        </a>
+                        <form method="post" class="d-inline">
+                            @{
+                                string AgreeComment = "AgreeComment" + item.CommentID;
+                                AgreeCommentArray[AgreeCommentIndex] = AgreeComment;
+                                string AgreeCount = "AgreeCount" + item.CommentID;
+                                AgreeCountArray[AgreeCommentIndex] = AgreeCount;
+                                AgreeCommentIndex++;
+                            }
+                            <button type="button" id="@AgreeComment"
+                                    class="btn">
+                                <i class="far fa-thumbs-up"></i>
+                                <span id="@AgreeCount">
+                                    @if (item.Agrees != null)
+                                    {
+                                        @item.Agrees.Count
+                                    }
+                                </span>
+                            </button>
+                        </form>
+                    </div>
+                    <div>
+                        <p>
+                            @*@if (item.Dices.FirstOrDefault() != null)
+                                {
+                                    int DiceTotal = 0;
+                                    foreach (Involver.Models.NovelModel.Dice dice in item.Dices)
+                                    {
+                                        DiceTotal += dice.Value;
+                                    }
+                                    int NumberOfDices = item.Dices.Count();
+                                    int Sides = item.Dices.FirstOrDefault().Sides;
+                                    string DiceTotalString = NumberOfDices + "d" + Sides + ": " + DiceTotal;
+                                    @Html.Raw(item.Content.Replace("\r\n", "<br />").Replace("DiceTotal", DiceTotalString))
+                                }
+                                else
+                                {
+                                    @Html.Raw(item.Content.Replace("\r\n", "<br />"))
+                                }*@
+                            @Html.Raw(item.Content.Replace("\r\n", "<br />"))
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-3">
+                    <div>
+                        <p></p>
+                        @if (item.Dices != null)
+                        {
+                            foreach (var dice in item.Dices)
+                            {
+                                if (dice.Sides != 0 && dice.Value != 0)
+                                {
+                                    <p>
+                                        <i class="fas fa-dice-d20"></i>
+                                        @dice.Value / @dice.Sides
+                                    </p>
+                                }
+                            }
+                        }
+                    </div>
+                    <div>
+                        <div class="nav-item">
+                            <div class="dropdown">
+                                <button type="button" class="nav-link btn btn-link text-dark" data-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    @if ((await AuthorizationService.AuthorizeAsync(
+User, item,
+CommentOperations.Update)).Succeeded && item.Dices.Count() == 0)
+                                    {
+                                        <a asp-page="../Comments/Edit"
+                                           asp-route-id="@item.CommentID"
+                                           asp-route-from="@from"
+                                           asp-route-fromID="@fromID"
+                                           title="編輯"><i class="far fa-edit"></i></a>
+                                    }
+                                    @if ((await AuthorizationService.AuthorizeAsync(
+User, item,
+CommentOperations.Delete)).Succeeded)
+                                    {
+                                        <a asp-page="../Comments/Delete"
+                                           asp-route-id="@item.CommentID"
+                                           asp-route-from="@from"
+                                           asp-route-fromID="@fromID"
+                                           title="刪除"><i class="far fa-trash-alt"></i></a>
+                                    }
+                                    @if (item.Episode != null)
+                                    {
+                                        if ((await AuthorizationService.AuthorizeAsync(
+                                       User, item.Episode.Novel,
+                                       NovelOperations.Delete)).Succeeded)
+                                        {
+                                            <form method="post">
+                                                <button type="submit" asp-page-handler="block"
+                                                        asp-route-id="@item.CommentID"
+                                                        asp-route-fromID="@fromID"
+                                                        asp-route-pageIndex="@Model.PageIndex"
+                                                        class="btn" title="封鎖">
+                                                    <i class="fas fa-lock"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        @if (item.Messages.Count != 0)
+                        {
+                            foreach (var message in item.Messages.TakeLast(5))
+                            {
+                                @if (message.Content.Length < 20)
+                                {
+                                    @message.Content
+                                }
+                                else
+                                {
+                                    @(message.Content.Substring(0, 20)+"...")
+                                }
+                                <hr />
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <hr />
+        }
+        else if (item.Block == true && item.UpdateTime.CompareTo(Date2020) == 1)
+        {
+            <div class="row">
+                <div class="col-md-8">
+                    <a asp-page="../Comments/Details"
+                       asp-route-id="@item.CommentID"
+                       asp-route-from="@from"
+                       asp-route-fromID="@fromID"
+                       asp-route-pageIndex="1"
+                       target="_self">
+                        本評論已被封鎖，點擊以詳閱內容
+                    </a>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-3">
+                    <div>
+                        <p>
+                            <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
+                        </p>
+                        <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                    </div>
+                    <div>
+                        @if (item.Episode != null)
+                        {
+                            if ((await AuthorizationService.AuthorizeAsync(
+                           User, item.Episode.Novel,
+                           NovelOperations.Delete)).Succeeded)
+                            {
+                                <form method="post">
+                                    <button type="submit" asp-page-handler="block"
+                                            asp-route-id="@item.CommentID"
+                                            asp-route-fromID="@fromID"
+                                            asp-route-pageIndex="@Model.PageIndex"
+                                            class="btn" title="解除封鎖">
+                                        <i class="fas fa-unlock"></i>
+                                    </button>
+                                </form>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+            <hr />
+        }
+    }
+}
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+
+    //string NowPageDiabled(int i)
+    //{
+    //    string Disabled = "";
+    //    if (i == Model.PageIndex)
+    //    {
+    //        Disabled = "disabled";
+    //    }
+    //    return Disabled;
+    //}
+
+    string IsActive(int i)
+    {
+        string Active = "";
+        if (i == Model.PageIndex)
+        {
+            Active = "active";
+        }
+        return Active;
+    }
+
+    int TotalPages = Model.TotalPages + 1;
+    int StartPage = 1;
+    int EndPage = 1;
+    if (TotalPages < 5)
+    {
+        EndPage = TotalPages;
+    }
+    else
+    {
+        EndPage = 6;
+    }
+    if (Model.PageIndex - 3 > 0)
+    {
+        StartPage = Model.PageIndex - 2;
+        EndPage = StartPage + 5;
+        if (EndPage > TotalPages)
+        {
+            EndPage = TotalPages;
+            StartPage = EndPage - 5;
+        }
+    }
+}
+
+@*<a asp-page="./Details"
+       asp-route-id="@fromID"
+       asp-route-pageIndex="1"
+       asp-fragment="CommentHead"
+       class="btn btn-primary @prevDisabled">
+        第一頁
+    </a>*@
+
+@*<a asp-page="./Details"
+       asp-route-id="@fromID"
+       asp-route-pageIndex="@(Model.PageIndex - 1)"
+       asp-fragment="CommentHead"
+       class="btn btn-primary @prevDisabled">
+        上一頁
+    </a>*@
+
+@*@for (int i = StartPage; i < EndPage; i++)
+    {
+        <a asp-page="./Details"
+           asp-route-id="@fromID"
+           asp-route-pageIndex="@i"
+           asp-fragment="CommentHead"
+           class="btn btn-primary @NowPageDiabled(i)">
+            @i
+        </a>
+    }*@
+
+@*<a asp-page="./Details"
+       asp-route-id="@fromID"
+       asp-route-pageIndex="@(Model.PageIndex + 1)"
+       asp-fragment="CommentHead"
+       class="btn btn-primary @nextDisabled">
+        下一頁
+    </a>*@
+
+@*<a asp-page="./Details"
+       asp-route-id="@fromID"
+       asp-route-pageIndex="@(Model.TotalPages)"
+       asp-fragment="CommentHead"
+       class="btn btn-primary @nextDisabled">
+        最後一頁
+    </a>*@
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item @prevDisabled">
+            <a asp-page="./Details"
+               asp-route-id="@fromID"
+               asp-route-pageIndex="1"
+               asp-fragment="CommentHead"
+               class="page-link">
+                第一頁
+            </a>
+        </li>
+        @for (int i = StartPage; i < EndPage; i++)
+        {
+            <li class="page-item @IsActive(i)">
+                <a asp-page="./Details"
+                   asp-route-id="@fromID"
+                   asp-route-pageIndex="@i"
+                   asp-fragment="CommentHead"
+                   class="page-link">
+                    @i
+                    @if (i == Model.PageIndex)
+                    {
+                        <span class="sr-only">(current)</span>
+                    }
+                </a>
+            </li>
+
+        }
+        <li class="page-item @nextDisabled">
+            <a asp-page="./Details"
+               asp-route-id="@fromID"
+               asp-route-pageIndex="@(Model.TotalPages)"
+               asp-fragment="CommentHead"
+               class="page-link">
+                最後一頁
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<p></p>
+<form class="form-inline"
+      asp-page="./Details"
+      asp-fragment="CommentHead"
+      method="get">
+    <div class="form-group">
+        <input type="number" name="id"
+               value="@fromID"
+               class="form-control"
+               style="width:0px;display:none" />
+    </div>
+    第&nbsp
+    <div class="form-group">
+        <input type="number" name="pageIndex"
+               value="@Model.PageIndex"
+               class="form-control"
+               style="width:100px;display:inline" />
+    </div>
+    &nbsp頁&nbsp
+    <div class="form-group">
+        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+    </div>
+</form>
+
+@using (Html.BeginScripts())
+{
+<script>
+    @{
+        AgreeCommentIndex = 0;
+    }
+        @foreach(string AgreeComment in AgreeCommentArray)
+        {
+            if (AgreeComment == null)
+            {
+                break;
+            }
+            <text>
+            $("#@AgreeComment").click(function () {
+                $.ajax({
+                    method: "post",
+                    url: "Details?handler=AgreeComment&id=@GetCommentID(AgreeComment)",
+                    //加上X-CSRF-TOKEN header
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRF-TOKEN",
+                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                    },
+                    error: function (xhr, status, err) {
+                        if (xhr.status === 401 || xhr.status === 403) {
+                            alert("請先登入");
+                        }
+                        else {
+                            alert("系統錯誤：未搜索到指定評論");
+                        }
+                    }
+                }).done(function (res) {
+                    $("#@AgreeCountArray[AgreeCommentIndex]").text(res);
+                });
+            });
+            </text>
+            AgreeCommentIndex++;
+        }
+
+</script>
+}

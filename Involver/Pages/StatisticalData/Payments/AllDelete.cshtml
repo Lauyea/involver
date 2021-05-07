@@ -1,0 +1,18 @@
+﻿@page
+@model Involver.Pages.StatisticalData.Payments.AllDeleteModel
+@{
+    ViewData["Title"] = "全部刪除";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+<h1>全部刪除</h1>
+
+<h3>你確定要全部刪除嗎？</h3>
+
+<div>
+    <h4>訂單</h4>
+    <form method="post">
+        <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i>回到清單</a>&nbsp&nbsp
+        <input type="submit" value="全部刪除" class="btn btn-danger" />
+    </form>
+    <hr />
+</div>

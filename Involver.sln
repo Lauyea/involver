@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Involver", "Involver\Involver.csproj", "{2786E9AF-9487-4B13-9D1C-56A707DB5694}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvolverRoutineWork", "InvolverRoutineWork\InvolverRoutineWork.csproj", "{AE6938E9-30BE-4F98-875E-1EA09FC95393}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2786E9AF-9487-4B13-9D1C-56A707DB5694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2786E9AF-9487-4B13-9D1C-56A707DB5694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2786E9AF-9487-4B13-9D1C-56A707DB5694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2786E9AF-9487-4B13-9D1C-56A707DB5694}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE6938E9-30BE-4F98-875E-1EA09FC95393}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE6938E9-30BE-4F98-875E-1EA09FC95393}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE6938E9-30BE-4F98-875E-1EA09FC95393}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE6938E9-30BE-4F98-875E-1EA09FC95393}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1166A643-0C21-4A77-A542-A2EA65F0056C}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,51 @@
+﻿@page
+@model Involver.Pages.Articles.CreateModel
+
+@{
+    ViewData["Title"] = "新增";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string UserID = userManager.GetUserId(User);
+}
+
+<h1>新增</h1>
+
+<h4>討論</h4>
+<hr />
+
+<div>
+    <a asp-page="Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Article.Title" class="control-label"></label>
+                <input asp-for="Article.Title" class="form-control" />
+                <span asp-validation-for="Article.Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Article.Content" class="control-label"></label>
+                <a asp-page="/Descriptions/UsefulHTML" target="_blank">常用HTML範例</a>
+                <textarea asp-for="Article.Content" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                <span asp-validation-for="Article.Content" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    <input class="form-check-input"
+                           style="display:none"
+                           value="@UserID"
+                           asp-for="Article.ProfileID" />
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="建立" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,48 @@
+﻿@page
+@model Involver.Pages.Feedbacks.DeleteModel
+
+@{
+    ViewData["Title"] = "刪除";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>刪除</h1>
+
+<h3>你確定要刪除嗎？</h3>
+<div>
+    <h4>回報與意見</h4>
+    <form method="post">
+        <a asp-page="./Details" asp-route-id="@Model.Feedback.FeedbackID"
+           class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-up"></i> 回到文章</a>&nbsp&nbsp
+        <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>&nbsp&nbsp
+        <input type="hidden" asp-for="Feedback.FeedbackID" />
+        <input type="submit" value="刪除" class="btn btn-danger" />
+    </form>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Feedback.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Feedback.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Feedback.OwnerName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Feedback.OwnerName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Feedback.UpdateTime)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Feedback.UpdateTime)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Feedback.Content)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.Raw(Model.Feedback.Content.Replace("\r\n", "<br />"))
+        </dd>
+    </dl>
+</div>

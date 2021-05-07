@@ -1,0 +1,299 @@
+﻿@page
+@model Involver.Pages.Novels.IndexModel
+
+@{
+    ViewData["Title"] = "創作";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    NovelTypeDetermination novelTypeDetermination = new NovelTypeDetermination();
+}
+
+<h1>創作</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-xs btn-outline-primary">新創作</a>
+</p>
+
+@{
+    string currentTypeName;
+    if (@Model.CurrentType == "Fantasy") { currentTypeName = "奇幻"; }
+    else if (@Model.CurrentType == "History") { currentTypeName = "歷史"; }
+    else if (@Model.CurrentType == "Love") { currentTypeName = "愛情"; }
+    else if (@Model.CurrentType == "Real") { currentTypeName = "真實"; }
+    else if (@Model.CurrentType == "Modern") { currentTypeName = "現代"; }
+    else if (@Model.CurrentType == "Science") { currentTypeName = "科幻"; }
+    else if (@Model.CurrentType == "Horror") { currentTypeName = "驚悚"; }
+    else if (@Model.CurrentType == "Detective") { currentTypeName = "推理"; }
+    else { currentTypeName = "類別選擇"; }
+}
+
+<form asp-page="./Index" method="get">
+    <div class="form-actions no-color row">
+        <div class="col-md-auto">
+            <select asp-for="SearchType" class="form-control" style="width:auto">
+                <option value="">@currentTypeName</option>
+                <option value="Fantasy">奇幻</option>
+                <option value="History">歷史</option>
+                <option value="Love">愛情</option>
+                <option value="Real">真實</option>
+                <option value="Modern">現代</option>
+                <option value="Science">科幻</option>
+                <option value="Horror">驚悚</option>
+                <option value="Detective">推理</option>
+            </select>
+        </div>
+        <div class="col-md-auto">
+            <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" style="width:auto" />
+        </div>
+        <div class="col-md-auto">
+            <input type="submit" value="搜尋" class="btn btn-primary" /> |
+            <a asp-page="./Index" class="btn btn-xs btn-outline-secondary">完整清單</a>
+        </div>
+    </div>
+</form>
+<p></p>
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width:15%">
+                @Html.DisplayNameFor(model => model.Novels[0].Type)
+            </th>
+            <th style="width:40%">
+                @Html.DisplayNameFor(model => model.Novels[0].Title)
+            </th>
+            <th style="width:25%">
+                <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort"
+                   asp-route-currentType="@Model.CurrentType"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    In幣
+                </a>
+            </th>
+            <th style="width:20%">
+                <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
+                   asp-route-currentType="@Model.CurrentType"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    @Html.DisplayNameFor(model => model.Novels[0].UpdateTime)
+                </a>
+                &
+                <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort"
+                   asp-route-currentType="@Model.CurrentType"
+                   asp-route-currentFilter="@Model.CurrentFilter">
+                    @Html.DisplayNameFor(model => model.Novels[0].Views)
+                </a>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Novels)
+        {
+            <tr>
+                <td>
+                    @novelTypeDetermination.GetTypeName(item.Type)
+                </td>
+                <td>
+                    <p>
+                        <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
+                        @if (item.Block == true)
+                        {
+                            <span class="text-danger">Block</span>
+                        }
+                    </p>
+                    @if (item.Image != null)
+                    {
+                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Image)"
+                             asp-append-version="true"
+                             alt="讀取失敗"
+                             title="@item.Title"
+                             style="max-width: 100%; max-height: 100px">
+
+                    }
+                    else
+                    {
+                        <img src="https://generative-placeholders.glitch.me/image?width=600&height=300&style=triangles&gap=100"
+                             alt="讀取失敗"
+                             title="主題圖片"
+                             style="max-width: 100%; max-height: 100px" />
+                    }
+                <p>
+                    <small>
+                        <a asp-area="Identity"
+                           asp-page="/Profile/Index"
+                           asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a>
+                    </small>
+                </p>
+                </td>
+                <td>
+                    <p>
+                        <small>總計 @Html.DisplayFor(modelItem => item.TotalCoins)</small>
+                    </p>
+                    <small>月計 @Html.DisplayFor(modelItem => item.MonthlyCoins)</small>
+                </td>
+                <td>
+                    <p>
+                        <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                    </p>
+                    <small>@Html.DisplayFor(modelItem => item.Views)</small>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.Novels.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Novels.HasNextPage ? "disabled" : "";
+
+    string IsActive(int i)
+    {
+        string Active = "";
+        if (i == Model.Novels.PageIndex)
+        {
+            Active = "active";
+        }
+        return Active;
+    }
+
+    int TotalPages = Model.Novels.TotalPages + 1;
+    int StartPage = 1;
+    int EndPage = 1;
+    if (TotalPages < 5)
+    {
+        EndPage = TotalPages;
+    }
+    else
+    {
+        EndPage = 6;
+    }
+    if (Model.Novels.PageIndex - 3 > 0)
+    {
+        StartPage = Model.Novels.PageIndex - 2;
+        EndPage = StartPage + 5;
+        if (EndPage > TotalPages)
+        {
+            EndPage = TotalPages;
+            StartPage = EndPage - 5;
+        }
+    }
+}
+
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item @prevDisabled">
+            <a asp-page="./Index"
+               asp-route-PageIndex="1"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-currentType="@Model.CurrentType"
+               asp-route-currentFilter="@Model.CurrentFilter"
+               class="page-link">
+                第一頁
+            </a>
+        </li>
+        @for (int i = StartPage; i < EndPage; i++)
+        {
+            <li class="page-item @IsActive(i)">
+                <a asp-page="./Index"
+                   asp-route-PageIndex="@i"
+                   asp-route-sortOrder="@Model.CurrentSort"
+                   asp-route-currentType="@Model.CurrentType"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="page-link">
+                    @i
+                    @if (i == Model.Novels.PageIndex)
+                    {
+                        <span class="sr-only">(current)</span>
+                    }
+                </a>
+            </li>
+
+        }
+        <li class="page-item @nextDisabled">
+            <a asp-page="./Index"
+               asp-route-PageIndex="@(Model.Novels.TotalPages)"
+               asp-route-sortOrder="@Model.CurrentSort"
+               asp-route-currentType="@Model.CurrentType"
+               asp-route-currentFilter="@Model.CurrentFilter"
+               class="page-link">
+                最後一頁
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<p></p>
+<form class="form-inline"
+      asp-page="./Index"
+      method="get">
+    <div class="form-group">
+        <input type="text" name="sortOrder"
+               value="@Model.CurrentSort"
+               class="form-control"
+               style="width:0px;display:none" />
+    </div>
+    <div class="form-group">
+        <input type="text" name="currentType"
+               value="@Model.CurrentType"
+               class="form-control"
+               style="width:0px;display:none" />
+    </div>
+    <div class="form-group">
+        <input type="text" name="currentFilter"
+               value="@Model.CurrentFilter"
+               class="form-control"
+               style="width:0px;display:none" />
+    </div>
+    第&nbsp
+    <div class="form-group">
+        <input type="number" name="pageIndex"
+               value="@Model.Novels.PageIndex"
+               class="form-control"
+               style="width:100px;display:inline" />
+    </div>
+    &nbsp頁&nbsp
+    <div class="form-group">
+        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+    </div>
+</form>
+
+@*@{
+        string GetTypeName(Involver.Models.NovelModel.Type? type)
+        {
+            string TypeName = "";
+            if (type == Involver.Models.NovelModel.Type.Fantasy)
+            {
+                TypeName = "奇幻";
+            }
+            else if (type == Involver.Models.NovelModel.Type.History)
+            {
+                TypeName = "歷史";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Love)
+            {
+                TypeName = "愛情";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Real)
+            {
+                TypeName = "真實";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Modern)
+            {
+                TypeName = "現代";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Science)
+            {
+                TypeName = "科幻";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Horror)
+            {
+                TypeName = "驚悚";
+            }
+            else if (type == Involver.Models.NovelModel.Type.Detective)
+            {
+                TypeName = "推理";
+            }
+            else
+            {
+                TypeName = "";
+            }
+            return TypeName;
+        }
+    }*@

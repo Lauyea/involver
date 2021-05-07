@@ -1,0 +1,32 @@
+﻿@using Involver.Models.NovelModel;
+@model List<Novel>
+
+<div>
+    <div>
+        @foreach (var item in Model)
+        {
+            @if (item.Image != null)
+            {
+                <a asp-page="./Details" asp-route-id="@item.NovelID">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(item.Image)"
+                         asp-append-version="true"
+                         alt="讀取失敗"
+                         title="@item.Title"
+                         style="max-width: 100%; max-height : 140px">
+                </a>
+            }
+            else
+            {
+                <a asp-page="./Details" asp-route-id="@item.NovelID">
+                    <img src="https://generative-placeholders.glitch.me/image?width=600&height=300&style=triangles&gap=100"
+                         asp-append-version="true"
+                         alt="讀取失敗"
+                         title="主題圖片"
+                         style="max-width: 100%; max-height : 140px">
+                </a>
+            }
+            <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
+            <hr />
+        }
+    </div>
+</div>

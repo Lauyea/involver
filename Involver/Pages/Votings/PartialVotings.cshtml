@@ -1,0 +1,55 @@
+﻿@using Involver.Models.NovelModel;
+@model List<Voting>
+<p>
+    <a asp-page="../Votings/Create">新增投票</a>
+</p>
+<hr />
+@foreach (Voting voting in Model)
+{
+    @if (voting.NormalOptions == null)
+    {
+        break;
+    }
+    <div>
+        <p id="CountDown"></p>
+    </div>
+    foreach (NormalOption option in voting.NormalOptions)
+    {
+        if (option.OwnerID == null)
+        {
+            continue;
+        }
+        <div>
+            <div class="side">
+                <div>
+                    <a asp-page="../NormalOptions/Details"
+                       asp-route-id="@option.NormalOptionID"
+                       title="@option.Content">選項</a>
+                </div>
+            </div>
+            <div class="middle">
+                <div class="bar-container">
+                    <div style="width: @GetPercent(voting, option.TotalCoins); height: 18px; background-color: #e66532;"></div>
+                </div>
+            </div>
+            <div class="side right">
+                <div>@option.TotalCoins</div>
+            </div>
+        </div>
+    }
+    <hr />
+}
+
+@{
+    string GetPercent(Voting voting, int OptionCoins)
+    {
+        int TotalCoins = 0;
+        foreach (NormalOption option in voting.NormalOptions)
+        {
+            TotalCoins += option.TotalCoins;
+        }
+        int ratio = OptionCoins / TotalCoins;
+        string percent = (ratio * 100).ToString() + "%";
+        return percent;
+    }
+}

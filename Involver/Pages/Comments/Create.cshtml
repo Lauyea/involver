@@ -1,0 +1,83 @@
+﻿@page
+@model Involver.Pages.Comments.CreateModel
+
+@{
+    ViewData["Title"] = "新評論";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string UserID = userManager.GetUserId(User);
+}
+
+<h1>建立</h1>
+
+<p class="text-danger">@Model.ErrorMessage</p>
+
+<h4>評論</h4>
+<hr />
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Comment.Content" class="control-label"></label>
+                <a asp-page="/Descriptions/UsefulHTML" target="_blank">常用HTML範例</a>
+                <textarea asp-for="Comment.Content" class="form-control" rows="14" placeholder="在這裡寫些東西..."></textarea>
+                <span asp-validation-for="Comment.Content" class="text-danger"></span>
+            </div>
+            <div class="alert alert-warning" role="alert">
+                <p>
+                    <strong>可以直接在內容中使用Dice指令擲骰，ex. Dice05D10。最大99D99</strong>
+                </p>
+            </div>
+            <div class="form-group">
+                <label class="control-label">
+                    <input class="form-check-input"
+                           style="display:none"
+                           value="@UserID"
+                           asp-for="Comment.ProfileID" />
+                </label>
+            </div>
+            @if (Model.From == "Episodes" && Model.IsEpisodeOwner)
+            {
+                <div class="form-group">
+                    擲
+                    <input asp-for="RollTimes"
+                           class="form-control"
+                           style="width:auto;display:inline"
+                           title="最多12次"
+                           value="0" />
+                    次
+                    <input asp-for="Dice.Sides"
+                           class="form-control"
+                           style="width:auto;display:inline"
+                           title="最多999面"
+                           value="0" />
+                    面骰
+                    <div class="alert alert-warning" role="alert">
+                        <p>
+                            <strong>骰子最多999面，擲骰最多12次，其一為0則不擲骰子</strong>
+                        </p>
+                        <p>
+                            <strong>內容可以用 DiceTotal 指令呈現加總後的骰子數值</strong>
+                        </p>
+                    </div>
+                    <div class="alert alert-danger" role="alert">
+                        <p>
+                            <strong>有擲骰的評論無法編輯</strong>
+                        </p>
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <input type="submit" value="建立" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@*<div>
+        <a asp-page="Index">Back to List</a>
+    </div>*@
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

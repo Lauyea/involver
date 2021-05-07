@@ -1,0 +1,90 @@
+﻿@page
+@model Involver.Pages.StatisticalData.Payments.IndexModel
+
+@{
+    ViewData["Title"] = "訂單";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+    string AllDeleteDisabled = "";
+    if(Model.Payments.Count == 0)
+    {
+        AllDeleteDisabled = "disabled";
+    }
+}
+<h1>帳單</h1>
+<hr />
+<div class="row">
+    <div class="col-4">
+        <a asp-page="/StatisticalData/Index"
+           class="btn btn-xs btn-outline-info">統計資料</a>
+    </div>
+    <div class="col-4">
+        <a asp-page="/StatisticalData/Payments/Index"
+           class="btn btn-xs btn-info disabled">訂單紀錄</a>
+    </div>
+    <div class="col-4">
+        <a asp-page="/StatisticalData/ProfitSharings/Index"
+           class="btn btn-xs btn-outline-info">分潤清單</a>
+    </div>
+</div>
+<hr />
+<p>
+    @if (User.IsInRole(Authorization.Payment.Payments.PaymentManagersRole) ||
+User.IsInRole(Authorization.Payment.Payments.PaymentAdministratorsRole))
+    {
+        <a asp-page="./AllDelete" class="btn btn-xs btn-outline-danger @AllDeleteDisabled">刪除所有訂單</a>
+    }
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Payments[0].InvolverID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Payments[0].TradeNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Payments[0].PaymentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Payments[0].ReturnString)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Payments[0].TradeAmt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Payments)
+        {
+            <tr>
+                <td>
+                    <a asp-area="Identity"
+                       asp-page="/Profile/Index"
+                       asp-route-id="@item.InvolverID">
+                        @if (item.InvolverID != null && item.InvolverID.Length > 8)
+                        {
+                            @(item.InvolverID.Substring(0, 8) + "...")
+                        }
+                    </a>
+                </td>
+                <td>
+                    <a asp-page="./Details" asp-route-id="@item.PaymentID">@Html.DisplayFor(modelItem => item.TradeNo)</a>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PaymentDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReturnString)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TradeAmt)
+                </td>
+                <td>
+                    <a asp-page="./Delete" asp-route-id="@item.PaymentID">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

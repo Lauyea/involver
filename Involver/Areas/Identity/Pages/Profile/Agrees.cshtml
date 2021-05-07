@@ -1,0 +1,142 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.AgreesModel
+@{
+    ViewData["Title"] = "互動紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Interaction;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Interaction"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">評論</a>
+        &nbsp&nbsp
+        <a asp-page="./Messages"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">留言</a>
+        &nbsp&nbsp
+        <a asp-page="./Agrees"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">贊同</a>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Agrees != null)
+        {
+            @foreach (Agree agree in Model.Agrees)
+            {
+                <div class="row">
+                    <div class="col-md-5">
+                        @if (agree.Comment != null)
+                        {
+                            @if (agree.Comment.Content.Length < 200)
+                            {
+                                @agree.Comment.Content;
+                            }
+                            else
+                            {
+                                @(agree.Comment.Content.Substring(0, 200)+"...");
+                            }
+                        }
+                        else
+                        {
+                            @if (agree.Message.Content.Length < 200)
+                            {
+                                @agree.Message.Content;
+                            }
+                            else
+                            {
+                                @(agree.Message.Content.Substring(0, 200)+"...");
+                            }
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        @if (agree.Comment != null)
+                        {
+                            @if (agree.Comment.NovelID != null)
+                            {
+                                <a asp-page="/Novels/Details"
+                                   asp-route-id="@agree.Comment.NovelID"
+                                   asp-route-pageIndex="1">
+                                    @agree.Comment.Novel.Title
+                                </a>
+                            }
+                            else if (agree.Comment.EpisodeID != null)
+                            {
+                                <a asp-page="/Episodes/Details"
+                                   asp-route-id="@agree.Comment.EpisodeID"
+                                   asp-route-pageIndex="1">
+                                    @agree.Comment.Episode.Title
+                                </a>
+                            }
+                            else if (agree.Comment.AnnouncementID != null)
+                            {
+                                <a asp-page="/Announcements/Details"
+                                   asp-route-id="@agree.Comment.AnnouncementID"
+                                   asp-route-pageIndex="1">
+                                    @agree.Comment.Announcement.Title
+                                </a>
+                            }
+                            else if (agree.Comment.FeedbackID != null)
+                            {
+                                <a asp-page="/Feedbacks/Details"
+                                   asp-route-id="@agree.Comment.FeedbackID"
+                                   asp-route-pageIndex="1">
+                                    @agree.Comment.Feedback.Title
+                                </a>
+                            }
+                            else if (agree.Comment.ArticleID != null)
+                            {
+                                <a asp-page="/Articles/Details"
+                                   asp-route-id="@agree.Comment.ArticleID"
+                                   asp-route-pageIndex="1">
+                                    @agree.Comment.Article.Title
+                                </a>
+                            }
+
+                        }
+                        else
+                        {
+                            <a asp-page="/Comments/Details"
+                               asp-route-id="@agree.Message.CommentID"
+                               asp-route-pageIndex="1">
+                                @if (agree.Message.Comment.Content.Length < 20)
+                                {
+                                    @agree.Message.Comment.Content;
+                                }
+                                else
+                                {
+                                    @(agree.Message.Comment.Content.Substring(0, 20)+"...");
+                                }
+                            </a>
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        @if (agree.Comment != null)
+                        {
+                            @Html.DisplayFor(modelItem => agree.Comment.UpdateTime)
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(modelItem => agree.Message.UpdateTime)
+                        }
+
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
+
+

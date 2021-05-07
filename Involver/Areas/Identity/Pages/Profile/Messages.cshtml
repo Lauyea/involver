@@ -1,0 +1,72 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.MessagesModel
+@{
+    ViewData["Title"] = "互動紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Interaction;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Interaction"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">評論</a>
+        &nbsp&nbsp
+        <a asp-page="./Messages"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">留言</a>
+        &nbsp&nbsp
+        <a asp-page="./Agrees"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">贊同</a>
+    </div>
+    <hr />
+    <p></p>
+    <div>
+        @if (Model.Messages != null)
+        {
+            @foreach (Message message in Model.Messages)
+            {
+                <div class="row">
+                    <div class="col-md-5">
+                        @if (message.Content.Length < 200)
+                        {
+                            @message.Content;
+                        }
+                        else
+                        {
+                            @(message.Content.Substring(0, 200)+"...");
+                        }
+                    </div>
+                    <div class="col-md-4">
+                        <a asp-page="/Comments/Details"
+                           asp-route-id="@message.CommentID"
+                           asp-route-pageIndex="1">
+                            @if (message.Comment.Content.Length < 20)
+                            {
+                                @message.Comment.Content;
+                            }
+                            else
+                            {
+                                @(message.Comment.Content.Substring(0, 20)+"...");
+                            }
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        @Html.DisplayFor(modelItem => message.UpdateTime)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
+

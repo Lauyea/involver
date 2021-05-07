@@ -1,0 +1,91 @@
+﻿@page
+@model Involver.Pages.Votings.EditModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<h1>Edit</h1>
+
+<h4>Voting</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Voting.VotingID" />
+            <div class="form-group">
+                <label asp-for="Voting.OwnerID" class="control-label"></label>
+                <input asp-for="Voting.OwnerID" class="form-control" />
+                <span asp-validation-for="Voting.OwnerID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.Policy" class="control-label"></label>
+                <select asp-for="Voting.Policy" class="form-control"></select>
+                <span asp-validation-for="Voting.Policy" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.Mode" class="control-label"></label>
+                <select asp-for="Voting.Mode" class="form-control"></select>
+                <span asp-validation-for="Voting.Mode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.BiddingLowerLimit" class="control-label"></label>
+                <input asp-for="Voting.BiddingLowerLimit" class="form-control" />
+                <span asp-validation-for="Voting.BiddingLowerLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.NumberLimit" class="control-label"></label>
+                <input asp-for="Voting.NumberLimit" class="form-control" />
+                <span asp-validation-for="Voting.NumberLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.CoinLimit" class="control-label"></label>
+                <input asp-for="Voting.CoinLimit" class="form-control" />
+                <span asp-validation-for="Voting.CoinLimit" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.End" class="control-label"></label>
+                <input asp-for="Voting.End" class="form-control" />
+                <span asp-validation-for="Voting.End" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.TotalNumber" class="control-label"></label>
+                <input asp-for="Voting.TotalNumber" class="form-control" />
+                <span asp-validation-for="Voting.TotalNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.TotalCoins" class="control-label"></label>
+                <input asp-for="Voting.TotalCoins" class="form-control" />
+                <span asp-validation-for="Voting.TotalCoins" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.CreateTime" class="control-label"></label>
+                <input asp-for="Voting.CreateTime" class="form-control" />
+                <span asp-validation-for="Voting.CreateTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.DeadLine" class="control-label"></label>
+                <input asp-for="Voting.DeadLine" class="form-control" />
+                <span asp-validation-for="Voting.DeadLine" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Voting.EpisodeID" class="control-label"></label>
+                <select asp-for="Voting.EpisodeID" class="form-control" asp-items="ViewBag.EpisodeID"></select>
+                <span asp-validation-for="Voting.EpisodeID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

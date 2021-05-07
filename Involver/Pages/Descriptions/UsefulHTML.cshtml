@@ -1,0 +1,38 @@
+﻿@page
+@model Involver.Pages.Descriptions.UsefulHTMLModel
+@{
+        ViewData["Title"] = "常用HTML範例";
+        string address = "<a href=連結網頁位址>連結顯示字串</a>";
+        string address2 = "<a href=連結網頁位址 target=\"_blank\">加上target=\"_blank\"可以開新視窗</a>";
+        string b = "<b>粗體字</b>";
+        string i = "<i>斜體字</i>";
+        string img = "<img src=圖片位址 />";
+        string img2 = "<img src=圖片位址 class=\"img-fluid\" /> ← img-fluid 可以自動適應視窗大小";
+        string slashLine = "<s>中間的字會被畫上刪除線</s>";
+        string YoutubeVideo = "<div class=\"video - container\">< iframe class=\"responsive-iframe\" src=\"嵌入的網址\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>";
+}
+<h1>@ViewData["Title"]</h1>
+<hr />
+<div>
+    <a asp-page="/Descriptions/Explanation"
+       class="btn btn-xs btn-outline-info">說明目錄</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/InCoin"
+       class="btn btn-xs btn-outline-info">In幣相關說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/Voting"
+       class="btn btn-xs btn-outline-info">投票說明</a>
+    &nbsp&nbsp
+    <a asp-page="/Descriptions/UsefulHTML"
+       class="btn btn-xs btn-info disabled">常用HTML範例</a>
+</div>
+<hr />
+<p>@address</p>
+<p>@address2</p>
+<p>@b</p>
+<p>@i</p>
+<p>@img</p>
+<p>@img2</p>
+<p>@slashLine</p>
+<p>Youtube的影片可以點分享-嵌入，再複製HTML貼到文章裡，或是用以下的程式碼將部分替換成用以嵌入的網址</p>
+<p>@YoutubeVideo</p>

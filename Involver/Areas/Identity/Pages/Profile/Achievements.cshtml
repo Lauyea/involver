@@ -1,0 +1,41 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.AchievementsModel
+@{
+    ViewData["Title"] = "成就";
+    ViewData["ActivePage"] = ManageNavPages.Achievements;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (Model.Profile.BannerImage != null)
+    {
+        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+<dl class="row">
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Achievements.BetaInvolver)
+    </dt>
+    <dd class="col-sm-1">
+        @Html.DisplayFor(model => model.Achievements.BetaInvolver)
+    </dd>
+    <dd class="col-sm-7">
+        @if(Model.Achievements.BetaInvolver == true)
+        {
+            <span>解鎖時間： @Model.Achievements.TimeBetaInvolver</span>
+        }
+    </dd>
+    <dt class="col-sm-4">
+        @Html.DisplayNameFor(model => model.Achievements.Professional)
+    </dt>
+    <dd class="col-sm-1">
+        @Html.DisplayFor(model => model.Achievements.Professional)
+    </dd>
+    <dd class="col-sm-7">
+        @if (Model.Achievements.Professional == true)
+        {
+            <span>解鎖時間： @Model.Achievements.TimeProfessional</span>
+        }
+    </dd>
+</dl>

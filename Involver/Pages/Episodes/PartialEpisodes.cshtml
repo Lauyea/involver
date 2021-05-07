@@ -1,0 +1,171 @@
+﻿@using Involver.Models.NovelModel;
+@model PaginatedList<Episode>
+
+@{
+    //Episode，與它的ID
+    //string from = "";
+    int fromID = 0;
+    if (Model[0].Novel != null)
+    {
+        //from = "Novels";
+        fromID = Model[0].NovelID;
+    }
+}
+
+
+
+
+<table class="table">
+    <tbody>
+        @if (Model != null)
+        {
+            @foreach (var item in Model)
+            {
+                if (item.Title != null)
+                {
+                    <tr id="@item.EpisodeID">
+                        <td style="width:60%">
+                            <a asp-page="../Episodes/Details"
+                               asp-route-id="@item.EpisodeID">
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </a>
+                            @*@Html.Raw(item.Title.Replace("\r\n", "<br />"))*@
+                        </td>
+                        <td style="width:20%">
+                            @if (item.IsLast == true)
+                            {
+                                <span class="text-warning"><b>最新</b></span>
+                            }
+                            <p>觀看數：@item.Views</p>
+                        </td>
+                        <td style="width:20%">
+                            <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                        </td>
+                        @*<td style="width:10%">
+                                @if ((await AuthorizationService.AuthorizeAsync(
+                                User, item,
+                                CommentOperations.Update)).Succeeded)
+                                {
+                                    <a asp-page="../Comments/Edit"
+                                       asp-route-id="@item.EpisodeID"
+                                       asp-route-from="@from"
+                                       asp-route-fromID="@fromID">編輯</a>
+                                } |
+                                @if ((await AuthorizationService.AuthorizeAsync(
+                               User, item,
+                               CommentOperations.Delete)).Succeeded)
+                                {
+                                    <a asp-page="../Comments/Delete"
+                                       asp-route-id="@item.EpisodeID"
+                                       asp-route-from="@from"
+                                       asp-route-fromID="@fromID">刪除</a>
+                                }
+                            </td>*@
+                    </tr>
+                }
+            }
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+
+    string IsActive(int i)
+    {
+        string Active = "";
+        if (i == Model.PageIndex)
+        {
+            Active = "active";
+        }
+        return Active;
+    }
+
+    int TotalPages = Model.TotalPages + 1;
+    int StartPage = 1;
+    int EndPage = 1;
+    if (TotalPages < 5)
+    {
+        EndPage = TotalPages;
+    }
+    else
+    {
+        EndPage = 6;
+    }
+    if (Model.PageIndex - 3 > 0)
+    {
+        StartPage = Model.PageIndex - 2;
+        EndPage = StartPage + 5;
+        if (EndPage > TotalPages)
+        {
+            EndPage = TotalPages;
+            StartPage = EndPage - 5;
+        }
+    }
+}
+
+
+<nav>
+    <ul class="pagination">
+        <li class="page-item @prevDisabled">
+            <a asp-page="./Details"
+               asp-route-id="@fromID"
+               asp-route-pageIndexEpisode="1"
+               asp-fragment="EpisodeHead"
+               class="page-link">
+                第一頁
+            </a>
+        </li>
+        @for (int i = StartPage; i < EndPage; i++)
+        {
+            <li class="page-item @IsActive(i)">
+                <a asp-page="./Details"
+                   asp-route-id="@fromID"
+                   asp-route-pageIndexEpisode="@i"
+                   asp-fragment="EpisodeHead"
+                   class="page-link">
+                    @i
+                    @if (i == Model.PageIndex)
+                    {
+                        <span class="sr-only">(current)</span>
+                    }
+                </a>
+            </li>
+
+        }
+        <li class="page-item @nextDisabled">
+            <a asp-page="./Details"
+               asp-route-id="@fromID"
+               asp-route-pageIndexEpisode="@(Model.TotalPages)"
+               asp-fragment="EpisodeHead"
+               class="page-link">
+                最後一頁
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<p></p>
+<form class="form-inline"
+      asp-page="./Details"
+      asp-fragment="EpisodeHead"
+      method="get">
+    <div class="form-group">
+        <input type="number" name="id"
+               value="@fromID"
+               class="form-control"
+               style="width:0px;display:none" />
+    </div>
+    第&nbsp
+    <div class="form-group">
+        <input type="number" name="pageIndexEpisode"
+               value="@Model.PageIndex"
+               class="form-control"
+               style="width:100px;display:inline" />
+    </div>
+    &nbsp頁&nbsp
+    <div class="form-group">
+        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+    </div>
+</form>
