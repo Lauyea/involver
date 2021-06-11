@@ -53,15 +53,15 @@ namespace InvolverMonthlyWork
                     log.LogInformation($"{rows} rows were updated");
                 }
 
-                text = "UPDATE [dbo].[Profile] " +
-                        "SET [MonthlyCoins] = 0;";
+                //text = "UPDATE [dbo].[Profile] " +
+                //        "SET [MonthlyCoins] = 0;";
 
-                using (SqlCommand cmd = new SqlCommand(text, conn))
-                {
-                    // Execute the command and log the # rows affected.
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                    log.LogInformation($"{rows} rows were updated");
-                }
+                //using (SqlCommand cmd = new SqlCommand(text, conn))
+                //{
+                //    // Execute the command and log the # rows affected.
+                //    var rows = await cmd.ExecuteNonQueryAsync();
+                //    log.LogInformation($"{rows} rows were updated");
+                //}
             }
         }
     }
