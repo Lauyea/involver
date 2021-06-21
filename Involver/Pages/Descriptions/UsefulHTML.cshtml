@@ -1,15 +1,16 @@
 ﻿@page
 @model Involver.Pages.Descriptions.UsefulHTMLModel
 @{
-        ViewData["Title"] = "常用HTML範例";
-        string address = "<a href=連結網頁位址>連結顯示字串</a>";
-        string address2 = "<a href=連結網頁位址 target=\"_blank\">加上target=\"_blank\"可以開新視窗</a>";
-        string b = "<b>粗體字</b>";
-        string i = "<i>斜體字</i>";
-        string img = "<img src=圖片位址 />";
-        string img2 = "<img src=圖片位址 class=\"img-fluid\" /> ← img-fluid 可以自動適應視窗大小";
-        string slashLine = "<s>中間的字會被畫上刪除線</s>";
-        string YoutubeVideo = "<div class=\"video-container\"><iframe class=\"responsive-iframe\" src=\"嵌入的網址\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>";
+    ViewData["Title"] = "常用HTML範例";
+    string address = "<a href=連結網頁位址>連結顯示字串</a>";
+    string address2 = "<a href=連結網頁位址 target=\"_blank\">加上target=\"_blank\"可以開新視窗</a>";
+    string b = "<b>粗體字</b>";
+    string i = "<i>斜體字</i>";
+    string img = "<img src=圖片位址 />";
+    string img2 = "<img src=圖片位址 class=\"img-fluid\" /> ← img-fluid 可以自動適應視窗大小";
+    string slashLine = "<s>中間的字會被畫上刪除線</s>";
+    string YoutubeVideo = "<div class=\"video-container\"><iframe class=\"responsive-iframe\" src=\"嵌入的網址\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe></div>";
+    string mp4Video = "\"<video style=\"max - width:600px; width: 100 % \" controls>  < source src = \"嵌入mp4影片的網址\" type = \"video/mp4\" ></ video > \"";
 }
 <h1>@ViewData["Title"]</h1>
 <hr />
@@ -36,3 +37,4 @@
 <p>@slashLine</p>
 <p>Youtube的影片可以點分享-嵌入，再複製HTML貼到文章裡，或是用以下的程式碼將部分替換成用以嵌入的網址</p>
 <p>@YoutubeVideo</p>
+<p>@mp4Video</p>
