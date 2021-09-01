@@ -52,7 +52,7 @@ namespace Involver.Pages.Novels
 
             Profile = Novel.Profile;
 
-            await SetComments(id, pageIndex);
+            var SetCommentsTask = SetComments(id, pageIndex);
 
             IQueryable<Episode> episodes = from e in Context.Episodes
                                            select e;
@@ -61,8 +61,10 @@ namespace Involver.Pages.Novels
                 .OrderByDescending(e => e.EpisodeID);
 
             int pageSize = 10;
-            Episodes = await PaginatedList<Episode>.CreateAsync(
+            var EpisodesTask = PaginatedList<Episode>.CreateAsync(
                 episodes, pageIndexEpisode ?? 1, pageSize);
+
+            await Task.WhenAll(SetCommentsTask, EpisodesTask).ConfigureAwait(false);
 
             //Check authorization
             var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
