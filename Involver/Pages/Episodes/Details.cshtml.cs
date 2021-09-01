@@ -58,25 +58,31 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            await SetComments(id, pageIndex, ShowCommentByCreator);
+            var SetCommentsTask = SetComments(id, pageIndex, ShowCommentByCreator);
 
-            PreviousEpisode = await Context.Episodes
+            var PreviousEpisodeTask = Context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID < id)
                 .OrderByDescending(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            NextEpisode = await Context.Episodes
+            var NextEpisodeTask = Context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID > id)
                 .OrderBy(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            Votings = await Context.Votings
+            var VotingsTask = Context.Votings
                 .Where(v => v.EpisodeID == id)
                 .Include(v => v.NormalOptions)
                     .ThenInclude(n => n.Votes)
                 .ToListAsync();
+
+            await Task.WhenAll(SetCommentsTask, PreviousEpisodeTask, NextEpisodeTask, VotingsTask).ConfigureAwait(false);
+
+            PreviousEpisode = PreviousEpisodeTask.Result;
+            NextEpisode = NextEpisodeTask.Result;
+            Votings = VotingsTask.Result;
 
             var i = 1;
             CountDownArray = new CountDown[Votings.Count - 1]; //有個空Voting
@@ -140,7 +146,7 @@ namespace Involver.Pages.Episodes
             //Add views
             Episode.Views++;
             Context.Attach(Episode).State = EntityState.Modified;
-            await CheckMissionWatchArticle();
+            CheckMissionWatchArticle();
 
             try
             {
@@ -161,16 +167,16 @@ namespace Involver.Pages.Episodes
             return Page();
         }
 
-        private async Task CheckMissionWatchArticle()
+        private void CheckMissionWatchArticle()
         {
             //Check mission:WatchArticle
             string UserID = UserManager.GetUserId(User);
             if (UserID != null)
             {
-                Profile userProfile = await Context.Profiles
+                Profile userProfile = Context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
-                .FirstOrDefaultAsync();
+                .FirstOrDefault();
                 if (userProfile.Missions.WatchArticle != true)
                 {
                     userProfile.Missions.WatchArticle = true;
