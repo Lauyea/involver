@@ -60,14 +60,12 @@ namespace Involver.Pages.Articles
                 return Forbid();
             }
 
-            var SetCommentsTask = SetComments(id, pageIndex);
+            await SetComments(id, pageIndex);
 
             //Add views
             Article.Views++;
             Context.Attach(Article).State = EntityState.Modified;
-            var CheckMissionWatchArticleTask = CheckMissionWatchArticle();
-
-            await Task.WhenAll(SetCommentsTask, CheckMissionWatchArticleTask).ConfigureAwait(false);
+            await CheckMissionWatchArticle();
 
             try
             {

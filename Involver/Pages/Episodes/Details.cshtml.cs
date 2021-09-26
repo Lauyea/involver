@@ -58,31 +58,25 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            var SetCommentsTask = SetComments(id, pageIndex, ShowCommentByCreator);
+            await SetComments(id, pageIndex, ShowCommentByCreator);
 
-            var PreviousEpisodeTask = Context.Episodes
+            PreviousEpisode = await Context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID < id)
                 .OrderByDescending(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            var NextEpisodeTask = Context.Episodes
+            NextEpisode = await Context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID > id)
                 .OrderBy(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            var VotingsTask = Context.Votings
+            Votings = await Context.Votings
                 .Where(v => v.EpisodeID == id)
                 .Include(v => v.NormalOptions)
                     .ThenInclude(n => n.Votes)
                 .ToListAsync();
-
-            await Task.WhenAll(SetCommentsTask, PreviousEpisodeTask, NextEpisodeTask, VotingsTask).ConfigureAwait(false);
-
-            PreviousEpisode = PreviousEpisodeTask.Result;
-            NextEpisode = NextEpisodeTask.Result;
-            Votings = VotingsTask.Result;
 
             var i = 1;
             CountDownArray = new CountDown[Votings.Count - 1]; //有個空Voting

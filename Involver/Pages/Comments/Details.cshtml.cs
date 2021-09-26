@@ -49,18 +49,15 @@ namespace Involver.Pages.Comments
                 .Include(c => c.Dices)
                 .Include(c => c.Profile).FirstOrDefaultAsync(m => m.CommentID == id);
 
-            Task<Comment> PreviousCommentTask = default;
-            Task<Comment> NextCommentTask = default;
-
             if (Comment.Announcement != null)
             {
-                PreviousCommentTask = Context.Comments
+                PreviousComment = await Context.Comments
                 .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextCommentTask = Context.Comments
+                NextComment = await Context.Comments
                     .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -69,13 +66,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Article != null)
             {
-                PreviousCommentTask = Context.Comments
+                PreviousComment = await Context.Comments
                 .Where(c => c.ArticleID == Comment.Article.ArticleID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextCommentTask = Context.Comments
+                NextComment = await Context.Comments
                     .Where(c => c.ArticleID == Comment.Article.ArticleID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -84,13 +81,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Episode != null)
             {
-                PreviousCommentTask = Context.Comments
+                PreviousComment = await Context.Comments
                 .Where(c => c.EpisodeID == Comment.Episode.EpisodeID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextCommentTask = Context.Comments
+                NextComment = await Context.Comments
                     .Where(c => c.EpisodeID == Comment.Episode.EpisodeID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -99,13 +96,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Feedback != null)
             {
-                PreviousCommentTask = Context.Comments
+                PreviousComment = await Context.Comments
                 .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextCommentTask = Context.Comments
+                NextComment = await Context.Comments
                     .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -114,13 +111,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Novel != null)
             {
-                PreviousCommentTask = Context.Comments
+                PreviousComment = await Context.Comments
                 .Where(c => c.NovelID == Comment.Novel.NovelID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextCommentTask = Context.Comments
+                NextComment = await Context.Comments
                     .Where(c => c.NovelID == Comment.Novel.NovelID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -132,9 +129,7 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            var SetMessagesTask = SetMessages(id, pageIndex);
-
-            await Task.WhenAll(PreviousCommentTask, NextCommentTask, SetMessagesTask).ConfigureAwait(false);
+            await SetMessages(id, pageIndex);
 
             return Page();
         }
