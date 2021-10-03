@@ -40,16 +40,16 @@
                 Involvers <i class="fas fa-chevron-down"></i>
             </button>
             <div class="dropdown-menu">
-                <a class="btn btn-xs @RecentBtnStyle"
+                <a class="btn btn-xs @RecentBtnStyle dropdown-item"
                    asp-page="./ArticleInvolvers"
                    asp-route-id="@Model.ArticleID"
                    title="Recent">最近</a>
-                <a class="btn btn-xs @MonthlyBtnStyle"
+                <a class="btn btn-xs @MonthlyBtnStyle dropdown-item"
                    asp-page="./ArticleInvolvers"
                    asp-route-id="@Model.ArticleID"
                    asp-route-TimeSpan="Monthly"
                    title="Monthly">每月</a>
-                <a class="btn btn-xs @TotalTimeBtnStyle"
+                <a class="btn btn-xs @TotalTimeBtnStyle dropdown-item"
                    asp-page="./ArticleInvolvers"
                    asp-route-id="@Model.ArticleID"
                    asp-route-TimeSpan="TotalTime"

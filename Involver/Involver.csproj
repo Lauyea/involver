@@ -123,6 +123,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.10">
@@ -146,6 +147,6 @@
   </ItemGroup>
 
 
-  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4fontawesome-free-5_112_10-web_4metadata_4icons_1json__JsonSchema="http://json.schemastore.org/BizTalkServerApplicationSchema" appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

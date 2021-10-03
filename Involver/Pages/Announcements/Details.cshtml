@@ -11,27 +11,24 @@
 <h4>公告</h4>
 <hr />
 
-<div>
+<div class="btn-group">
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    &nbsp&nbsp
-    @if ((await AuthorizationService.AuthorizeAsync(
-   User, Model.Announcement,
-   FeedbackOperations.Update)).Succeeded)
+            @if ((await AuthorizationService.AuthorizeAsync(
+    User, Model.Announcement,
+    FeedbackOperations.Update)).Succeeded)
     {
-        <a asp-page="./Edit" 
-           asp-route-id="@Model.Announcement.AnnouncementID" 
-           class="btn btn-xs btn-outline-info">編輯</a>
+        <a asp-page="./Edit"
+            asp-route-id="@Model.Announcement.AnnouncementID"
+            class="btn btn-xs btn-outline-info">編輯</a>
     }
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
-         User, Model.Announcement,
-         FeedbackOperations.Delete)).Succeeded)
+User, Model.Announcement,
+FeedbackOperations.Delete)).Succeeded)
     {
-        <a asp-page="./Delete" 
-           asp-route-id="@Model.Announcement.AnnouncementID" 
-           class="btn btn-xs btn-outline-info">刪除</a>
+        <a asp-page="./Delete"
+            asp-route-id="@Model.Announcement.AnnouncementID"
+            class="btn btn-xs btn-outline-info">刪除</a>
     }
-    &nbsp&nbsp
     <a href="#CommentHead" class="btn btn-xs btn-outline-info">評論</a>
 </div>
 

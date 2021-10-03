@@ -55,9 +55,8 @@
 <h4>討論</h4>
 <hr />
 
-<div>
+<div class="btn-group">
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
 User, Model.Article,
 ArticleOperations.Update)).Succeeded)
@@ -68,7 +67,6 @@ ArticleOperations.Update)).Succeeded)
             編輯
         </a>
     }
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
 User, Model.Article,
 ArticleOperations.Delete)).Succeeded)
@@ -79,9 +77,7 @@ ArticleOperations.Delete)).Succeeded)
             刪除
         </a>
     }
-    &nbsp&nbsp
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-    &nbsp&nbsp
     @if (!Model.Article.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
@@ -134,31 +130,31 @@ User, Model.Article, ArticleOperations.Block)).Succeeded)
         </dt>
         <dd class="col-sm-10">
             <div class="row">
-                <div class="col-md-2">
+                <p class="col-md-auto">
                     @Html.DisplayFor(model => model.Article.MonthlyCoins)
-                </div>
-                <div class="col-md-2">
+                </p>
+                <p class="col-md-auto">
                     <a class="btn btn-xs btn-outline-danger"
                        asp-page="/Involvings/InvolveArticle"
                        asp-route-id="@Model.Article.ArticleID">
                         <i class="fas fa-coins"></i> Involve
                     </a>
-                </div>
-                <div class="dropdown col-md-4">
+                </p>
+                <div class="dropdown col-md-auto">
                     <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
                         Involvers <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-menu">
-                        <a class="btn btn-xs btn-outline-info"
+                        <a class="btn btn-xs btn-outline-info dropdown-item"
                            asp-page="/Involvings/ArticleInvolvers"
                            asp-route-id="@Model.Article.ArticleID"
                            title="Recent">最近</a>
-                        <a class="btn btn-xs btn-outline-info"
+                        <a class="btn btn-xs btn-outline-info dropdown-item"
                            asp-page="/Involvings/ArticleInvolvers"
                            asp-route-id="@Model.Article.ArticleID"
                            asp-route-TimeSpan="Monthly"
                            title="Monthly">每月</a>
-                        <a class="btn btn-xs btn-outline-info"
+                        <a class="btn btn-xs btn-outline-info dropdown-item"
                            asp-page="/Involvings/ArticleInvolvers"
                            asp-route-id="@Model.Article.ArticleID"
                            asp-route-TimeSpan="TotalTime"

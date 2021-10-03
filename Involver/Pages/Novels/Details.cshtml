@@ -10,12 +10,11 @@
 <h4>創作</h4>
 <hr />
 
-<div>
+<div class="btn-group row">
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
-  User, Model.Novel,
-  NovelOperations.Update)).Succeeded)
+User, Model.Novel,
+NovelOperations.Update)).Succeeded)
     {
         <a asp-page="./Edit" asp-route-id="@Model.Novel.NovelID"
            class="btn btn-xs btn-outline-info">
@@ -23,10 +22,9 @@
             編輯
         </a>
     }
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
-  User, Model.Novel,
-  NovelOperations.Delete)).Succeeded)
+User, Model.Novel,
+NovelOperations.Delete)).Succeeded)
     {
         <a asp-page="./Delete" asp-route-id="@Model.Novel.NovelID"
            class="btn btn-xs btn-outline-info">
@@ -34,7 +32,6 @@
             刪除
         </a>
     }
-    &nbsp&nbsp
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
     &nbsp&nbsp
     @if (Model.Followed)
@@ -57,11 +54,12 @@
             </button>
         </form>
     }
-    &nbsp&nbsp
+</div>
+<div>
     @if (!Model.Novel.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-      User, Model.Novel, NovelOperations.Block)).Succeeded)
+   User, Model.Novel, NovelOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
                 <input type="hidden" name="id" value="@Model.Novel.NovelID" />
@@ -73,7 +71,7 @@
     else
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-      User, Model.Novel, NovelOperations.Block)).Succeeded)
+   User, Model.Novel, NovelOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
                 <input type="hidden" name="id" value="@Model.Novel.NovelID" />
@@ -83,7 +81,6 @@
         }
     }
 </div>
-<p></p>
 <div class="row">
     <div class="col-md-8">
         <div>
@@ -157,16 +154,16 @@
                                 Involvers <i class="fas fa-chevron-down"></i>
                             </button>
                             <div class="dropdown-menu">
-                                <a class="btn btn-xs btn-outline-info"
+                                <a class="btn btn-xs btn-outline-info dropdown-item"
                                    asp-page="/Involvings/Involvers"
                                    asp-route-id="@Model.Novel.NovelID"
                                    title="Recent">最近</a>
-                                <a class="btn btn-xs btn-outline-info"
+                                <a class="btn btn-xs btn-outline-info dropdown-item"
                                    asp-page="/Involvings/Involvers"
                                    asp-route-id="@Model.Novel.NovelID"
                                    asp-route-TimeSpan="Monthly"
                                    title="Monthly">每月</a>
-                                <a class="btn btn-xs btn-outline-info"
+                                <a class="btn btn-xs btn-outline-info dropdown-item"
                                    asp-page="/Involvings/Involvers"
                                    asp-route-id="@Model.Novel.NovelID"
                                    asp-route-TimeSpan="TotalTime"

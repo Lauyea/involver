@@ -11,9 +11,8 @@
 <h4>回報與意見</h4>
 <hr />
 
-<div>
+<div class="btn-group row">
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
  User, Model.Feedback,
  FeedbackOperations.Update)).Succeeded)
@@ -24,7 +23,6 @@
             編輯
         </a>
     }
-    &nbsp&nbsp
     @if ((await AuthorizationService.AuthorizeAsync(
 User, Model.Feedback,
 FeedbackOperations.Delete)).Succeeded)
@@ -35,27 +33,29 @@ FeedbackOperations.Delete)).Succeeded)
             刪除
         </a>
     }
-    &nbsp&nbsp
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-    &nbsp&nbsp
+</div>
+<p></p>
+<div>
     @if (!Model.Feedback.Accept)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-            User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+           User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
-                <button type="submit" 
+                <button type="submit"
                         asp-page-handler="accept"
                         asp-route-id="@Model.Feedback.FeedbackID"
-                        class="btn btn-xs btn-success">Accept</button>
+                        class="btn btn-xs btn-success">
+                    Accept
+                </button>
             </form>
         }
     }
-    &nbsp&nbsp
     @if (!Model.Feedback.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-       User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+      User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
                 <input type="hidden" name="id" value="@Model.Feedback.FeedbackID" />
@@ -68,7 +68,7 @@ FeedbackOperations.Delete)).Succeeded)
     @if (Model.Feedback.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-       User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+      User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
                 <input type="hidden" name="id" value="@Model.Feedback.FeedbackID" />

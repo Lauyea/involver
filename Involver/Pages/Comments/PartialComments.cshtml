@@ -212,7 +212,8 @@ CommentOperations.Update)).Succeeded && item.Dices.Count() == 0)
                                            asp-route-id="@item.CommentID"
                                            asp-route-from="@from"
                                            asp-route-fromID="@fromID"
-                                           title="編輯"><i class="far fa-edit"></i></a>
+                                           class="dropdown-item"
+                                           title="編輯"><i class="far fa-edit"></i> 編輯</a>
                                     }
                                     @if ((await AuthorizationService.AuthorizeAsync(
 User, item,
@@ -222,7 +223,8 @@ CommentOperations.Delete)).Succeeded)
                                            asp-route-id="@item.CommentID"
                                            asp-route-from="@from"
                                            asp-route-fromID="@fromID"
-                                           title="刪除"><i class="far fa-trash-alt"></i></a>
+                                           class="dropdown-item"
+                                           title="刪除"><i class="far fa-trash-alt"></i> 刪除</a>
                                     }
                                     @if (item.Episode != null)
                                     {

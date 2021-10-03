@@ -14,13 +14,13 @@
 
 <form asp-page="./Index" method="get">
     <div class="form-actions no-color row">
-        <div class="col-md-auto">
+        <p class="col-md-auto">
             <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" style="width:auto" />
-        </div>
-        <div class="col-md-auto">
+        </p>
+        <p class="col-md-auto">
             <input type="submit" value="搜尋" class="btn btn-primary" /> |
             <a asp-page="./Index" class="btn btn-xs btn-outline-secondary">完整清單</a>
-        </div>
+        </p>
     </div>
 </form>
 <p></p>
@@ -34,9 +34,6 @@
 
             </th>
             <th>
-                觀看數 /評論數
-            </th>
-            <th>
                 In幣
             </th>
         </tr>
@@ -47,6 +44,7 @@
             <tr>
                 <td>
                     <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
+                    <p><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></p>
                     @if (item.Block == true)
                     {
                         <span class="text-danger">Block</span>
@@ -60,13 +58,10 @@
                             <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                         </a>
                     </p>
-                    <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
-                </td>
-                <td>
                     <p>
-                        <small>@Html.DisplayFor(modelItem => item.Views)</small>
+                        <small>觀看數:@Html.DisplayFor(modelItem => item.Views)</small>
                     </p>
-                    <small>@(item.Comments.Count()-1)</small>
+                    <small>評論數:@(item.Comments.Count()-1)</small>
                 </td>
                 <td>
                     <p>

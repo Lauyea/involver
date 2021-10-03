@@ -22,20 +22,20 @@
 
 <form asp-page="./Index" method="get">
     <div class="form-actions no-color row">
-        <div class="col-md-auto">
+        <p class="col-md-auto">
             <select asp-for="SearchType" class="form-control" style="width:auto">
                 <option value="">@currentTypeName</option>
                 <option value="Title">標題</option>
                 <option value="OwnerName">作者名稱</option>
             </select>
-        </div>
-        <div class="col-md-auto">
+        </p>
+        <p class="col-md-auto">
             <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" style="width:auto" />
-        </div>
-        <div class="col-md-auto">
+        </p>
+        <p class="col-md-auto">
             <input type="submit" value="搜尋" class="btn btn-primary" /> |
             <a asp-page="./Index" class="btn btn-xs btn-outline-secondary">完整清單</a>
-        </div>
+        </p>
     </div>
 </form>
 <p></p>
