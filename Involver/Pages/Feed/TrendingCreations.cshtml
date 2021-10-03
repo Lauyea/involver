@@ -9,15 +9,13 @@
     <div class="col-4">
         <h4>追蹤</h4>
         <hr />
-        <p>
+        <div class="nav-pills">
             <a asp-page="/Index"
-               class="btn btn-xs btn-outline-info">創作</a>
-        </p>
-        <p>
+               class="btn btn-xs btn-outline-info nav-item">創作</a>
             <a asp-page="/Feed/FollowArticles"
                asp-route-id="@Model.UserProfileID"
-               class="btn btn-xs btn-outline-info">討論</a>
-        </p>
+               class="btn btn-xs btn-outline-info nav-item">討論</a>
+        </div>
         <hr />
     </div>
     <div class="col-4">

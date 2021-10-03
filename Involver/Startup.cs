@@ -55,7 +55,7 @@ namespace Involver
             services.Configure<AuthMessageSenderOptions>(Configuration);
 
             //services.AddRazorPages();
-            services.AddMvc().AddRazorRuntimeCompilation();
+            services.AddMvc();
 
             //宣告 AJAX POST 使用的 Header 名稱
             services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
