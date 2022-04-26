@@ -1,17 +1,27 @@
 ﻿using Ganss.XSS;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Involver.Helpers
 {
+    /// <summary>
+    /// HtmlHelper 的擴充
+    /// </summary>
     public static class HtmlHelperExtensions
     {
-        public static string AntiXssRaw(this IHtmlHelper helper, string html) 
+        /// <summary>
+        /// 內嵌 HTML 時的 XSS 防護
+        /// </summary>
+        /// <param name="helper"></param>
+        /// <param name="html"></param>
+        /// <returns></returns>
+        public static IHtmlContent AntiXssRaw(this IHtmlHelper helper, string html) 
         {
             var sanitizer = new HtmlSanitizer();
 
             var sanitized = sanitizer.Sanitize(html);
 
-            return sanitized;
+            return helper.Raw(sanitized);
         }
     }
 }
