@@ -139,7 +139,7 @@ NovelOperations.Delete)).Succeeded)
 <article>
     @if (Model.Episode.Content != null)
     {
-        @Html.Raw(Model.Episode.Content.Replace("\r\n", "<br />"))
+        @Html.AntiXssRaw(Model.Episode.Content.Replace("\r\n", "<br />"))
     }
 </article>
 
@@ -481,7 +481,7 @@ VotingOperations.Create)).Succeeded)
         }
 
         //Timer function's JS
-        var countDownArray = JSON.parse('@Html.Raw(Model.CountDownArrayJSON)');
+        var countDownArray = JSON.parse('@Html.AntiXssRaw(Model.CountDownArrayJSON)');
         countDownArray.forEach(function (item) {
             var countDownTime = item.countDownTime;
             var id = item.id;

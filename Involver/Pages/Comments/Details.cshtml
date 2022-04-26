@@ -72,7 +72,7 @@ else
 <p></p>
 <div class="row">
     <div class="col-md-6">
-        @Html.Raw(Model.Comment.Content.Replace("\r\n", "<br />"))
+        @Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))
     </div>
     <div class="col-md-1"></div>
     <div class="col-md-2">

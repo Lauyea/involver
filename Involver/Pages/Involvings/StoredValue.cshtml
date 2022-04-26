@@ -8,7 +8,7 @@
 <h1>儲值</h1>
 <hr />
 <div>
-    @Html.Raw((string)TempData["PostForm"])
+    @Html.AntiXssRaw((string)TempData["PostForm"])
 </div>
 <div class="row">
     <div class="col-md-6">

@@ -44,7 +44,7 @@
                 <div class="col-md-4">
                     @if (follow.Follower.Introduction != null)
                     {
-                        @Html.Raw(follow.Follower.Introduction.Replace("\r\n", "<br />"))
+                        @Html.AntiXssRaw(follow.Follower.Introduction.Replace("\r\n", "<br />"))
                     }
                 </div>
                 <div class="col-md-3">

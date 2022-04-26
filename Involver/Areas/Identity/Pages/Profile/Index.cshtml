@@ -100,7 +100,7 @@
                         @Html.DisplayNameFor(model => model.Profile.Introduction)
                     </dt>
                     <dd class="col-sm-10">
-                        @Html.Raw(Model.Profile.Introduction.Replace("\r\n", "<br />"))
+                        @Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))
                     </dd>
                 }
                 <dt class="col-sm-2">
