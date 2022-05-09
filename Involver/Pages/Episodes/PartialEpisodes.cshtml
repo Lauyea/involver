@@ -29,7 +29,7 @@
                                asp-route-id="@item.EpisodeID">
                                 @Html.DisplayFor(modelItem => item.Title)
                             </a>
-                            @*@Html.Raw(item.Title.Replace("\r\n", "<br />"))*@
+                            @*@Html.AntiXssRaw(item.Title.Replace("\r\n", "<br />"))*@
                         </td>
                         <td style="width:20%">
                             @if (item.IsLast == true)

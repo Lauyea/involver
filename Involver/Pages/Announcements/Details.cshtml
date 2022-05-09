@@ -56,13 +56,13 @@ FeedbackOperations.Delete)).Succeeded)
             @Html.DisplayNameFor(model => model.Announcement.Content)
         </dt>
         <dd class="col-sm-10">
-            @Html.Raw(Model.Announcement.Content.Replace("\r\n", "<br />"))
+            @Html.AntiXssRaw(Model.Announcement.Content.Replace("\r\n", "<br />"))
         </dd>*@
     </dl>
 </div>
 
 <article>
-    @Html.Raw(Model.Announcement.Content.Replace("\r\n", "<br />"))
+    @Html.AntiXssRaw(Model.Announcement.Content.Replace("\r\n", "<br />"))
 </article>
 
 <hr />

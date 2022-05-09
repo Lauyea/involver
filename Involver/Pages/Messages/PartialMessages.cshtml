@@ -30,7 +30,7 @@
         {
             <tr id="@item.MessageID">
                 <td style="width:50%">
-                    <p>@Html.Raw(item.Content.Replace("\r\n", "<br />"))</p>
+                    <p>@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
                 </td>
                 <td style="width:20%">
                     @if (item.Comment.EpisodeID != null)

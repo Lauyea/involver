@@ -169,13 +169,13 @@
                                     int NumberOfDices = item.Dices.Count();
                                     int Sides = item.Dices.FirstOrDefault().Sides;
                                     string DiceTotalString = NumberOfDices + "d" + Sides + ": " + DiceTotal;
-                                    @Html.Raw(item.Content.Replace("\r\n", "<br />").Replace("DiceTotal", DiceTotalString))
+                                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />").Replace("DiceTotal", DiceTotalString))
                                 }
                                 else
                                 {
-                                    @Html.Raw(item.Content.Replace("\r\n", "<br />"))
+                                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
                                 }*@
-                            @Html.Raw(item.Content.Replace("\r\n", "<br />"))
+                            @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
                         </p>
                     </div>
                 </div>
