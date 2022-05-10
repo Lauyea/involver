@@ -1,53 +1,133 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Involver.Data;
-using Microsoft.AspNetCore.Hosting;
+using Involver.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using WebPWrecover.Services;
 
-namespace Involver
+var builder = WebApplication.CreateBuilder(args);
+
+var services = builder.Services;
+
+// Add services to the container.
+services.AddHttpClient();
+services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("InvolverConnection")));
+services.AddDefaultIdentity<InvolverUser>(
+    options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+//SendGrid function
+services.AddTransient<IEmailSender, EmailSender>();
+services.Configure<AuthMessageSenderOptions>(builder.Configuration);
+
+//services.AddRazorPages();
+services.AddMvc();
+
+//宣告 AJAX POST 使用的 Header 名稱
+services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
+
+services.AddControllers(config =>
 {
-    public class Program
+    var policy = new AuthorizationPolicyBuilder()
+                     .RequireAuthenticatedUser()
+                     .Build();
+    config.Filters.Add(new AuthorizeFilter(policy));
+});
+
+ServiceExtension.AddAuthorizationHandlers(services);
+
+services.Configure<IdentityOptions>(options =>
+{
+    // Password settings.
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+
+    // Lockout settings.
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // User settings.
+    options.User.AllowedUserNameCharacters =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+    options.User.RequireUniqueEmail = true;
+});
+
+services.ConfigureApplicationCookie(options =>
+{
+    // Cookie settings
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+
+    options.LoginPath = "/Identity/Account/Login";
+    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    options.SlidingExpiration = true;
+});
+
+services.AddAuthentication()
+    .AddGoogle(options =>
     {
-        public static void Main(string[] args)
-        {
-            var host = CreateHostBuilder(args).Build();
+        IConfigurationSection googleAuthNSection =
+            builder.Configuration.GetSection("Authentication:Google");
 
-            using (var scope = host.Services.CreateScope())
-            {
-                var services = scope.ServiceProvider;
+        options.ClientId = googleAuthNSection["ClientId"];
+        options.ClientSecret = googleAuthNSection["ClientSecret"];
+    })
+    .AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+        facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+    });
+services.AddApplicationInsightsTelemetry(builder.Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY"));
 
-                try
-                {
-                    var context = services.GetRequiredService<ApplicationDbContext>();
-                    context.Database.Migrate();
+var app = builder.Build();
 
-                    var config = host.Services.GetRequiredService<IConfiguration>();
+using (var scope = app.Services.CreateScope())
+{
+    var serviceProvider = scope.ServiceProvider;
+    var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+    // requires using Microsoft.Extensions.Configuration;
+    // Set password with the Secret Manager tool.
+    // dotnet user-secrets set SeedUserPW <pw>
 
-                    var testUserPw = config["SeedUserPW"];
+    var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
-                    SeedData.Initialize(services, testUserPw).Wait();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
-                }
-            }
-
-            host.Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+    await SeedData.Initialize(serviceProvider, testUserPw);
 }
+
+// Configure the HTTP request pipeline.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRazorPages();
+    //加上MapDefaultControllerRoute()
+    endpoints.MapDefaultControllerRoute();
+    //支援透過Attribute指定路由
+    endpoints.MapControllers();
+});
+
+app.Run();
