@@ -132,27 +132,10 @@
         return Active;
     }
 
-    int TotalPages = Model.TotalPages + 1;
     int StartPage = 1;
     int EndPage = 1;
-    if (TotalPages < 5)
-    {
-        EndPage = TotalPages;
-    }
-    else
-    {
-        EndPage = 6;
-    }
-    if (Model.PageIndex - 3 > 0)
-    {
-        StartPage = Model.PageIndex - 2;
-        EndPage = StartPage + 5;
-        if (EndPage > TotalPages)
-        {
-            EndPage = TotalPages;
-            StartPage = EndPage - 5;
-        }
-    }
+
+    PageSizeHelper.Get(Model.PageIndex, Model.TotalPages, ref StartPage, ref EndPage);
 }
 
 @if (Model.Count != 0)
@@ -168,7 +151,7 @@
                     第一頁
                 </a>
             </li>
-            @for (int i = StartPage; i < EndPage; i++)
+            @for (int i = StartPage; i < EndPage + 1; i++)
             {
                 <li class="page-item @IsActive(i)">
                     <a asp-page="./Details"
