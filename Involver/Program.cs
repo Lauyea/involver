@@ -17,7 +17,8 @@ services.AddHttpClient();
 services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("InvolverConnection"));
+        builder.Configuration.GetConnectionString("InvolverConnection"),
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 
     options.EnableSensitiveDataLogging();
 });
