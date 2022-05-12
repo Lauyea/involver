@@ -13,9 +13,15 @@ var services = builder.Services;
 
 // Add services to the container.
 services.AddHttpClient();
+
 services.AddDbContext<ApplicationDbContext>(options =>
+{
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("InvolverConnection")));
+        builder.Configuration.GetConnectionString("InvolverConnection"));
+
+    options.EnableSensitiveDataLogging();
+});
+    
 services.AddDefaultIdentity<InvolverUser>(
     options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
