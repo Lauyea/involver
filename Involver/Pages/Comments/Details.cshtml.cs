@@ -188,42 +188,6 @@ namespace Involver.Pages.Comments
             return RedirectToPage("/Comments/Details", "OnGet", new { id, pageIndex });
         }
 
-        public async Task<IActionResult> OnPostAgreeAsync(int id, int fromID, int pageIndex)
-        {
-            string OwenrID = UserManager.GetUserId(User);
-
-            if (OwenrID == null)
-            {
-                return Challenge();
-            }
-
-            Agree ExistingAgree = await Context.Agrees
-                .Where(a => a.MessageID == id)
-                .Where(a => a.ProfileID == OwenrID)
-                .FirstOrDefaultAsync();
-
-            if (ExistingAgree == null)
-            {
-                Agree agree = new Agree
-                {
-                    MessageID = id,
-                    ProfileID = OwenrID,
-                    UpdateTime = DateTime.Now
-                };
-                Context.Agrees.Add(agree);
-                await CheckMissionBeAgreed(id);
-
-                await Context.SaveChangesAsync();
-            }
-            else
-            {
-                Context.Agrees.Remove(ExistingAgree);
-                await Context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Details", "OnGet", new { id = fromID, pageIndex }, id.ToString());
-        }
-
         public async Task<IActionResult> OnPostAgreeMessageAsync(int id)
         {
             string OwenrID = UserManager.GetUserId(User);
