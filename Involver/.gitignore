@@ -7,6 +7,9 @@ local.settings.json
 appsetting.json
 appsettings.Development.json
 
+# Web deploy files
+Properties/
+
 # User-specific files
 *.suo
 *.user
