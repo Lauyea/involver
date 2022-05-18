@@ -36,7 +36,8 @@ namespace Involver.Helpers
 
             IframeWhitelistBase.ForEach((baseUrl) =>
             {
-                if (e.Tag.TagName.ToLower().Equals("iframe") && e.Tag.GetAttribute("src").StartsWith(@"https://" + baseUrl))
+                if (e.Tag.TagName.ToLower().Equals("iframe") 
+                && e.Tag.GetAttribute("src").StartsWith(@"https://" + baseUrl))
                 {
                     e.Cancel = true;
                 }
