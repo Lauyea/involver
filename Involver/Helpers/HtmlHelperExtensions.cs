@@ -19,9 +19,31 @@ namespace Involver.Helpers
         {
             var sanitizer = new HtmlSanitizer();
 
+            sanitizer.AllowedAttributes.Add("class");
+
+            sanitizer.RemovingTag += FilterTags;
+
             var sanitized = sanitizer.Sanitize(html);
 
             return helper.Raw(sanitized);
         }
+
+        static void FilterTags(object sender, RemovingTagEventArgs e)
+        {
+            List<string> IframeWhitelistBase = new List<string>();
+
+            IframeWhitelistBase.Add("www.youtube.com");
+
+            IframeWhitelistBase.ForEach((baseUrl) =>
+            {
+                if (e.Tag.TagName.ToLower().Equals("iframe") 
+                && e.Tag.GetAttribute("src").StartsWith(@"https://" + baseUrl))
+                {
+                    e.Cancel = true;
+                }
+            });
+        }
+
+        
     }
 }
