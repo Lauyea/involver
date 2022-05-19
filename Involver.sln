@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Involver", "Involver\Involv
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvolverRoutineWork", "InvolverRoutineWork\InvolverRoutineWork.csproj", "{AE6938E9-30BE-4F98-875E-1EA09FC95393}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvolverTest", "InvolverTest\InvolverTest.csproj", "{327A717A-CDD9-4551-B1BD-55D9F210CDB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InvolverTest", "InvolverTest\InvolverTest.csproj", "{327A717A-CDD9-4551-B1BD-55D9F210CDB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

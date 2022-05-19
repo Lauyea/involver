@@ -107,7 +107,8 @@ else
     </div>
 </div>
 <p></p>
-<partial name="Messages/PartialMessages" for="@Model.Messages" />
+<div id="partialMessages"></div>
+<ul id="partialMessagesPagination" class="pagination"></ul>
 <p></p>
 <div class="row">
     <div class="col-md-6">
@@ -130,4 +131,24 @@ else
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $('#partialMessagesPagination').twbsPagination({
+            totalPages: @Model.Messages.TotalPages,
+            visiblePages: 5,
+            first: "第一頁",
+            prev: "前一頁",
+            next: "後一頁",
+            last: "最後一頁",
+            onPageClick: function(event, page) {
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("Partial", "Messages")',
+                    data: { commentId: @Model.Comment.CommentID, pageIndex: page },
+                    success: function(result) {
+                        $('#partialMessages').html(result);
+                    }
+                });
+            }
+        });
+    </script>
 }
