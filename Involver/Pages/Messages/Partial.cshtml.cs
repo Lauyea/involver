@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Messages
 {
+    [AllowAnonymous]
     public class PartialModel : DI_BasePageModel
     {
         public PartialModel(
