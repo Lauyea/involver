@@ -9,6 +9,7 @@ using Involver.Data;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Involver.Common;
 
 namespace Involver.Pages.Novels
 {

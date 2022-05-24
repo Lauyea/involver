@@ -139,7 +139,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Common\" />
     <Folder Include="Pages\StatisticalData\ProfitSharings\" />
     <Folder Include="wwwroot\images\" />
   </ItemGroup>

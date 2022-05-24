@@ -1,4 +1,5 @@
-﻿using Involver.Data;
+﻿using Involver.Common;
+using Involver.Data;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

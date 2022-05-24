@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Involver.Models;
 using Involver.Authorization.Novel;
 using NuGet.Frameworks;
+using Involver.Common;
 
 namespace Involver.Pages.Novels
 {
