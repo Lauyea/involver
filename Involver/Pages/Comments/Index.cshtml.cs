@@ -9,6 +9,7 @@ using Involver.Data;
 using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Involver.Common;
 
 namespace Involver.Pages.Comments
 {
@@ -66,9 +67,9 @@ namespace Involver.Pages.Comments
                                        || c.Profile.UserName.Contains(searchString));
             }
 
-            int PageSize = 5;
+            
             Comments = await PaginatedList<Comment>.CreateAsync(
-                comments.AsNoTracking(), PageIndex ?? 1, PageSize);
+                comments.AsNoTracking(), PageIndex ?? 1, Parameters.CommetPageSize);
 
             return Page();
         }

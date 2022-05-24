@@ -9,6 +9,7 @@ using Involver.Data;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Involver.Common;
 
 namespace Involver.Pages.Novels
 {
@@ -135,9 +136,9 @@ namespace Involver.Pages.Novels
                                             || a.ProfileID == currentUserId);
             }
 
-            int PageSize = 5;
+            
             Novels = await PaginatedList<Novel>.CreateAsync(
-                NovelsIQ.AsNoTracking(), PageIndex ?? 1, PageSize);
+                NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
     }
 }

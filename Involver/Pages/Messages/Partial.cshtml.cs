@@ -1,3 +1,4 @@
+using Involver.Common;
 using Involver.Data;
 using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -35,10 +36,8 @@ namespace Involver.Pages.Messages
                 .Where(m => m.CommentID == commentId)
                 .OrderBy(m => m.CommentID);
 
-            int pageSize = 5;
-
             Messages = await PaginatedList<Message>.CreateAsync(
-                messages, pageIndex ?? 1, pageSize);
+                messages, pageIndex ?? 1, Parameters.MessagePageSize);
 
             return Page();
         }

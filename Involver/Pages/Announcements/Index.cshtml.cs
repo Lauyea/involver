@@ -10,6 +10,7 @@ using Involver.Models.AnnouncementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Models;
+using Involver.Common;
 
 namespace Involver.Pages.Announcements
 {
@@ -64,9 +65,8 @@ namespace Involver.Pages.Announcements
 
             await CheckMissionViewAnnouncement();
 
-            int PageSize = 5;
             Announcements = await PaginatedList<Announcement>.CreateAsync(
-                announcements.AsNoTracking(), PageIndex ?? 1, PageSize);
+                announcements.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
 
         private async Task CheckMissionViewAnnouncement()

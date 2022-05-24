@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Models;
 using System.Text.Json;
+using Involver.Common;
 
 namespace Involver.Pages.Episodes
 {
@@ -216,9 +217,9 @@ namespace Involver.Pages.Episodes
                 .Where(c => c.ProfileID == Episode.OwnerID)
                 .OrderBy(c => c.CommentID);
 
-                int pageSize = 100;
+                
                 Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, pageSize);
+                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
             }
             else
             {
@@ -233,87 +234,9 @@ namespace Involver.Pages.Episodes
                 .Where(c => c.EpisodeID == id)
                 .OrderBy(c => c.CommentID);
 
-                int pageSize = 10;
+                
                 Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, pageSize);
-            }
-        }
-
-        public async Task<IActionResult> OnPostAgreeCommentAsync(int id)
-        {
-            string OwenrID = UserManager.GetUserId(User);
-
-            if (OwenrID == null)
-            {
-                return Challenge();
-            }
-
-            Agree ExistingAgree = await Context.Agrees
-                .Where(a => a.CommentID == id)
-                .Where(a => a.ProfileID == OwenrID)
-                .FirstOrDefaultAsync();
-
-            Comment comment = null;
-
-            if (ExistingAgree == null)
-            {
-                Agree agree = new Agree
-                {
-                    CommentID = id,
-                    ProfileID = OwenrID,
-                    UpdateTime = DateTime.Now
-                };
-                Context.Agrees.Add(agree);
-
-                //Check mission:BeAgreed //CheckMissionBeAgreed
-                comment = await Context.Comments
-                    .Where(c => c.CommentID == id)
-                    .Include(c => c.Profile)
-                    .Include(c => c.Agrees)
-                    .FirstOrDefaultAsync();
-                string UserID = comment.ProfileID;
-                Profile Commenter = await Context.Profiles
-                    .Where(p => p.ProfileID == UserID)
-                    .Include(p => p.Missions)
-                    .FirstOrDefaultAsync();
-                if (Commenter.Missions.BeAgreed != true)
-                {
-                    Commenter.Missions.BeAgreed = true;
-                    Commenter.VirtualCoins += 5;
-                    Context.Attach(Commenter).State = EntityState.Modified;
-                }
-                //Check other missions
-                Missions missions = Commenter.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    Commenter.Missions.CompleteOtherMissions = true;
-                    Context.Attach(Commenter).State = EntityState.Modified;
-                }
-
-                await Context.SaveChangesAsync();
-            }
-            else
-            {
-                comment = await Context.Comments
-                    .Where(c => c.CommentID == id)
-                    .Include(c => c.Agrees)
-                    .FirstOrDefaultAsync();
-                Context.Agrees.Remove(ExistingAgree);
-                await Context.SaveChangesAsync();
-            }
-
-            if (comment != null)
-            {
-                return Content(comment.Agrees.Count().ToString());
-            }
-            else
-            {
-                return BadRequest();
+                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
             }
         }
 

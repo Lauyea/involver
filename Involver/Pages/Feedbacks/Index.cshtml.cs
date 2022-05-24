@@ -9,6 +9,7 @@ using Involver.Data;
 using Involver.Models.FeedbackModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Involver.Common;
 
 namespace Involver.Pages.Feedbacks
 {
@@ -80,9 +81,9 @@ namespace Involver.Pages.Feedbacks
                                             || f.OwnerID == currentUserId);
             }
 
-            int PageSize = 5;
+            
             Feedbacks = await PaginatedList<Feedback>.CreateAsync(
-                feedbacks.AsNoTracking(), PageIndex ?? 1, PageSize);
+                feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
     }
 }

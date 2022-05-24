@@ -1,4 +1,5 @@
-﻿using Involver.Data;
+﻿using Involver.Common;
+using Involver.Data;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +27,8 @@ namespace Involver.Controllers.Partial
                 .Where(e => e.NovelID == novelId)
                 .OrderByDescending(e => e.EpisodeID);
 
-            int pageSize = 10;
-
             var paginatedEpisodes = await PaginatedList<Episode>.CreateAsync(
-                episodes, pageIndex ?? 1, pageSize);
+                episodes, pageIndex ?? 1, Parameters.EpisodePageSize);
 
             return PartialView("~/Pages/Episodes/PartialEpisodes.cshtml", paginatedEpisodes);
         }

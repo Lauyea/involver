@@ -10,6 +10,7 @@ using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Message;
+using Involver.Common;
 
 namespace Involver.Pages.Comments
 {
@@ -142,9 +143,9 @@ namespace Involver.Pages.Comments
                 .Where(m => m.CommentID == id)
                 .OrderBy(m => m.CommentID);
 
-            int pageSize = 5;
+            
             Messages = await PaginatedList<Message>.CreateAsync(
-                messages, pageIndex ?? 1, pageSize);
+                messages, pageIndex ?? 1, Parameters.MessagePageSize);
         }
 
         public async Task<IActionResult> OnPostCreateMessageAsync(int id, int pageIndex)
