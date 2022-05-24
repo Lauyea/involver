@@ -79,9 +79,9 @@ namespace Involver.Pages.Feedbacks
                 .Where(c => c.FeedbackID == id)
                 .OrderBy(c => c.CommentID);
 
-            int pageSize = 5;
+            
             Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, pageSize);
+                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         public async Task<IActionResult> OnPostAsync(int id, bool block)

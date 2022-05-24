@@ -67,9 +67,9 @@ namespace Involver.Pages.Comments
                                        || c.Profile.UserName.Contains(searchString));
             }
 
-            int PageSize = 5;
+            
             Comments = await PaginatedList<Comment>.CreateAsync(
-                comments.AsNoTracking(), PageIndex ?? 1, PageSize);
+                comments.AsNoTracking(), PageIndex ?? 1, Parameters.CommetPageSize);
 
             return Page();
         }

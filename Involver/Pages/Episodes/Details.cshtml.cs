@@ -217,9 +217,9 @@ namespace Involver.Pages.Episodes
                 .Where(c => c.ProfileID == Episode.OwnerID)
                 .OrderBy(c => c.CommentID);
 
-                int pageSize = 100;
+                
                 Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, pageSize);
+                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
             }
             else
             {
@@ -234,9 +234,9 @@ namespace Involver.Pages.Episodes
                 .Where(c => c.EpisodeID == id)
                 .OrderBy(c => c.CommentID);
 
-                int pageSize = 10;
+                
                 Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, pageSize);
+                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
             }
         }
 

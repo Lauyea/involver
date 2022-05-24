@@ -131,9 +131,9 @@ namespace Involver.Pages.Articles
                 .Where(c => c.ArticleID == id)
                 .OrderBy(c => c.CommentID);
 
-            int pageSize = 5;
+            
             Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, pageSize);
+                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         private bool ArticleExists(int id)

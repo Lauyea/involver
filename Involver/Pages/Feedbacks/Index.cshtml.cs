@@ -81,9 +81,9 @@ namespace Involver.Pages.Feedbacks
                                             || f.OwnerID == currentUserId);
             }
 
-            int PageSize = 5;
+            
             Feedbacks = await PaginatedList<Feedback>.CreateAsync(
-                feedbacks.AsNoTracking(), PageIndex ?? 1, PageSize);
+                feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
     }
 }

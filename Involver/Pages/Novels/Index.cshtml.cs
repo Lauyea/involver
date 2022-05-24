@@ -136,9 +136,9 @@ namespace Involver.Pages.Novels
                                             || a.ProfileID == currentUserId);
             }
 
-            int PageSize = 5;
+            
             Novels = await PaginatedList<Novel>.CreateAsync(
-                NovelsIQ.AsNoTracking(), PageIndex ?? 1, PageSize);
+                NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
     }
 }

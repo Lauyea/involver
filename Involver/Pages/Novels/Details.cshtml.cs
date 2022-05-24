@@ -61,9 +61,9 @@ namespace Involver.Pages.Novels
                 .Where(e => e.NovelID == id)
                 .OrderByDescending(e => e.EpisodeID);
 
-            int pageSize = 10;
+            
             Episodes = await PaginatedList<Episode>.CreateAsync(
-                episodes, pageIndexEpisode ?? 1, pageSize);
+                episodes, pageIndexEpisode ?? 1, Parameters.EpisodePageSize);
 
             //Check authorization
             var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
@@ -136,9 +136,9 @@ namespace Involver.Pages.Novels
                 .Where(c => c.NovelID == id)
                 .OrderByDescending(c => c.CommentID);
 
-            int pageSize = 5;
+            
             Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, pageSize);
+                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         private bool NovelExists(int id)

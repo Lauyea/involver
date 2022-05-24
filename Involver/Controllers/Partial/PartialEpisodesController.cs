@@ -27,10 +27,8 @@ namespace Involver.Controllers.Partial
                 .Where(e => e.NovelID == novelId)
                 .OrderByDescending(e => e.EpisodeID);
 
-            int pageSize = 10;
-
             var paginatedEpisodes = await PaginatedList<Episode>.CreateAsync(
-                episodes, pageIndex ?? 1, pageSize);
+                episodes, pageIndex ?? 1, Parameters.EpisodePageSize);
 
             return PartialView("~/Pages/Episodes/PartialEpisodes.cshtml", paginatedEpisodes);
         }

@@ -71,9 +71,9 @@ namespace Involver.Pages.Articles
                                             || a.ProfileID == currentUserId);
             }
 
-            int PageSize = 5;
+            
             Articles = await PaginatedList<Article>.CreateAsync(
-                articles.AsNoTracking(), PageIndex ?? 1, PageSize);
+                articles.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
     }
 }
