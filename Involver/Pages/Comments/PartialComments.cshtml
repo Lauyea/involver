@@ -31,28 +31,6 @@
         fromID = Model[0].EpisodeID;
     }
     DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
-
-    string[] AgreeCommentArray = new string[Model.Count()];
-    string[] AgreeCountArray = new string[Model.Count()];
-    int AgreeCommentIndex = 0;
-
-    int GetCommentID(string AgreeComment)
-    {
-        string a = AgreeComment;
-        string b = string.Empty;
-        int val = 0;
-
-        for (int i = 0; i < a.Length; i++)
-        {
-            if (Char.IsDigit(a[i]))
-                b += a[i];
-        }
-
-        if (b.Length > 0)
-            val = int.Parse(b);
-
-        return val;
-    }
 }
 
 
@@ -140,13 +118,10 @@
                         <form method="post" class="d-inline">
                             @{
                                 string AgreeComment = "AgreeComment" + item.CommentID;
-                                AgreeCommentArray[AgreeCommentIndex] = AgreeComment;
                                 string AgreeCount = "AgreeCount" + item.CommentID;
-                                AgreeCountArray[AgreeCommentIndex] = AgreeCount;
-                                AgreeCommentIndex++;
                             }
                             <button type="button" id="@AgreeComment"
-                                    class="btn">
+                                    class="btn" onclick="AgreeComment(this, @item.CommentID)">
                                 <i class="far fa-thumbs-up"></i>
                                 <span id="@AgreeCount">
                                     @if (item.Agrees != null)
@@ -455,40 +430,5 @@ CommentOperations.Delete)).Succeeded)
 @using (Html.BeginScripts())
 {
 <script>
-    @{
-        AgreeCommentIndex = 0;
-    }
-        @foreach(string AgreeComment in AgreeCommentArray)
-        {
-            if (AgreeComment == null)
-            {
-                break;
-            }
-            <text>
-            $("#@AgreeComment").click(function () {
-                $.ajax({
-                    method: "post",
-                    url: "Details?handler=AgreeComment&id=@GetCommentID(AgreeComment)",
-                    //加上X-CSRF-TOKEN header
-                    beforeSend: function (xhr) {
-                        xhr.setRequestHeader("X-CSRF-TOKEN",
-                            $('input:hidden[name="__RequestVerificationToken"]').val());
-                    },
-                    error: function (xhr, status, err) {
-                        if (xhr.status === 401 || xhr.status === 403) {
-                            alert("請先登入");
-                        }
-                        else {
-                            alert("系統錯誤：未搜索到指定評論");
-                        }
-                    }
-                }).done(function (res) {
-                    $("#@AgreeCountArray[AgreeCommentIndex]").text(res);
-                });
-            });
-            </text>
-            AgreeCommentIndex++;
-        }
-
 </script>
 }
