@@ -48,7 +48,7 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
 
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
 
             if(UserID == null)
             {

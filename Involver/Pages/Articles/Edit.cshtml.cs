@@ -29,14 +29,14 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            Article = await Context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+            Article = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Article == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Article,
                                                   ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -57,7 +57,7 @@ namespace Involver.Pages.Articles
             }
 
             // Fetch data from DB to get OwnerID.
-            Article articleToUpdate = await Context
+            Article articleToUpdate = await _context
                 .Articles.AsNoTracking()
                 .FirstOrDefaultAsync(a => a.ArticleID == id);
 
@@ -66,7 +66,7 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, articleToUpdate,
                                                   ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -81,11 +81,11 @@ namespace Involver.Pages.Articles
             {
                 articleToUpdate.UpdateTime = DateTime.Now;
 
-                Context.Attach(articleToUpdate).State = EntityState.Modified;
+                _context.Attach(articleToUpdate).State = EntityState.Modified;
 
                 try
                 {
-                    await Context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -118,7 +118,7 @@ namespace Involver.Pages.Articles
 
         private bool ArticleExists(int id)
         {
-            return Context.Articles.Any(e => e.ArticleID == id);
+            return _context.Articles.Any(e => e.ArticleID == id);
         }
     }
 }

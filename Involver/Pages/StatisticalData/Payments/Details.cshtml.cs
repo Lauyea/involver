@@ -27,14 +27,14 @@ namespace Involver.Pages.StatisticalData.Payments
                 return NotFound();
             }
 
-            Payment = await Context.Payments.FirstOrDefaultAsync(p => p.PaymentID == id);
+            Payment = await _context.Payments.FirstOrDefaultAsync(p => p.PaymentID == id);
 
             if (Payment == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Payment,
                                                  PaymentOperations.Delete);
             if (!isAuthorized.Succeeded)

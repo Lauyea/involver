@@ -30,14 +30,14 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await Context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
+            Feedback = await _context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
 
             if (Feedback == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Feedback,
                                                  FeedbackOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -55,13 +55,13 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await Context.Feedbacks.Include(f => f.Comments).FirstOrDefaultAsync(f => f.FeedbackID == id);
+            Feedback = await _context.Feedbacks.Include(f => f.Comments).FirstOrDefaultAsync(f => f.FeedbackID == id);
 
-            var comments = from c in Context.Comments
+            var comments = from c in _context.Comments
                            where c.FeedbackID == id
                            select c;
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Feedback,
                                                  FeedbackOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -71,9 +71,9 @@ namespace Involver.Pages.Feedbacks
             
             if (Feedback != null)
             {
-                Context.Comments.RemoveRange(comments);
-                Context.Feedbacks.Remove(Feedback);
-                await Context.SaveChangesAsync();
+                _context.Comments.RemoveRange(comments);
+                _context.Feedbacks.Remove(Feedback);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

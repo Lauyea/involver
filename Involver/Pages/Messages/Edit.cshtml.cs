@@ -29,7 +29,7 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            Message = await Context.Messages
+            Message = await _context.Messages
                 .Include(m => m.Comment).FirstOrDefaultAsync(m => m.MessageID == id);
 
             if (Message == null)
@@ -37,7 +37,7 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Message,
                                                   MessageOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -58,7 +58,7 @@ namespace Involver.Pages.Messages
             }
 
             // Fetch data from DB to get OwnerID.
-            var message = await Context
+            var message = await _context
                 .Messages
                 .Include(m => m.Comment)
                 .AsNoTracking()
@@ -69,7 +69,7 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, message,
                                                   MessageOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -81,11 +81,11 @@ namespace Involver.Pages.Messages
             Message.UpdateTime = DateTime.Now;
             Message.CommentID = fromID;
 
-            Context.Attach(Message).State = EntityState.Modified;
+            _context.Attach(Message).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -104,7 +104,7 @@ namespace Involver.Pages.Messages
 
         private bool MessageExists(int id)
         {
-            return Context.Messages.Any(e => e.MessageID == id);
+            return _context.Messages.Any(e => e.MessageID == id);
         }
     }
 }

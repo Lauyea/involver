@@ -29,7 +29,7 @@ namespace Involver.Pages.StatisticalData.Payments
                 return Forbid();
             }
 
-            Payments = Context.Payments.OrderByDescending(p => p.PaymentDate).ToList();
+            Payments = _context.Payments.OrderByDescending(p => p.PaymentDate).ToList();
             return Page();
         }
     }

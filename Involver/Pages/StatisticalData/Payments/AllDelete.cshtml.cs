@@ -23,14 +23,14 @@ namespace Involver.Pages.StatisticalData.Payments
         public async Task<IActionResult> OnGetAsync()
         {
 
-            Payments = await Context.Payments.ToListAsync();
+            Payments = await _context.Payments.ToListAsync();
 
             if (Payments.Count == 0)
             {
                 return Content("µL¸ê®Æ");
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Payments[0],
                                                  PaymentOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -43,9 +43,9 @@ namespace Involver.Pages.StatisticalData.Payments
 
         public async Task<IActionResult> OnPostAsync()
         {
-            Payments = await Context.Payments.ToListAsync();
+            Payments = await _context.Payments.ToListAsync();
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Payments[0],
                                                  PaymentOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -55,8 +55,8 @@ namespace Involver.Pages.StatisticalData.Payments
 
             if (Payments != null)
             {
-                Context.Payments.RemoveRange(Payments);
-                await Context.SaveChangesAsync();
+                _context.Payments.RemoveRange(Payments);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

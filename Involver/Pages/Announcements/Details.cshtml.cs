@@ -35,7 +35,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await Context.Announcements
+            Announcement = await _context.Announcements
                 .FirstOrDefaultAsync(m => m.AnnouncementID == id);
             await SetComments(id, pageIndex);
 
@@ -45,11 +45,11 @@ namespace Involver.Pages.Announcements
             }
 
             Announcement.Views++;
-            Context.Attach(Announcement).State = EntityState.Modified;
+            _context.Attach(Announcement).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -68,7 +68,7 @@ namespace Involver.Pages.Announcements
 
         private async Task SetComments(int? id, int? pageIndex)
         {
-            IQueryable<Comment> comments = from c in Context.Comments
+            IQueryable<Comment> comments = from c in _context.Comments
                                            select c;
             comments = comments
                 .Include(c => c.Agrees)
@@ -84,7 +84,7 @@ namespace Involver.Pages.Announcements
 
         private bool AnnouncementExists(int id)
         {
-            return Context.Announcements.Any(e => e.AnnouncementID == id);
+            return _context.Announcements.Any(e => e.AnnouncementID == id);
         }
     }
 }

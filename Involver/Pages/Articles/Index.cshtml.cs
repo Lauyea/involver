@@ -43,7 +43,7 @@ namespace Involver.Pages.Articles
             }
             CurrentFilter = searchString;
 
-            var articles = Context.Articles
+            var articles = _context.Articles
                 .Include(a => a.Comments)
                 .Include(a => a.Profile)
                 .AsQueryable();
@@ -61,7 +61,7 @@ namespace Involver.Pages.Articles
             var isAuthorized = User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackManagersRole) ||
                            User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackAdministratorsRole);
 
-            var currentUserId = UserManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
 
             // Only approved contacts are shown UNLESS you're authorized to see them
             // or you are the owner.

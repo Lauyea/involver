@@ -28,11 +28,11 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            Messages = await Context.Messages
+            Messages = await _context.Messages
                 .Include(m => m.Comment)
                 .Where(c => c.ProfileID == id)
                 .OrderByDescending(m => m.UpdateTime)

@@ -100,6 +100,14 @@ else
                          title="@Model.Comment.Profile.UserName"
                          style="width: 25%; height: auto; display:inline; border-radius:10%">
                 }
+                else
+                {
+                    var user = await userManager.FindByIdAsync(Model.Comment.ProfileID);
+                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
+                         alt="讀取失敗"
+                         title="@Model.Comment.Profile.UserName"
+                         style="width: 25%; height: auto; display:inline; border-radius:10%">
+                }
                 <small>@Html.DisplayFor(model => model.Comment.Profile.UserName)</small>
             </a>
         </p>

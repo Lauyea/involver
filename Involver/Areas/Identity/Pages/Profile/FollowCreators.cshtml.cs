@@ -29,13 +29,13 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
 
-            Profile = await Context.Profiles
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
 
-            Follows = await Context.Follows
+            Follows = await _context.Follows
                 .Include(f => f.Profile)
                 .Where(f => f.FollowerID == id)
                 .OrderByDescending(f => f.UpdateTime)

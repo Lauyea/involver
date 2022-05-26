@@ -29,7 +29,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            Episode = await Context.Episodes
+            Episode = await _context.Episodes
                 .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
 
             if (Episode == null)
@@ -37,7 +37,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Episode.Novel,
                                                   NovelOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -58,7 +58,7 @@ namespace Involver.Pages.Episodes
             }
 
             // Fetch data from DB to get OwnerID.
-            Episode episode = await Context
+            Episode episode = await _context
                 .Episodes
                 .Include(e => e.Novel)
                 .AsNoTracking()
@@ -69,7 +69,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, episode.Novel,
                                                   NovelOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -79,16 +79,16 @@ namespace Involver.Pages.Episodes
 
             Episode.UpdateTime = DateTime.Now;
             Episode.Views = episode.Views;
-            Episode.OwnerID = UserManager.GetUserId(User);
+            Episode.OwnerID = _userManager.GetUserId(User);
             Episode.HasVoting = episode.HasVoting;
             Episode.IsLast = episode.IsLast;
             Episode.NovelID = episode.NovelID;
 
-            Context.Attach(Episode).State = EntityState.Modified;
+            _context.Attach(Episode).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -107,7 +107,7 @@ namespace Involver.Pages.Episodes
 
         private bool EpisodeExists(int id)
         {
-            return Context.Episodes.Any(e => e.EpisodeID == id);
+            return _context.Episodes.Any(e => e.EpisodeID == id);
         }
     }
 }

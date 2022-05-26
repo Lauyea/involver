@@ -27,8 +27,8 @@ namespace Involver.Pages.Involvings
 
         private async Task LoadAsync(int id)
         {
-            UserID = UserManager.GetUserId(User);
-            Article = await Context.Articles
+            UserID = _userManager.GetUserId(User);
+            Article = await _context.Articles
                 .Include(a => a.Profile)
                 .Where(a => a.ArticleID == id)
                 .FirstOrDefaultAsync();
@@ -74,10 +74,10 @@ namespace Involver.Pages.Involvings
                 return NotFound();
             }
 
-            Profile Involver = await Context.Profiles
+            Profile Involver = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .FirstOrDefaultAsync();
-            Profile Creator = await Context.Profiles
+            Profile Creator = await _context.Profiles
             .Where(p => p.ProfileID == Article.ProfileID)
             .FirstOrDefaultAsync();
 
@@ -87,15 +87,15 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//文章直接贊助，作者得50%分潤
-            Context.Attach(Creator).State = EntityState.Modified;
+            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
-            Context.Attach(Involver).State = EntityState.Modified;
+            _context.Attach(Involver).State = EntityState.Modified;
 
             Article.MonthlyCoins += Involving.Value;
             Article.TotalCoins += Involving.Value;
-            Context.Attach(Article).State = EntityState.Modified;
+            _context.Attach(Article).State = EntityState.Modified;
 
-            Involving ExistingInvolving = await Context.Involvings
+            Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.ArticleID == ArticleID)
                 .Where(i => i.InvolverID == UserID)
                 .FirstOrDefaultAsync();
@@ -106,7 +106,7 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += Involving.Value;
                 ExistingInvolving.TotalValue += Involving.Value;
                 ExistingInvolving.LastTime = DateTime.Now;
-                Context.Attach(ExistingInvolving).State = EntityState.Modified;
+                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {
@@ -119,9 +119,9 @@ namespace Involver.Pages.Involvings
                     InvolverID = UserID,
                     ArticleID = ArticleID
                 };
-                Context.Involvings.Add(newInvolving);
+                _context.Involvings.Add(newInvolving);
             }
-            await Context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             return RedirectToPage("/Articles/Details", "OnGet", new { id = Article.ArticleID });
         }
     }

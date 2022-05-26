@@ -25,7 +25,7 @@ namespace Involver.Pages.Comments
         public IActionResult OnGet(string from, int? fromID)
         {
             From = from;
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
             if (from == "Episodes")
             {
                 DetermindEpisodeOwner(fromID);
@@ -55,17 +55,17 @@ namespace Involver.Pages.Comments
                 return Page();
             }
 
-            var user = await UserManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user.Banned)
             {
                 return Forbid();
             }
 
             From = from;
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
             Comment.ProfileID = UserID;
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Comment,
                                                         CommentOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -125,10 +125,10 @@ namespace Involver.Pages.Comments
 
             ReplaceRollDiceString(random);
 
-            Context.Comments.Add(Comment);
+            _context.Comments.Add(Comment);
             await CheckMissionLeaveComment();
 
-            await Context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             if (from != null)
             {
                 return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "CommentHead");
@@ -224,7 +224,7 @@ namespace Involver.Pages.Comments
         private async Task CheckMissionLeaveComment()
         {
             //Check mission:LeaveComment
-            Profile Commenter = await Context.Profiles
+            Profile Commenter = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
@@ -232,7 +232,7 @@ namespace Involver.Pages.Comments
             {
                 Commenter.Missions.LeaveComment = true;
                 Commenter.VirtualCoins += 5;
-                Context.Attach(Commenter).State = EntityState.Modified;
+                _context.Attach(Commenter).State = EntityState.Modified;
                 //StatusMessage = "每週任務：留一則評論 已完成，獲得5 虛擬In幣。";
             }
             //Check other missions
@@ -245,13 +245,13 @@ namespace Involver.Pages.Comments
                 && missions.BeAgreed)
             {
                 Commenter.Missions.CompleteOtherMissions = true;
-                Context.Attach(Commenter).State = EntityState.Modified;
+                _context.Attach(Commenter).State = EntityState.Modified;
             }
         }
 
         private void DetermindEpisodeOwner(int? fromID)
         {
-            Episode episode =  Context.Episodes
+            Episode episode =  _context.Episodes
                                 .Where(e => e.EpisodeID == fromID)
                                 .FirstOrDefault();
             if (episode.OwnerID == UserID)

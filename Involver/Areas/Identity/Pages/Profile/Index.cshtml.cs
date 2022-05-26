@@ -29,13 +29,13 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
             if (UserID == id)
             {
                 ProfileOwner = true;
             }
-            InvolverUser = await Context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
-            Profile = await Context.Profiles
+            InvolverUser = await _context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+            Profile = await _context.Profiles
                 .Include(p => p.Follows)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
@@ -61,8 +61,8 @@ namespace Involver.Areas.Identity.Pages.Profile
             if(Profile != null)
             {
                 Profile.Views++;
-                Context.Attach(Profile).State = EntityState.Modified;
-                await Context.SaveChangesAsync();
+                _context.Attach(Profile).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
                 return Page();
             }
             else
@@ -86,16 +86,16 @@ namespace Involver.Areas.Identity.Pages.Profile
                 Profile.Banned = true;
                 StatusMessage = "You banned this user successly.";
             }
-            Context.Attach(Profile).State = EntityState.Modified;
-            Context.Attach(InvolverUser).State = EntityState.Modified;
-            await Context.SaveChangesAsync();
+            _context.Attach(Profile).State = EntityState.Modified;
+            _context.Attach(InvolverUser).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             
             return Page();
         }
 
         public async Task<IActionResult> OnPostFollowAsync(string id)
         {
-            Profile = await Context.Profiles
+            Profile = await _context.Profiles
                 .Include(p => p.Follows)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
@@ -104,7 +104,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             {
                 return Page();
             }
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Follow follow = Profile.Follows.Where(f => f.FollowerID == UserID).FirstOrDefault();
 
             if (follow == null)
@@ -117,13 +117,13 @@ namespace Involver.Areas.Identity.Pages.Profile
                     NovelMonthlyInvolver = false,
                     ProfileMonthlyInvolver = false
                 };
-                Context.Follows.Add(newFollow);
-                await Context.SaveChangesAsync();
+                _context.Follows.Add(newFollow);
+                await _context.SaveChangesAsync();
             }
             else
             {
-                Context.Follows.Remove(follow);
-                await Context.SaveChangesAsync();
+                _context.Follows.Remove(follow);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index", "OnGet", new { id });

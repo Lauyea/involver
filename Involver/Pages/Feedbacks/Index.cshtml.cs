@@ -51,7 +51,7 @@ namespace Involver.Pages.Feedbacks
             CurrentFilter = searchString;
             CurrentType = searchType;
 
-            var feedbacks = from f in Context.Feedbacks
+            var feedbacks = from f in _context.Feedbacks
                             select f;
 
             if (!String.IsNullOrEmpty(searchString))
@@ -71,7 +71,7 @@ namespace Involver.Pages.Feedbacks
             var isAuthorized = User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackManagersRole) ||
                            User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackAdministratorsRole);
 
-            var currentUserId = UserManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
 
             // Only approved contacts are shown UNLESS you're authorized to see them
             // or you are the owner.

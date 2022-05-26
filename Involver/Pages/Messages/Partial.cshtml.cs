@@ -24,7 +24,7 @@ namespace Involver.Pages.Messages
 
         public async Task<IActionResult> OnGetAsync(int? commentId, int? pageIndex)
         {
-            IQueryable<Message> messages = from m in Context.Messages
+            IQueryable<Message> messages = from m in _context.Messages
                                            select m;
             messages = messages
                 .Include(m => m.Comment)

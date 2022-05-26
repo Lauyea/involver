@@ -31,7 +31,7 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            Comment = await Context.Comments
+            Comment = await _context.Comments
                 .Include(c => c.Announcement)
                 .Include(c => c.Episode)
                 .Include(c => c.Feedback)
@@ -45,7 +45,7 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Comment,
                                                   CommentOperations.Update);
             if (!isAuthorized.Succeeded || Comment.Dices.Count() > 0)
@@ -66,7 +66,7 @@ namespace Involver.Pages.Comments
             }
 
             // Fetch data from DB to get OwnerID.
-            var comment = await Context
+            var comment = await _context
                 .Comments.AsNoTracking()
                 .FirstOrDefaultAsync(c => c.CommentID == id);
 
@@ -75,7 +75,7 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, comment,
                                                   CommentOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -83,7 +83,7 @@ namespace Involver.Pages.Comments
                 return Forbid();
             }
 
-            isAuthorized = await AuthorizationService.AuthorizeAsync(
+            isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, comment,
                                                   CommentOperations.Block);
 
@@ -116,11 +116,11 @@ namespace Involver.Pages.Comments
                 Comment.EpisodeID = fromID;
             }
 
-            Context.Attach(Comment).State = EntityState.Modified;
+            _context.Attach(Comment).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -139,7 +139,7 @@ namespace Involver.Pages.Comments
 
         private bool CommentExists(int id)
         {
-            return Context.Comments.Any(e => e.CommentID == id);
+            return _context.Comments.Any(e => e.CommentID == id);
         }
     }
 }

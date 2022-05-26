@@ -43,15 +43,15 @@ namespace Involver.Pages.Articles
             //    return Page();
             //}
 
-            var user = await UserManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user.Banned)
             {
                 return Forbid();
             }
 
-            Article.ProfileID = UserManager.GetUserId(User);
+            Article.ProfileID = _userManager.GetUserId(User);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Article,
                                                         ArticleOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -85,14 +85,14 @@ namespace Involver.Pages.Articles
                 f => f.Title, f => f.Content))
             {
                 emptyArticle.UpdateTime = DateTime.Now;
-                var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);
+                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);
                 emptyArticle.ProfileID = Article.ProfileID;
                 emptyArticle.Views = 0;
                 emptyArticle.Block = false;
                 emptyArticle.TotalCoins = 0;
                 emptyArticle.MonthlyCoins = 0;
-                Context.Articles.Add(emptyArticle);
-                await Context.SaveChangesAsync();
+                _context.Articles.Add(emptyArticle);
+                await _context.SaveChangesAsync();
 
                 return RedirectToPage("./Index");
             }

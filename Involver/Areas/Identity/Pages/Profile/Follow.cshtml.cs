@@ -29,11 +29,11 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            Follows = await Context.Follows
+            Follows = await _context.Follows
                 .Include(f => f.Novel)
                     .ThenInclude(n => n.Episodes)
                  .Include(f => f.Novel)

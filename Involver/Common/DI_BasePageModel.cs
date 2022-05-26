@@ -7,18 +7,18 @@ namespace Involver.Common
 {
     public class DI_BasePageModel : PageModel
     {
-        protected ApplicationDbContext Context { get; }
-        protected IAuthorizationService AuthorizationService { get; }
-        protected UserManager<InvolverUser> UserManager { get; }
+        protected ApplicationDbContext _context { get; }
+        protected IAuthorizationService _authorizationService { get; }
+        protected UserManager<InvolverUser> _userManager { get; }
 
         public DI_BasePageModel(
             ApplicationDbContext context,
             IAuthorizationService authorizationService,
             UserManager<InvolverUser> userManager) : base()
         {
-            Context = context;
-            UserManager = userManager;
-            AuthorizationService = authorizationService;
+            _context = context;
+            _userManager = userManager;
+            _authorizationService = authorizationService;
         }
     }
 }

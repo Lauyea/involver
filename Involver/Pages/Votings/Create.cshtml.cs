@@ -24,9 +24,9 @@ namespace Involver.Pages.Votings
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Voting voting = Context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
+            Voting voting = _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, voting,
                                                         VotingOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -34,8 +34,8 @@ namespace Involver.Pages.Votings
                 return Forbid();
             }
 
-            Profile = await Context.Profiles
-                .Where(p => p.ProfileID == UserManager.GetUserId(User))
+            Profile = await _context.Profiles
+                .Where(p => p.ProfileID == _userManager.GetUserId(User))
                 .FirstOrDefaultAsync();
 
             return Page();
@@ -74,8 +74,8 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            Profile = await Context.Profiles
-                .Where(p => p.ProfileID == UserManager.GetUserId(User))
+            Profile = await _context.Profiles
+                .Where(p => p.ProfileID == _userManager.GetUserId(User))
                 .FirstOrDefaultAsync();
 
             if (Voting.Limit == Voting.LimitType.Time && Voting.DeadLine == null)
@@ -94,9 +94,9 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            Voting voting = Context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
+            Voting voting = _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, voting,
                                                         VotingOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -110,11 +110,11 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            NormalOption1.OwnerID = UserManager.GetUserId(User);
+            NormalOption1.OwnerID = _userManager.GetUserId(User);
             NormalOption1.TotalCoins = 0;
-            NormalOption2.OwnerID = UserManager.GetUserId(User);
+            NormalOption2.OwnerID = _userManager.GetUserId(User);
             NormalOption2.TotalCoins = 0;
-            NormalOption3.OwnerID = UserManager.GetUserId(User);
+            NormalOption3.OwnerID = _userManager.GetUserId(User);
             NormalOption3.TotalCoins = 0;
 
             Voting NewVoting = new Voting()
@@ -133,7 +133,7 @@ namespace Involver.Pages.Votings
                 "Voting",   // Prefix for form value.
                 v => v.Policy, v => v.Limit, v => v.Threshold, v => v.Title))
             {
-                NewVoting.OwnerID = UserManager.GetUserId(User);
+                NewVoting.OwnerID = _userManager.GetUserId(User);
                 NewVoting.Mode = Voting.ModeType.Normal;
                 NewVoting.End = false;
                 NewVoting.TotalCoins = 0;
@@ -153,8 +153,8 @@ namespace Involver.Pages.Votings
                     NewVoting.CoinLimit = Voting.CoinLimit;
                 }
 
-                Context.Votings.Add(NewVoting);
-                await Context.SaveChangesAsync();
+                _context.Votings.Add(NewVoting);
+                await _context.SaveChangesAsync();
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id }, "Voting");
             }

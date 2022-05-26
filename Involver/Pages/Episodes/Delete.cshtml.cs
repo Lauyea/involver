@@ -30,7 +30,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            Episode = await Context.Episodes
+            Episode = await _context.Episodes
                 .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
 
             if (Episode == null)
@@ -38,7 +38,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Episode.Novel,
                                                  NovelOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -56,10 +56,10 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            Episode = await Context.Episodes
+            Episode = await _context.Episodes
                 .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Episode.Novel,
                                                  NovelOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -67,19 +67,19 @@ namespace Involver.Pages.Episodes
                 return Forbid();
             }
 
-            var comments = from c in Context.Comments
+            var comments = from c in _context.Comments
                            where c.EpisodeID == id
                            select c;
-            var votes = from v in Context.Votes
+            var votes = from v in _context.Votes
                         where v.NormalOption.Voting.EpisodeID == id
                         select v;
 
             if (Episode != null)
             {
-                Context.Votes.RemoveRange(votes);
-                Context.Comments.RemoveRange(comments);
-                Context.Episodes.Remove(Episode);
-                await Context.SaveChangesAsync();
+                _context.Votes.RemoveRange(votes);
+                _context.Comments.RemoveRange(comments);
+                _context.Episodes.Remove(Episode);
+                await _context.SaveChangesAsync();
             }
 
             //return RedirectToPage("./Index");

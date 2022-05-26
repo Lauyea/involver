@@ -42,14 +42,14 @@ namespace Involver.Pages.Episodes
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex, bool? showCommentByCreator)
         {
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
             ShowCommentByCreator = showCommentByCreator ?? false;
             if (id == null)
             {
                 return NotFound();
             }
 
-            Episode = await Context.Episodes
+            Episode = await _context.Episodes
                 .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
 
             Novel = Episode.Novel;
@@ -61,19 +61,19 @@ namespace Involver.Pages.Episodes
 
             await SetComments(id, pageIndex, ShowCommentByCreator);
 
-            PreviousEpisode = await Context.Episodes
+            PreviousEpisode = await _context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID < id)
                 .OrderByDescending(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            NextEpisode = await Context.Episodes
+            NextEpisode = await _context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
                 .Where(e => e.EpisodeID > id)
                 .OrderBy(e => e.EpisodeID)
                 .FirstOrDefaultAsync();
 
-            Votings = await Context.Votings
+            Votings = await _context.Votings
                 .Where(v => v.EpisodeID == id)
                 .Include(v => v.NormalOptions)
                     .ThenInclude(n => n.Votes)
@@ -96,7 +96,7 @@ namespace Involver.Pages.Episodes
                     if (dateString.StartsWith("-") && voting.End == false)
                     {
                         voting.End = true;
-                        Context.Attach(voting).State = EntityState.Modified;
+                        _context.Attach(voting).State = EntityState.Modified;
                     }
 
                     var countDown = new CountDown()
@@ -119,7 +119,7 @@ namespace Involver.Pages.Episodes
                     if (TotalVotesCount > voting.NumberLimit && voting.End == false)
                     {
                         voting.End = true;
-                        Context.Attach(voting).State = EntityState.Modified;
+                        _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
 
@@ -129,7 +129,7 @@ namespace Involver.Pages.Episodes
                     if (voting.TotalCoins > voting.CoinLimit && voting.End == false)
                     {
                         voting.End = true;
-                        Context.Attach(voting).State = EntityState.Modified;
+                        _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
             }
@@ -140,12 +140,12 @@ namespace Involver.Pages.Episodes
 
             //Add views
             Episode.Views++;
-            Context.Attach(Episode).State = EntityState.Modified;
+            _context.Attach(Episode).State = EntityState.Modified;
             CheckMissionWatchArticle();
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -165,10 +165,10 @@ namespace Involver.Pages.Episodes
         private void CheckMissionWatchArticle()
         {
             //Check mission:WatchArticle
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             if (UserID != null)
             {
-                Profile userProfile = Context.Profiles
+                Profile userProfile = _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
                 .FirstOrDefault();
@@ -176,7 +176,7 @@ namespace Involver.Pages.Episodes
                 {
                     userProfile.Missions.WatchArticle = true;
                     userProfile.VirtualCoins += 5;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -189,19 +189,19 @@ namespace Involver.Pages.Episodes
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
             }
         }
 
         private bool EpisodeExists(int id)
         {
-            return Context.Episodes.Any(e => e.EpisodeID == id);
+            return _context.Episodes.Any(e => e.EpisodeID == id);
         }
 
         private async Task SetComments(int? id, int? pageIndex, bool ShowCommentByCreator)
         {
-            IQueryable<Comment> comments = from c in Context.Comments
+            IQueryable<Comment> comments = from c in _context.Comments
                                            select c;
             if (ShowCommentByCreator == true)
             {
@@ -248,14 +248,14 @@ namespace Involver.Pages.Episodes
 
         public async Task<IActionResult> OnPostBlockAsync(int id, int fromID, int pageIndex)
         {
-            string OwenrID = UserManager.GetUserId(User);
+            string OwenrID = _userManager.GetUserId(User);
 
             if (OwenrID == null)
             {
                 return Challenge();
             }
 
-            Comment comment = await Context.Comments
+            Comment comment = await _context.Comments
                 .Where(c => c.CommentID == id)
                 .FirstOrDefaultAsync();
             if(comment.Block == false)
@@ -266,8 +266,8 @@ namespace Involver.Pages.Episodes
             {
                 comment.Block = false;
             }
-            Context.Attach(comment).State = EntityState.Modified;
-            await Context.SaveChangesAsync();
+            _context.Attach(comment).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Details", "OnGet", new { id = fromID, pageIndex }, "CommentHead");
         }
@@ -275,10 +275,10 @@ namespace Involver.Pages.Episodes
         public async Task<IActionResult> OnPostShareAsync(int id)
         {
             //Check mission:ShareCreation //CheckMissionShareCreation
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             if(UserID != null)
             {
-                Profile userProfile = await Context.Profiles
+                Profile userProfile = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
@@ -286,7 +286,7 @@ namespace Involver.Pages.Episodes
                 {
                     userProfile.Missions.ShareCreation = true;
                     userProfile.VirtualCoins += 5;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：分享一次創作 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -299,9 +299,9 @@ namespace Involver.Pages.Episodes
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             return RedirectToPage("./Details", "OnGet", new { id }, "Share");
         }

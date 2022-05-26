@@ -30,14 +30,14 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            Article = await Context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+            Article = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Article == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Article,
                                                  ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -55,9 +55,9 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            Article = await Context.Articles.FindAsync(id);
+            Article = await _context.Articles.FindAsync(id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Article,
                                                  ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -65,19 +65,19 @@ namespace Involver.Pages.Articles
                 return Forbid();
             }
 
-            var comments = from c in Context.Comments
+            var comments = from c in _context.Comments
                            where c.ArticleID == id
                            select c;
-            var involvings = from i in Context.Involvings
+            var involvings = from i in _context.Involvings
                              where i.ArticleID == id
                              select i;
 
             if (Article != null)
             {
-                Context.Involvings.RemoveRange(involvings);
-                Context.Comments.RemoveRange(comments);
-                Context.Articles.Remove(Article);
-                await Context.SaveChangesAsync();
+                _context.Involvings.RemoveRange(involvings);
+                _context.Comments.RemoveRange(comments);
+                _context.Articles.Remove(Article);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

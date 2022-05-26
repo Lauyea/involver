@@ -30,7 +30,7 @@ namespace Involver.Pages.Episodes
                 return Forbid();
             }
 
-            Episode = await Context.Episodes
+            Episode = await _context.Episodes
                 .Include(e => e.Novel).ToListAsync();
 
             return Page();

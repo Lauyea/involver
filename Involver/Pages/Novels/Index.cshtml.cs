@@ -59,7 +59,7 @@ namespace Involver.Pages.Novels
             CurrentFilter = searchString;
             CurrentType = searchType;
 
-            IQueryable<Novel> NovelsIQ = from n in Context.Novels.Include("Profile")
+            IQueryable<Novel> NovelsIQ = from n in _context.Novels.Include("Profile")
                                          select n;
 
             if (!String.IsNullOrEmpty(searchString))
@@ -126,7 +126,7 @@ namespace Involver.Pages.Novels
             var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
                            User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
 
-            var currentUserId = UserManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
 
             // Only approved contacts are shown UNLESS you're authorized to see them
             // or you are the owner.

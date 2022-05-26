@@ -52,7 +52,7 @@ namespace Involver.Pages.Comments
 
             //IQueryable<Comment> comments = from c in Context.Comments
             //                               select c;
-            IQueryable<Comment> comments = Context.Comments
+            IQueryable<Comment> comments = _context.Comments
             .Include(c => c.Announcement)
             .Include(c => c.Episode)
             .Include(c => c.Feedback)

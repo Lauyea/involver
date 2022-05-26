@@ -41,7 +41,7 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            Comment = await Context.Comments
+            Comment = await _context.Comments
                 .Include(c => c.Announcement)
                 .Include(c => c.Article)
                 .Include(c => c.Episode)
@@ -52,13 +52,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Announcement != null)
             {
-                PreviousComment = await Context.Comments
+                PreviousComment = await _context.Comments
                 .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextComment = await Context.Comments
+                NextComment = await _context.Comments
                     .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -67,13 +67,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Article != null)
             {
-                PreviousComment = await Context.Comments
+                PreviousComment = await _context.Comments
                 .Where(c => c.ArticleID == Comment.Article.ArticleID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextComment = await Context.Comments
+                NextComment = await _context.Comments
                     .Where(c => c.ArticleID == Comment.Article.ArticleID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -82,13 +82,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Episode != null)
             {
-                PreviousComment = await Context.Comments
+                PreviousComment = await _context.Comments
                 .Where(c => c.EpisodeID == Comment.Episode.EpisodeID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextComment = await Context.Comments
+                NextComment = await _context.Comments
                     .Where(c => c.EpisodeID == Comment.Episode.EpisodeID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -97,13 +97,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Feedback != null)
             {
-                PreviousComment = await Context.Comments
+                PreviousComment = await _context.Comments
                 .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextComment = await Context.Comments
+                NextComment = await _context.Comments
                     .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -112,13 +112,13 @@ namespace Involver.Pages.Comments
 
             if (Comment.Novel != null)
             {
-                PreviousComment = await Context.Comments
+                PreviousComment = await _context.Comments
                 .Where(c => c.NovelID == Comment.Novel.NovelID)
                 .Where(c => c.CommentID < id)
                 .OrderByDescending(c => c.CommentID)
                 .FirstOrDefaultAsync();
 
-                NextComment = await Context.Comments
+                NextComment = await _context.Comments
                     .Where(c => c.NovelID == Comment.Novel.NovelID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
@@ -137,7 +137,7 @@ namespace Involver.Pages.Comments
 
         private async Task SetMessages(int? id, int? pageIndex)
         {
-            IQueryable<Message> messages = from m in Context.Messages
+            IQueryable<Message> messages = from m in _context.Messages
                                            select m;
             messages = messages
                 .Where(m => m.CommentID == id)
@@ -155,7 +155,7 @@ namespace Involver.Pages.Comments
                 return Page();
             }
 
-            var user = await UserManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if(user == null)
             {
                 return Challenge();
@@ -165,9 +165,9 @@ namespace Involver.Pages.Comments
                 return Forbid();
             }
 
-            Message.ProfileID = UserManager.GetUserId(User);
+            Message.ProfileID = _userManager.GetUserId(User);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(User, Message,
+            var isAuthorized = await _authorizationService.AuthorizeAsync(User, Message,
                                         MessageOperations.Create);
             if (!isAuthorized.Succeeded)
             {
@@ -177,8 +177,8 @@ namespace Involver.Pages.Comments
             Message.CommentID = id;
             Message.UpdateTime = DateTime.Now;
 
-            Context.Messages.Add(Message);
-            await Context.SaveChangesAsync();
+            _context.Messages.Add(Message);
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("/Comments/Details", "OnGet", new { id, pageIndex });
         }
