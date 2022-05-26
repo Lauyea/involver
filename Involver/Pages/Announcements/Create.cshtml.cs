@@ -44,7 +44,7 @@ namespace Involver.Pages.Announcements
                 return Page();
             }
 
-            Announcement.OwnerID = UserManager.GetUserId(User);
+            Announcement.OwnerID = _userManager.GetUserId(User);
 
             var isAuthorized = User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||
                            User.IsInRole(Authorization.Announcement.Announcements.AnnouncementAdministratorsRole);
@@ -80,12 +80,12 @@ namespace Involver.Pages.Announcements
                 f => f.Title, f => f.Content))
             {
                 emptyAnnouncement.UpdateTime = DateTime.Now;
-                var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
+                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
                 emptyAnnouncement.OwnerID = Announcement.OwnerID;
                 emptyAnnouncement.OwnerName = tempUser.UserName;
                 emptyAnnouncement.Views = 0;
-                Context.Announcements.Add(emptyAnnouncement);
-                await Context.SaveChangesAsync();
+                _context.Announcements.Add(emptyAnnouncement);
+                await _context.SaveChangesAsync();
 
                 return RedirectToPage("./Index");
             }

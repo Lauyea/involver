@@ -54,15 +54,15 @@ namespace Involver.Pages.Novels
                 return Page();
             }
 
-            var user = await UserManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user.Banned)
             {
                 return Forbid();
             }
 
-            Novel.ProfileID = UserManager.GetUserId(User);
+            Novel.ProfileID = _userManager.GetUserId(User);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,
                                                         NovelOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -122,8 +122,8 @@ namespace Involver.Pages.Novels
                         emptyNovel.CreateTime = DateTime.Now;
                         //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
                         //emptyNovel.ProfileID = Novel.ProfileID;
-                        Context.Novels.Add(emptyNovel);
-                        await Context.SaveChangesAsync();
+                        _context.Novels.Add(emptyNovel);
+                        await _context.SaveChangesAsync();
 
                         return RedirectToPage("./Index");
                     }

@@ -29,7 +29,7 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            Message = await Context.Messages
+            Message = await _context.Messages
                 .Include(m => m.Comment).FirstOrDefaultAsync(m => m.MessageID == id);
 
             if (Message == null)
@@ -37,7 +37,7 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Message,
                                                  MessageOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -55,9 +55,9 @@ namespace Involver.Pages.Messages
                 return NotFound();
             }
 
-            Message = await Context.Messages.FindAsync(id);
+            Message = await _context.Messages.FindAsync(id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Message,
                                                  MessageOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -67,8 +67,8 @@ namespace Involver.Pages.Messages
 
             if (Message != null)
             {
-                Context.Messages.Remove(Message);
-                await Context.SaveChangesAsync();
+                _context.Messages.Remove(Message);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("/Comments/Details", "OnGet", new { id = fromID, pageIndex = 1 });

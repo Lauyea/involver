@@ -35,14 +35,14 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Novel = await Context.Novels
+            Novel = await _context.Novels
                 .Include(n => n.Profile).FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
             {
                 return NotFound();
             }
-           ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
+           ViewData["ProfileID"] = new SelectList(_context.Profiles, "ProfileID", "ProfileID");
             return Page();
         }
 
@@ -63,11 +63,11 @@ namespace Involver.Pages.Novels
                 {
                     Novel.Image = memoryStream.ToArray();
 
-                    Context.Attach(Novel).State = EntityState.Modified;
+                    _context.Attach(Novel).State = EntityState.Modified;
 
                     try
                     {
-                        await Context.SaveChangesAsync();
+                        await _context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
                     {
@@ -92,7 +92,7 @@ namespace Involver.Pages.Novels
 
         private bool NovelExists(int id)
         {
-            return Context.Novels.Any(e => e.NovelID == id);
+            return _context.Novels.Any(e => e.NovelID == id);
         }
     }
 

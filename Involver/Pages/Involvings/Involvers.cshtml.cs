@@ -29,7 +29,7 @@ namespace Involver.Pages.Involvings
         {
             if (TimeSpan == "TotalTime")
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.NovelID == id)
                 .OrderByDescending(i => i.TotalValue)
@@ -38,7 +38,7 @@ namespace Involver.Pages.Involvings
             }
             else if (TimeSpan == "Monthly")
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.NovelID == id)
                 .OrderByDescending(i => i.MonthlyValue)
@@ -47,7 +47,7 @@ namespace Involver.Pages.Involvings
             }
             else
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.NovelID == id)
                 .OrderByDescending(i => i.LastTime)

@@ -27,11 +27,11 @@ namespace Involver.Areas.Identity.Pages.Profile
         public ICollection<Agree> Agrees { get; set; }
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            Agrees = await Context.Agrees
+            Agrees = await _context.Agrees
                 .Include(a => a.Comment)
                     .ThenInclude(c => c.Novel)
                 .Include(a => a.Comment)

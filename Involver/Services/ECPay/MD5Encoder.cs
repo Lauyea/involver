@@ -9,20 +9,13 @@ namespace Involver.Services.ECPay
 {
     internal static class MD5Encoder
     {
-        /// <summary>
-        /// 雜湊加密演算法物件。
-        /// </summary>
-        private static readonly HashAlgorithm Crypto = null;
-
-        static MD5Encoder()
-        {
-            Crypto = new MD5CryptoServiceProvider();
-        }
-
         public static string Encrypt(string originalString)
         {
             byte[] byValue = Encoding.UTF8.GetBytes(originalString);
-            byte[] byHash = Crypto.ComputeHash(byValue);
+
+            using var md5 = MD5.Create();
+
+            byte[] byHash = md5.ComputeHash(byValue);
 
             StringBuilder stringBuilder = new StringBuilder();
 

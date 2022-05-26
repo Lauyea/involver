@@ -30,14 +30,14 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await Context.Announcements.FirstOrDefaultAsync(a => a.AnnouncementID == id);
+            Announcement = await _context.Announcements.FirstOrDefaultAsync(a => a.AnnouncementID == id);
 
             if (Announcement == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Announcement,
                                                  AnnouncementOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -55,9 +55,9 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await Context.Announcements.FindAsync(id);
+            Announcement = await _context.Announcements.FindAsync(id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Announcement,
                                                  AnnouncementOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -66,15 +66,15 @@ namespace Involver.Pages.Announcements
             }
 
 
-            var comments = from c in Context.Comments
+            var comments = from c in _context.Comments
                            where c.AnnouncementID == id
                            select c;
 
             if (Announcement != null)
             {
-                Context.Comments.RemoveRange(comments);
-                Context.Announcements.Remove(Announcement);
-                await Context.SaveChangesAsync();
+                _context.Comments.RemoveRange(comments);
+                _context.Announcements.Remove(Announcement);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

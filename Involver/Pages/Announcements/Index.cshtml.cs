@@ -47,7 +47,7 @@ namespace Involver.Pages.Announcements
             }
             CurrentFilter = searchString;
 
-            var announcements = from a in Context.Announcements
+            var announcements = from a in _context.Announcements
                                 select a;
 
             //Announcements = await Context.Announcements
@@ -72,10 +72,10 @@ namespace Involver.Pages.Announcements
         private async Task CheckMissionViewAnnouncement()
         {
             //Check mission:ViewAnnouncement
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             if (UserID != null)
             {
-                Profile userProfile = await Context.Profiles
+                Profile userProfile = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
@@ -83,7 +83,7 @@ namespace Involver.Pages.Announcements
                 {
                     userProfile.Missions.ViewAnnouncement = true;
                     userProfile.VirtualCoins += 5;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：瀏覽公告 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -96,9 +96,9 @@ namespace Involver.Pages.Announcements
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    Context.Attach(userProfile).State = EntityState.Modified;
+                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
         }
     }

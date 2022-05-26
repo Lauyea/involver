@@ -31,13 +31,13 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
-            Profile = await Context.Profiles.Where(p => p.ProfileID == id).FirstOrDefaultAsync();
+            Profile = await _context.Profiles.Where(p => p.ProfileID == id).FirstOrDefaultAsync();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            Models.Profile ProfileToUpdate = await Context.Profiles.Where(p => p.ProfileID == UserManager.GetUserId(User)).FirstOrDefaultAsync();
+            Models.Profile ProfileToUpdate = await _context.Profiles.Where(p => p.ProfileID == _userManager.GetUserId(User)).FirstOrDefaultAsync();
             ProfileToUpdate.Introduction = Profile.Introduction;
 
             using (var memoryStream = new MemoryStream())
@@ -84,8 +84,8 @@ namespace Involver.Areas.Identity.Pages.Profile
                 }
             }
 
-            Context.Attach(ProfileToUpdate).State = EntityState.Modified;
-            await Context.SaveChangesAsync();
+            _context.Attach(ProfileToUpdate).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             StatusMessage = "更改資料成功";
             return RedirectToPage("./Index", "OnGet", new { id = ProfileToUpdate.ProfileID });
         }

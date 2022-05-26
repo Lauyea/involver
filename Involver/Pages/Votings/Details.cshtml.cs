@@ -47,7 +47,7 @@ namespace Involver.Pages.Votings
                 return NotFound();
             }
 
-            Voting = await Context.Votings
+            Voting = await _context.Votings
                 .Include(v => v.Episode)
                 .Include(v => v.NormalOptions)
                     .ThenInclude(o => o.Votes)
@@ -61,7 +61,7 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
 
             foreach(var option in Voting.NormalOptions)
             {
@@ -92,7 +92,7 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            Voting = await Context.Votings
+            Voting = await _context.Votings
                 .Include(v => v.Episode)
                 .Include(v => v.NormalOptions)
                     .ThenInclude(o => o.Votes)
@@ -110,7 +110,7 @@ namespace Involver.Pages.Votings
                 ErrorMessage = "票價不足於投票設定的最小值";
                 return Page();
             }
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Vote ExistingVote = null;
             foreach (var option in NormalOptions)
             {
@@ -124,7 +124,7 @@ namespace Involver.Pages.Votings
                 }
             }
 
-            NormalOption = await Context
+            NormalOption = await _context
                 .NormalOptions
                 .Where(n => n.NormalOptionID == NormalOption.NormalOptionID)
                 .FirstOrDefaultAsync();
@@ -140,7 +140,7 @@ namespace Involver.Pages.Votings
                 {
                     NewVote.OwnerID = UserID;
                     NewVote.NormalOptionID = NormalOption.NormalOptionID;
-                    Context.Votes.Add(NewVote);
+                    _context.Votes.Add(NewVote);
                 }
             }
             else
@@ -154,11 +154,11 @@ namespace Involver.Pages.Votings
             {
                 if (VirtualVote)
                 {
-                    await VirtualVoteOptionAsync(Context, NormalOption, Vote.Value);
+                    await VirtualVoteOptionAsync(_context, NormalOption, Vote.Value);
                 }
                 else
                 {
-                    await VoteOptionAsync(Context, NormalOption, Vote.Value);
+                    await VoteOptionAsync(_context, NormalOption, Vote.Value);
                 }
 
                 if(ErrorMessage == "餘額不足")
@@ -169,14 +169,14 @@ namespace Involver.Pages.Votings
             }
             else
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
         }
 
         async Task VoteOptionAsync(ApplicationDbContext Context, NormalOption option, int value)
         {
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Profile Voter = await Context
                 .Profiles
                 .Include(p => p.Missions)
@@ -259,7 +259,7 @@ namespace Involver.Pages.Votings
 
         async Task VirtualVoteOptionAsync(ApplicationDbContext Context, NormalOption option, int value)
         {
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Profile Voter = await Context
                 .Profiles
                 .Include(p => p.Missions)

@@ -29,14 +29,14 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await Context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
+            Feedback = await _context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
 
             if (Feedback == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Feedback,
                                                   FeedbackOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -57,7 +57,7 @@ namespace Involver.Pages.Feedbacks
             }
 
             // Fetch data from DB to get OwnerID.
-            var feedback = await Context
+            var feedback = await _context
                 .Feedbacks.AsNoTracking()
                 .FirstOrDefaultAsync(f => f.FeedbackID == id);
 
@@ -66,7 +66,7 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                      User, feedback,
                                                      FeedbackOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -76,15 +76,15 @@ namespace Involver.Pages.Feedbacks
 
             Feedback.OwnerID = feedback.OwnerID;
             Feedback.Block = feedback.Block;
-            var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
+            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
             Feedback.OwnerName = tempUser.UserName;
             Feedback.UpdateTime = DateTime.Now;
 
-            Context.Attach(Feedback).State = EntityState.Modified;
+            _context.Attach(Feedback).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -103,7 +103,7 @@ namespace Involver.Pages.Feedbacks
 
         private bool FeedbackExists(int id)
         {
-            return Context.Feedbacks.Any(e => e.FeedbackID == id);
+            return _context.Feedbacks.Any(e => e.FeedbackID == id);
         }
     }
 }

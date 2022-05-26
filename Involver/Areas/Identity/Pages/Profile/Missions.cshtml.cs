@@ -27,12 +27,12 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
+            UserID = _userManager.GetUserId(User);
             if (UserID == id)
             {
                 ProfileOwner = true;
             }
-            Profile = await Context.Profiles
+            Profile = await _context.Profiles
                 .Include(p => p.Missions)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();

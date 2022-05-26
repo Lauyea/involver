@@ -47,7 +47,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Novel = await Context.Novels
+            Novel = await _context.Novels
                 .Include(n => n.Profile).FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
@@ -55,7 +55,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Novel,
                                                   NovelOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -76,7 +76,7 @@ namespace Involver.Pages.Novels
             }
 
             // Fetch data from DB to get OwnerID.
-            Novel novelToUpdate = await Context
+            Novel novelToUpdate = await _context
                 .Novels.AsNoTracking()
                 .FirstOrDefaultAsync(n => n.NovelID == id);
 
@@ -85,7 +85,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, novelToUpdate,
                                                   NovelOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -115,11 +115,11 @@ namespace Involver.Pages.Novels
                         }
                         novelToUpdate.UpdateTime = DateTime.Now;
 
-                        Context.Attach(novelToUpdate).State = EntityState.Modified;
+                        _context.Attach(novelToUpdate).State = EntityState.Modified;
 
                         try
                         {
-                            await Context.SaveChangesAsync();
+                            await _context.SaveChangesAsync();
                         }
                         catch (DbUpdateConcurrencyException)
                         {
@@ -148,7 +148,7 @@ namespace Involver.Pages.Novels
 
         private bool NovelExists(int id)
         {
-            return Context.Novels.Any(e => e.NovelID == id);
+            return _context.Novels.Any(e => e.NovelID == id);
         }
     }
 }

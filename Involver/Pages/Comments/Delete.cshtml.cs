@@ -29,9 +29,9 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            Comment = await Context.Comments.FirstOrDefaultAsync(m => m.CommentID == id);
+            Comment = await _context.Comments.FirstOrDefaultAsync(m => m.CommentID == id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Comment,
                                                  CommentOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -53,9 +53,9 @@ namespace Involver.Pages.Comments
                 return NotFound();
             }
 
-            Comment = await Context.Comments.FindAsync(id);
+            Comment = await _context.Comments.FindAsync(id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Comment,
                                                  CommentOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -65,8 +65,8 @@ namespace Involver.Pages.Comments
 
             if (Comment != null)
             {
-                Context.Comments.Remove(Comment);
-                await Context.SaveChangesAsync();
+                _context.Comments.Remove(Comment);
+                await _context.SaveChangesAsync();
             }
             if(fromID != null)
             {

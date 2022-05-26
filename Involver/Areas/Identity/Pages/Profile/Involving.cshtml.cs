@@ -25,18 +25,19 @@ namespace Involver.Areas.Identity.Pages.Profile
         public Models.Profile Profile { get; set; }
 
         public string UserID { get; set; }
+
         public ICollection<Involving> Involvings { get; set; }
         public string TimeSpan { get; set; }
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
             if(TimeSpan == "TotalTime")
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Profile)
                 .Include(i => i.Novel)
                 .Include(i => i.Article)
@@ -47,7 +48,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             else if (TimeSpan == "Monthly")
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Profile)
                 .Include(i => i.Novel)
                 .Include(i => i.Article)
@@ -58,7 +59,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             else
             {
-                Involvings = await Context.Involvings
+                Involvings = await _context.Involvings
                 .Include(i => i.Profile)
                 .Include(i => i.Novel)
                 .Include(i => i.Article)

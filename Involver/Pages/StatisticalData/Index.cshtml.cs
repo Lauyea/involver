@@ -23,7 +23,7 @@ namespace Involver.Pages.StatisticalData
 
         public IActionResult OnGet()
         {
-            Profiles = Context.Profiles
+            Profiles = _context.Profiles
                 .OrderByDescending(p => p.EnrollmentDate)
                 .AsNoTracking()
                 .ToList();

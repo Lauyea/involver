@@ -25,7 +25,7 @@ namespace Involver.Pages.Follows
 
         private async Task LoadAsync(int id)
         {
-            Follows = await Context.Follows
+            Follows = await _context.Follows
                 .Include(f => f.Follower)
                 .Where(f => f.NovelID == id)
                 .OrderByDescending(f => f.UpdateTime)

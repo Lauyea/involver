@@ -26,7 +26,7 @@ namespace Involver.Pages.Involvings
 
         private async Task LoadAsync(string id)
         {
-            Profile = await Context.Profiles
+            Profile = await _context.Profiles
                 .Include(p => p.Followers)
                 .Include(p => p.Novels)
                     .ThenInclude(n => n.Follows)
@@ -87,8 +87,8 @@ namespace Involver.Pages.Involvings
                 Profile.Achievements.Professional = true;
                 Profile.Achievements.TimeProfessional = DateTime.Now;
             }
-            Context.Attach(Profile).State = EntityState.Modified;
-            await Context.SaveChangesAsync();
+            _context.Attach(Profile).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             return RedirectToPage("/Profile/Index", "OnGet", new { area = "Identity", id = ProfileID });
         }
     }

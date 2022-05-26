@@ -30,11 +30,11 @@ namespace Involver.Pages.Involvings
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            Involver = await Context.Profiles
+            Involver = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .FirstOrDefaultAsync();
         }
@@ -78,7 +78,7 @@ namespace Involver.Pages.Involvings
                 return NotFound();
             }
 
-            Profile Involver = await Context.Profiles
+            Profile Involver = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .FirstOrDefaultAsync();
             Profile Creator = Profile;
@@ -89,11 +89,11 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作者直接贊助，作者得50%分潤
-            Context.Attach(Creator).State = EntityState.Modified;
+            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
-            Context.Attach(Involver).State = EntityState.Modified;
+            _context.Attach(Involver).State = EntityState.Modified;
 
-            Involving ExistingInvolving = await Context.Involvings
+            Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.ProfileID == ProfileID)
                 .Where(i => i.InvolverID == UserID)
                 .FirstOrDefaultAsync();
@@ -104,7 +104,7 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += Involving.Value;
                 ExistingInvolving.TotalValue += Involving.Value;
                 ExistingInvolving.LastTime = DateTime.Now;
-                Context.Attach(ExistingInvolving).State = EntityState.Modified;
+                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {
@@ -117,9 +117,9 @@ namespace Involver.Pages.Involvings
                     InvolverID = UserID,
                     ProfileID = ProfileID
                 };
-                Context.Involvings.Add(newInvolving);
+                _context.Involvings.Add(newInvolving);
             }
-            await Context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
             StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
             return Page();
         }
@@ -134,7 +134,7 @@ namespace Involver.Pages.Involvings
                 return Challenge();
             }
 
-            Follow existingFollow = await Context.Follows
+            Follow existingFollow = await _context.Follows
                 .Where(f => f.ProfileID == ProfileID)
                 .Where(f => f.FollowerID == UserID)
                 .FirstOrDefaultAsync();
@@ -148,7 +148,7 @@ namespace Involver.Pages.Involvings
                     UpdateTime = DateTime.Now,
                     ProfileID = ProfileID
                 };
-                Context.Follows.Add(newFollow);
+                _context.Follows.Add(newFollow);
             }
             else
             {
@@ -159,10 +159,10 @@ namespace Involver.Pages.Involvings
                 }
                 existingFollow.NovelMonthlyInvolver = true;
                 existingFollow.UpdateTime = DateTime.Now;
-                Context.Attach(existingFollow).State = EntityState.Modified;
+                _context.Attach(existingFollow).State = EntityState.Modified;
             }
 
-            Profile Creator = await Context.Profiles
+            Profile Creator = await _context.Profiles
             .Where(p => p.ProfileID == ProfileID)
             .FirstOrDefaultAsync();
 
@@ -172,11 +172,11 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作者每月Involve，作者得60%分潤
-            Context.Attach(Creator).State = EntityState.Modified;
+            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= InvolveValue;
-            Context.Attach(Involver).State = EntityState.Modified;
+            _context.Attach(Involver).State = EntityState.Modified;
 
-            Involving ExistingInvolving = await Context.Involvings
+            Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.ProfileID == ProfileID)
                 .Where(i => i.InvolverID == UserID)
                 .FirstOrDefaultAsync();
@@ -187,7 +187,7 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += InvolveValue;
                 ExistingInvolving.TotalValue += InvolveValue;
                 ExistingInvolving.LastTime = DateTime.Now;
-                Context.Attach(ExistingInvolving).State = EntityState.Modified;
+                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {
@@ -200,10 +200,10 @@ namespace Involver.Pages.Involvings
                     InvolverID = UserID,
                     ProfileID = ProfileID
                 };
-                Context.Involvings.Add(newInvolving);
+                _context.Involvings.Add(newInvolving);
             }
 
-            await Context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
             return Page();
@@ -218,7 +218,7 @@ namespace Involver.Pages.Involvings
                 return Challenge();
             }
 
-            Follow follow = await Context.Follows
+            Follow follow = await _context.Follows
                 .Where(f => f.ProfileID == ProfileID)
                 .Where(f => f.FollowerID == UserID)
                 .FirstOrDefaultAsync();
@@ -237,8 +237,8 @@ namespace Involver.Pages.Involvings
                 }
                 follow.NovelMonthlyInvolver = false;
             }
-            Context.Attach(follow).State = EntityState.Modified;
-            await Context.SaveChangesAsync();
+            _context.Attach(follow).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
             StatusMessage = "UnInvolve成功";
             return Page();
         }

@@ -22,9 +22,9 @@ namespace Involver.Pages.Episodes
 
         public async Task<IActionResult> OnGetAsync(string from, int? fromID)
         {
-            Novel = Context.Novels.Where(n => n.NovelID == fromID).SingleOrDefault();
+            Novel = _context.Novels.Where(n => n.NovelID == fromID).SingleOrDefault();
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,
                                                         NovelOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -52,11 +52,11 @@ namespace Involver.Pages.Episodes
 
             await SetOtherEpisodesNotLast(fromID);
 
-            Episode.OwnerID = UserManager.GetUserId(User);
+            Episode.OwnerID = _userManager.GetUserId(User);
 
-            Novel = Context.Novels.Where(n => n.NovelID == fromID).FirstOrDefault();
+            Novel = _context.Novels.Where(n => n.NovelID == fromID).FirstOrDefault();
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,
                                                         NovelOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -107,15 +107,15 @@ namespace Involver.Pages.Episodes
                 {
                     emptyEpisode.NovelID = fromID;
                 }
-                var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == emptyEpisode.OwnerID);
+                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == emptyEpisode.OwnerID);
                 emptyEpisode.OwnerID = Episode.OwnerID;
                 emptyEpisode.IsLast = true;
                 emptyEpisode.Views = 0;
                 emptyEpisode.HasVoting = true;
-                Context.Episodes.Add(emptyEpisode);
+                _context.Episodes.Add(emptyEpisode);
                 Novel.UpdateTime = DateTime.Now;
-                Context.Attach(Novel).State = EntityState.Modified;
-                await Context.SaveChangesAsync();
+                _context.Attach(Novel).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
 
                 if (from != null)
                 {
@@ -127,9 +127,9 @@ namespace Involver.Pages.Episodes
 
         private async Task SetOtherEpisodesNotLast(int fromID)
         {
-            List<Episode> episodes = Context.Episodes.Where(e => e.NovelID == fromID).ToList();
+            List<Episode> episodes = _context.Episodes.Where(e => e.NovelID == fromID).ToList();
             episodes.ForEach(e => { e.IsLast = false; });
-            await Context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }

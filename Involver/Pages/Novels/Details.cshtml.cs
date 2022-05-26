@@ -41,7 +41,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Novel = await Context.Novels
+            Novel = await _context.Novels
                 .Include(n => n.Profile)
                 .Include(n => n.Follows)
                 .FirstOrDefaultAsync(m => m.NovelID == id);
@@ -55,7 +55,7 @@ namespace Involver.Pages.Novels
 
             await SetComments(id, pageIndex);
 
-            IQueryable<Episode> episodes = from e in Context.Episodes
+            IQueryable<Episode> episodes = from e in _context.Episodes
                                            select e;
             episodes = episodes
                 .Where(e => e.NovelID == id)
@@ -69,7 +69,7 @@ namespace Involver.Pages.Novels
             var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
                            User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
 
-            var currentUserId = UserManager.GetUserId(User);
+            var currentUserId = _userManager.GetUserId(User);
 
             if (!isAuthorized
                 && currentUserId != Novel.ProfileID
@@ -78,7 +78,7 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
-            RecommendNovels = Context.Novels
+            RecommendNovels = _context.Novels
                 .Where(n => n.Type == Novel.Type)
                 .Where(n => n.Block == false)
                 .OrderByDescending(n => n.MonthlyCoins)
@@ -86,7 +86,7 @@ namespace Involver.Pages.Novels
                 .OrderByDescending(n => n.UpdateTime)
                 .AsNoTracking()
                 .ToList();
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Follow ExistingFollow = Novel.Follows
                 .Where(f => f.FollowerID == UserID)
                 .FirstOrDefault();
@@ -101,11 +101,11 @@ namespace Involver.Pages.Novels
 
             //Add views
             Novel.Views++;
-            Context.Attach(Novel).State = EntityState.Modified;
+            _context.Attach(Novel).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -124,7 +124,7 @@ namespace Involver.Pages.Novels
 
         private async Task SetComments(int? id, int? pageIndex)
         {
-            IQueryable<Comment> comments = from c in Context.Comments
+            IQueryable<Comment> comments = from c in _context.Comments
                                            select c;
             comments = comments
                 .Include(c => c.Agrees)
@@ -143,12 +143,12 @@ namespace Involver.Pages.Novels
 
         private bool NovelExists(int id)
         {
-            return Context.Novels.Any(e => e.NovelID == id);
+            return _context.Novels.Any(e => e.NovelID == id);
         }
 
         public async Task<IActionResult> OnPostAsync(int id, bool block)
         {
-            var novel = await Context.Novels.FirstOrDefaultAsync(
+            var novel = await _context.Novels.FirstOrDefaultAsync(
                                                       m => m.NovelID == id);
 
             if (novel == null)
@@ -156,22 +156,22 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(User, novel,
+            var isAuthorized = await _authorizationService.AuthorizeAsync(User, novel,
                                         NovelOperations.Block);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
             novel.Block = block;
-            Context.Novels.Update(novel);
-            await Context.SaveChangesAsync();
+            _context.Novels.Update(novel);
+            await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
         }
 
         public async Task<IActionResult> OnPostFollowAsync(int id)
         {
-            Novel novel = await Context.Novels
+            Novel novel = await _context.Novels
                 .Include(n => n.Follows)
                 .Where(n => n.NovelID == id)
                 .FirstOrDefaultAsync();
@@ -180,7 +180,7 @@ namespace Involver.Pages.Novels
             {
                 return Page();
             }
-            string UserID = UserManager.GetUserId(User);
+            string UserID = _userManager.GetUserId(User);
             Follow follow = novel.Follows.Where(f => f.FollowerID == UserID).FirstOrDefault();
 
             if (follow == null)
@@ -193,13 +193,13 @@ namespace Involver.Pages.Novels
                     NovelMonthlyInvolver = false,
                     ProfileMonthlyInvolver = false
                 };
-                Context.Follows.Add(newFollow);
-                await Context.SaveChangesAsync();
+                _context.Follows.Add(newFollow);
+                await _context.SaveChangesAsync();
             }
             else
             {
-                Context.Follows.Remove(follow);
-                await Context.SaveChangesAsync();
+                _context.Follows.Remove(follow);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Details", "OnGet", new { id });

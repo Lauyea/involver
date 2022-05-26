@@ -65,6 +65,14 @@
                                          title="@item.Profile.UserName"
                                          style="width: 25%; height: auto; display:inline; border-radius:50%">
                                 }
+                                else
+                                {
+                                    var user = await userManager.FindByIdAsync(item.ProfileID);
+                                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
+                                         alt="讀取失敗"
+                                         title="@item.Profile.UserName"
+                                         style="width: 25%; height: auto; display:inline; border-radius:50%">
+                                }
                                 <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                             </a>
                         </p>

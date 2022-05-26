@@ -31,13 +31,13 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         private async Task LoadAsync(string id)
         {
-            UserID = UserManager.GetUserId(User);
-            Profile = await Context.Profiles
+            UserID = _userManager.GetUserId(User);
+            Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
             if (TimeSpan == "TotalTime")
             {
-                Involvers = await Context.Involvings
+                Involvers = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.ProfileID == id)
                 .OrderByDescending(i => i.TotalValue)
@@ -46,7 +46,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             else if (TimeSpan == "Monthly")
             {
-                Involvers = await Context.Involvings
+                Involvers = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.ProfileID == id)
                 .OrderByDescending(i => i.MonthlyValue)
@@ -55,7 +55,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             else
             {
-                Involvers = await Context.Involvings
+                Involvers = await _context.Involvings
                 .Include(i => i.Involver)
                 .Where(i => i.ProfileID == id)
                 .OrderByDescending(i => i.LastTime)

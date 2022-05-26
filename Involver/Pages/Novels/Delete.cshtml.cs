@@ -30,7 +30,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Novel = await Context.Novels
+            Novel = await _context.Novels
                 .Include(n => n.Profile).FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
@@ -38,7 +38,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Novel,
                                                  NovelOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -56,9 +56,9 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Novel = await Context.Novels.FindAsync(id);
+            Novel = await _context.Novels.FindAsync(id);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Novel,
                                                  NovelOperations.Delete);
             if (!isAuthorized.Succeeded)
@@ -66,36 +66,36 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
-            var comments = from c in Context.Comments
+            var comments = from c in _context.Comments
                            where c.NovelID == id
                            select c;
 
-            var episodes = from e in Context.Episodes
+            var episodes = from e in _context.Episodes
                            where e.NovelID == id
                            select e;
-            var commentsInEpisodes = from c in Context.Comments
+            var commentsInEpisodes = from c in _context.Comments
                                      where c.Episode.NovelID == id
                                      select c;
-            var votes = from v in Context.Votes
+            var votes = from v in _context.Votes
                         where v.NormalOption.Voting.Episode.NovelID == id
                         select v;
-            var involvings = from i in Context.Involvings
+            var involvings = from i in _context.Involvings
                              where i.NovelID == id
                              select i;
-            var follows = from f in Context.Follows
+            var follows = from f in _context.Follows
                           where f.NovelID == id
                           select f;
 
             if (Novel != null)
             {
-                Context.Follows.RemoveRange(follows);
-                Context.Involvings.RemoveRange(involvings);
-                Context.Votes.RemoveRange(votes);
-                Context.Comments.RemoveRange(comments);
-                Context.Comments.RemoveRange(commentsInEpisodes);
-                Context.Episodes.RemoveRange(episodes);
-                Context.Novels.Remove(Novel);
-                await Context.SaveChangesAsync();
+                _context.Follows.RemoveRange(follows);
+                _context.Involvings.RemoveRange(involvings);
+                _context.Votes.RemoveRange(votes);
+                _context.Comments.RemoveRange(comments);
+                _context.Comments.RemoveRange(commentsInEpisodes);
+                _context.Episodes.RemoveRange(episodes);
+                _context.Novels.Remove(Novel);
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

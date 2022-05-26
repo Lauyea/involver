@@ -29,14 +29,14 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await Context.Announcements.FirstOrDefaultAsync(m => m.AnnouncementID == id);
+            Announcement = await _context.Announcements.FirstOrDefaultAsync(m => m.AnnouncementID == id);
 
             if (Announcement == null)
             {
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Announcement,
                                                   AnnouncementOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -57,7 +57,7 @@ namespace Involver.Pages.Announcements
             }
 
             // Fetch data from DB to get OwnerID.
-            var announcement = await Context
+            var announcement = await _context
                 .Announcements.AsNoTracking()
                 .FirstOrDefaultAsync(f => f.AnnouncementID == id);
 
@@ -66,7 +66,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, announcement,
                                                   AnnouncementOperations.Update);
             if (!isAuthorized.Succeeded)
@@ -75,16 +75,16 @@ namespace Involver.Pages.Announcements
             }
 
             Announcement.OwnerID = announcement.OwnerID;
-            var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
+            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
             Announcement.OwnerName = tempUser.UserName;
             Announcement.UpdateTime = DateTime.Now;
             Announcement.Views = announcement.Views;
 
-            Context.Attach(Announcement).State = EntityState.Modified;
+            _context.Attach(Announcement).State = EntityState.Modified;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -103,7 +103,7 @@ namespace Involver.Pages.Announcements
 
         private bool AnnouncementExists(int id)
         {
-            return Context.Announcements.Any(e => e.AnnouncementID == id);
+            return _context.Announcements.Any(e => e.AnnouncementID == id);
         }
     }
 }

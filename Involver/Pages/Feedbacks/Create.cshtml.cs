@@ -38,15 +38,15 @@ namespace Involver.Pages.Feedbacks
                 return Page();
             }
 
-            var user = await UserManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user.Banned)
             {
                 return Forbid();
             }
 
-            Feedback.OwnerID = UserManager.GetUserId(User);
+            Feedback.OwnerID = _userManager.GetUserId(User);
 
-            var isAuthorized = await AuthorizationService.AuthorizeAsync(
+            var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Feedback,
                                                         FeedbackOperations.Create);
             if (!isAuthorized.Succeeded)
@@ -86,11 +86,11 @@ namespace Involver.Pages.Feedbacks
                     f => f.Title, f => f.Content))
                 {
                     emptyFeedback.UpdateTime = DateTime.Now;
-                    var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
+                    var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
                     emptyFeedback.OwnerID = Feedback.OwnerID;
                     emptyFeedback.OwnerName = tempUser.UserName;
-                    Context.Feedbacks.Add(emptyFeedback);
-                    await Context.SaveChangesAsync();
+                    _context.Feedbacks.Add(emptyFeedback);
+                    await _context.SaveChangesAsync();
 
                     return RedirectToPage("./Index");
                 }
