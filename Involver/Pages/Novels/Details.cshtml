@@ -240,11 +240,11 @@
     <script>
         $('#partialEpisodesPagination').twbsPagination({
             totalPages: @Model.Episodes.TotalPages,
-            visiblePages: 5,
-            first: "第一頁",
-            prev: "前一頁",
-            next: "後一頁",
-            last: "最後一頁",
+            visiblePages: @Parameters.EpisodePageSize,
+            first: "首",
+            prev: "前",
+            next: "後",
+            last: "末",
             onPageClick: function(event, page) {
                 $.ajax({
                     type: 'GET',
