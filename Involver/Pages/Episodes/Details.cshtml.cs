@@ -208,6 +208,7 @@ namespace Involver.Pages.Episodes
                 comments = comments
                 .Include(c => c.Agrees)
                 .Include(c => c.Messages)
+                    .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
                 .Include(c => c.Episode)
@@ -226,6 +227,7 @@ namespace Involver.Pages.Episodes
                 comments = comments
                 .Include(c => c.Agrees)
                 .Include(c => c.Messages)
+                    .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
                 .Include(c => c.Episode)

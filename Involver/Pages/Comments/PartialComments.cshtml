@@ -50,66 +50,67 @@
     {
         if (!item.Block && item.Profile != null)
         {
-            <div class="row" id="@item.CommentID" style="margin-left:auto">
-                <div class="col-md-8 row">
-                    <div class="col-md-4">
-                        <p>
-                            <a asp-area="Identity"
-                               asp-page="/Profile/Index"
-                               asp-route-id="@item.ProfileID">
-                                @if (item.Profile.Image != null)
-                                {
-                                    <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
-                                         asp-append-version="true"
-                                         alt="讀取失敗"
-                                         title="@item.Profile.UserName"
-                                         style="width: 25%; height: auto; display:inline; border-radius:50%">
-                                }
-                                else
-                                {
-                                    var user = await userManager.FindByIdAsync(item.ProfileID);
-                                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
-                                         alt="讀取失敗"
-                                         title="@item.Profile.UserName"
-                                         style="width: 25%; height: auto; display:inline; border-radius:50%">
-                                }
-                                <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
-                            </a>
-                        </p>
+            <div class="media border p-3 rounded shadow-sm" id="@item.CommentID">
+                <a asp-area="Identity"
+                   asp-page="/Profile/Index"
+                   asp-route-id="@item.ProfileID">
+                    @if (item.Profile.Image != null)
+                    {
+                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
+                         asp-append-version="true"
+                         alt="讀取失敗"
+                         title="@item.Profile.UserName"
+                         class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                    }
+                    else
+                    {
+                        var user = await userManager.FindByIdAsync(item.ProfileID);
+                        <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
+             alt="讀取失敗"
+             title="@item.Profile.UserName"
+             class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                    }
+                </a>
+                <div class="media-body">
+                    <b>
+                        <a asp-area="Identity"
+                           asp-page="/Profile/Index"
+                           asp-route-id="@item.ProfileID">
+                            @Html.DisplayFor(modelItem => item.Profile.UserName)
+                        </a>
                         <a asp-page="./Details"
                            asp-route-id="@fromID"
                            asp-route-pageIndex="@Model.PageIndex"
                            asp-fragment="@item.CommentID"><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></a>
-                    </div>
-                    <div class="col-md-4">
-                        @if (item.EpisodeID != null)
+                    </b>
+                    @if (item.EpisodeID != null)
+                    {
+                        var involverInfo = item.Episode.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
+                        if (involverInfo != null)
                         {
-                            var involverInfo = item.Episode.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
-                            if (involverInfo != null)
+                            <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
+                        }
+                    }
+                    else if (item.NovelID != null)
+                    {
+                        var involverInfo = item.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
+                        if (involverInfo != null)
+                        {
+                            <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
+                        }
+                    }
+                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
+                    <div class="pt-3 pb-3">
+                        @if (item.Dices.FirstOrDefault() != null && item.Dices.FirstOrDefault().Value != 0)
+                        {
+                            foreach (var dice in item.Dices)
                             {
-                                <p>
-                                    <small>月 Involve: @involverInfo.MonthlyValue In幣</small>
-                                </p>
-                                <p>
-                                    <small>總 Involve: @involverInfo.TotalValue In幣</small>
-                                </p>
+                                <i class="fas fa-dice-d20"></i>
+                                <text>@dice.Value / @dice.Sides &nbsp;</text>
                             }
                         }
-                        else if (item.NovelID != null)
-                        {
-                            var involverInfo = item.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
-                            if (involverInfo != null)
-                            {
-                                <p>
-                                    <small>月 Involve: @involverInfo.MonthlyValue In幣</small>
-                                </p>
-                                <p>
-                                    <small>總 Involve: @involverInfo.TotalValue In幣</small>
-                                </p>
-                            }
-                        }
                     </div>
-                    <div class="col-md-4">
+                    <div id="control-menu">
                         <a asp-page="../Comments/Details"
                            asp-route-id="@item.CommentID"
                            asp-route-from="@from"
@@ -129,7 +130,7 @@
                                 string AgreeCount = "AgreeCount" + item.CommentID;
                             }
                             <button type="button" id="@AgreeComment"
-                                    class="btn" onclick="AgreeComment(this, @item.CommentID)">
+                        class="btn" onclick="AgreeComment(this, @item.CommentID)">
                                 <i class="far fa-thumbs-up"></i>
                                 <span id="@AgreeCount">
                                     @if (item.Agrees != null)
@@ -139,94 +140,50 @@
                                 </span>
                             </button>
                         </form>
-                    </div>
-                    <div>
-                        <p>
-                            @*@if (item.Dices.FirstOrDefault() != null)
+                        <div class="dropdown d-inline-flex">
+                            <button type="button" class="btn btn-link text-dark" data-toggle="dropdown">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                @if ((await AuthorizationService.AuthorizeAsync(
+                               User, item,
+                               CommentOperations.Update)).Succeeded && item.Dices.Count() == 0)
                                 {
-                                    int DiceTotal = 0;
-                                    foreach (Involver.Models.NovelModel.Dice dice in item.Dices)
-                                    {
-                                        DiceTotal += dice.Value;
-                                    }
-                                    int NumberOfDices = item.Dices.Count();
-                                    int Sides = item.Dices.FirstOrDefault().Sides;
-                                    string DiceTotalString = NumberOfDices + "d" + Sides + ": " + DiceTotal;
-                                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />").Replace("DiceTotal", DiceTotalString))
+                                    <a asp-page="../Comments/Edit"
+                                       asp-route-id="@item.CommentID"
+                                       asp-route-from="@from"
+                                       asp-route-fromID="@fromID"
+                                       class="dropdown-item"
+                                       title="編輯"><i class="far fa-edit"></i> 編輯</a>
                                 }
-                                else
+                                @if ((await AuthorizationService.AuthorizeAsync(
+                               User, item,
+                               CommentOperations.Delete)).Succeeded)
                                 {
-                                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
-                                }*@
-                            @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-1"></div>
-                <div class="col-md-3">
-                    <div>
-                        <p></p>
-                        @if (item.Dices != null)
-                        {
-                            foreach (var dice in item.Dices)
-                            {
-                                if (dice.Sides != 0 && dice.Value != 0)
-                                {
-                                    <p>
-                                        <i class="fas fa-dice-d20"></i>
-                                        @dice.Value / @dice.Sides
-                                    </p>
+                                    <a asp-page="../Comments/Delete"
+                                       asp-route-id="@item.CommentID"
+                                       asp-route-from="@from"
+                                       asp-route-fromID="@fromID"
+                                       class="dropdown-item"
+                                       title="刪除"><i class="far fa-trash-alt"></i> 刪除</a>
                                 }
-                            }
-                        }
-                    </div>
-                    <div>
-                        <div class="nav-item">
-                            <div class="dropdown">
-                                <button type="button" class="nav-link btn btn-link text-dark" data-toggle="dropdown">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    @if ((await AuthorizationService.AuthorizeAsync(
-User, item,
-CommentOperations.Update)).Succeeded && item.Dices.Count() == 0)
+                                @if (item.Episode != null)
+                                {
+                                    if ((await AuthorizationService.AuthorizeAsync(
+                                    User, item.Episode.Novel,
+                                    NovelOperations.Delete)).Succeeded)
                                     {
-                                        <a asp-page="../Comments/Edit"
-                                           asp-route-id="@item.CommentID"
-                                           asp-route-from="@from"
-                                           asp-route-fromID="@fromID"
-                                           class="dropdown-item"
-                                           title="編輯"><i class="far fa-edit"></i> 編輯</a>
+                                        <form method="post">
+                                            <button type="submit" asp-page-handler="block"
+                                                asp-route-id="@item.CommentID"
+                                                asp-route-fromID="@fromID"
+                                                asp-route-pageIndex="@Model.PageIndex"
+                                                class="dropdown-item" title="封鎖">
+                                                <i class="fas fa-lock"></i> 封鎖
+                                            </button>
+                                        </form>
                                     }
-                                    @if ((await AuthorizationService.AuthorizeAsync(
-User, item,
-CommentOperations.Delete)).Succeeded)
-                                    {
-                                        <a asp-page="../Comments/Delete"
-                                           asp-route-id="@item.CommentID"
-                                           asp-route-from="@from"
-                                           asp-route-fromID="@fromID"
-                                           class="dropdown-item"
-                                           title="刪除"><i class="far fa-trash-alt"></i> 刪除</a>
-                                    }
-                                    @if (item.Episode != null)
-                                    {
-                                        if ((await AuthorizationService.AuthorizeAsync(
-                                       User, item.Episode.Novel,
-                                       NovelOperations.Delete)).Succeeded)
-                                        {
-                                            <form method="post">
-                                                <button type="submit" asp-page-handler="block"
-                                                        asp-route-id="@item.CommentID"
-                                                        asp-route-fromID="@fromID"
-                                                        asp-route-pageIndex="@Model.PageIndex"
-                                                        class="btn" title="封鎖">
-                                                    <i class="fas fa-lock"></i>
-                                                </button>
-                                            </form>
-                                        }
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -236,64 +193,60 @@ CommentOperations.Delete)).Succeeded)
                             foreach (var message in item.Messages.TakeLast(5))
                             {
                                 @if (message.Content.Length < 20)
-                                {
-                                    @message.Content
-                                }
-                                else
-                                {
-                                    @(message.Content.Substring(0, 20)+"...")
-                                }
-                                <hr />
+                                    {
+                                        <b>@message.Profile.UserName &nbsp;</b>
+
+                                        @message.Content
+                                    }
+                                    else
+                                    {
+                                        <b>@message.Profile.UserName &nbsp;</b>
+
+                                        @(message.Content.Substring(0, 20)+"...")
+                                    }
+                                    <hr />
                             }
                         }
                     </div>
                 </div>
             </div>
-            <hr />
+            <br />
         }
         else if (item.Block == true && item.UpdateTime.CompareTo(Date2020) == 1)
         {
-            <div class="row">
-                <div class="col-md-8">
-                    <a asp-page="../Comments/Details"
-                       asp-route-id="@item.CommentID"
-                       asp-route-from="@from"
-                       asp-route-fromID="@fromID"
-                       asp-route-pageIndex="1"
-                       target="_self">
-                        本評論已被封鎖，點擊以詳閱內容
-                    </a>
-                </div>
-                <div class="col-md-1"></div>
-                <div class="col-md-3">
-                    <div>
-                        <p>
-                            <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
-                        </p>
-                        <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
-                    </div>
-                    <div>
-                        @if (item.Episode != null)
+            <div class="pt-3 pb-3">
+                <div>
+                    @Html.DisplayFor(modelItem => item.Profile.UserName)
+                    <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                    @if (item.Episode != null)
+                    {
+                        if ((await AuthorizationService.AuthorizeAsync(
+                        User, item.Episode.Novel,
+                        NovelOperations.Delete)).Succeeded)
                         {
-                            if ((await AuthorizationService.AuthorizeAsync(
-                           User, item.Episode.Novel,
-                           NovelOperations.Delete)).Succeeded)
-                            {
-                                <form method="post">
-                                    <button type="submit" asp-page-handler="block"
-                                            asp-route-id="@item.CommentID"
-                                            asp-route-fromID="@fromID"
-                                            asp-route-pageIndex="@Model.PageIndex"
-                                            class="btn" title="解除封鎖">
-                                        <i class="fas fa-unlock"></i>
-                                    </button>
-                                </form>
-                            }
+                            <form method="post" class="d-inline-flex">
+                                <button type="submit" asp-page-handler="block"
+                                    asp-route-id="@item.CommentID"
+                                    asp-route-fromID="@fromID"
+                                    asp-route-pageIndex="@Model.PageIndex"
+                                    class="btn" title="解除封鎖">
+                                    <i class="fas fa-unlock"></i> 解除封鎖
+                                </button>
+                            </form>
                         }
-                    </div>
+                    }
+                    <p>
+                        <a asp-page="../Comments/Details"
+                            asp-route-id="@item.CommentID"
+                            asp-route-from="@from"
+                            asp-route-fromID="@fromID"
+                            asp-route-pageIndex="1"
+                            target="_blank">
+                            本評論已被封鎖，點擊以詳閱內容
+                        </a>
+                    </p>
                 </div>
             </div>
-            <hr />
         }
     }
 }
@@ -301,16 +254,6 @@ CommentOperations.Delete)).Succeeded)
 @{
     var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
     var nextDisabled = !Model.HasNextPage ? "disabled" : "";
-
-    //string NowPageDiabled(int i)
-    //{
-    //    string Disabled = "";
-    //    if (i == Model.PageIndex)
-    //    {
-    //        Disabled = "disabled";
-    //    }
-    //    return Disabled;
-    //}
 
     string IsActive(int i)
     {
@@ -328,49 +271,6 @@ CommentOperations.Delete)).Succeeded)
     PageSizeHelper.Get(Model.PageIndex, Model.TotalPages, ref StartPage, ref EndPage);
 }
 
-@*<a asp-page="./Details"
-       asp-route-id="@fromID"
-       asp-route-pageIndex="1"
-       asp-fragment="CommentHead"
-       class="btn btn-primary @prevDisabled">
-        第一頁
-    </a>*@
-
-@*<a asp-page="./Details"
-       asp-route-id="@fromID"
-       asp-route-pageIndex="@(Model.PageIndex - 1)"
-       asp-fragment="CommentHead"
-       class="btn btn-primary @prevDisabled">
-        上一頁
-    </a>*@
-
-@*@for (int i = StartPage; i < EndPage + 1; i++)
-    {
-        <a asp-page="./Details"
-           asp-route-id="@fromID"
-           asp-route-pageIndex="@i"
-           asp-fragment="CommentHead"
-           class="btn btn-primary @NowPageDiabled(i)">
-            @i
-        </a>
-    }*@
-
-@*<a asp-page="./Details"
-       asp-route-id="@fromID"
-       asp-route-pageIndex="@(Model.PageIndex + 1)"
-       asp-fragment="CommentHead"
-       class="btn btn-primary @nextDisabled">
-        下一頁
-    </a>*@
-
-@*<a asp-page="./Details"
-       asp-route-id="@fromID"
-       asp-route-pageIndex="@(Model.TotalPages)"
-       asp-fragment="CommentHead"
-       class="btn btn-primary @nextDisabled">
-        最後一頁
-    </a>*@
-
 <nav>
     <ul class="pagination">
         <li class="page-item @prevDisabled">
@@ -386,10 +286,10 @@ CommentOperations.Delete)).Succeeded)
         {
             <li class="page-item @IsActive(i)">
                 <a asp-page="./Details"
-                   asp-route-id="@fromID"
-                   asp-route-pageIndex="@i"
-                   asp-fragment="CommentHead"
-                   class="page-link">
+               asp-route-id="@fromID"
+               asp-route-pageIndex="@i"
+               asp-fragment="CommentHead"
+               class="page-link">
                     @i
                     @if (i == Model.PageIndex)
                     {
@@ -437,6 +337,6 @@ CommentOperations.Delete)).Succeeded)
 
 @using (Html.BeginScripts())
 {
-<script>
-</script>
+    <script>
+    </script>
 }

@@ -126,6 +126,7 @@ namespace Involver.Pages.Articles
             comments = comments
                 .Include(c => c.Agrees)
                 .Include(c => c.Messages)
+                    .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
                 .Where(c => c.ArticleID == id)
