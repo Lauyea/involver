@@ -5,52 +5,48 @@
     Layout = null;
 }
 
-<table class="table" id="MessageHead">
-    <tbody>
-        @foreach (var item in Model.Messages)
-        {
-            <tr id="@item.MessageID">
-                <td style="width:50%">
-                    <p>@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
-                </td>
-                <td style="width:20%">
-                    @if (item.Comment.EpisodeID != null)
+<div id="MessageHead">
+    @foreach (var item in Model.Messages)
+    {
+        <div class="media border p-3 shadow-sm rounded" id="@item.MessageID">
+            <a asp-area="Identity"
+           asp-page="/Profile/Index"
+           asp-route-id="@item.ProfileID">
+                @if (item.Profile.Image != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
+                 asp-append-version="true"
+                 alt="讀取失敗"
+                 title="@item.Profile.UserName"
+                 class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                }
+                else
+                {
+                    var user = await userManager.FindByIdAsync(item.ProfileID);
+                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
+                 alt="讀取失敗"
+                 title="@item.Profile.UserName"
+                 class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                }
+            </a>
+            <div class="media-body">
+                <b>
+                    <a asp-area="Identity"
+                   asp-page="/Profile/Index"
+                   asp-route-id="@item.ProfileID">
+                        @Html.DisplayFor(modelItem => item.Profile.UserName)
+                    </a> <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                </b>
+                @if (item.Comment.EpisodeID != null)
+                {
+                    var involverInfo = item.Comment.Episode.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
+                    if (involverInfo != null)
                     {
-                        var involverInfo = item.Comment.Episode.Novel.Involvers.Where(i => i.InvolverID == item.ProfileID).FirstOrDefault();
-                        if (involverInfo != null)
-                        {
-                            <p><small>月 Involve: @involverInfo.MonthlyValue In幣</small></p>
-                            <p><small>總 Involve: @involverInfo.TotalValue In幣</small></p>
-                        }
+                        <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
                     }
-                </td>
-                <td style="width:20%">
-                    <p>
-                        <a asp-area="Identity"
-                       asp-page="/Profile/Index"
-                       asp-route-id="@item.ProfileID">
-                            @if (item.Profile.Image != null)
-                            {
-                                <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
-                             asp-append-version="true"
-                             alt="讀取失敗"
-                             title="@item.Profile.UserName"
-                             style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            else
-                            {
-                                var user = await userManager.FindByIdAsync(item.ProfileID);
-                                <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
-                                 alt="讀取失敗"
-                                 title="@item.Profile.UserName"
-                                 style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
-                        </a>
-                    </p>
-                    <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
-                </td>
-                <td style="width:10%">
+                }
+                <p>@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
+                <p>
                     <form method="post" class="d-inline">
                         @{
                             string AgreeMessage = "AgreeMessage" + item.MessageID;
@@ -85,37 +81,39 @@
                    asp-route-fromID="@item.CommentID"
                    title="刪除"><i class="far fa-trash-alt"></i></a>
                     }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </p>
+            </div>
+        </div>
+        <br />
+    }
+</div>
+
 
 @using (Html.BeginScripts())
 {
     <script>
         @*<text>
-            $("#@AgreeMessage").click(function() {
-                $.ajax({
-                    method: "post",
-                    url: "Details?handler=AgreeMessage&id=@GetMessageID(AgreeMessage)",
-                    //加上X-CSRF-TOKEN header
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader("X-CSRF-TOKEN",
-                            $('input:hidden[name="__RequestVerificationToken"]').val());
-                    },
-                    error: function(xhr, status, err) {
-                        if (xhr.status === 401 || xhr.status === 403) {
-                            alert("請先登入");
-                        }
-                        else {
-                            alert("系統錯誤：未搜索到指定評論");
-                        }
-                    }
-                }).done(function(res) {
-                    $("#@AgreeCountArray[AgreeMessageIndex]").text(res);
-                });
-            });
+        $("#@AgreeMessage").click(function() {
+        $.ajax({
+        method: "post",
+        url: "Details?handler=AgreeMessage&id=@GetMessageID(AgreeMessage)",
+        //加上X-CSRF-TOKEN header
+        beforeSend: function(xhr) {
+        xhr.setRequestHeader("X-CSRF-TOKEN",
+        $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        error: function(xhr, status, err) {
+        if (xhr.status === 401 || xhr.status === 403) {
+        alert("請先登入");
+        }
+        else {
+        alert("系統錯誤：未搜索到指定評論");
+        }
+        }
+        }).done(function(res) {
+        $("#@AgreeCountArray[AgreeMessageIndex]").text(res);
+        });
+        });
         </text>*@
     </script>
 }

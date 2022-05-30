@@ -9,8 +9,8 @@
 @if (Model.Comment.Article != null)
 {
     <a asp-page="../Articles/Details"
-       asp-route-id="@Model.Comment.Article.ArticleID"
-       asp-fragment="CommentHead">
+   asp-route-id="@Model.Comment.Article.ArticleID"
+   asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到文章
     </a>
@@ -18,8 +18,8 @@
 else if (Model.Comment.Announcement != null)
 {
     <a asp-page="../Announcements/Details"
-       asp-route-id="@Model.Comment.Announcement.AnnouncementID"
-       asp-fragment="CommentHead">
+   asp-route-id="@Model.Comment.Announcement.AnnouncementID"
+   asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到公告
     </a>
@@ -27,8 +27,8 @@ else if (Model.Comment.Announcement != null)
 else if (Model.Comment.Episode != null)
 {
     <a asp-page="../Episodes/Details"
-       asp-route-id="@Model.Comment.Episode.EpisodeID"
-       asp-fragment="CommentHead">
+   asp-route-id="@Model.Comment.Episode.EpisodeID"
+   asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到章節
     </a>
@@ -36,8 +36,8 @@ else if (Model.Comment.Episode != null)
 else if (Model.Comment.Feedback != null)
 {
     <a asp-page="../Feedbacks/Details"
-       asp-route-id="@Model.Comment.Feedback.FeedbackID"
-       asp-fragment="CommentHead">
+   asp-route-id="@Model.Comment.Feedback.FeedbackID"
+   asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到意見與回覆
     </a>
@@ -45,8 +45,8 @@ else if (Model.Comment.Feedback != null)
 else if (Model.Comment.Novel != null)
 {
     <a asp-page="../Novels/Details"
-       asp-route-id="@Model.Comment.Novel.NovelID"
-       asp-fragment="CommentHead">
+   asp-route-id="@Model.Comment.Novel.NovelID"
+   asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到目錄
     </a>
@@ -71,23 +71,7 @@ else
 }
 <p></p>
 <div class="row">
-    <div class="col-md-6">
-        @Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))
-    </div>
-    <div class="col-md-1"></div>
-    <div class="col-md-2">
-        @if (Model.Comment.Dices != null)
-        {
-            foreach (var dice in Model.Comment.Dices)
-            {
-                <p>
-                    <i class="fas fa-dice-d20"></i>
-                    @dice.Value / @dice.Sides
-                </p>
-            }
-        }
-    </div>
-    <div class="col-md-3">
+    <div class="col-md-12">
         <p>
             <a asp-area="Identity"
                asp-page="/Profile/Index"
@@ -95,23 +79,34 @@ else
                 @if (Model.Comment.Profile.Image != null)
                 {
                     <img src="data:image/png;base64,@Convert.ToBase64String(Model.Comment.Profile.Image)"
-                         asp-append-version="true"
-                         alt="讀取失敗"
-                         title="@Model.Comment.Profile.UserName"
-                         style="width: 25%; height: auto; display:inline; border-radius:10%">
+                     asp-append-version="true"
+                     alt="讀取失敗"
+                     title="@Model.Comment.Profile.UserName"
+                     class="mr-3 mt-3 rounded-circle" style="width:60px;">
                 }
                 else
                 {
                     var user = await userManager.FindByIdAsync(Model.Comment.ProfileID);
-                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
-                         alt="讀取失敗"
-                         title="@Model.Comment.Profile.UserName"
-                         style="width: 25%; height: auto; display:inline; border-radius:10%">
+                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
+                     alt="讀取失敗"
+                     title="@Model.Comment.Profile.UserName"
+                     class="mr-3 mt-3 rounded-circle" style="width:60px;">
                 }
-                <small>@Html.DisplayFor(model => model.Comment.Profile.UserName)</small>
+                <b>@Html.DisplayFor(model => model.Comment.Profile.UserName)</b>
             </a>
+            <small>@Html.DisplayFor(model => model.Comment.UpdateTime)</small>
         </p>
-        <small>@Html.DisplayFor(model => model.Comment.UpdateTime)</small>
+        @Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))
+        <div class="pt-3">
+            @if (Model.Comment.Dices.FirstOrDefault() != null && Model.Comment.Dices.FirstOrDefault().Value != 0)
+            {
+                foreach (var dice in Model.Comment.Dices)
+                {
+                    <i class="fas fa-dice-d20"></i>
+                    <text>@dice.Value / @dice.Sides &nbsp;</text>
+                }
+            }
+        </div>
     </div>
 </div>
 <p></p>
@@ -119,7 +114,7 @@ else
 <ul id="partialMessagesPagination" class="pagination"></ul>
 <p></p>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
@@ -138,7 +133,9 @@ else
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
         $('#partialMessagesPagination').twbsPagination({
             totalPages: @Model.Messages.TotalPages,
