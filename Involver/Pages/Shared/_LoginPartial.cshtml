@@ -3,48 +3,57 @@
 @inject SignInManager<InvolverUser> SignInManager
 @inject UserManager<InvolverUser> UserManager
 
-<ul class="navbar-nav mt-2 mt-md-0 my-2">
+<ul class="navbar-nav">
+    <li class="nav-item dropdown">
+        <button type="button" class="nav-link btn btn-link" data-toggle="dropdown" title="搜尋">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+        <div class="dropdown-menu" style="min-width: 300px;">
+            <div class="nav-item col-auto">
+                <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
+                <div class="gcse-search"></div>
+            </div>
+        </div>
+    </li>
+    @{
+        string themeIcon = Context.Session.GetString("_DarkMode") == "On" ? "fa-sun" : "fa-moon";
+    }
+    <li class="nav-item">
+        <a class="nav-link"
+        onclick="SetDarkMode()" title="切換模式"><i class="fa-solid @themeIcon" id="theme-icon"></i></a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link"
+           href="https://github.com/Lauyea/involver" title="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+    </li>
     @if (SignInManager.IsSignedIn(User))
     {
-        
-        <li class="nav-item mx-2">
-            <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
-            <div class="gcse-search"></div>
-        </li>
-
-        var darkLinkHref ="javascript:document.getElementsByTagName('body')[0].setAttribute('class', 'bootstrap-dark');";
-        var lightLinkHref = "javascript:document.getElementsByTagName('body')[0].setAttribute('class', 'bootstrap');";
-
-        <li class="nav-item mx-2">
-            <a class="nav-link"
-                href="@darkLinkHref" onclick="SetDarkMode()" title="深色"><i class="fa-solid fa-moon"></i></a>
-        </li>
-        <li class="nav-item mx-2">
-            <a class="nav-link"
-                href="@lightLinkHref" onclick="SetDarkMode()" title="淺色"><i class="fa-solid fa-sun"></i></a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" asp-page="/Involvings/StoredValue">儲值</a>
-        </li>
         <li class="nav-item">
             <div class="dropdown">
                 <button type="button" class="nav-link btn btn-link" data-toggle="dropdown">
                     @UserManager.GetUserName(User)
                 </button>
                 <div class="dropdown-menu">
-                    <a class="nav-link dropdown-item"
+                    <span class="dropdown-item">
+                        <a class="nav-link"
                        asp-area="Identity"
                        asp-page="/Profile/Index"
                        asp-route-id="@UserManager.GetUserId(User)"
                        title="Profile">個人檔案</a>
-                    <a class="nav-link dropdown-item"
+                    </span>
+                    <span class="dropdown-item">
+                        <a class="nav-link"
                        asp-area="Identity"
                        asp-page="/Account/Manage/Index"
                        title="Manage">帳號管理</a>
+                    </span>
+                    <span class="dropdown-item">
+                        <a class="nav-link" asp-page="/Involvings/StoredValue">儲值</a>
+                    </span>
                     <form class="form-inline dropdown-item"
-                          asp-area="Identity"
-                          asp-page="/Account/Logout"
-                          asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                      asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
                         <button type="submit" class="nav-link btn btn-link">登出</button>
                     </form>
                 </div>
@@ -53,10 +62,6 @@
     }
     else
     {
-        <li class="nav-item">
-            <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
-            <div class="gcse-search"></div>
-        </li>
         <li class="nav-item">
             <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">註冊</a>
         </li>

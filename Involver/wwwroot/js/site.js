@@ -45,5 +45,8 @@ function SetDarkMode() {
         error: function (xhr, status, err) {
             alert(err)
         }
+    }).done(function () {
+        $("#theme-icon").toggleClass('fa-sun fa-moon');
+        $("#layout-body").toggleClass('bootstrap-dark bootstrap');
     });
 }
