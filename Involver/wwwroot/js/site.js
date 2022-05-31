@@ -37,3 +37,13 @@ function AgreeComment(agreeBtn, commentId) {
         $(agreeBtn).find('span').text(res);
     });
 }
+
+function SetDarkMode() {
+    $.ajax({
+        method: 'get',
+        url: "/DarkMode/Set",
+        error: function (xhr, status, err) {
+            alert(err)
+        }
+    });
+}

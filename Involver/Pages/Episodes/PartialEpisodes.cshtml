@@ -10,21 +10,17 @@
                 if (item.Title != null)
                 {
                     <tr id="@item.EpisodeID">
-                        <td style="width:60%">
+                        <td>
                             <a href="/Episodes/Details?id=@item.EpisodeID">
                                 @Html.DisplayFor(modelItem => item.Title)
+                                @if (item.IsLast == true)
+                                {
+                                    <span class="text-warning"><b>最新</b></span>
+                                }
                             </a>
-                            @*@Html.AntiXssRaw(item.Title.Replace("\r\n", "<br />"))*@
-                        </td>
-                        <td style="width:20%">
-                            @if (item.IsLast == true)
-                            {
-                                <span class="text-warning"><b>最新</b></span>
-                            }
-                            <p>觀看數：@item.Views</p>
-                        </td>
-                        <td style="width:20%">
-                            <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                            <p>
+                                <small>@Html.DisplayFor(modelItem => item.UpdateTime) | 觀看數：@item.Views</small>  
+                            </p>
                         </td>
                     </tr>
                 }

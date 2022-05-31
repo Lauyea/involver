@@ -96,6 +96,16 @@ services.AddAuthentication()
     });
 services.AddApplicationInsightsTelemetry(builder.Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY"));
 
+services.AddDistributedMemoryCache();
+
+services.AddSession(options =>
+{
+    options.Cookie.Name = "_DarkMode";
+    options.IdleTimeout = TimeSpan.FromDays(365);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -127,6 +137,8 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.UseEndpoints(endpoints =>
 {
