@@ -1,10 +1,9 @@
-﻿@inject UserManager<InvolverUser> UserManager
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    @if (UserManager.GetUserAsync(User).Result != null)
+    @if (userManager.GetUserAsync(User).Result != null)
     {
-        @if (!UserManager.GetUserAsync(User).Result.Prime)
+        @if (!userManager.GetUserAsync(User).Result.Prime)
         {
             //Google AdSense
             <script data-ad-client="ca-pub-3010246710169742" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -20,6 +19,17 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    @{
+        string toggleBootstrap = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap.min.css";
+        string toggleBootstrapDark = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap-dark.min.css";
+        string toggleBootstrapPrint = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap-print.min.css";
+    }
+
+    <link rel="stylesheet" href=@toggleBootstrap />
+    <link rel="stylesheet" href=@toggleBootstrapDark />
+    <link rel="stylesheet" href=@toggleBootstrapPrint />
+
     @RenderSection("Styles", required: false)
     <style>
         * {
@@ -65,9 +75,14 @@
             }
     </style>
 </head>
-<body style="background-color:white;color:black">
+
+@{
+    string theme = Context.Session.GetString("_DarkMode") == "On" ? "bootstrap-dark" : "bootstrap";
+}
+
+<body class="@theme">
     <header id="TopHead">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom @*box-shadow*@ mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom navbar-themed box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Involver beta</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -78,19 +93,19 @@
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Novels/Index">創作</a>
+                            <a class="nav-link" asp-area="" asp-page="/Novels/Index">創作</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Articles/Index">討論</a>
+                            <a class="nav-link" asp-area="" asp-page="/Articles/Index">討論</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Announcements/Index">公告</a>
+                            <a class="nav-link" asp-area="" asp-page="/Announcements/Index">公告</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Feedbacks/Index">回報與意見</a>
+                            <a class="nav-link" asp-area="" asp-page="/Feedbacks/Index">回報與意見</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
+                            <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
                         </li>
                     </ul>
                 </div>

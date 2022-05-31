@@ -10,7 +10,7 @@ namespace Involver.Controllers
     [AllowAnonymous]
     [Route("[controller]/[action]")]
     [ApiController]
-    public class AgreeController : Controller
+    public class AgreeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<InvolverUser> _userManager;
