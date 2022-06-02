@@ -4,12 +4,54 @@
     ViewData["Title"] = "關於Involver";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
-<div class="text-center">
-    <h1 class="display-4">讓每個人都能參與<text style="color:orange">創作</text>、支持<text style="color:orange">創作</text></h1>
-    <h1 class="display-4">使<text style="color:orange">創作</text>者能給大家做出更好的作品</h1>
-    <p></p>
-    <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="img-fluid" /></a>
-    <a asp-area="" asp-page="/StatisticalData/Index">統計資料</a>
-</div>
+
+@section Styles{
+    <style>
+        .bg-image {
+            /* Add the blur effect */
+            filter: blur(8px);
+            -webkit-filter: blur(8px);
+            height: 80%;
+            /* Center and scale the image nicely */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            padding: 20px;
+        }
+
+        /* Position text in the middle of the page/image */
+        .bg-text {
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0, 0.4); /* Black w/opacity/see-through */
+            color: white;
+            font-weight: bold;
+            border: 3px solid #f1f1f1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            width: 80%;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+}
+
+    <div class="text-center">
+        <div class="bg-text">
+            <h1 class="display-5">讓人人都能參與<text style="color:orange">創作</text>、支持<text style="color:orange">創作</text></h1>
+            <h1 class="display-5">使<text style="color:orange">創作</text>者能做出更好的作品</h1>
+            <a asp-area="" asp-page="/StatisticalData/Index">統計資料</a>
+        </div>
+        <p></p>
+        <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="bg-image container" /></a>
+    </div>
 
 
