@@ -83,7 +83,7 @@
 <body class="@theme" id="layout-body">
     <header id="TopHead">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom navbar-themed box-shadow mb-3">
-            <div class="container">
+            <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">Involver beta</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -112,14 +112,14 @@
             </div>
         </nav>
     </header>
-    <div class="container" style="margin-bottom:150px">
+    <div class="container mb-5 pb-3">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
     <footer class="border-top footer text-muted">
-        <div class="container">
-            <p>&copy; 2020 - Involver</p>
+        <div class="container-fluid">
+            &copy; 2020 - Involver &nbsp;
             <a asp-area="" asp-page="/Descriptions/Privacy">隱私政策</a>
             -
             <a asp-area="" asp-page="/Descriptions/Terms">服務條款</a>
