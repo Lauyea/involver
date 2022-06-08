@@ -27,7 +27,7 @@
             <div class="form-group">
                 <label asp-for="Feedback.Content" class="control-label"></label>
                 <a asp-page="/Descriptions/UsefulHTML" target="_blank">常用HTML範例</a>
-                <textarea asp-for="Feedback.Content" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                <textarea asp-for="Feedback.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
                 <span asp-validation-for="Feedback.Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -39,4 +39,61 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strikethrough',
+                        'fontBackgroundColor',
+                        'fontColor',
+                        'removeFormat',
+                        'findAndReplace',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'outdent',
+                        'indent',
+                        'horizontalLine',
+                        '|',
+                        'link',
+                        'imageInsert',
+                        'blockQuote',
+                        'insertTable',
+                        'mediaEmbed',
+                        'sourceEditing',
+                        'undo',
+                        'redo'
+                    ]
+                },
+                image: {
+                    toolbar: [
+                        'imageTextAlternative',
+                        'imageStyle:inline',
+                        'imageStyle:block',
+                        'imageStyle:side'
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error(error);
+            });
+    </script>
 }

@@ -20,7 +20,7 @@
             <input type="hidden" asp-for="Comment.ProfileID" />
             <div class="form-group">
                 <label asp-for="Comment.Content" class="control-label"></label>
-                <textarea asp-for="Comment.Content" class="form-control" rows="7"></textarea>
+                <textarea asp-for="Comment.Content" id="editor" class="form-control" rows="7"></textarea>
                 <span asp-validation-for="Comment.Content" class="text-danger"></span>
             </div>
             @if ((await AuthorizationService.AuthorizeAsync(
@@ -46,4 +46,61 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strikethrough',
+                        'fontBackgroundColor',
+                        'fontColor',
+                        'removeFormat',
+                        'findAndReplace',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'outdent',
+                        'indent',
+                        'horizontalLine',
+                        '|',
+                        'link',
+                        'imageInsert',
+                        'blockQuote',
+                        'insertTable',
+                        'mediaEmbed',
+                        'sourceEditing',
+                        'undo',
+                        'redo'
+                    ]
+                },
+                image: {
+                    toolbar: [
+                        'imageTextAlternative',
+                        'imageStyle:inline',
+                        'imageStyle:block',
+                        'imageStyle:side'
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error(error);
+            });
+    </script>
 }
