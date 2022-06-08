@@ -20,7 +20,7 @@
             <div class="form-group">
                 <label asp-for="Comment.Content" class="control-label"></label>
                 <a asp-page="/Descriptions/UsefulHTML" target="_blank">常用HTML範例</a>
-                <textarea asp-for="Comment.Content" class="form-control" rows="14" placeholder="在這裡寫些東西..."></textarea>
+                <textarea asp-for="Comment.Content" id="editor" class="form-control" rows="14" placeholder="在這裡寫些東西..."></textarea>
                 <span asp-validation-for="Comment.Content" class="text-danger"></span>
             </div>
             <div class="alert alert-warning" role="alert">
@@ -41,16 +41,16 @@
                 <div class="form-group">
                     擲
                     <input asp-for="RollTimes"
-                           class="form-control"
-                           style="width:auto;display:inline"
-                           title="最多12次"
-                           value="0" />
+                       class="form-control"
+                       style="width:auto;display:inline"
+                       title="最多12次"
+                       value="0" />
                     次
                     <input asp-for="Dice.Sides"
-                           class="form-control"
-                           style="width:auto;display:inline"
-                           title="最多999面"
-                           value="0" />
+                       class="form-control"
+                       style="width:auto;display:inline"
+                       title="最多999面"
+                       value="0" />
                     面骰
                     <div class="alert alert-warning" role="alert">
                         <p>
@@ -79,5 +79,64 @@
     </div>*@
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strikethrough',
+                        'fontBackgroundColor',
+                        'fontColor',
+                        'removeFormat',
+                        'findAndReplace',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'outdent',
+                        'indent',
+                        'horizontalLine',
+                        '|',
+                        'link',
+                        'imageInsert',
+                        'blockQuote',
+                        'insertTable',
+                        'mediaEmbed',
+                        'sourceEditing',
+                        'undo',
+                        'redo'
+                    ]
+                },
+                image: {
+                    toolbar: [
+                        'imageTextAlternative',
+                        'imageStyle:inline',
+                        'imageStyle:block',
+                        'imageStyle:side'
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                licenseKey: '',
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error(error);
+            });
+    </script>
 }
