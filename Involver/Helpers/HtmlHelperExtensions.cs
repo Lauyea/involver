@@ -22,8 +22,6 @@ namespace Involver.Helpers
 
             sanitizer.AllowedAttributes.Add("class");
 
-            sanitizer.AllowedAttributes.Add("url");
-
             sanitizer.RemovingTag += FilterTags;
 
             var sanitized = sanitizer.Sanitize(html);
@@ -43,15 +41,6 @@ namespace Involver.Helpers
             {
                 if (e.Tag.TagName.ToLower().Equals("iframe") 
                 && e.Tag.GetAttribute("src").StartsWith(@"https://" + baseUrl))
-                {
-                    e.Cancel = true;
-                }
-            });
-
-            IframeWhitelistBase.ForEach((baseUrl) =>
-            {
-                if (e.Tag.TagName.ToLower().Equals("oembed")
-                && e.Tag.GetAttribute("url").StartsWith(@"https://" + baseUrl))
                 {
                     e.Cancel = true;
                 }
