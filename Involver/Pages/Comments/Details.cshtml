@@ -96,7 +96,7 @@ else
             </a>
             <small>@Html.DisplayFor(model => model.Comment.UpdateTime)</small>
         </p>
-        @Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))
+        <span class="ck-content">@Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))</span>
         <div class="pt-3">
             @if (Model.Comment.Dices.FirstOrDefault() != null && Model.Comment.Dices.FirstOrDefault().Value != 0)
             {

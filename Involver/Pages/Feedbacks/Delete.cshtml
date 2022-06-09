@@ -41,7 +41,7 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Feedback.Content)
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10 ck-content">
             @Html.AntiXssRaw(Model.Feedback.Content.Replace("\r\n", "<br />"))
         </dd>
     </dl>
