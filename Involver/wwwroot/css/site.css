@@ -114,3 +114,7 @@ body {
     background: #007bb6;
     color: #fff;
 }
+
+figure.media {
+    display: block !important;
+}

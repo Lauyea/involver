@@ -5,7 +5,7 @@
     {
         @if (!userManager.GetUserAsync(User).Result.Prime)
         {
-            //Google AdSense
+        //Google AdSense
             <script data-ad-client="ca-pub-3010246710169742" async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         }
     }
@@ -17,7 +17,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Involver - @ViewData["Title"]</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @{
@@ -29,12 +28,14 @@
     <link rel="stylesheet" href=@toggleBootstrap />
     <link rel="stylesheet" href=@toggleBootstrapDark />
     <link rel="stylesheet" href=@toggleBootstrapPrint />
+    <link rel="stylesheet" href="~/css/site.css" />
 
     @RenderSection("Styles", required: false)
     <style>
         * {
             font-family: 'Microsoft JhengHei';
         }
+
         .video-container {
             position: relative;
             width: 100%;
@@ -52,7 +53,7 @@
             height: 100%;
             border: none;
         }
-        
+
         #gotop {
             position: fixed;
             z-index: 90;
@@ -137,15 +138,15 @@
     <script src="~/lib/ckeditor5-34.0.0-yft5rv4c2mbd/build/ckeditor.js"></script>
 
     <script type="text/javascript">
-        $(function () {
+        $(function() {
             /* 按下GoTop按鈕時的事件 */
-            $('#gotop').click(function () {
+            $('#gotop').click(function() {
                 $('html,body').animate({ scrollTop: 0 }, 'slow');   /* 返回到最頂上 */
                 return false;
             });
 
             /* 偵測卷軸滑動時，往下滑超過400px就讓GoTop按鈕出現 */
-            $(window).scroll(function () {
+            $(window).scroll(function() {
                 if ($(this).scrollTop() > 400) {
                     $('#gotop').fadeIn();
                 } else {
@@ -155,7 +156,7 @@
         });
     </script>
     <!-- 記得要把按鈕放到網頁上, 否則它不會出現 -->
-    <a href="https://www.blogger.com/blogger.g?blogID=2031514508322140995#" id="gotop">
+    <a href="#" id="gotop">
         <i class="fa fa-angle-up"></i>
     </a>
 
