@@ -105,8 +105,11 @@
                         {
                             foreach (var dice in item.Dices)
                             {
-                                <i class="fas fa-dice-d20"></i>
-                                <text>@dice.Value / @dice.Sides &nbsp;</text>
+                                if(dice.Sides != 0 && dice.Value != 0)
+                                {
+                                    <i class="fas fa-dice-d20"></i>
+                                    <text>@dice.Value / @dice.Sides &nbsp;</text>
+                                }
                             }
                         }
                     </div>
