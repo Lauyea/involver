@@ -49,7 +49,7 @@ namespace Involver.Pages.Feed
                     }
                 }
             }
-            Articles.OrderByDescending(a => a.UpdateTime).Take(100);
+            Articles.OrderByDescending(a => a.UpdateTime).Take(10);
         }
     }
 }

@@ -36,9 +36,15 @@ namespace Involver.Pages
             UserManager = userManager;
         }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             string UserId = UserManager.GetUserId(User);
+
+            if(UserId == null)
+            {
+                return RedirectToPage("/Feed/TrendingCreations", "OnGet");
+            }
+
             UserProfile = await Context
                                     .Profiles
                                     .Where(p => p.ProfileID == UserId)
@@ -52,6 +58,7 @@ namespace Involver.Pages
                     .ThenInclude(n => n.Profile)
                 .Where(f => f.FollowerID == UserId)
                 .OrderByDescending(f => f.Novel.UpdateTime)
+                .Take(10)
                 .ToListAsync();
 
             if (UserProfile != null)
@@ -66,6 +73,8 @@ namespace Involver.Pages
                 Context.Attach(UserProfile).State = EntityState.Modified;
                 await Context.SaveChangesAsync();
             }
+
+            return Page();
         }
     }
 }

@@ -7,36 +7,15 @@
 
 @if (Model.UserProfile != null)
 {
-    <div class="row">
-        <div class="col-4">
-            <h4>追蹤</h4>
-            <hr />
-            <div class="nav-pills">
-                <a asp-page="/Index"
-                   class="btn btn-xs btn-info disabled nav-item">創作</a>
-                <a asp-page="/Feed/FollowArticles"
-                   asp-route-id="@Model.UserProfile.ProfileID"
-                   class="btn btn-xs btn-outline-info nav-item">討論</a>
-            </div>
-            <hr />
-        </div>
-        <div class="col-4">
-            <h4>熱門</h4>
-            <hr />
-            <a asp-page="/Feed/TrendingCreations"
-               asp-route-id="@Model.UserProfile.ProfileID"
-               class="btn btn-xs btn-outline-danger">創作</a>
-            <hr />
-        </div>
-        <div class="col-4">
-            <h4>推薦</h4>
-            <hr />
-            <a asp-page="/Feed/RecommendCreations"
-               asp-route-id="@Model.UserProfile.ProfileID"
-               class="btn btn-xs btn-secondary disabled">創作</a>
-            <hr />
-        </div>
-    </div>
+    <nav class="nav nav-pills flex-column flex-sm-row">
+        <a asp-page="/Index" class="flex-sm-fill text-sm-center nav-link active">追蹤創作</a>
+        <a asp-page="/Feed/FollowArticles"
+       asp-route-id="@Model.UserProfile.ProfileID" class="flex-sm-fill text-sm-center nav-link">追蹤文章</a>
+        <a asp-page="/Feed/TrendingCreations"
+       asp-route-id="@Model.UserProfile.ProfileID" class="flex-sm-fill text-sm-center nav-link">熱門創作</a>
+        <a asp-area="" asp-page="/Novels/Index" class="flex-sm-fill text-sm-center nav-link">最新創作</a>
+        <a asp-area="" asp-page="/Articles/Index" class="flex-sm-fill text-sm-center nav-link">最新文章</a>
+    </nav>
     <p></p>
     <div>
         @if (Model.Follows != null)
@@ -47,14 +26,14 @@
                 {
                     continue;
                 }
-                if(follow.Novel.Episodes.Count() == 0)
+                if (follow.Novel.Episodes.Count() == 0)
                 {
                     continue;
                 }
                 <div class="row">
                     <div class="col-md-5">
                         <a asp-page="/Episodes/Details"
-                           asp-route-id="@follow.Novel.Episodes.LastOrDefault().EpisodeID">
+               asp-route-id="@follow.Novel.Episodes.LastOrDefault().EpisodeID">
                             @Html.DisplayFor(modelItem => follow.Novel.Episodes.LastOrDefault().Title)
                         </a>
                     </div>
@@ -66,14 +45,14 @@
                         }
                     </div>
                     <div class="col-md-3">
-                        <p>
+                        @*<p>
                             <a asp-area="Identity"
-                               asp-page="/Profile/Index"
-                               asp-route-id="@follow.Novel.Profile.ProfileID">
+                   asp-page="/Profile/Index"
+                   asp-route-id="@follow.Novel.Profile.ProfileID">
                                 <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small>
                             </a>
-                        </p>
-                        <small>@Html.DisplayFor(modelItem => follow.Novel.UpdateTime)</small>
+                        </p>*@
+                        @Html.DisplayFor(modelItem => follow.Novel.UpdateTime)
                     </div>
                 </div>
                 <hr />
@@ -102,7 +81,7 @@ else
 <p></p>
 @section Scripts{
     <script>
-        (function (d, s, id) {
+        (function(d, s, id) {
             var js, fjs = d.getElementsByTagName(s)[0];
             if (d.getElementById(id)) return;
             js = d.createElement(s); js.id = id;
@@ -111,8 +90,8 @@ else
         }(document, 'script', 'facebook-jssdk'));
     </script>
 }
-@*TODO Temp use*@
-@*<div>
+    @*TODO Temp use*@
+    @*<div>
         <video autoplay="" data-object-fit="cover" loop="" muted="" playsinline="" style="width: 100%; height: auto">
             <source src="https://d33yashko74f1s.cloudfront.net/assets/blissart-bgvideo-24297558c832968878cd596f824105f0f09e8a936e4b00ab142db122dab9fb03.mp4" type="video/mp4">
             <source src="https://d33yashko74f1s.cloudfront.net/assets/blissart-bgvideo-4b920dec1c8eb1688210824fb99465bbfbe59dfbc04cdd29d4f8261e6c062caa.flv" type="video/flv">
