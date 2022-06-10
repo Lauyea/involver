@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Involver.Data;
 using Involver.Models.NovelModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Involver.Pages.Feed
 {
+    [AllowAnonymous]
     public class TrendingCreationsModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
@@ -33,7 +35,7 @@ namespace Involver.Pages.Feed
             Novels = await Context.Novels
                 .Include(n => n.Profile)
                 .OrderByDescending(n => n.MonthlyCoins)
-                .Take(100)
+                .Take(10)
                 .ToListAsync();
         }
     }
