@@ -36,8 +36,8 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Announcement.Content)
         </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Announcement.Content)
+        <dd class="col-sm-10 ck-content">
+            @Html.AntiXssRaw(Model.Announcement.Content.Replace("\r\n", "<br />"))
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Announcement.Views)

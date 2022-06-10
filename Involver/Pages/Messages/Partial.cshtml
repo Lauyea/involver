@@ -45,7 +45,7 @@
                         <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
                     }
                 }
-                <p>@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
+                <p class="ck-content">@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
                 <p>
                     <form method="post" class="d-inline">
                         @{

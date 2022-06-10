@@ -50,7 +50,7 @@
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Novel.Introduction)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-10 ck-content">
                 @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
             </dd>
             <dt class="col-sm-2">

@@ -16,7 +16,7 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Comment.Content)
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10 ck-content">
             @Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))
         </dd>
         <dt class="col-sm-2">

@@ -166,7 +166,7 @@ User, Model.Article, ArticleOperations.Block)).Succeeded)
     </dl>
 </div>
 <hr />
-<article>
+<article class="ck-content">
     @if (Model.Article.Content != null)
     {
         @Html.AntiXssRaw(Model.Article.Content.Replace("\r\n", "<br />"))

@@ -21,7 +21,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Announcement.Content" class="control-label"></label>
-                <textarea asp-for="Announcement.Content" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                <textarea asp-for="Announcement.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
                 <span asp-validation-for="Announcement.Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -37,4 +37,64 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#editor'), {
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strikethrough',
+                        'fontBackgroundColor',
+                        'fontColor',
+                        'removeFormat',
+                        'findAndReplace',
+                        '|',
+                        'bulletedList',
+                        'numberedList',
+                        'outdent',
+                        'indent',
+                        'horizontalLine',
+                        '|',
+                        'link',
+                        'imageInsert',
+                        'blockQuote',
+                        'insertTable',
+                        'mediaEmbed',
+                        'sourceEditing',
+                        'undo',
+                        'redo'
+                    ]
+                },
+                image: {
+                    toolbar: [
+                        'imageTextAlternative',
+                        'imageStyle:inline',
+                        'imageStyle:block',
+                        'imageStyle:side'
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                licenseKey: '',
+                mediaEmbed: {
+                    previewsInData: true
+                }
+            })
+            .then(editor => {
+                window.editor = editor;
+            })
+            .catch(error => {
+                console.error('Oops, something went wrong!');
+                console.error(error);
+            });
+    </script>
 }

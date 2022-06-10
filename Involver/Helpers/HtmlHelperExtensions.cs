@@ -1,4 +1,5 @@
 ﻿using Ganss.XSS;
+using HtmlAgilityPack;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -25,6 +26,8 @@ namespace Involver.Helpers
 
             var sanitized = sanitizer.Sanitize(html);
 
+            sanitized = ParseImage(sanitized);
+
             return helper.Raw(sanitized);
         }
 
@@ -44,6 +47,33 @@ namespace Involver.Helpers
             });
         }
 
-        
+        /// <summary>
+        /// 把html中的img class加上img-fluid
+        /// </summary>
+        /// <param name="pHtml">html</param>
+        /// <returns></returns>
+        static string ParseImage(string pHtml)
+        {
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(pHtml);
+            var imgs = doc.DocumentNode.SelectNodes("//img");
+
+            if(imgs != null)
+            {
+                foreach (var item in imgs)
+                {
+                    item.SetAttributeValue("class", "img-fluid");
+                }
+                using (StringWriter tw = new StringWriter())
+                {
+                    doc.Save(tw);
+                    return tw.ToString();
+                }
+            }
+            else
+            {
+                return pHtml;
+            }
+        }
     }
 }

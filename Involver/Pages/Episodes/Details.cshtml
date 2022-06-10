@@ -136,7 +136,7 @@ NovelOperations.Delete)).Succeeded)
 
 <hr />
 
-<article>
+<article class="ck-content">
     @if (Model.Episode.Content != null)
     {
         @Html.AntiXssRaw(Model.Episode.Content.Replace("\r\n", "<br />"))

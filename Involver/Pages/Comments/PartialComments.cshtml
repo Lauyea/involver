@@ -99,14 +99,17 @@
                             <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
                         }
                     }
-                    @Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))
+                    <span class="ck-content">@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</span>
                     <div class="pt-3 pb-3">
                         @if (item.Dices.FirstOrDefault() != null && item.Dices.FirstOrDefault().Value != 0)
                         {
                             foreach (var dice in item.Dices)
                             {
-                                <i class="fas fa-dice-d20"></i>
-                                <text>@dice.Value / @dice.Sides &nbsp;</text>
+                                if(dice.Sides != 0 && dice.Value != 0)
+                                {
+                                    <i class="fas fa-dice-d20"></i>
+                                    <text>@dice.Value / @dice.Sides &nbsp;</text>
+                                }
                             }
                         }
                     </div>
