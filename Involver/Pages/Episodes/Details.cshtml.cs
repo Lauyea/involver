@@ -33,8 +33,6 @@ namespace Involver.Pages.Episodes
         public Novel Novel { get; set; }
         public PaginatedList<Comment> Comments { get; set; }
         public List<Voting> Votings { get; set; }
-        public string CountDownArrayJSON { get; set; }
-        public CountDown[] CountDownArray { get; set; }
         public bool ShowCommentByCreator { get; set; } = false;
         public string UserID { get; set; }
         [TempData]
@@ -79,8 +77,6 @@ namespace Involver.Pages.Episodes
                     .ThenInclude(n => n.Votes)
                 .ToListAsync();
 
-            var i = 1;
-            CountDownArray = new CountDown[Votings.Count - 1]; //有個空Voting
             foreach (Voting voting in Votings)
             {
                 if (voting.NormalOptions.Count() == 0)
@@ -98,14 +94,6 @@ namespace Involver.Pages.Episodes
                         voting.End = true;
                         _context.Attach(voting).State = EntityState.Modified;
                     }
-
-                    var countDown = new CountDown()
-                    {
-                        countDownTime = voting.DeadLine,
-                        id = "CountDown" + i
-                    };
-                    CountDownArray[i - 1] = countDown;
-                    i++;
                 }
 
                 if (voting.Limit == Voting.LimitType.Number)
@@ -132,10 +120,6 @@ namespace Involver.Pages.Episodes
                         _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
-            }
-            if (CountDownArray != null)
-            {
-                CountDownArrayJSON = JsonSerializer.Serialize(CountDownArray);
             }
 
             //Add views
@@ -240,12 +224,6 @@ namespace Involver.Pages.Episodes
                 Comments = await PaginatedList<Comment>.CreateAsync(
                     comments, pageIndex ?? 1, Parameters.CommetPageSize);
             }
-        }
-
-        public class CountDown
-        {
-            public DateTime? countDownTime { get; set; }
-            public string id { get; set; }
         }
 
         public async Task<IActionResult> OnPostBlockAsync(int id, int fromID, int pageIndex)
