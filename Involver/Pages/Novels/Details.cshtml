@@ -33,28 +33,22 @@
         </a>
     }
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-    &nbsp&nbsp
+</div>
+&nbsp&nbsp
     @if (Model.Followed)
     {
-        <form style="display:inline;" method="post">
-            <button type="submit" asp-page-handler="follow"
-                asp-route-id="@Model.Novel.NovelID"
-                class="btn btn-xs btn-primary disabled">
-                取消追蹤
-            </button>
-        </form>
+        <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+            class="btn btn-xs btn-primary disabled">
+            取消追蹤
+        </button>
     }
     else
     {
-        <form style="display:inline;" method="post">
-            <button type="submit" asp-page-handler="follow"
-                asp-route-id="@Model.Novel.NovelID"
-                class="btn btn-xs btn-primary">
-                追蹤創作
-            </button>
-        </form>
+        <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+            class="btn btn-xs btn-primary">
+            追蹤創作
+        </button>
     }
-</div>
 <div>
     @if (!Model.Novel.Block)
     {

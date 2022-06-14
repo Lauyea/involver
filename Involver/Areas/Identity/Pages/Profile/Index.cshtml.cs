@@ -92,41 +92,5 @@ namespace Involver.Areas.Identity.Pages.Profile
             
             return Page();
         }
-
-        public async Task<IActionResult> OnPostFollowAsync(string id)
-        {
-            Profile = await _context.Profiles
-                .Include(p => p.Follows)
-                .Where(p => p.ProfileID == id)
-                .FirstOrDefaultAsync();
-
-            if (Profile == null)
-            {
-                return Page();
-            }
-            string UserID = _userManager.GetUserId(User);
-            Follow follow = Profile.Follows.Where(f => f.FollowerID == UserID).FirstOrDefault();
-
-            if (follow == null)
-            {
-                Follow newFollow = new Follow
-                {
-                    FollowerID = UserID,
-                    ProfileID = id,
-                    UpdateTime = DateTime.Now,
-                    NovelMonthlyInvolver = false,
-                    ProfileMonthlyInvolver = false
-                };
-                _context.Follows.Add(newFollow);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                _context.Follows.Remove(follow);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index", "OnGet", new { id });
-        }
     }
 }

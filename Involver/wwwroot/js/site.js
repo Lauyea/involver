@@ -71,3 +71,39 @@ function Share() {
         }
     });
 }
+
+function FollowAuthor(btn, id) {
+    $.ajax({
+        method: 'get',
+        url: "/Follow/FollowAuthor?id=" + id,
+        error: function (xhr, status, err) {
+            alert(err)
+        }
+    }).done(function () {
+        $(btn).toggleClass('disabled  ');
+        if ($(btn).text() === "追蹤作者") {
+            $(btn).text("取消追蹤");
+        }
+        else {
+            $(btn).text("追蹤作者");
+        }
+    });
+}
+
+function FollowNovel(btn, id) {
+    $.ajax({
+        method: 'get',
+        url: "/Follow/FollowNovel?id=" + id,
+        error: function (xhr, status, err) {
+            alert(err)
+        }
+    }).done(function () {
+        $(btn).toggleClass('disabled  ');
+        if ($(btn).text() === "追蹤創作") {
+            $(btn).text("取消追蹤");
+        }
+        else {
+            $(btn).text("追蹤創作");
+        }
+    });
+}
