@@ -169,41 +169,5 @@ namespace Involver.Pages.Novels
 
             return RedirectToPage("./Index");
         }
-
-        public async Task<IActionResult> OnPostFollowAsync(int id)
-        {
-            Novel novel = await _context.Novels
-                .Include(n => n.Follows)
-                .Where(n => n.NovelID == id)
-                .FirstOrDefaultAsync();
-
-            if (novel == null)
-            {
-                return Page();
-            }
-            string UserID = _userManager.GetUserId(User);
-            Follow follow = novel.Follows.Where(f => f.FollowerID == UserID).FirstOrDefault();
-
-            if (follow == null)
-            {
-                Follow newFollow = new Follow
-                {
-                    FollowerID = UserID,
-                    NovelID = id,
-                    UpdateTime = DateTime.Now,
-                    NovelMonthlyInvolver = false,
-                    ProfileMonthlyInvolver = false
-                };
-                _context.Follows.Add(newFollow);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                _context.Follows.Remove(follow);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Details", "OnGet", new { id });
-        }
     }
 }

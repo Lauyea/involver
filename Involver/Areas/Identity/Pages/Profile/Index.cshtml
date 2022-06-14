@@ -26,28 +26,21 @@
                 編輯
             </a>
         }
-        &nbsp&nbsp
         @if (!Model.ProfileOwner)
         {
             @if (Model.Followed)
             {
-                <form style="display:inline;" method="post">
-                    <button type="submit" asp-page-handler="follow"
-                            asp-route-id="@Model.Profile.ProfileID"
-                            class="btn btn-xs btn-primary disabled">
-                        取消追蹤
-                    </button>
-                </form>
+                <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
+                        class="btn btn-xs btn-primary disabled">
+                    取消追蹤
+                </button>
             }
             else
             {
-                <form style="display:inline;" method="post">
-                    <button type="submit" asp-page-handler="follow"
-                            asp-route-id="@Model.Profile.ProfileID"
-                            class="btn btn-xs btn-primary">
-                        追蹤作者
-                    </button>
-                </form>
+                <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
+                        class="btn btn-xs btn-primary">
+                    追蹤作者
+                </button>
             }
         }
         &nbsp&nbsp
