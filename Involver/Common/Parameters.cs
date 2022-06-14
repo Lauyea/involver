@@ -9,5 +9,7 @@
         public static readonly int MessagePageSize = 5;
 
         public static readonly int ArticlePageSize = 5;
+
+        public static readonly int VotingOptionContentLegnth = 15;
     }
 }

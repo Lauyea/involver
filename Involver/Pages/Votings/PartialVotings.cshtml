@@ -96,39 +96,29 @@
         if (voting.Policy == Voting.PolicyType.Liberty)
         {
             <div>
-                <div class="side">
-                    <a asp-page="../Votings/Details"
-           asp-route-id="@voting.VotingID"
-           title="@option.Content">
-                        @if (option.Content.Length < 3)
-                        {
-                            @option.Content
-                        }
-                        else
-                        {
-                            @(option.Content.Substring(0, 3)+"...")
-                        }
-                    </a>
-                    @*<text title="@option.Content">
-        @if (option.Content.Length < 5)
-        {
-        @option.Content
-        }
-        else
-        {
-        @(option.Content.Substring(0, 5)+"...")
-        }
-        </text>*@
-                </div>
+                @{
+                    var valuePercent = GetValuePercent(voting, option.TotalCoins);
+                }
                 <div class="middle">
                     <div class="bar-container">
+                        <div style="position:absolute;">
+                            @if (option.Content.Length < Parameters.VotingOptionContentLegnth)
+                            {
+                                @option.Content
+                            }
+                            else
+                            {
+                                @(option.Content.Substring(0, Parameters.VotingOptionContentLegnth)+"...")
+                            }
+                            @valuePercent
+                        </div>
                         @if (Voted || voting.End)
                         {
-                            <div style="width: @GetValuePercent(voting, option.TotalCoins); height: 18px; background-color: #e66532;"></div>
+                            <div style="width: @valuePercent; height: 22px; background-color: #e66532;"></div>
                         }
                         else
                         {
-                            <div style="width: 0; height: 18px; background-color: #e66532;"></div>
+                            <div style="width: 0; height: 22px; background-color: #e66532;"></div>
                         }
                     </div>
                 </div>
@@ -140,43 +130,30 @@
         else
         {
             <div>
-                <div class="side">
-                    <a asp-page="../Votings/Details"
-           asp-route-id="@voting.VotingID"
-           title="@option.Content">
-                        @if (option.Content.Length < 3)
-                        {
-                            @option.Content
-                        }
-                        else
-                        {
-                            @(option.Content.Substring(0, 3)+"...")
-                        }
-                    </a>
-                    @*<a asp-page="../NormalOptions/Details"
-        asp-route-id="@option.NormalOptionID"
-        title="@option.Content">
-        @if (option.Content.Length < 5)
-        {
-        @option.Content
-        }
-        else
-        {
-        @(option.Content.Substring(0, 5)+"...")
-        }
-        </a>*@
-                </div>
+                @{
+                    var numberPercent = GetNumberPercent(voting, option.Votes.Count());
+                }
                 <div class="middle">
                     <div class="bar-container">
+                        <div style="position:absolute;">
+                            @if (option.Content.Length < Parameters.VotingOptionContentLegnth)
+                            {
+                                @option.Content
+                            }
+                            else
+                            {
+                                @(option.Content.Substring(0, Parameters.VotingOptionContentLegnth)+"...")
+                            }
+                            @numberPercent
+                        </div>
                         @if (Voted || voting.End)
                         {
-                            <div style="width: @GetNumberPercent(voting, option.Votes.Count()); height: 18px; background-color: #e66532;"></div>
+                            <div style="width: @numberPercent; height: 22px; background-color: #e66532;"></div>
                         }
                         else
                         {
-                            <div style="width: 0; height: 18px; background-color: #e66532;"></div>
+                            <div style="width: 0; height: 22px; background-color: #e66532;"></div>
                         }
-
                     </div>
                 </div>
                 <div class="side right">
@@ -193,22 +170,45 @@
         }
     }
     <div style="text-align: right">
-        @if (!voting.End)
-        {
-            <a asp-page="../Votings/Details"
+        @{
+            var votingStatus = voting.End == true ? "投票結束" : "投票";
+        }
+        <a asp-page="../Votings/Details"
        asp-route-id="@voting.VotingID"
-       class="btn btn-xs btn-outline-primary"><i class="fas fa-vote-yea"></i>投票</a>
-        }
-        else
-        {
-            <a class="btn btn-xs btn-outline-primary disabled"><i class="fas fa-vote-yea"></i>投票結束</a>
-        }
+       class="btn btn-xs btn-outline-primary"><i class="fas fa-vote-yea"></i>@votingStatus</a>
     </div>
     <hr />
 }
 
 @using (Html.BeginScripts())
 {
+    <style>
+        /* Three column layout */
+        .side {
+            float: left;
+            width: 20%;
+            margin-top: 10px;
+        }
+
+        .middle {
+            margin-top: 10px;
+            float: left;
+            width: 80%;
+        }
+
+        /* Place text to the right */
+        .right {
+            text-align: right;
+        }
+
+        /* The bar container */
+        .bar-container {
+            width: 100%;
+            background-color: #d6d6d6;
+            text-align: center;
+            color: white;
+        }
+    </style>
     <script>
         //Timer function's JS
         var countDownArray = JSON.parse('@Html.AntiXssRaw(JsonSerializer.Serialize(CountDownList))');
