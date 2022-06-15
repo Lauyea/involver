@@ -68,6 +68,14 @@ function Share() {
         url: "/Share/Get",
         error: function (xhr, status, err) {
             alert(err)
+        },
+        success: function (res) {
+            if (res === "") {
+                $("#myTooltip").html("複製成功");
+            }
+            else {
+                $("#myTooltip").html(res);
+            }
         }
     });
 }

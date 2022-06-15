@@ -78,13 +78,13 @@ namespace Involver.Areas.Identity.Pages.Profile
             {
                 InvolverUser.Banned = false;
                 Profile.Banned = false;
-                StatusMessage = "You unbanned this user successly.";
+                StatusMessage = "You unbanned this user successfully.";
             }
             else
             {
                 InvolverUser.Banned = true;
                 Profile.Banned = true;
-                StatusMessage = "You banned this user successly.";
+                StatusMessage = "You banned this user successfully.";
             }
             _context.Attach(Profile).State = EntityState.Modified;
             _context.Attach(InvolverUser).State = EntityState.Modified;
