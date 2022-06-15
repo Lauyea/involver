@@ -15,6 +15,8 @@ namespace Involver.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<InvolverUser> _userManager;
 
+        string statusMessage = "";
+
         public ShareController(ApplicationDbContext context, UserManager<InvolverUser> userManager)
         {
             _context = context;
@@ -22,7 +24,7 @@ namespace Involver.Controllers
         }
 
         [HttpGet]
-        public async Task Get()
+        public async Task<ActionResult> Get()
         {
             //Check mission:ShareCreation //CheckMissionShareCreation
             string UserID = _userManager.GetUserId(User);
@@ -37,7 +39,7 @@ namespace Involver.Controllers
                     userProfile.Missions.ShareCreation = true;
                     userProfile.VirtualCoins += 5;
                     _context.Attach(userProfile).State = EntityState.Modified;
-                    //StatusMessage = "每週任務：分享一次創作 已完成，獲得5 虛擬In幣。"; //TODO 要改寫StatusMessage的使用方式
+                    statusMessage = "每週任務：分享一次創作 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
                 Missions missions = userProfile.Missions;
@@ -52,11 +54,10 @@ namespace Involver.Controllers
                     _context.Attach(userProfile).State = EntityState.Modified;
                 }
 
-                if(_context.Attach(userProfile).State == EntityState.Modified)
-                {
-                    await _context.SaveChangesAsync();
-                }
+                await _context.SaveChangesAsync();
             }
+
+            return Content(statusMessage);
         }
     }
 }
