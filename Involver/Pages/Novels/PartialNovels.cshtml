@@ -18,7 +18,7 @@
             else
             {
                 <a asp-page="./Details" asp-route-id="@item.NovelID">
-                    <img src="https://generative-placeholders.glitch.me/image?width=600&height=300&style=triangles&gap=100"
+                    <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
                          asp-append-version="true"
                          alt="讀取失敗"
                          title="主題圖片"
