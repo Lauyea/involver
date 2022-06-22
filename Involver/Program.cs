@@ -108,19 +108,19 @@ services.AddSession(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var serviceProvider = scope.ServiceProvider;
-    var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.Migrate();
-    // requires using Microsoft.Extensions.Configuration;
-    // Set password with the Secret Manager tool.
-    // dotnet user-secrets set SeedUserPW <pw>
+//using (var scope = app.Services.CreateScope())
+//{
+//    var serviceProvider = scope.ServiceProvider;
+//    var context = serviceProvider.GetRequiredService<ApplicationDbContext>();
+//    context.Database.Migrate();
+//    // requires using Microsoft.Extensions.Configuration;
+//    // Set password with the Secret Manager tool.
+//    // dotnet user-secrets set SeedUserPW <pw>
 
-    var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
+//    var testUserPw = builder.Configuration.GetValue<string>("SeedUserPW");
 
-    await SeedData.Initialize(serviceProvider, testUserPw);
-}
+//    await SeedData.Initialize(serviceProvider, testUserPw);
+//}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
