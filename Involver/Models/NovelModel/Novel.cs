@@ -22,8 +22,11 @@ namespace Involver.Models.NovelModel
         [StringLength(512, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 8)]
         [Display(Name = "介紹")]
         public string Introduction { get; set; }
-        [MaxLength(2097152, ErrorMessage = "圖片大小不得超過2MB")]
-        public byte[] Image { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "主題圖片網址")]
+        [StringLength(128)]
+        public string ImageUrl { get; set; }
 
         [DisplayFormat(NullDisplayText = "No type")]
         [Display(Name = "類型")]

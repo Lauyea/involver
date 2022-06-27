@@ -5,9 +5,9 @@
     ViewData["ActivePage"] = ManageNavPages.Involving;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
     ViewData["ProfileName"] = Model.Profile.UserName;
-    if (Model.Profile.BannerImage != null)
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
-        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 
     string TitleSub = "";
@@ -91,9 +91,9 @@
                     <div class="col-md-5">
                         <a asp-page="./Index"
                            asp-route-id="@involving.InvolverID">
-                            @if (involving.Involver.Image != null)
+                            @if (!string.IsNullOrEmpty(involving.Involver.ImageUrl))
                             {
-                                <img src="data:image/png;base64,@Convert.ToBase64String(involving.Involver.Image)"
+                                <img src="@involving.Involver.ImageUrl"
                                      asp-append-version="true"
                                      alt="讀取失敗"
                                      title="@involving.Involver.UserName"

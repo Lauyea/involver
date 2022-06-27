@@ -53,9 +53,9 @@
                 <a asp-area="Identity"
                    asp-page="/Profile/Index"
                    asp-route-id="@item.ProfileID">
-                    @if (item.Profile.Image != null)
+                    @if (!string.IsNullOrEmpty(item.Profile.ImageUrl))
                     {
-                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Profile.Image)"
+                        <img src="@item.Profile.ImageUrl"
                          asp-append-version="true"
                          alt="讀取失敗"
                          title="@item.Profile.UserName"

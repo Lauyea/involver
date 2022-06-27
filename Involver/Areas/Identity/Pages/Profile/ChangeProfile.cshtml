@@ -19,19 +19,14 @@
                 <span asp-validation-for="Profile.Introduction" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="FileUpload.FormFile" class="control-label"></label>
-                <input asp-for="FileUpload.FormFile" type="file" class="form-control" />
-                <span asp-validation-for="FileUpload" class="text-danger"></span>
+	            <label asp-for="Profile.ImageUrl" class="control-label"></label>
+	            <input asp-for="Profile.ImageUrl" class="form-control" />
+	            <span asp-validation-for="Profile.ImageUrl" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">上傳橫幅圖片</label>
-                <input asp-for="BannerUpload.FormFile" type="file" class="form-control" />
-                <span asp-validation-for="BannerUpload" class="text-danger"></span>
-            </div>
-            <div class="alert alert-warning" role="alert">
-                <p>
-                    <strong>圖片檔案大小限制在260KB以下</strong>
-                </p>
+	            <label asp-for="Profile.BannerImageUrl" class="control-label"></label>
+	            <input asp-for="Profile.BannerImageUrl" class="form-control" />
+	            <span asp-validation-for="Profile.BannerImageUrl" class="text-danger"></span>
             </div>
             <button id="update-profile-button" type="submit" class="btn btn-primary">儲存</button>
         </form>

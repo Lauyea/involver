@@ -5,9 +5,9 @@
     ViewData["ActivePage"] = ManageNavPages.Follow;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
     ViewData["ProfileName"] = Model.Profile.UserName;
-    if (Model.Profile.BannerImage != null)
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
-        ViewData["BannerImage"] = Convert.ToBase64String(Model.Profile.BannerImage);
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
 
