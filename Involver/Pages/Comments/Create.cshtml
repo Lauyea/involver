@@ -5,6 +5,8 @@
     ViewData["Title"] = "新評論";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
+
+    bool isEpisodeOwner = (Model.From == "Episodes" && Model.IsEpisodeOwner);
 }
 
 <h1>建立</h1>
@@ -26,9 +28,12 @@
                 <p>
                     <strong>可以直接在內容中使用Dice指令擲骰，ex. Dice05D10。最大99D99</strong>
                 </p>
-                <p>
-                    <strong>或是選擇用下個方式擲骰</strong>
-                </p>
+                @if (isEpisodeOwner)
+                {
+                    <p>
+                        <strong>或是選擇用下個方式擲骰</strong>
+                    </p>
+                }
             </div>
             <div style="width: 0px;height: 0px;">
                 <label class="control-label">
@@ -38,7 +43,7 @@
                            asp-for="Comment.ProfileID" />
                 </label>
             </div>
-            @if (Model.From == "Episodes" && Model.IsEpisodeOwner)
+            @if (isEpisodeOwner)
             {
                 <div class="form-group">
                     擲
