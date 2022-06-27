@@ -20,7 +20,8 @@ services.AddDbContext<ApplicationDbContext>(options =>
         builder.Configuration.GetConnectionString("InvolverConnection"),
         o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 
-    options.EnableSensitiveDataLogging();
+    // Use it when you need to analyze EF Core performance
+    //options.EnableSensitiveDataLogging();
 });
     
 services.AddDefaultIdentity<InvolverUser>(

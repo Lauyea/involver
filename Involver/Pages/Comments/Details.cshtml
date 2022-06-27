@@ -76,9 +76,9 @@ else
             <a asp-area="Identity"
                asp-page="/Profile/Index"
                asp-route-id="@Model.Comment.ProfileID">
-                @if (Model.Comment.Profile.Image != null)
+                @if (!string.IsNullOrEmpty(Model.Comment.Profile.ImageUrl))
                 {
-                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.Comment.Profile.Image)"
+                    <img src="@Model.Comment.Profile.ImageUrl"
                      asp-append-version="true"
                      alt="讀取失敗"
                      title="@Model.Comment.Profile.UserName"

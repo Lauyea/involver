@@ -30,8 +30,9 @@ namespace Involver.Pages.Novels
         [BindProperty]
         public Novel Novel { get; set; }
 
-        [BindProperty]
-        public BufferedSingleFileUploadDb FileUpload { get; set; }
+        // Use for upload file
+        //[BindProperty]
+        //public BufferedSingleFileUploadDb FileUpload { get; set; }
 
         public List<SelectListItem> Types { get; } = new List<SelectListItem>
         {
@@ -98,40 +99,43 @@ namespace Involver.Pages.Novels
                 //}
                 };
 
-            using (var memoryStream = new MemoryStream())
-            {
-                if (FileUpload.FormFile != null)
-                {
-                    await FileUpload.FormFile.CopyToAsync(memoryStream);
-                }
+            // Code below use for upload file
+            //using (var memoryStream = new MemoryStream())
+            //{
+            //    if (FileUpload.FormFile != null)
+            //    {
+            //        await FileUpload.FormFile.CopyToAsync(memoryStream);
+            //    }
                 
-                // Upload the file if less than 260 KB
-                if (memoryStream.Length < 262144)
-                {
-                    //Protect from overposting attacks
-                    if (await TryUpdateModelAsync<Novel>(
-                        emptyNovel,
-                        "Novel",   // Prefix for form value.
-                        n => n.Title, n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.Block, n => n.ProfileID))
-                    {
-                        if(memoryStream.Length != 0)
-                        {
-                            emptyNovel.Image = memoryStream.ToArray();
-                        }
-                        emptyNovel.UpdateTime = DateTime.Now;
-                        emptyNovel.CreateTime = DateTime.Now;
-                        //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
-                        //emptyNovel.ProfileID = Novel.ProfileID;
-                        _context.Novels.Add(emptyNovel);
-                        await _context.SaveChangesAsync();
+            //    // Upload the file if less than 260 KB
+            //    if (memoryStream.Length < 262144)
+            //    {
+                    
+            //    }
+            //    else
+            //    {
+            //        ModelState.AddModelError("FileUpload", "這個檔案太大了");
+            //    }
+            //}
 
-                        return RedirectToPage("./Index");
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("FileUpload", "這個檔案太大了");
-                }
+            //Protect from overposting attacks
+            if (await TryUpdateModelAsync<Novel>(
+                emptyNovel,
+                "Novel",   // Prefix for form value.
+                n => n.Title, n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.Block, n => n.ProfileID, n => n.ImageUrl))
+            {
+                //if (memoryStream.Length != 0)
+                //{
+                //    emptyNovel.Image = memoryStream.ToArray();
+                //}
+                emptyNovel.UpdateTime = DateTime.Now;
+                emptyNovel.CreateTime = DateTime.Now;
+                //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
+                //emptyNovel.ProfileID = Novel.ProfileID;
+                _context.Novels.Add(emptyNovel);
+                await _context.SaveChangesAsync();
+
+                return RedirectToPage("./Index");
             }
 
             return Page();

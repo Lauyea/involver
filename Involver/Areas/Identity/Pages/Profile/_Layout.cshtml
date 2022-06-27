@@ -1,9 +1,9 @@
 ﻿@{
     Layout = "/Pages/Shared/_Layout.cshtml";
-    string imageData = null;
-    if (ViewData["BannerImage"] != null)
+    string bannerImageUrl = null;
+    if (ViewData["BannerImageUrl"] != null)
     {
-        imageData = ViewData["BannerImage"].ToString();
+        bannerImageUrl = ViewData["BannerImageUrl"].ToString();
     }
 }
 
@@ -11,10 +11,10 @@
 
 <div>
     <h4>個人檔案</h4>
-    @if (imageData != null)
+    @if (bannerImageUrl != null)
     {
         <div class="text-center">
-            <img src="data:image/png;base64,@imageData"
+            <img src="@bannerImageUrl"
                  asp-append-version="true"
                  alt="讀取失敗"
                  title="@Model.Profile.UserName"

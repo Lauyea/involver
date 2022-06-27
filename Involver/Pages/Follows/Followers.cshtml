@@ -26,9 +26,9 @@
                     <a asp-area="Identity"
                        asp-page="/Profile/Index"
                        asp-route-id="@follow.FollowerID">
-                        @if (follow.Follower.Image != null)
+                        @if (!string.IsNullOrEmpty(follow.Follower.ImageUrl))
                         {
-                            <img src="data:image/png;base64,@Convert.ToBase64String(follow.Follower.Image)"
+                            <img src="@follow.Follower.ImageUrl"
                                  asp-append-version="true"
                                  alt="讀取失敗"
                                  title="@follow.Follower.UserName"

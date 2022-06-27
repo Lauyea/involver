@@ -25,9 +25,6 @@ namespace Involver.Pages.Novels
 
         public string ErrorMessage { get; set; }
 
-        [BindProperty]
-        public BufferedSingleFileUploadDb FileUpload { get; set; }
-
         public List<SelectListItem> Types { get; } = new List<SelectListItem>
         {
             new SelectListItem { Value = Models.NovelModel.Type.Fantasy.ToString(), Text = "奇幻" },
@@ -93,54 +90,37 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
-            using (var memoryStream = new MemoryStream())
+            //Protect from overposting attacks
+            if (await TryUpdateModelAsync<Novel>(
+                novelToUpdate,
+                "Novel",   // Prefix for form value.
+                n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.End, n => n.ImageUrl))
             {
-                if (FileUpload.FormFile != null)
+                //if (memoryStream.Length != 0)
+                //{
+                //    novelToUpdate.Image = memoryStream.ToArray();
+                //}
+                novelToUpdate.UpdateTime = DateTime.Now;
+
+                _context.Attach(novelToUpdate).State = EntityState.Modified;
+
+                try
                 {
-                    await FileUpload.FormFile.CopyToAsync(memoryStream);
+                    await _context.SaveChangesAsync();
                 }
-
-                // Upload the file if less than 260 KB
-                if (memoryStream.Length < 262144)
+                catch (DbUpdateConcurrencyException)
                 {
-                    //Protect from overposting attacks
-                    if (await TryUpdateModelAsync<Novel>(
-                        novelToUpdate,
-                        "Novel",   // Prefix for form value.
-                        n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.End))
+                    if (!NovelExists(Novel.NovelID))
                     {
-                        if (memoryStream.Length != 0)
-                        {
-                            novelToUpdate.Image = memoryStream.ToArray();
-                        }
-                        novelToUpdate.UpdateTime = DateTime.Now;
-
-                        _context.Attach(novelToUpdate).State = EntityState.Modified;
-
-                        try
-                        {
-                            await _context.SaveChangesAsync();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!NovelExists(Novel.NovelID))
-                            {
-                                return NotFound();
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-
-                        return RedirectToPage("./Index");
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
                     }
                 }
-                else
-                {
-                    ModelState.AddModelError("FileUpload", "圖片檔案必須小於260KB");
-                    ErrorMessage = "圖片檔案必須小於260KB";
-                }
+
+                return RedirectToPage("./Index");
             }
 
             return Page();

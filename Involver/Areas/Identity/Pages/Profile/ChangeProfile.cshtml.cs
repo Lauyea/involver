@@ -38,51 +38,12 @@ namespace Involver.Areas.Identity.Pages.Profile
         public async Task<IActionResult> OnPostAsync()
         {
             Models.Profile ProfileToUpdate = await _context.Profiles.Where(p => p.ProfileID == _userManager.GetUserId(User)).FirstOrDefaultAsync();
+
             ProfileToUpdate.Introduction = Profile.Introduction;
 
-            using (var memoryStream = new MemoryStream())
-            {
-                if (FileUpload.FormFile != null)
-                {
-                    await FileUpload.FormFile.CopyToAsync(memoryStream);
-                }
+            ProfileToUpdate.ImageUrl = Profile.ImageUrl;
 
-                // Upload the file if less than 260 KB
-                if (memoryStream.Length < 262144)
-                {
-                    if (memoryStream.Length != 0)
-                    {
-                        ProfileToUpdate.Image = memoryStream.ToArray();
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("FileUpload", "圖片檔案必須小於260KB");
-                    return Page();
-                }
-            }
-
-            using (var memoryStream = new MemoryStream())
-            {
-                if (BannerUpload.FormFile != null)
-                {
-                    await BannerUpload.FormFile.CopyToAsync(memoryStream);
-                }
-
-                // Upload the file if less than 260 KB
-                if (memoryStream.Length < 262144)
-                {
-                    if (memoryStream.Length != 0)
-                    {
-                        ProfileToUpdate.BannerImage = memoryStream.ToArray();
-                    }
-                }
-                else
-                {
-                    ModelState.AddModelError("BannerUpload", "圖片檔案必須小於260KB");
-                    return Page();
-                }
-            }
+            ProfileToUpdate.BannerImageUrl = Profile.BannerImageUrl;
 
             _context.Attach(ProfileToUpdate).State = EntityState.Modified;
             await _context.SaveChangesAsync();

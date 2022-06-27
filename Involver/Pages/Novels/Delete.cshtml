@@ -21,10 +21,9 @@
         </form>
         <hr />
         <div class="col-md-6">
-            @if (Model.Novel.Image != null)
+            @if (!string.IsNullOrEmpty(Model.Novel.ImageUrl))
             {
-
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.Novel.Image)"
+                <img src="@Model.Novel.ImageUrl"
                      asp-append-version="true"
                      alt="讀取失敗"
                      title="@Model.Novel.Title"

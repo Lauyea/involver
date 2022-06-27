@@ -18,11 +18,16 @@ namespace Involver.Models
         [StringLength(256, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 10)]
         [Display(Name = "介紹")]
         public string Introduction { get; set; }
-        [MaxLength(2097152, ErrorMessage = "圖片大小必須小於2MB")]
-        public byte[] Image { get; set; }
 
-        [MaxLength(2097152, ErrorMessage = "圖片大小必須小於2MB")]
-        public byte[] BannerImage { get; set; }
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "頭像圖片網址")]
+        [StringLength(128)]
+        public string ImageUrl { get; set; }
+
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "橫幅圖片網址")]
+        [StringLength(128)]
+        public string BannerImageUrl { get; set; }
 
 
         [Column(TypeName = "money")]
