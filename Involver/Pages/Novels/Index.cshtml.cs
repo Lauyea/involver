@@ -44,8 +44,8 @@ namespace Involver.Pages.Novels
             CurrentSort = sortOrder;
             DateSort = String.IsNullOrEmpty(sortOrder) ? "Date" : "";
 
-            IncoinSort = sortOrder == "Incoin" ? "incoin_desc" : "Incoin";
-            ViewSort = sortOrder == "View" ? "view_desc" : "View";
+            IncoinSort = sortOrder == "incoin_desc" ? "Incoin" : "incoin_desc";
+            ViewSort = sortOrder == "view_desc" ? "View" : "view_desc";
 
             if (searchType != null || searchString != null)
             {
