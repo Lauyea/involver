@@ -42,7 +42,16 @@ namespace Involver.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Profile>(p =>
+            {
+                p.HasKey(e => e.ProfileID).IsClustered(false);
+            });
+            modelBuilder.Entity<Profile>(p =>
+            {
+                p.HasIndex(e => e.SeqNo).IsUnique().IsClustered();
+            });
             modelBuilder.Entity<Profile>().ToTable("Profile");
+
             modelBuilder.Entity<Involving>().ToTable("Involving");
             modelBuilder.Entity<Novel>().ToTable("Novel");
             modelBuilder.Entity<Episode>().ToTable("Episode");
