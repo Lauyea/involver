@@ -90,7 +90,7 @@ namespace Involver.Models
 
         //public ICollection<Achievement> Achievements { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int SeqNo { get; set; }
     }
 }
