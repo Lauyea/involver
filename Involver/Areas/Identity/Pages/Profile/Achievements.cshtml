@@ -14,28 +14,13 @@
 <h4>@ViewData["Title"]</h4>
 <hr />
 <dl class="row">
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Achievements.BetaInvolver)
-    </dt>
-    <dd class="col-sm-1">
-        @Html.DisplayFor(model => model.Achievements.BetaInvolver)
-    </dd>
-    <dd class="col-sm-7">
-        @if(Model.Achievements.BetaInvolver == true)
-        {
-            <span>解鎖時間： @Model.Achievements.TimeBetaInvolver</span>
-        }
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Achievements.Professional)
-    </dt>
-    <dd class="col-sm-1">
-        @Html.DisplayFor(model => model.Achievements.Professional)
-    </dd>
-    <dd class="col-sm-7">
-        @if (Model.Achievements.Professional == true)
-        {
-            <span>解鎖時間： @Model.Achievements.TimeProfessional</span>
-        }
-    </dd>
+    @foreach(var item in Model.Achievements)
+    {
+        <dt class="col-sm-5">
+            @item.Title
+        </dt>
+        <dd class="col-sm-7">
+            @item.ProfileAchievements.FirstOrDefault().AchieveDate
+        </dd>
+    }
 </dl>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Involver.Models;
+using Involver.Models.AchievementModel;
 using Involver.Models.AnnouncementModel;
 using Involver.Models.ArticleModel;
 using Involver.Models.FeedbackModel;
@@ -36,11 +37,10 @@ namespace Involver.Data
         public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Dice> Dices { get; set; }
-        public DbSet<Achievements> Achievements { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ProfitSharing> ProfitSharings { get; set; }
 
-        //public DbSet<Achievement> Achievements { get; set; }
+        public DbSet<Achievement> Achievements { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +52,25 @@ namespace Involver.Data
             {
                 p.HasIndex(e => e.SeqNo).IsUnique().IsClustered();
             });
+
+            modelBuilder.Entity<Profile>()
+            .HasMany(p => p.Achievements)
+            .WithMany(a => a.Profiles)
+            .UsingEntity<ProfileAchievement>(
+                j => j
+                    .HasOne(pa => pa.Achievement)
+                    .WithMany(a => a.ProfileAchievements)
+                    .HasForeignKey(pa => pa.AchievementID),
+                j => j
+                    .HasOne(pa => pa.Profile)
+                    .WithMany(p => p.ProfileAchievements)
+                    .HasForeignKey(pa => pa.ProfileID),
+                j =>
+                {
+                    j.Property(pa => pa.AchieveDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    j.HasKey(a => new { a.ProfileID, a.AchievementID });
+                });
+
             modelBuilder.Entity<Profile>().ToTable("Profile");
 
             modelBuilder.Entity<Involving>().ToTable("Involving");
@@ -70,10 +89,11 @@ namespace Involver.Data
             modelBuilder.Entity<Feedback>().ToTable("Feedback");
             modelBuilder.Entity<Article>().ToTable("Article");
             modelBuilder.Entity<Dice>().ToTable("Dice");
-            modelBuilder.Entity<Achievements>().ToTable("Achievements");
             modelBuilder.Entity<Payment>().ToTable("Payment");
             modelBuilder.Entity<ProfitSharing>().ToTable("ProfitSharing");
-            //modelBuilder.Entity<Achievement>().ToTable("Achievements");
+
+            modelBuilder.Entity<Achievement>().ToTable("Achievements");
+
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.

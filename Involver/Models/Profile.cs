@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Involver.Models.AchievementModel;
 using Involver.Models.ArticleModel;
 using Involver.Models.NovelModel;
 
@@ -86,9 +87,10 @@ namespace Involver.Models
         public ICollection<Agree> Agrees { get; set; }
 
         public Missions Missions { get; set; }
-        public Achievements Achievements { get; set; }
 
-        //public ICollection<Achievement> Achievements { get; set; }
+        public ICollection<Achievement> Achievements { get; set; }
+
+        public List<ProfileAchievement> ProfileAchievements { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int SeqNo { get; set; }

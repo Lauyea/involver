@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Involver.Data;
+using Involver.Models.AchievementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +60,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 Prime = false,
                 Banned = false,
                 Missions = new Models.Missions(),
-                Achievements = new Models.Achievements(),
+                Achievements = new List<Achievement>(),
                 CanChangeUserName = user.PasswordHash == null
             };
             

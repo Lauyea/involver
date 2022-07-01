@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Involver.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
+using Involver.Models.AchievementModel;
 
 namespace Involver.Areas.Identity.Pages.Account
 {
@@ -130,7 +131,7 @@ namespace Involver.Areas.Identity.Pages.Account
             //確認成就表的存在，若無則建一個給Profile
             if (UserProfile.Achievements == null)
             {
-                UserProfile.Achievements = new Models.Achievements();
+                UserProfile.Achievements = new List<Achievement>();
             }
             if (UserProfile != null)
             {
@@ -142,10 +143,11 @@ namespace Involver.Areas.Identity.Pages.Account
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
                 //Beta時間登入即可解鎖成就，之後這個要刪掉
-                if (!UserProfile.Achievements.BetaInvolver)
+                if (UserProfile.Achievements.Where(a => a.Title == "BetaInvolver").FirstOrDefault() == null)
                 {
-                    UserProfile.Achievements.BetaInvolver = true;
-                    UserProfile.Achievements.TimeBetaInvolver = DateTime.Now;
+                    Achievement achievement = Context.Achievements.Where(a => a.Title == "BetaInvolver").FirstOrDefault();
+
+                    UserProfile.Achievements.Add(achievement);
                 }
                 Context.Attach(UserProfile).State = EntityState.Modified;
                 await Context.SaveChangesAsync();
