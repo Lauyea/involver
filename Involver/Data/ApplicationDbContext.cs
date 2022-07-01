@@ -40,6 +40,8 @@ namespace Involver.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<ProfitSharing> ProfitSharings { get; set; }
 
+        //public DbSet<Achievement> Achievements { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Profile>(p =>
@@ -71,6 +73,7 @@ namespace Involver.Data
             modelBuilder.Entity<Achievements>().ToTable("Achievements");
             modelBuilder.Entity<Payment>().ToTable("Payment");
             modelBuilder.Entity<ProfitSharing>().ToTable("ProfitSharing");
+            //modelBuilder.Entity<Achievement>().ToTable("Achievements");
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
