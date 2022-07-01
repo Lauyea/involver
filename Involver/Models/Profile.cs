@@ -87,5 +87,8 @@ namespace Involver.Models
 
         public Missions Missions { get; set; }
         public Achievements Achievements { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int SeqNo { get; set; }
     }
 }
