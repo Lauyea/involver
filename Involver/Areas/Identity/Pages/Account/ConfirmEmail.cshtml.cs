@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Involver.Data;
+using Involver.Models.AchievementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -46,42 +47,22 @@ namespace Involver.Areas.Identity.Pages.Account
             StatusMessage = result.Succeeded ? "感謝確認你的Email" : "Error 確認Emil發生錯誤";
             //外部登入者可以變更用戶名一次
             Models.Profile Profile;
-            if(user.PasswordHash == null)
+
+            Profile = new Models.Profile
             {
-                Profile = new Models.Profile
-                {
-                    ProfileID = user.Id,
-                    UserName = user.UserName,
-                    RealCoins = 0,
-                    VirtualCoins = 300,
-                    EnrollmentDate = DateTime.Now,
-                    LastTimeLogin = DateTime.Now,
-                    Professioal = false,
-                    Prime = false,
-                    Banned = false,
-                    Missions = new Models.Missions(),
-                    Achievements = new Models.Achievements(),
-                    CanChangeUserName = true
-                };
-            }
-            else
-            {
-                Profile = new Models.Profile
-                {
-                    ProfileID = user.Id,
-                    UserName = user.UserName,
-                    RealCoins = 0,
-                    VirtualCoins = 300,
-                    EnrollmentDate = DateTime.Now,
-                    LastTimeLogin = DateTime.Now,
-                    Professioal = false,
-                    Prime = false,
-                    Banned = false,
-                    Missions = new Models.Missions(),
-                    Achievements = new Models.Achievements()
-                    ,CanChangeUserName = false
-                };
-            }
+                ProfileID = user.Id,
+                UserName = user.UserName,
+                RealCoins = 0,
+                VirtualCoins = 300,
+                EnrollmentDate = DateTime.Now,
+                LastTimeLogin = DateTime.Now,
+                Professioal = false,
+                Prime = false,
+                Banned = false,
+                Missions = new Models.Missions(),
+                Achievements = new List<Achievement>(),
+                CanChangeUserName = user.PasswordHash == null
+            };
             
             Context.Profiles.Add(Profile);
             await Context.SaveChangesAsync();

@@ -1,6 +1,6 @@
 using Involver.Common;
 using Involver.Data;
-using Involver.Models;
+using Involver.Models.AchievementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         }
         public Models.Profile Profile { get; set; }
 
-        public Achievements Achievements { get; set; }
+        public List<Achievement> Achievements { get; set; }
         public string UserID { get; set; }
 
         public bool ProfileOwner { get; set; } = false;
@@ -36,7 +36,7 @@ namespace Involver.Areas.Identity.Pages.Profile
                 .Include(p => p.Achievements)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            Achievements = Profile.Achievements;
+            Achievements = Profile.Achievements.ToList();
         }
 
         public async Task<IActionResult> OnGetAsync(string id)

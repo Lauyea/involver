@@ -84,8 +84,10 @@ namespace Involver.Pages.Involvings
             if (CanBeProfessional)
             {
                 Profile.Professioal = true;
-                Profile.Achievements.Professional = true;
-                Profile.Achievements.TimeProfessional = DateTime.Now;
+
+                var achievement = await _context.Achievements.Where(a => a.Title == "Professioal").FirstOrDefaultAsync();
+
+                Profile.Achievements.Add(achievement);
             }
             _context.Attach(Profile).State = EntityState.Modified;
             await _context.SaveChangesAsync();

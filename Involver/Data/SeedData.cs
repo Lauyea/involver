@@ -8,6 +8,7 @@ using Involver.Authorization.Payment;
 using Involver.Authorization.Profile;
 using Involver.Authorization.ProfitSharing;
 using Involver.Authorization.Voting;
+using Involver.Models.AchievementModel;
 using Involver.Models.StatisticalData;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -99,7 +100,7 @@ namespace Involver.Data
                     Prime = true,
                     Banned = false,
                     Missions = new Models.Missions(),
-                    Achievements = new Models.Achievements()
+                    Achievements = new List<Achievement>()
                 };
                 context.Profiles.Add(Profile);
                 await context.SaveChangesAsync();
