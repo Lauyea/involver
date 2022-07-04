@@ -20,7 +20,7 @@
             @item.Title
         </dt>
         <dd class="col-sm-7">
-            @item.ProfileAchievements.FirstOrDefault().AchieveDate
+            @item.ProfileAchievements.FirstOrDefault()?.AchieveDate
         </dd>
     }
 </dl>

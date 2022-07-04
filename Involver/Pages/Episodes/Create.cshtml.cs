@@ -54,7 +54,7 @@ namespace Involver.Pages.Episodes
 
             Episode.OwnerID = _userManager.GetUserId(User);
 
-            Novel = _context.Novels.Where(n => n.NovelID == fromID).FirstOrDefault();
+            Novel = await _context.Novels.Where(n => n.NovelID == fromID).FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,

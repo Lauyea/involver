@@ -146,16 +146,16 @@ namespace Involver.Pages.Episodes
             return Page();
         }
 
-        private void CheckMissionWatchArticle()
+        private async void CheckMissionWatchArticle()
         {
             //Check mission:WatchArticle
             string UserID = _userManager.GetUserId(User);
             if (UserID != null)
             {
-                Profile userProfile = _context.Profiles
+                Profile userProfile = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
                 if (userProfile.Missions.WatchArticle != true)
                 {
                     userProfile.Missions.WatchArticle = true;

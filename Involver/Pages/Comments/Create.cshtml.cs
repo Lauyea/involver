@@ -249,11 +249,11 @@ namespace Involver.Pages.Comments
             }
         }
 
-        private void DetermindEpisodeOwner(int? fromID)
+        private async void DetermindEpisodeOwner(int? fromID)
         {
-            Episode episode =  _context.Episodes
+            Episode episode = await _context.Episodes
                                 .Where(e => e.EpisodeID == fromID)
-                                .FirstOrDefault();
+                                .FirstOrDefaultAsync();
             if (episode.OwnerID == UserID)
             {
                 IsEpisodeOwner = true;

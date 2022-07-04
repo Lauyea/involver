@@ -145,7 +145,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 //Beta時間登入即可解鎖成就，之後這個要刪掉
                 if (UserProfile.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefault() == null)
                 {
-                    Achievement achievement = Context.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefault();
+                    Achievement achievement = await Context.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefaultAsync();
 
                     UserProfile.Achievements.Add(achievement);
                 }
