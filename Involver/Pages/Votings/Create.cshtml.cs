@@ -24,7 +24,7 @@ namespace Involver.Pages.Votings
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Voting voting = _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
+            Voting voting = await _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, voting,
@@ -94,7 +94,7 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            Voting voting = _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefault();
+            Voting voting = await _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, voting,
