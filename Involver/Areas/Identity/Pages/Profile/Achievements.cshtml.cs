@@ -34,7 +34,6 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             Profile = await _context.Profiles
                 .Include(p => p.Achievements)
-                    //.ThenInclude(a => a.ProfileAchievements) 這行要測試是否真的需要
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
             Achievements = Profile.Achievements.ToList();
