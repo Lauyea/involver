@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Involver.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220701095223_AlterAchievement")]
-    partial class AlterAchievement
+    [Migration("20220704014655_AlterAchievements")]
+    partial class AlterAchievements
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -134,6 +134,8 @@ namespace Involver.Data.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.HasKey("ProfileID", "AchievementID");
+
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"));
 
                     b.HasIndex("AchievementID");
 

@@ -133,9 +133,11 @@ namespace Involver.Data.Migrations
 
                     b.HasKey("ProfileID", "AchievementID");
 
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"));
+
                     b.HasIndex("AchievementID");
 
-                    b.ToTable("ProfileAchievement");
+                    b.ToTable("ProfileAchievement", (string)null);
                 });
 
             modelBuilder.Entity("Involver.Models.Agree", b =>

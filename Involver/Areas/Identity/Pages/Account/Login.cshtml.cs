@@ -143,9 +143,9 @@ namespace Involver.Areas.Identity.Pages.Account
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
                 //Beta時間登入即可解鎖成就，之後這個要刪掉
-                if (UserProfile.Achievements.Where(a => a.Title == "BetaInvolver").FirstOrDefault() == null)
+                if (UserProfile.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefault() == null)
                 {
-                    Achievement achievement = Context.Achievements.Where(a => a.Title == "BetaInvolver").FirstOrDefault();
+                    Achievement achievement = Context.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefault();
 
                     UserProfile.Achievements.Add(achievement);
                 }

@@ -68,7 +68,7 @@ namespace Involver.Data
                 j =>
                 {
                     j.Property(pa => pa.AchieveDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-                    j.HasKey(a => new { a.ProfileID, a.AchievementID });
+                    j.HasKey(a => new { a.ProfileID, a.AchievementID }).IsClustered();
                 });
 
             modelBuilder.Entity<Profile>().ToTable("Profile");

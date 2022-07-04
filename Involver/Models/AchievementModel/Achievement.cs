@@ -7,10 +7,10 @@ namespace Involver.Models.AchievementModel
         public int AchievementID { get; set; }
 
         [Required]
-        [StringLength(8)]
+        [StringLength(32)]
         public string Title { get; set; }
 
-        [StringLength(64)]
+        [StringLength(128)]
         public string Content { get; set; }
 
         public ICollection<Profile> Profiles { get; set; }
