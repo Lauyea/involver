@@ -56,7 +56,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 VirtualCoins = 300,
                 EnrollmentDate = DateTime.Now,
                 LastTimeLogin = DateTime.Now,
-                Professioal = false,
+                Professional = false,
                 Prime = false,
                 Banned = false,
                 Missions = new Models.Missions(),

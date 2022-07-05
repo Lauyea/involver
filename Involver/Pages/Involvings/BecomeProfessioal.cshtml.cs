@@ -9,9 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Involvings
 {
-    public class BecomeProfessioalModel : DI_BasePageModel
+    public class BecomeProfessionalModel : DI_BasePageModel
     {
-        public BecomeProfessioalModel(
+        public BecomeProfessionalModel(
         ApplicationDbContext context,
         IAuthorizationService authorizationService,
         UserManager<InvolverUser> userManager)
@@ -83,9 +83,9 @@ namespace Involver.Pages.Involvings
             await LoadAsync(id);
             if (CanBeProfessional)
             {
-                Profile.Professioal = true;
+                Profile.Professional = true;
 
-                var achievement = await _context.Achievements.Where(a => a.Title == "Professioal").FirstOrDefaultAsync();
+                var achievement = await _context.Achievements.Where(a => a.Title == "Professional").FirstOrDefaultAsync();
 
                 Profile.Achievements.Add(achievement);
             }

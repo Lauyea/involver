@@ -96,7 +96,7 @@ namespace Involver.Data
                     RealCoins = 300,
                     EnrollmentDate = DateTime.Now,
                     LastTimeLogin = DateTime.Now,
-                    Professioal = false,
+                    Professional = false,
                     Prime = true,
                     Banned = false,
                     Missions = new Models.Missions(),
