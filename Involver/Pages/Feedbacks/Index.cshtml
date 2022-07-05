@@ -6,33 +6,29 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>回報與意見</h1>
-
-<p>
-    <a asp-page="Create" class="btn btn-xs btn-outline-primary">建立新文章</a>
-</p>
+<span style="font-size:xx-large;">回報與意見</span> <a asp-page="Create" class="btn btn-xs btn-outline-primary m-2 align-top">建立新文章</a>
 
 @{
     string currentTypeName;
-    if (@Model.CurrentType == "OwnerName") { currentTypeName = "作者名稱"; }
-    else if (@Model.CurrentType == "Title") { currentTypeName = "標題"; }
+    if (Model.CurrentType == "OwnerName") { currentTypeName = "作者名稱"; }
+    else if (Model.CurrentType == "Title") { currentTypeName = "標題"; }
     else { currentTypeName = "選擇"; }
 }
 
 
 <form asp-page="./Index" method="get">
     <div class="form-actions no-color row">
-        <p class="col-md-auto">
-            <select asp-for="SearchType" class="form-control" style="width:auto">
+        <p class="col-auto">
+            <select asp-for="SearchType" class="form-control">
                 <option value="">@currentTypeName</option>
                 <option value="Title">標題</option>
                 <option value="OwnerName">作者名稱</option>
             </select>
         </p>
-        <p class="col-md-auto">
-            <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" style="width:auto" />
+        <p class="col-6">
+            <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" />
         </p>
-        <p class="col-md-auto">
+        <p class="col-auto">
             <input type="submit" value="搜尋" class="btn btn-primary" /> |
             <a asp-page="./Index" class="btn btn-xs btn-outline-secondary">完整清單</a>
         </p>
@@ -42,7 +38,7 @@
 <table class="table" style="width: 100%;">
     <thead>
         <tr>
-            <th style="width: 70%;">
+            <th style="width: 70%;" class="text-center">
                 @Html.DisplayNameFor(model => model.Feedbacks[0].Title)
             </th>
             <th style="width: 15%;">
@@ -71,8 +67,8 @@
                 </td>
                 <td>
                     <a asp-area="Identity"
-                       asp-page="/Profile/Index"
-                       asp-route-id="@item.OwnerID">
+                   asp-page="/Profile/Index"
+                   asp-route-id="@item.OwnerID">
                         @Html.DisplayFor(modelItem => item.OwnerName)
                     </a>
                 </td>
@@ -80,10 +76,10 @@
                     @Html.DisplayFor(modelItem => item.UpdateTime)
                 </td>
                 @*<td>
-                        <a asp-page="./Edit" asp-route-id="@item.FeedbackID">Edit</a> |
-                        <a asp-page="./Details" asp-route-id="@item.FeedbackID">Details</a> |
-                        <a asp-page="./Delete" asp-route-id="@item.FeedbackID">Delete</a>
-                    </td>*@
+            <a asp-page="./Edit" asp-route-id="@item.FeedbackID">Edit</a> |
+            <a asp-page="./Details" asp-route-id="@item.FeedbackID">Details</a> |
+            <a asp-page="./Delete" asp-route-id="@item.FeedbackID">Delete</a>
+            </td>*@
             </tr>
         }
     </tbody>
@@ -109,72 +105,92 @@
     PageSizeHelper.Get(Model.Feedbacks.PageIndex, Model.Feedbacks.TotalPages, ref StartPage, ref EndPage);
 }
 
+<div class="row">
+    <div class="col-auto">
+        <nav>
+            <ul class="pagination">
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Index"
+                       asp-route-PageIndex="1"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       asp-route-currentType="@Model.CurrentType"
+                       class="page-link">
+                        首
+                    </a>
+                </li>
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Index"
+                       asp-route-PageIndex="@Model.Feedbacks.PageIndex-1"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       asp-route-currentType="@Model.CurrentType"
+                       class="page-link">
+                        前
+                    </a>
+                </li>
+                @for (int i = StartPage; i < EndPage + 1; i++)
+                {
+                    <li class="page-item @IsActive(i)">
+                        <a asp-page="./Index"
+                       asp-route-PageIndex="@i"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       asp-route-currentType="@Model.CurrentType"
+                       class="page-link">
+                            @i
+                            @if (i == Model.Feedbacks.PageIndex)
+                            {
+                                <span class="sr-only">(current)</span>
+                            }
+                        </a>
+                    </li>
 
-<nav>
-    <ul class="pagination">
-        <li class="page-item @prevDisabled">
-            <a asp-page="./Index"
-               asp-route-PageIndex="1"
-               asp-route-currentFilter="@Model.CurrentFilter"
-               asp-route-currentType="@Model.CurrentType"
-               class="page-link">
-                第一頁
-            </a>
-        </li>
-        @for (int i = StartPage; i < EndPage + 1; i++)
-        {
-            <li class="page-item @IsActive(i)">
-                <a asp-page="./Index"
-                   asp-route-PageIndex="@i"
-                   asp-route-currentFilter="@Model.CurrentFilter"
-                   asp-route-currentType="@Model.CurrentType"
-                   class="page-link">
-                    @i
-                    @if (i == Model.Feedbacks.PageIndex)
-                    {
-                        <span class="sr-only">(current)</span>
-                    }
-                </a>
-            </li>
-
-        }
-        <li class="page-item @nextDisabled">
-            <a asp-page="./Index"
-               asp-route-PageIndex="@(Model.Feedbacks.TotalPages)"
-               asp-route-currentFilter="@Model.CurrentFilter"
-               asp-route-currentType="@Model.CurrentType"
-               class="page-link">
-                最後一頁
-            </a>
-        </li>
-    </ul>
-</nav>
-
-<p></p>
-<form class="form-inline"
-      asp-page="./Index"
-      method="get">
-    <div class="form-group">
-        <input type="text" name="currentFilter"
-               value="@Model.CurrentFilter"
-               class="form-control"
-               style="width:0px;display:none" />
+                }
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Index"
+                       asp-route-PageIndex="@Model.Feedbacks.PageIndex+1"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       asp-route-currentType="@Model.CurrentType"
+                       class="page-link">
+                        後
+                    </a>
+                </li>
+                <li class="page-item @nextDisabled">
+                    <a asp-page="./Index"
+                       asp-route-PageIndex="@(Model.Feedbacks.TotalPages)"
+                       asp-route-currentFilter="@Model.CurrentFilter"
+                       asp-route-currentType="@Model.CurrentType"
+                       class="page-link">
+                        末
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
-    <div class="form-group">
-        <input type="text" name="currentType"
-               value="@Model.CurrentType"
-               class="form-control"
-               style="width:0px;display:none" />
+    <div class="col-auto">
+        <form class="form-inline"
+              asp-page="./Index"
+              method="get">
+            <div class="form-group">
+                <input type="text" name="currentFilter"
+                       value="@Model.CurrentFilter"
+                       class="form-control"
+                       style="width:0px;display:none" />
+            </div>
+            <div class="form-group">
+                <input type="text" name="currentType"
+                       value="@Model.CurrentType"
+                       class="form-control"
+                       style="width:0px;display:none" />
+            </div>
+            <div class="form-group">
+                <input type="number" name="pageIndex"
+                       value="@Model.Feedbacks.PageIndex"
+                       class="form-control"
+                       style="max-width:100px;display:inline" />
+            </div>
+            &nbsp&nbsp
+            <div class="form-group">
+                <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+            </div>
+        </form>
     </div>
-    第&nbsp
-    <div class="form-group">
-        <input type="number" name="pageIndex"
-               value="@Model.Feedbacks.PageIndex"
-               class="form-control"
-               style="width:100px;display:inline" />
-    </div>
-    &nbsp頁&nbsp
-    <div class="form-group">
-        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-    </div>
-</form>
+</div>
