@@ -58,7 +58,7 @@ namespace Involver.Models
         public DateTime LastTimeLogin { get; set; }
 
         [Display(Name = "特約作家")]
-        public bool Professioal { get; set; }
+        public bool Professional { get; set; }
 
         [Display(Name = "會員")]
         public bool Prime { get; set; }
