@@ -68,6 +68,9 @@ namespace Involver.Models.NovelModel
         public ICollection<Comment> Comments { get; set; }
 
         public ICollection<Involving> Involvers { get; set; }
+
         public ICollection<Follow> Follows { get; set; }
+
+        public ICollection<NovelTag> NovelTags { get; set; }
     }
 }

@@ -16,11 +16,11 @@
 <dl class="row">
     @foreach(var item in Model.Achievements)
     {
-        <dt class="col-sm-5">
+        <dt class="col-auto" title="@item.Content">
             @item.Title
         </dt>
-        <dd class="col-sm-7">
-            @item.ProfileAchievements.FirstOrDefault()?.AchieveDate
+        <dd class="col-auto">
+            <small>@item.ProfileAchievements.FirstOrDefault()?.AchieveDate</small>
         </dd>
     }
 </dl>

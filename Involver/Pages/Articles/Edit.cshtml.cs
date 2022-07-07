@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Involver.Pages.Articles
 {
@@ -22,6 +23,13 @@ namespace Involver.Pages.Articles
         [BindProperty]
         public Article Article { get; set; }
 
+        [BindProperty]
+        [Display(Name = "標籤")]
+        [MaxLength(50)]
+        public string TagString { get; set; }
+
+        public string ErrorMessage { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -29,7 +37,7 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            Article = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+            Article = await _context.Articles.Include(a => a.ArticleTags).FirstOrDefaultAsync(a => a.ArticleID == id);
 
             if (Article == null)
             {
@@ -42,6 +50,20 @@ namespace Involver.Pages.Articles
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
+            }
+
+            string temp = string.Empty;
+
+            foreach(var tag in Article.ArticleTags)
+            {
+                temp = tag.Name + ",";
+                TagString += temp;
+            }
+
+            //移除最後一個頓號
+            if(TagString != null)
+            {
+                TagString = TagString.Remove(TagString.Length - 1);
             }
 
             return Page();
@@ -58,7 +80,8 @@ namespace Involver.Pages.Articles
 
             // Fetch data from DB to get OwnerID.
             Article articleToUpdate = await _context
-                .Articles.AsNoTracking()
+                .Articles
+                .Include(a => a.ArticleTags)
                 .FirstOrDefaultAsync(a => a.ArticleID == id);
 
             if (articleToUpdate == null)
@@ -74,12 +97,53 @@ namespace Involver.Pages.Articles
                 return Forbid();
             }
 
+            //設定Tags
+            var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+
+            if (tagArr.Length > 3)
+            {
+                ErrorMessage = "設定標籤超過三個，請重新設定";
+                return Page();
+            }
+
+            foreach (var tag in tagArr)
+            {
+                if (tag.Length > 15)
+                {
+                    ErrorMessage = "設定標籤長度超過15個字，請重新設定";
+                    return Page();
+                }
+            }
+
+            List<ArticleTag> articleTags = new();
+
+            foreach (var tag in tagArr)
+            {
+                var existingTag = await _context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+                if (existingTag != null)
+                {
+                    articleTags.Add(existingTag);
+                }
+                else
+                {
+                    ArticleTag newTag = new ArticleTag
+                    {
+                        Name = tag
+                    };
+
+                    articleTags.Add(newTag);
+                }
+            }
+
             if (await TryUpdateModelAsync<Article>(
                 articleToUpdate,
                 "article",
                 a => a.Title, a => a.Content, a => a.Block))
             {
                 articleToUpdate.UpdateTime = DateTime.Now;
+
+                articleToUpdate.ArticleTags = articleTags;
 
                 _context.Attach(articleToUpdate).State = EntityState.Modified;
 

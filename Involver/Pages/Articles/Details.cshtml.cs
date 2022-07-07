@@ -41,6 +41,7 @@ namespace Involver.Pages.Articles
 
             Article = await _context.Articles
                 .Include(a => a.Profile)
+                .Include(a => a.ArticleTags)
                 .FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Article == null)

@@ -42,6 +42,10 @@ namespace Involver.Data
 
         public DbSet<Achievement> Achievements { get; set; }
 
+        public DbSet<NovelTag> NovelTags { get; set; }
+
+        public DbSet<ArticleTag> ArticleTags { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Profile>(p =>
@@ -93,6 +97,10 @@ namespace Involver.Data
             modelBuilder.Entity<ProfitSharing>().ToTable("ProfitSharing");
 
             modelBuilder.Entity<Achievement>().ToTable("Achievements");
+
+            modelBuilder.Entity<NovelTag>().ToTable("NovelTags");
+
+            modelBuilder.Entity<ArticleTag>().ToTable("ArticleTags");
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.

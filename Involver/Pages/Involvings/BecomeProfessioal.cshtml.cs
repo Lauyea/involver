@@ -28,6 +28,7 @@ namespace Involver.Pages.Involvings
         {
             Profile = await _context.Profiles
                 .Include(p => p.Followers)
+                .Include(p => p.Achievements)
                 .Include(p => p.Novels)
                     .ThenInclude(n => n.Follows)
                 .Where(p => p.ProfileID == id)
