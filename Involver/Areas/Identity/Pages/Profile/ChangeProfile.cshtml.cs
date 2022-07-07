@@ -24,10 +24,10 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         [BindProperty]
         public Models.Profile Profile { get; set; }
-        [BindProperty]
-        public BufferedSingleFileUploadDb FileUpload { get; set; }
-        [BindProperty]
-        public BufferedSingleFileUploadDb BannerUpload { get; set; }
+        //[BindProperty]
+        //public BufferedSingleFileUploadDb FileUpload { get; set; }
+        //[BindProperty]
+        //public BufferedSingleFileUploadDb BannerUpload { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
