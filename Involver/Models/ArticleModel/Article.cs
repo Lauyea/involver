@@ -21,7 +21,11 @@ namespace Involver.Models.ArticleModel
         public string Content { get; set; }
 
         [DataType(DataType.DateTime)]
-        [Display(Name = "時間")]
+        [Display(Name = "建立時間")]
+        public DateTime CreateTime { get; set; }
+
+        [DataType(DataType.DateTime)]
+        [Display(Name = "更新時間")]
         public DateTime UpdateTime { get; set; }
 
         [Display(Name = "觀看數")]
