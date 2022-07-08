@@ -127,14 +127,6 @@ NovelOperations.Delete)).Succeeded)
 @{
     string ShareURL = "https://involver.tw/Episodes/Details?id=" + Model.Episode.EpisodeID.ToString();
 }
-<!-- Your share button code -->
-<div class="fb-share-button"
-     data-href="@ShareURL"
-     data-layout="button_count">
-</div>
-<!-- Load Facebook SDK for JavaScript -->
-<div id="fb-root"></div>
-<p></p>
 <!-- 複製連結到剪貼簿以分享 -->
 <input class="form-control"
        type="text" value="@ShareURL"
@@ -148,6 +140,14 @@ NovelOperations.Delete)).Succeeded)
         分享連結
     </button>
 </div>
+&nbsp;
+<!-- Your share button code -->
+<div class="fb-share-button"
+     data-href="@ShareURL"
+     data-layout="button_count">
+</div>
+<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
 
 <hr />
 

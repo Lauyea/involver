@@ -64,8 +64,11 @@ namespace Involver.Pages.Novels
 
             if (!String.IsNullOrEmpty(searchString))
             {
+                NovelTag novelTag = await _context.NovelTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
+
                 NovelsIQ = NovelsIQ.Where(n => n.Profile.UserName.Contains(searchString)
-                                       || n.Title.Contains(searchString));
+                                       || n.Title.Contains(searchString)
+                                       || n.NovelTags.Contains(novelTag));
             }
 
             if (!String.IsNullOrEmpty(searchType))

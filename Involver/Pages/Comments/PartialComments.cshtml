@@ -283,7 +283,16 @@
                        asp-route-pageIndex="1"
                        asp-fragment="CommentHead"
                        class="page-link">
-                        第一頁
+                        首
+                    </a>
+                </li>
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Details"
+                       asp-route-id="@fromID"
+                       asp-route-pageIndex="Model.PageIndex-1"
+                       asp-fragment="CommentHead"
+                       class="page-link">
+                        前
                     </a>
                 </li>
                 @for (int i = StartPage; i < EndPage + 1; i++)
@@ -303,13 +312,22 @@
                     </li>
 
                 }
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Details"
+                       asp-route-id="@fromID"
+                       asp-route-pageIndex="Model.PageIndex+1"
+                       asp-fragment="CommentHead"
+                       class="page-link">
+                        後
+                    </a>
+                </li>
                 <li class="page-item @nextDisabled">
                     <a asp-page="./Details"
                        asp-route-id="@fromID"
                        asp-route-pageIndex="@(Model.TotalPages)"
                        asp-fragment="CommentHead"
                        class="page-link">
-                        最後一頁
+                        末
                     </a>
                 </li>
             </ul>

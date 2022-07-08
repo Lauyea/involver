@@ -46,7 +46,7 @@
                     Ex. 標籤1,標籤2,標籤3。
                 </p>
                 <p>
-                    至多三個標籤，每個標籤不超過15個字。
+                    至多 @Parameters.TagSize 個標籤，每個標籤不超過 @Parameters.TagNameMaxLength 個字。
                 </p>
             </div>
             @if (User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||

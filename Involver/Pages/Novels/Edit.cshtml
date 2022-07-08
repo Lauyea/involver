@@ -20,6 +20,10 @@
     <div class="col-md-4">
         <form enctype="multipart/form-data" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (Model.ErrorMessage != null)
+            {
+                <div class="text-danger">@Model.ErrorMessage</div>
+            }
             <input type="hidden" asp-for="Novel.NovelID" />
             <input type="hidden" asp-for="Novel.ProfileID" />
             <input type="hidden" asp-for="Novel.Title" class="form-control" />
@@ -53,6 +57,19 @@
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="Novel.End" /> @Html.DisplayNameFor(model => model.Novel.End)
                 </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="TagString" class="control-label"></label>
+                <input asp-for="TagString" class="form-control" />
+                <span asp-validation-for="TagString" class="text-danger"></span>
+            </div>
+            <div class="alert alert-info" role="alert">
+                <p>
+                    Ex. 標籤1,標籤2,標籤3。
+                </p>
+                <p>
+                    至多 @Parameters.TagSize 個標籤，每個標籤不超過 @Parameters.TagNameMaxLength 個字。
+                </p>
             </div>
             <div class="form-group">
                 <input type="submit" value="儲存" class="btn btn-primary" />

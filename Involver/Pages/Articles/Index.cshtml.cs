@@ -49,7 +49,7 @@ namespace Involver.Pages.Articles
                 .AsQueryable();
             //var articles = from a in Context.Articles
             //               select a;
-            articles = articles.OrderByDescending(a => a.UpdateTime);
+            articles = articles.OrderByDescending(a => a.ArticleID);
 
             if (!String.IsNullOrEmpty(searchString))
             {

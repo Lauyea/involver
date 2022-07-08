@@ -52,21 +52,26 @@ namespace Involver.Pages.Articles
                 return Forbid();
             }
 
+            SetTagString();
+
+            return Page();
+        }
+
+        private void SetTagString()
+        {
             string temp = string.Empty;
 
-            foreach(var tag in Article.ArticleTags)
+            foreach (var tag in Article.ArticleTags)
             {
                 temp = tag.Name + ",";
                 TagString += temp;
             }
 
             //移除最後一個頓號
-            if(TagString != null)
+            if (TagString != null)
             {
                 TagString = TagString.Remove(TagString.Length - 1);
             }
-
-            return Page();
         }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
@@ -97,20 +102,20 @@ namespace Involver.Pages.Articles
                 return Forbid();
             }
 
-            //設定Tags
+            #region 設定Tags
             var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
 
-            if (tagArr.Length > 3)
+            if (tagArr.Length > Parameters.TagSize)
             {
-                ErrorMessage = "設定標籤超過三個，請重新設定";
+                ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
                 return Page();
             }
 
             foreach (var tag in tagArr)
             {
-                if (tag.Length > 15)
+                if (tag.Length > Parameters.TagNameMaxLength)
                 {
-                    ErrorMessage = "設定標籤長度超過15個字，請重新設定";
+                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
                     return Page();
                 }
             }
@@ -135,6 +140,7 @@ namespace Involver.Pages.Articles
                     articleTags.Add(newTag);
                 }
             }
+            #endregion
 
             if (await TryUpdateModelAsync<Article>(
                 articleToUpdate,

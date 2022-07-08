@@ -48,7 +48,7 @@ namespace Involver.Models.NovelModel
         [Column(TypeName = "money")]
         public decimal MonthlyCoins { get; set; }
 
-        [Display(Name = "付費會員限定")]
+        [Display(Name = "付費限定")]
         public bool PrimeRead { get; set; }
 
         [Display(Name = "完結")]

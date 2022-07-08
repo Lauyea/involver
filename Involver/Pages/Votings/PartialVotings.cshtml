@@ -102,13 +102,13 @@
                 <div class="middle">
                     <div class="bar-container">
                         <div style="position:absolute;">
-                            @if (option.Content.Length < Parameters.VotingOptionContentLegnth)
+                            @if (option.Content.Length < Parameters.VotingOptionContentLength)
                             {
                                 @option.Content
                             }
                             else
                             {
-                                @(option.Content.Substring(0, Parameters.VotingOptionContentLegnth)+"...")
+                                @(option.Content.Substring(0, Parameters.VotingOptionContentLength)+"...")
                             }
                             @valuePercent
                         </div>
@@ -136,13 +136,13 @@
                 <div class="middle">
                     <div class="bar-container">
                         <div style="position:absolute;">
-                            @if (option.Content.Length < Parameters.VotingOptionContentLegnth)
+                            @if (option.Content.Length < Parameters.VotingOptionContentLength)
                             {
                                 @option.Content
                             }
                             else
                             {
-                                @(option.Content.Substring(0, Parameters.VotingOptionContentLegnth)+"...")
+                                @(option.Content.Substring(0, Parameters.VotingOptionContentLength)+"...")
                             }
                             @numberPercent
                         </div>

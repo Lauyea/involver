@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Involver.Pages.Novels
 {
@@ -29,6 +31,13 @@ namespace Involver.Pages.Novels
 
         [BindProperty]
         public Novel Novel { get; set; }
+
+        [BindProperty]
+        [Display(Name = "標籤")]
+        [MaxLength(50)]
+        public string TagString { get; set; }
+
+        public string ErrorMessage { get; set; }
 
         // Use for upload file
         //[BindProperty]
@@ -70,6 +79,46 @@ namespace Involver.Pages.Novels
             {
                 return Forbid();
             }
+
+            #region 設定Tags
+            var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+
+            if (tagArr.Length > Parameters.TagSize)
+            {
+                ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+                return Page();
+            }
+
+            foreach (var tag in tagArr)
+            {
+                if (tag.Length > Parameters.TagNameMaxLength)
+                {
+                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                    return Page();
+                }
+            }
+
+            List<NovelTag> novelTags = new();
+
+            foreach (var tag in tagArr)
+            {
+                var existingTag = await _context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+                if (existingTag != null)
+                {
+                    novelTags.Add(existingTag);
+                }
+                else
+                {
+                    NovelTag newTag = new NovelTag
+                    {
+                        Name = tag
+                    };
+
+                    novelTags.Add(newTag);
+                }
+            }
+            #endregion
 
             Novel emptyNovel =
                 new Novel
@@ -132,6 +181,9 @@ namespace Involver.Pages.Novels
                 emptyNovel.CreateTime = DateTime.Now;
                 //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
                 //emptyNovel.ProfileID = Novel.ProfileID;
+
+                emptyNovel.NovelTags = novelTags;
+
                 _context.Novels.Add(emptyNovel);
                 await _context.SaveChangesAsync();
 
