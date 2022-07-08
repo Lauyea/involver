@@ -91,7 +91,10 @@ namespace Involver.Data
             modelBuilder.Entity<Missions>().ToTable("Missions");
             modelBuilder.Entity<Announcement>().ToTable("Announcement");
             modelBuilder.Entity<Feedback>().ToTable("Feedback");
+
+            modelBuilder.Entity<Article>().Property(a => a.CreateTime).HasDefaultValueSql("getdate()");
             modelBuilder.Entity<Article>().ToTable("Article");
+
             modelBuilder.Entity<Dice>().ToTable("Dice");
             modelBuilder.Entity<Payment>().ToTable("Payment");
             modelBuilder.Entity<ProfitSharing>().ToTable("ProfitSharing");
