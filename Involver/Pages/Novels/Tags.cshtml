@@ -1,0 +1,18 @@
+﻿@page
+@model Involver.Pages.Novels.TagsModel
+@{
+}
+<h1 class="text-center">熱門創作標籤</h1>
+<div class="row">
+    @foreach (var tag in Model.NovelTags)
+    {
+        <div class="col-auto">
+            <a asp-page="./Index"
+               asp-route-currentFilter="@tag.Name"
+               class="badge badge-pill badge-info">
+                @tag.Name
+            </a>
+            @*@tag.Novels.Count*@
+        </div>
+    }
+</div>

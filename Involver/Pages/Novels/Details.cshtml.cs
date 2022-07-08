@@ -44,6 +44,7 @@ namespace Involver.Pages.Novels
             Novel = await _context.Novels
                 .Include(n => n.Profile)
                 .Include(n => n.Follows)
+                .Include(n => n.NovelTags)
                 .FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)

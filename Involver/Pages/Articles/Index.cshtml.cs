@@ -49,12 +49,16 @@ namespace Involver.Pages.Articles
                 .AsQueryable();
             //var articles = from a in Context.Articles
             //               select a;
-            articles = articles.OrderByDescending(a => a.UpdateTime);
+            articles = articles.OrderByDescending(a => a.ArticleID);
 
             if (!String.IsNullOrEmpty(searchString))
             {
+                ArticleTag articleTag = await _context.ArticleTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
+
                 articles = articles
-                    .Where(a => a.Profile.UserName.Contains(searchString) || a.Title.Contains(searchString));
+                    .Where(a => a.Profile.UserName.Contains(searchString) 
+                    || a.Title.Contains(searchString)
+                    || a.ArticleTags.Contains(articleTag));
             }
 
 

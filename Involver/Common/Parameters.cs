@@ -10,6 +10,10 @@
 
         public static readonly int ArticlePageSize = 5;
 
-        public static readonly int VotingOptionContentLegnth = 15;
+        public static readonly int VotingOptionContentLength = 15;
+
+        public static readonly int TagSize = 3;
+
+        public static readonly int TagNameMaxLength = 15;
     }
 }

@@ -45,5 +45,7 @@ namespace Involver.Models.ArticleModel
         public ICollection<Comment> Comments { get; set; }
 
         public ICollection<Involving> Involvers { get; set; }
+
+        public ICollection<ArticleTag> ArticleTags { get; set; }
     }
 }

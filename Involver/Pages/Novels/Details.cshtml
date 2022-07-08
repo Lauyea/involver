@@ -124,10 +124,10 @@
                 </dt>
                 <dd class="col-sm-10">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-auto">
                             @Html.DisplayFor(model => model.Novel.MonthlyCoins)
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-auto">
                             <a class="btn btn-xs btn-outline-danger"
                                asp-page="/Involvings/InvolveNovel"
                                asp-route-id="@Model.Novel.NovelID">
@@ -141,10 +141,10 @@
                 </dt>
                 <dd class="col-sm-10">
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-auto">
                             @Html.DisplayFor(model => model.Novel.TotalCoins)
                         </div>
-                        <div class="dropdown col-md-4">
+                        <div class="dropdown col-auto">
                             <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
                                 Involvers <i class="fas fa-chevron-down"></i>
                             </button>
@@ -200,6 +200,19 @@
                 <dd class="col-sm-10">
                     <a asp-page="/Follows/Followers"
                        asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count() 位追蹤者</a>
+                </dd>
+                <dt class="col-sm-2">
+                    標籤
+                </dt>
+                <dd class="col-sm-10">
+                    @foreach(var tag in Model.Novel.NovelTags)
+                    {
+                        <a asp-page="./Index"
+                            asp-route-currentFilter="@tag.Name"
+                            class="badge badge-pill badge-info">
+                            @tag.Name
+                        </a>
+                    }
                 </dd>
             </dl>
         </div>

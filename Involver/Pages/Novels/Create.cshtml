@@ -25,6 +25,10 @@
                 </p>
             </div>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @if (Model.ErrorMessage != null)
+            {
+                <div class="text-danger">@Model.ErrorMessage</div>
+            }
             <div class="form-group">
                 <label asp-for="Novel.Title" class="control-label"></label>
                 <input asp-for="Novel.Title" class="form-control" />
@@ -71,6 +75,19 @@
                     <input class="form-check-input" asp-for="Novel.Block" />
                     <span title="封鎖的創作不會顯示在列表上，如要解封請提出申請">@Html.DisplayNameFor(model => model.Novel.Block)</span>
                 </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="TagString" class="control-label"></label>
+                <input asp-for="TagString" class="form-control" />
+                <span asp-validation-for="TagString" class="text-danger"></span>
+            </div>
+            <div class="alert alert-info" role="alert">
+                <p>
+                    Ex. 標籤1,標籤2,標籤3。
+                </p>
+                <p>
+                    至多 @Parameters.TagSize 個標籤，每個標籤不超過 @Parameters.TagNameMaxLength 個字。
+                </p>
             </div>
             <div class="form-group">
                 <label class="control-label">

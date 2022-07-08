@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Involver.Pages.Novels
 {
@@ -22,6 +23,11 @@ namespace Involver.Pages.Novels
 
         [BindProperty]
         public Novel Novel { get; set; }
+
+        [BindProperty]
+        [Display(Name = "標籤")]
+        [MaxLength(50)]
+        public string TagString { get; set; }
 
         public string ErrorMessage { get; set; }
 
@@ -45,7 +51,9 @@ namespace Involver.Pages.Novels
             }
 
             Novel = await _context.Novels
-                .Include(n => n.Profile).FirstOrDefaultAsync(m => m.NovelID == id);
+                .Include(n => n.Profile)
+                .Include(n => n.NovelTags)
+                .FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
             {
@@ -60,7 +68,26 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
+            SetTagString();
+
             return Page();
+        }
+
+        private void SetTagString()
+        {
+            string temp = string.Empty;
+
+            foreach (var tag in Novel.NovelTags)
+            {
+                temp = tag.Name + ",";
+                TagString += temp;
+            }
+
+            //移除最後一個頓號
+            if (TagString != null)
+            {
+                TagString = TagString.Remove(TagString.Length - 1);
+            }
         }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
@@ -74,7 +101,8 @@ namespace Involver.Pages.Novels
 
             // Fetch data from DB to get OwnerID.
             Novel novelToUpdate = await _context
-                .Novels.AsNoTracking()
+                .Novels
+                .Include(n => n.NovelTags)
                 .FirstOrDefaultAsync(n => n.NovelID == id);
 
             if (novelToUpdate == null)
@@ -90,6 +118,46 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
+            #region 設定Tags
+            var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+
+            if (tagArr.Length > Parameters.TagSize)
+            {
+                ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+                return Page();
+            }
+
+            foreach (var tag in tagArr)
+            {
+                if (tag.Length > Parameters.TagNameMaxLength)
+                {
+                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                    return Page();
+                }
+            }
+
+            List<NovelTag> novelTags = new();
+
+            foreach (var tag in tagArr)
+            {
+                var existingTag = await _context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+                if (existingTag != null)
+                {
+                    novelTags.Add(existingTag);
+                }
+                else
+                {
+                    NovelTag newTag = new NovelTag
+                    {
+                        Name = tag
+                    };
+
+                    novelTags.Add(newTag);
+                }
+            }
+            #endregion
+
             //Protect from overposting attacks
             if (await TryUpdateModelAsync<Novel>(
                 novelToUpdate,
@@ -101,6 +169,8 @@ namespace Involver.Pages.Novels
                 //    novelToUpdate.Image = memoryStream.ToArray();
                 //}
                 novelToUpdate.UpdateTime = DateTime.Now;
+
+                novelToUpdate.NovelTags = novelTags;
 
                 _context.Attach(novelToUpdate).State = EntityState.Modified;
 
