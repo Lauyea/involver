@@ -51,15 +51,15 @@
         {
             <div class="media border p-3 rounded shadow-sm" id="@item.CommentID">
                 <a asp-area="Identity"
-                   asp-page="/Profile/Index"
-                   asp-route-id="@item.ProfileID">
+       asp-page="/Profile/Index"
+       asp-route-id="@item.ProfileID">
                     @if (!string.IsNullOrEmpty(item.Profile.ImageUrl))
                     {
                         <img src="@item.Profile.ImageUrl"
-                         asp-append-version="true"
-                         alt="讀取失敗"
-                         title="@item.Profile.UserName"
-                         class="mr-3 mt-3 rounded-circle" style="width:60px;">
+             asp-append-version="true"
+             alt="讀取失敗"
+             title="@item.Profile.UserName"
+             class="mr-3 mt-3 rounded-circle" style="width:60px;">
                     }
                     else
                     {
@@ -73,14 +73,14 @@
                 <div class="media-body">
                     <b>
                         <a asp-area="Identity"
-                           asp-page="/Profile/Index"
-                           asp-route-id="@item.ProfileID">
+               asp-page="/Profile/Index"
+               asp-route-id="@item.ProfileID">
                             @Html.DisplayFor(modelItem => item.Profile.UserName)
                         </a>
                         <a asp-page="./Details"
-                           asp-route-id="@fromID"
-                           asp-route-pageIndex="@Model.PageIndex"
-                           asp-fragment="@item.CommentID"><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></a>
+               asp-route-id="@fromID"
+               asp-route-pageIndex="@Model.PageIndex"
+               asp-fragment="@item.CommentID"><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></a>
                     </b>
                     @if (item.EpisodeID != null)
                     {
@@ -98,13 +98,13 @@
                             <p><small>月 Involve: @involverInfo.MonthlyValue In幣 | 總 Involve: @involverInfo.TotalValue In幣</small></p>
                         }
                     }
-                    <span class="ck-content">@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</span>
+                    <p class="ck-content">@Html.AntiXssRaw(item.Content.Replace("\r\n", "<br />"))</p>
                     <div class="pt-3 pb-3">
                         @if (item.Dices.FirstOrDefault() != null && item.Dices.FirstOrDefault().Value != 0)
                         {
                             foreach (var dice in item.Dices)
                             {
-                                if(dice.Sides != 0 && dice.Value != 0)
+                                if (dice.Sides != 0 && dice.Value != 0)
                                 {
                                     <i class="fas fa-dice-d20"></i>
                                     <text>@dice.Value / @dice.Sides &nbsp;</text>
@@ -114,12 +114,12 @@
                     </div>
                     <div id="control-menu">
                         <a asp-page="../Comments/Details"
-                           asp-route-id="@item.CommentID"
-                           asp-route-from="@from"
-                           asp-route-fromID="@fromID"
-                           asp-route-pageIndex="1"
-                           title="留言"
-                           target="_blank">
+               asp-route-id="@item.CommentID"
+               asp-route-from="@from"
+               asp-route-fromID="@fromID"
+               asp-route-pageIndex="1"
+               title="留言"
+               target="_blank">
                             <i class="far fa-comments"></i>
                             @if (item.Messages != null)
                             {
@@ -152,22 +152,22 @@
                                CommentOperations.Update)).Succeeded && item.Dices.Count() == 0)
                                 {
                                     <a asp-page="../Comments/Edit"
-                                       asp-route-id="@item.CommentID"
-                                       asp-route-from="@from"
-                                       asp-route-fromID="@fromID"
-                                       class="dropdown-item"
-                                       title="編輯"><i class="far fa-edit"></i> 編輯</a>
+                       asp-route-id="@item.CommentID"
+                       asp-route-from="@from"
+                       asp-route-fromID="@fromID"
+                       class="dropdown-item"
+                       title="編輯"><i class="far fa-edit"></i> 編輯</a>
                                 }
                                 @if ((await AuthorizationService.AuthorizeAsync(
                                User, item,
                                CommentOperations.Delete)).Succeeded)
                                 {
                                     <a asp-page="../Comments/Delete"
-                                       asp-route-id="@item.CommentID"
-                                       asp-route-from="@from"
-                                       asp-route-fromID="@fromID"
-                                       class="dropdown-item"
-                                       title="刪除"><i class="far fa-trash-alt"></i> 刪除</a>
+                       asp-route-id="@item.CommentID"
+                       asp-route-from="@from"
+                       asp-route-fromID="@fromID"
+                       class="dropdown-item"
+                       title="刪除"><i class="far fa-trash-alt"></i> 刪除</a>
                                 }
                                 @if (item.Episode != null)
                                 {
@@ -177,10 +177,10 @@
                                     {
                                         <form method="post">
                                             <button type="submit" asp-page-handler="block"
-                                                asp-route-id="@item.CommentID"
-                                                asp-route-fromID="@fromID"
-                                                asp-route-pageIndex="@Model.PageIndex"
-                                                class="dropdown-item" title="封鎖">
+                                asp-route-id="@item.CommentID"
+                                asp-route-fromID="@fromID"
+                                asp-route-pageIndex="@Model.PageIndex"
+                                class="dropdown-item" title="封鎖">
                                                 <i class="fas fa-lock"></i> 封鎖
                                             </button>
                                         </form>
@@ -195,18 +195,18 @@
                             foreach (var message in item.Messages.TakeLast(5))
                             {
                                 @if (message.Content.Length < 20)
-                                    {
-                                        <b>@message.Profile.UserName &nbsp;</b>
+                                {
+                                    <b>@message.Profile.UserName &nbsp;</b>
 
-                                        @message.Content
-                                    }
-                                    else
-                                    {
-                                        <b>@message.Profile.UserName &nbsp;</b>
+                                    @message.Content
+                                }
+                                else
+                                {
+                                    <b>@message.Profile.UserName &nbsp;</b>
 
-                                        @(message.Content.Substring(0, 20)+"...")
-                                    }
-                                    <hr />
+                                    @(message.Content.Substring(0, 20)+"...")
+                                }
+                                <hr />
                             }
                         }
                     </div>
@@ -228,10 +228,10 @@
                         {
                             <form method="post" class="d-inline-flex">
                                 <button type="submit" asp-page-handler="block"
-                                    asp-route-id="@item.CommentID"
-                                    asp-route-fromID="@fromID"
-                                    asp-route-pageIndex="@Model.PageIndex"
-                                    class="btn" title="解除封鎖">
+                    asp-route-id="@item.CommentID"
+                    asp-route-fromID="@fromID"
+                    asp-route-pageIndex="@Model.PageIndex"
+                    class="btn" title="解除封鎖">
                                     <i class="fas fa-unlock"></i> 解除封鎖
                                 </button>
                             </form>
@@ -239,11 +239,11 @@
                     }
                     <p>
                         <a asp-page="../Comments/Details"
-                            asp-route-id="@item.CommentID"
-                            asp-route-from="@from"
-                            asp-route-fromID="@fromID"
-                            asp-route-pageIndex="1"
-                            target="_blank">
+               asp-route-id="@item.CommentID"
+               asp-route-from="@from"
+               asp-route-fromID="@fromID"
+               asp-route-pageIndex="1"
+               target="_blank">
                             本評論已被封鎖，點擊以詳閱內容
                         </a>
                     </p>
@@ -273,69 +273,73 @@
     PageSizeHelper.Get(Model.PageIndex, Model.TotalPages, ref StartPage, ref EndPage);
 }
 
-<nav>
-    <ul class="pagination">
-        <li class="page-item @prevDisabled">
-            <a asp-page="./Details"
-               asp-route-id="@fromID"
-               asp-route-pageIndex="1"
-               asp-fragment="CommentHead"
-               class="page-link">
-                第一頁
-            </a>
-        </li>
-        @for (int i = StartPage; i < EndPage + 1; i++)
-        {
-            <li class="page-item @IsActive(i)">
-                <a asp-page="./Details"
-               asp-route-id="@fromID"
-               asp-route-pageIndex="@i"
-               asp-fragment="CommentHead"
-               class="page-link">
-                    @i
-                    @if (i == Model.PageIndex)
-                    {
-                        <span class="sr-only">(current)</span>
-                    }
-                </a>
-            </li>
+<div class="row">
+    <div class="col-auto">
+        <nav>
+            <ul class="pagination">
+                <li class="page-item @prevDisabled">
+                    <a asp-page="./Details"
+                       asp-route-id="@fromID"
+                       asp-route-pageIndex="1"
+                       asp-fragment="CommentHead"
+                       class="page-link">
+                        第一頁
+                    </a>
+                </li>
+                @for (int i = StartPage; i < EndPage + 1; i++)
+                {
+                    <li class="page-item @IsActive(i)">
+                        <a asp-page="./Details"
+                       asp-route-id="@fromID"
+                       asp-route-pageIndex="@i"
+                       asp-fragment="CommentHead"
+                       class="page-link">
+                            @i
+                            @if (i == Model.PageIndex)
+                            {
+                                <span class="sr-only">(current)</span>
+                            }
+                        </a>
+                    </li>
 
-        }
-        <li class="page-item @nextDisabled">
-            <a asp-page="./Details"
-               asp-route-id="@fromID"
-               asp-route-pageIndex="@(Model.TotalPages)"
-               asp-fragment="CommentHead"
-               class="page-link">
-                最後一頁
-            </a>
-        </li>
-    </ul>
-</nav>
-
-<p></p>
-<form class="form-inline"
-      asp-page="./Details"
-      asp-fragment="CommentHead"
-      method="get">
-    <div class="form-group">
-        <input type="number" name="id"
-               value="@fromID"
-               class="form-control"
-               style="width:0px;display:none" />
+                }
+                <li class="page-item @nextDisabled">
+                    <a asp-page="./Details"
+                       asp-route-id="@fromID"
+                       asp-route-pageIndex="@(Model.TotalPages)"
+                       asp-fragment="CommentHead"
+                       class="page-link">
+                        最後一頁
+                    </a>
+                </li>
+            </ul>
+        </nav>
     </div>
-    第&nbsp
-    <div class="form-group">
-        <input type="number" name="pageIndex"
-               value="@Model.PageIndex"
-               class="form-control"
-               style="width:100px;display:inline" />
+    <div class="col-auto">
+        <form class="form-inline"
+              asp-page="./Details"
+              asp-fragment="CommentHead"
+              method="get">
+            <div class="form-group">
+                <input type="number" name="id"
+                       value="@fromID"
+                       class="form-control"
+                       style="width:0px;display:none" />
+            </div>
+            第&nbsp
+            <div class="form-group">
+                <input type="number" name="pageIndex"
+                       value="@Model.PageIndex"
+                       class="form-control"
+                       style="width:100px;display:inline" />
+            </div>
+            &nbsp頁&nbsp
+            <div class="form-group">
+                <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+            </div>
+        </form>
     </div>
-    &nbsp頁&nbsp
-    <div class="form-group">
-        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-    </div>
-</form>
+</div>
 
 @using (Html.BeginScripts())
 {

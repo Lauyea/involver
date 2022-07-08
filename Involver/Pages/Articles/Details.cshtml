@@ -175,20 +175,17 @@ User, Model.Article, ArticleOperations.Block)).Succeeded)
 <p>
     @foreach(var tag in Model.Article.ArticleTags)
     {
-        <a href="#" class="badge badge-pill badge-info">@tag.Name</a>
+        <a asp-page="./Index"
+            asp-route-currentFilter="@tag.Name"
+            class="badge badge-pill badge-info">
+            @tag.Name
+        </a>
     }
 </p>
 @{
     string ShareURL = "https://involver.tw/Articles/Details?id=" + Model.Article.ArticleID.ToString();
 }
-<!-- Your share button code -->
-<div class="fb-share-button"
-     data-href="@ShareURL"
-     data-layout="button_count">
-</div>
-<!-- Load Facebook SDK for JavaScript -->
-<div id="fb-root"></div>
-<p></p>
+
 <!-- 複製連結到剪貼簿以分享 -->
 <input class="form-control" 
        type="text" value="@ShareURL" 
@@ -202,6 +199,14 @@ User, Model.Article, ArticleOperations.Block)).Succeeded)
         分享連結
     </button>
 </div>
+&nbsp;
+<!-- Your share button code -->
+<div class="fb-share-button"
+     data-href="@ShareURL"
+     data-layout="button_count">
+</div>
+<!-- Load Facebook SDK for JavaScript -->
+<div id="fb-root"></div>
 
 <hr />
 
