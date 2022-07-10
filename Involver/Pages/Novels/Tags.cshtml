@@ -7,7 +7,7 @@
 <div class="row">
     @foreach (var tag in Model.NovelTags)
     {
-        <div class="col-auto">
+        <div class="col-auto my-1">
             <a asp-page="./Index"
                asp-route-currentFilter="@tag.Name"
                class="badge badge-pill badge-info">
