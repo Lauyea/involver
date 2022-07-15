@@ -44,11 +44,11 @@
                     <div class="col-md-5">
                         @if (comment.Content.Length < 200)
                         {
-                            @comment.Content;
+                            @Html.AntiXssRaw(comment.Content);
                         }
                         else
                         {
-                            @(comment.Content.Substring(0, 200)+"...");
+                            @Html.AntiXssRaw(comment.Content.Substring(0, 200)+"...");
                         }
                     </div>
                     <div class="col-md-4">
