@@ -18,7 +18,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form enctype="multipart/form-data" method="post">
+        <form enctype="multipart/form-data" method="post" id="form">
             <div class="alert alert-danger" role="alert">
                 <p>
                     <strong>注意！ 使用被版權保護的二次創作不能獲得收益，平台不負任何侵權責任</strong>
@@ -102,7 +102,11 @@
             <select asp-for="Novel.ProfileID" class ="form-control" asp-items="ViewBag.ProfileID"></select>
         </div>*@
             <div class="form-group">
-                <input type="submit" value="建立" class="btn btn-primary" />
+                <input class="g-recaptcha btn btn-primary" 
+                        data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" 
+                        data-callback='onSubmit' 
+                        data-action='submit'
+                        type="submit" value="建立" />
             </div>
         </form>
     </div>
@@ -110,4 +114,10 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+       function onSubmit(token) {
+         document.getElementById("form").submit();
+       }
+     </script>
 }
