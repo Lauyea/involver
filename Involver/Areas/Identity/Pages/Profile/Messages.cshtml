@@ -39,11 +39,11 @@
                     <div class="col-md-5">
                         @if (message.Content.Length < 200)
                         {
-                            @message.Content;
+                            @Html.AntiXssRaw(message.Content);
                         }
                         else
                         {
-                            @(message.Content.Substring(0, 200)+"...");
+                            @Html.AntiXssRaw(message.Content.Substring(0, 200)+"...");
                         }
                     </div>
                     <div class="col-md-4">
@@ -52,11 +52,11 @@
                            asp-route-pageIndex="1">
                             @if (message.Comment.Content.Length < 20)
                             {
-                                @message.Comment.Content;
+                                @Html.AntiXssRaw(message.Comment.Content);
                             }
                             else
                             {
-                                @(message.Comment.Content.Substring(0, 20)+"...");
+                                @Html.AntiXssRaw(message.Comment.Content.Substring(0, 20)+"...");
                             }
                         </a>
                     </div>

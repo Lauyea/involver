@@ -73,10 +73,10 @@
     <div class="row">
         <div class="col-md-9">
             <dl class="row">
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.UserName)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     @Html.DisplayFor(model => model.Profile.UserName)
                     @if (Model.Profile.CanChangeUserName && Model.ProfileOwner)
                     {
@@ -89,25 +89,25 @@
                 </dd>
                 @if (Model.Profile.Introduction != null)
                 {
-                    <dt class="col-sm-2">
+                    <dt class="col-sm-3">
                         @Html.DisplayNameFor(model => model.Profile.Introduction)
                     </dt>
-                    <dd class="col-sm-10">
+                    <dd class="col-sm-9">
                         @Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))
                     </dd>
                 }
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.RealCoins)
                 </dt>
-                <dd class="col-sm-10 row">
+                <dd class="col-sm-9 row">
                     @if ((await AuthorizationService.AuthorizeAsync(
                   User, Model.Profile,
                   ProfileOperations.Update)).Succeeded)
                     {
-                        <div class="col-sm-3">
+                        <div class="col-auto">
                             @Html.DisplayFor(model => model.Profile.RealCoins)
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-auto">
                             <a class="btn btn-xs btn-outline-success"
                                asp-page="/Involvings/StoredValue"
                                asp-route-id="@Model.Profile.ProfileID">
@@ -116,20 +116,20 @@
                         </div>
                     }
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.VirtualCoins)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     @Html.DisplayFor(model => model.Profile.VirtualCoins)
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.MonthlyCoins)
                 </dt>
-                <dd class="col-sm-10 row">
-                    <div class="col-sm-3">
+                <dd class="col-sm-9 row">
+                    <div class="col-auto">
                         @Html.DisplayFor(model => model.Profile.MonthlyCoins)
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-auto">
                         <a class="btn btn-xs btn-outline-danger"
                            asp-page="/Involvings/InvolveCreator"
                            asp-route-id="@Model.Profile.ProfileID">
@@ -137,30 +137,30 @@
                         </a>
                     </div>
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.EnrollmentDate)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     @Html.DisplayFor(model => model.Profile.EnrollmentDate)
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.LastTimeLogin)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     @Html.DisplayFor(model => model.Profile.LastTimeLogin)
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.Prime)
                 </dt>
-                <dd class="col-sm-10 row">
-                    <div class="col-sm-3">
+                <dd class="col-sm-9 row">
+                    <div class="col-auto">
                         @Html.DisplayFor(model => model.Profile.Prime)
                     </div>
                     @if (!Model.Profile.Prime && (await AuthorizationService.AuthorizeAsync(
                    User, Model.Profile,
                    ProfileOperations.Update)).Succeeded)
                     {
-                        <div class="col-sm-6">
+                        <div class="col-auto">
                             <a class="btn btn-xs btn-outline-success"
                                asp-page="/Involvings/BecomePrime"
                                asp-route-id="@Model.Profile.ProfileID"
@@ -176,18 +176,18 @@
                         </div>
                     }
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.Professional)
                 </dt>
-                <dd class="col-sm-10 row">
-                    <div class="col-sm-3">
+                <dd class="col-sm-9 row">
+                    <div class="col-auto">
                         @Html.DisplayFor(model => model.Profile.Professional)
                     </div>
                     @if (!Model.Profile.Professional && (await AuthorizationService.AuthorizeAsync(
                     User, Model.Profile,
                     ProfileOperations.Update)).Succeeded)
                     {
-                        <div class="col-sm-6">
+                        <div class="col-auto">
                             <a class="btn btn-xs btn-outline-success"
                                asp-page="/Involvings/BecomeProfessional"
                                asp-route-id="@Model.Profile.ProfileID"
@@ -205,23 +205,23 @@
                 </dd>
                 @if (Model.Profile.Banned == true)
                 {
-                    <dt class="col-sm-2">
+                    <dt class="col-sm-3">
                         @Html.DisplayNameFor(model => model.Profile.Banned)
                     </dt>
-                    <dd class="col-sm-10">
+                    <dd class="col-sm-9">
                         @Html.DisplayFor(model => model.Profile.Banned)
                     </dd>
                 }
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.Views)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     @Html.DisplayFor(model => model.Profile.Views)
                 </dd>
-                <dt class="col-sm-2">
+                <dt class="col-sm-3">
                     追蹤數
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-9">
                     <a asp-page="./Followers"
                        asp-route-id="@Model.Profile.ProfileID">
                         @Model.Profile.Follows.Count() 個追蹤者

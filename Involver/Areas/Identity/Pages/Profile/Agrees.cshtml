@@ -41,22 +41,22 @@
                         {
                             @if (agree.Comment.Content.Length < 200)
                             {
-                                @agree.Comment.Content;
+                                @Html.AntiXssRaw(agree.Comment.Content);
                             }
                             else
                             {
-                                @(agree.Comment.Content.Substring(0, 200)+"...");
+                                @Html.AntiXssRaw(agree.Comment.Content.Substring(0, 200)+"...");
                             }
                         }
                         else
                         {
                             @if (agree.Message.Content.Length < 200)
                             {
-                                @agree.Message.Content;
+                                @Html.AntiXssRaw(agree.Message.Content);
                             }
                             else
                             {
-                                @(agree.Message.Content.Substring(0, 200)+"...");
+                                @Html.AntiXssRaw(agree.Message.Content.Substring(0, 200)+"...");
                             }
                         }
                     </div>
