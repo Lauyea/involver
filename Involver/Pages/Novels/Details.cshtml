@@ -34,21 +34,22 @@
     }
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
 </div>
-&nbsp&nbsp
-    @if (Model.Followed)
-    {
-        <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-            class="btn btn-xs btn-primary disabled">
-            取消追蹤
-        </button>
-    }
-    else
-    {
-        <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-            class="btn btn-xs btn-primary">
-            追蹤創作
-        </button>
-    }
+&nbsp;
+&nbsp;
+@if (Model.Followed)
+{
+    <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+        class="btn btn-xs btn-primary mb-1 disabled">
+        取消追蹤
+    </button>
+}
+else
+{
+    <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+        class="btn btn-xs mb-1 btn-primary">
+        追蹤創作
+    </button>
+}
 <div>
     @if (!Model.Novel.Block)
     {

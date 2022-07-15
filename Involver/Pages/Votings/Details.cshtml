@@ -29,11 +29,11 @@
                     <p></p>
                     @foreach (var option in Model.NormalOptions)
                     {
-                        <input type="radio" asp-for="NormalOption.NormalOptionID" value="@option.NormalOptionID" />@option.Content
+                        <input type="radio" asp-for="NormalOption.NormalOptionID" value="@option.NormalOptionID" disabled="@Model.Voting.End"/>@option.Content
                         <br />
                     }
                 </div>
-                @if (Model.Voting.Threshold != 0 && Model.Voted == false)
+                @if (Model.Voting.Threshold != 0 && Model.Voted == false && !Model.Voting.End)
                 {
                     <div class="form-group form-check">
                         <label class="form-check-label">

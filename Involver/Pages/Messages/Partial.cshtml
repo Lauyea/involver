@@ -72,6 +72,7 @@
                    asp-route-fromID="@item.CommentID"
                    title="編輯"><i class="far fa-edit"></i></a>
                     }
+                    &nbsp;
                     @if ((await AuthorizationService.AuthorizeAsync(
                    User, item,
                    MessageOperations.Delete)).Succeeded)

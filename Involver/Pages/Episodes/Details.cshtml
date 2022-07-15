@@ -38,22 +38,21 @@ NovelOperations.Delete)).Succeeded)
     }
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
     <a href="#Voting" class="btn btn-xs btn-outline-info"><i class="fas fa-vote-yea"></i>投票</a>
-    <p></p>
-    @if (Model.ShowCommentByCreator)
-    {
-        <a asp-page="./Details"
-            asp-route-id="@Model.Episode.EpisodeID"
-            asp-route-showCommentByCreator="@false"
-            class="btn btn-xs btn-outline-primary "><i class="far fa-eye"></i>所有評論</a>
-    }
-    else
-    {
-        <a asp-page="./Details"
-            asp-route-id="@Model.Episode.EpisodeID"
-            asp-route-showCommentByCreator="@true"
-            class="btn btn-xs btn-outline-primary"><i class="far fa-eye"></i>只看作者</a>
-    }
 </div>
+@*@if (Model.ShowCommentByCreator)
+{
+    <a asp-page="./Details"
+        asp-route-id="@Model.Episode.EpisodeID"
+        asp-route-showCommentByCreator="@false"
+        class="btn btn-xs btn-outline-primary m-1"><i class="far fa-eye"></i>所有評論</a>
+}
+else
+{
+    <a asp-page="./Details"
+        asp-route-id="@Model.Episode.EpisodeID"
+        asp-route-showCommentByCreator="@true"
+        class="btn btn-xs btn-outline-primary m-1"><i class="far fa-eye"></i>只看作者</a>
+}*@
 <p></p>
 <div>
     @if (Model.PreviousEpisode != null)
