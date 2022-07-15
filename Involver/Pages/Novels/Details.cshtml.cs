@@ -79,18 +79,46 @@ namespace Involver.Pages.Novels
                 return Forbid();
             }
 
-            RecommendNovels = _context.Novels
+            var tagArr = Novel.NovelTags.ToArray();
+
+            var recommendNovels = _context.Novels
                 .Where(n => n.Type == Novel.Type)
-                .Where(n => n.Block == false)
-                .OrderByDescending(n => n.MonthlyCoins)
+                .Where(n => n.Block == false);
+
+            // There is most 3 tags right now
+            if(tagArr.Count() > 2)
+            {
+                recommendNovels = recommendNovels
+                    .Where(n => n.NovelTags.Contains(tagArr[0])
+                    || n.NovelTags.Contains(tagArr[1])
+                    || n.NovelTags.Contains(tagArr[2]));
+            }
+            else if (tagArr.Count() > 1)
+            {
+                recommendNovels = recommendNovels
+                    .Where(n => n.NovelTags.Contains(tagArr[0])
+                    || n.NovelTags.Contains(tagArr[1]));
+            }
+            else if (tagArr.Count() > 0)
+            {
+                recommendNovels = recommendNovels
+                    .Where(n => n.NovelTags.Contains(tagArr[0]));
+            }
+
+
+            recommendNovels = recommendNovels.OrderByDescending(n => n.MonthlyCoins)
                 .Take(5)
                 .OrderByDescending(n => n.UpdateTime)
-                .AsNoTracking()
-                .ToList();
+                .AsNoTracking();
+
+            RecommendNovels = recommendNovels.ToList();
+
             string UserID = _userManager.GetUserId(User);
+
             Follow ExistingFollow = Novel.Follows
                 .Where(f => f.FollowerID == UserID)
                 .FirstOrDefault();
+
             if(ExistingFollow != null)
             {
                 Followed = true;
