@@ -4,6 +4,15 @@
 # Azure Functions localsettings file
 local.settings.json
 
+# ASP.NET Core localsettings file
+appsettings.json
+appsettings.Development.json
+
+# Web deploy files
+serviceDependencies.json
+profile.arm.json
+*Deploy.json
+
 # User-specific files
 *.suo
 *.user
