@@ -11,6 +11,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
+// Cookie Policy
+services.Configure<CookiePolicyOptions>(options =>
+{
+    // This lambda determines whether user consent for non-essential 
+    // cookies is needed for a given request.
+    options.CheckConsentNeeded = context => true;
+    // requires using Microsoft.AspNetCore.Http;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
 // Add services to the container.
 services.AddHttpClient();
 
@@ -133,6 +143,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseCookiePolicy();
 
 app.UseRouting();
 
