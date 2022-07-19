@@ -45,6 +45,11 @@ namespace Involver.Pages.Episodes
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(string from, int fromID)
         {
+            if(Episode.Content.Length > Parameters.ArticleLength)
+            {
+                return Page();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();

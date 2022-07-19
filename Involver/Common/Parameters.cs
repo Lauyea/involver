@@ -15,5 +15,11 @@
         public static readonly int TagSize = 3;
 
         public static readonly int TagNameMaxLength = 15;
+
+        public static readonly int ProfileIntroLength = 256;
+
+        public static readonly int ArticleLength = 65536;
+
+        public static readonly int CommentLength = 16384;
     }
 }

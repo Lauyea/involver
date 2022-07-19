@@ -50,6 +50,11 @@ namespace Involver.Pages.Comments
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(string from, int? fromID)
         {
+            if(Comment.Content.Length > Parameters.CommentLength)
+            {
+                Page();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
