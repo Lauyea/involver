@@ -51,6 +51,11 @@ namespace Involver.Pages.Feedbacks
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
+            if(Feedback.Content.Length > Parameters.ArticleLength)
+            {
+                return Page();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();

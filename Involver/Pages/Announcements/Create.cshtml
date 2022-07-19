@@ -22,6 +22,7 @@
             <div class="form-group">
                 <label asp-for="Announcement.Content" class="control-label"></label>
                 <textarea asp-for="Announcement.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                <div id="word-count"></div>
                 <span asp-validation-for="Announcement.Content" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -88,10 +89,23 @@
                 licenseKey: '',
                 mediaEmbed: {
                     previewsInData: true
+                },
+                wordCount:{
+                    displayWords: false,
+                    onUpdate: stats => {
+                        if (stats.characters > @Parameters.ArticleLength) {
+                            alert("輸入字元超過最大限制: @Parameters.ArticleLength");
+                        }
+                    }
                 }
             })
             .then(editor => {
                 window.editor = editor;
+
+                const wordCountPlugin = editor.plugins.get( 'WordCount' );
+                const wordCountWrapper = document.getElementById( 'word-count' );
+
+                wordCountWrapper.appendChild( wordCountPlugin.wordCountContainer );
             })
             .catch(error => {
                 console.error('Oops, something went wrong!');

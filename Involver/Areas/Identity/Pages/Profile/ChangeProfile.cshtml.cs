@@ -37,6 +37,11 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if(Profile.Introduction.Length > Parameters.ProfileIntroLength)
+            {
+                return Page();
+            }
+
             Models.Profile ProfileToUpdate = await _context.Profiles.Where(p => p.ProfileID == _userManager.GetUserId(User)).FirstOrDefaultAsync();
 
             ProfileToUpdate.Introduction = Profile.Introduction;
