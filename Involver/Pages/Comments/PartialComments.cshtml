@@ -192,7 +192,7 @@
                     <div>
                         @if (item.Messages.Count != 0)
                         {
-                            foreach (var message in item.Messages)
+                            foreach (var message in item.Messages.OrderBy(m => m.UpdateTime))
                             {
                                 @if (message.Content.Length < 20)
                                 {
