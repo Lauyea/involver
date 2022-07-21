@@ -73,7 +73,7 @@ namespace Involver.Pages.Feedbacks
                                            select c;
             comments = comments
                 .Include(c => c.Agrees)
-                .Include(c => c.Messages)
+                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
                     .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
