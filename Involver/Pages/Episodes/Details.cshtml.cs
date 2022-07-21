@@ -29,19 +29,23 @@ namespace Involver.Pages.Episodes
         public Episode Episode { get; set; }
 
         public Episode PreviousEpisode { get; set; }
+
         public Episode NextEpisode { get; set; }
+
         public Novel Novel { get; set; }
+
         public PaginatedList<Comment> Comments { get; set; }
+
         public List<Voting> Votings { get; set; }
-        public bool ShowCommentByCreator { get; set; } = false;
+
         public string UserID { get; set; }
         [TempData]
         public string StatusMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex, bool? showCommentByCreator)
+        public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
             UserID = _userManager.GetUserId(User);
-            ShowCommentByCreator = showCommentByCreator ?? false;
+
             if (id == null)
             {
                 return NotFound();
@@ -57,7 +61,7 @@ namespace Involver.Pages.Episodes
                 return NotFound();
             }
 
-            await SetComments(id, pageIndex, ShowCommentByCreator);
+            await SetComments(id, pageIndex);
 
             PreviousEpisode = await _context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
@@ -124,8 +128,10 @@ namespace Involver.Pages.Episodes
 
             //Add views
             Episode.Views++;
+
             _context.Attach(Episode).State = EntityState.Modified;
-            CheckMissionWatchArticle();
+
+            await CheckMissionWatchArticle();
 
             try
             {
@@ -146,7 +152,7 @@ namespace Involver.Pages.Episodes
             return Page();
         }
 
-        private async void CheckMissionWatchArticle()
+        private async Task CheckMissionWatchArticle()
         {
             //Check mission:WatchArticle
             string UserID = _userManager.GetUserId(User);
@@ -183,34 +189,14 @@ namespace Involver.Pages.Episodes
             return _context.Episodes.Any(e => e.EpisodeID == id);
         }
 
-        private async Task SetComments(int? id, int? pageIndex, bool ShowCommentByCreator)
+        private async Task SetComments(int? id, int? pageIndex)
         {
             IQueryable<Comment> comments = from c in _context.Comments
                                            select c;
-            if (ShowCommentByCreator == true)
-            {
-                comments = comments
-                .Include(c => c.Agrees)
-                .Include(c => c.Messages)
-                    .ThenInclude(c => c.Profile)
-                .Include(c => c.Profile)
-                .Include(c => c.Dices)
-                .Include(c => c.Episode)
-                    .ThenInclude(e => e.Novel)
-                        .ThenInclude(n => n.Involvers)
-                .Where(c => c.EpisodeID == id)
-                .Where(c => c.ProfileID == Episode.OwnerID)
-                .OrderBy(c => c.CommentID);
 
-                
-                Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
-            }
-            else
-            {
-                comments = comments
+            comments = comments
                 .Include(c => c.Agrees)
-                .Include(c => c.Messages)
+                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
                     .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
@@ -220,10 +206,9 @@ namespace Involver.Pages.Episodes
                 .Where(c => c.EpisodeID == id)
                 .OrderBy(c => c.CommentID);
 
-                
-                Comments = await PaginatedList<Comment>.CreateAsync(
-                    comments, pageIndex ?? 1, Parameters.CommetPageSize);
-            }
+
+            Comments = await PaginatedList<Comment>.CreateAsync(
+                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         public async Task<IActionResult> OnPostBlockAsync(int id, int fromID, int pageIndex)

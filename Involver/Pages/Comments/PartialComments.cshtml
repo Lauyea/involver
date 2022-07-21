@@ -192,7 +192,7 @@
                     <div>
                         @if (item.Messages.Count != 0)
                         {
-                            foreach (var message in item.Messages.TakeLast(5))
+                            foreach (var message in item.Messages)
                             {
                                 @if (message.Content.Length < 20)
                                 {
