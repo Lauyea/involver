@@ -86,6 +86,8 @@ namespace Involver.Models
         public ICollection<Involving> Involvers { get; set; }
         public ICollection<Agree> Agrees { get; set; }
 
+        public ICollection<Notification> Notifications { get; set; }
+
         public Missions Missions { get; set; }
 
         public ICollection<Achievement> Achievements { get; set; }

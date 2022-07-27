@@ -46,6 +46,8 @@ namespace Involver.Data
 
         public DbSet<ArticleTag> ArticleTags { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Profile>(p =>
@@ -104,6 +106,8 @@ namespace Involver.Data
             modelBuilder.Entity<NovelTag>().ToTable("NovelTags");
 
             modelBuilder.Entity<ArticleTag>().ToTable("ArticleTags");
+
+            modelBuilder.Entity<Notification>().ToTable("Notifications");
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
