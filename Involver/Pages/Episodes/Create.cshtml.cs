@@ -69,7 +69,7 @@ namespace Involver.Pages.Episodes
                 return Forbid();
             }
 
-            if (from != "Novels")
+            if (from != Parameters.Novels)
             {
                 ErrorMessage = "沒有指定的評論頁面";
                 return Page();
@@ -108,7 +108,7 @@ namespace Involver.Pages.Episodes
                 e => e.Title, e => e.Content))
             {
                 emptyEpisode.UpdateTime = DateTime.Now;
-                if (from == "Novels")
+                if (from == Parameters.Novels)
                 {
                     emptyEpisode.NovelID = fromID;
                 }

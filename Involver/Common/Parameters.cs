@@ -21,5 +21,19 @@
         public static readonly int ArticleLength = 65536;
 
         public static readonly int CommentLength = 16384;
+
+        public static readonly string Novels = "Novels";
+
+        public static readonly string Feedbacks = "Feedbacks";
+
+        public static readonly string Announcements = "Announcements";
+
+        public static readonly string Episodes = "Episodes";
+
+        public static readonly string Articles = "Articles";
+
+        public static readonly int SmallContentLength = 20;
+
+        public static readonly int ContentLength = 20;
     }
 }

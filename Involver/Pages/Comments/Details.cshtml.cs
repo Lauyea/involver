@@ -11,18 +11,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Message;
 using Involver.Common;
+using Involver.Services.NotificationSetterService;
 
 namespace Involver.Pages.Comments
 {
     [AllowAnonymous]
     public class DetailModel : DI_BasePageModel
     {
+        private readonly INotificationSetter _notificationSetter;
+
         public DetailModel(
             ApplicationDbContext context,
             IAuthorizationService authorizationService,
-            UserManager<InvolverUser> userManager)
+            UserManager<InvolverUser> userManager,
+            INotificationSetter notificationSetter)
             : base(context, authorizationService, userManager)
         {
+            _notificationSetter = notificationSetter;
         }
 
         public Comment Comment { get; set; }
@@ -179,6 +184,11 @@ namespace Involver.Pages.Comments
 
             _context.Messages.Add(Message);
             await _context.SaveChangesAsync();
+
+            // Set notification
+            var url = $"{Request.Scheme}://{Request.Host}/Comments/Details?id={id}";
+
+            await _notificationSetter.ForMessageAsync(id, Message.ProfileID, Message.Content, url);
 
             return RedirectToPage("/Comments/Details", "OnGet", new { id, pageIndex });
         }
