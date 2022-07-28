@@ -7,27 +7,27 @@
     int? fromID = 0;
     if (Model[0].Feedback != null)
     {
-        from = "Feedbacks";
+        from = Parameters.Feedbacks;
         fromID = Model[0].FeedbackID;
     }
     else if (Model[0].Announcement != null)
     {
-        from = "Announcements";
+        from = Parameters.Announcements;
         fromID = Model[0].AnnouncementID;
     }
     else if (Model[0].Article != null)
     {
-        from = "Articles";
+        from = Parameters.Articles;
         fromID = Model[0].ArticleID;
     }
     else if (Model[0].Novel != null)
     {
-        from = "Novels";
+        from = Parameters.Novels;
         fromID = Model[0].NovelID;
     }
     else if (Model[0].Episode != null)
     {
-        from = "Episodes";
+        from = Parameters.Episodes;
         fromID = Model[0].EpisodeID;
     }
     DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
@@ -120,11 +120,11 @@
                asp-route-pageIndex="1"
                title="留言"
                target="_blank">
-                            <i class="far fa-comments"></i>
-                            @if (item.Messages != null)
+                            <i class="far fa-comments"></i> 留言
+                            @*@if (item.Messages != null)
                             {
                                 @item.Messages.Count
-                            }
+                            }*@
                         </a>
                         <form method="post" class="d-inline">
                             @{
@@ -194,7 +194,7 @@
                         {
                             foreach (var message in item.Messages.OrderBy(m => m.UpdateTime))
                             {
-                                @if (message.Content.Length < 20)
+                                @if (message.Content.Length < Parameters.SmallContentLength)
                                 {
                                     <b>@message.Profile.UserName &nbsp;</b>
 
@@ -204,7 +204,7 @@
                                 {
                                     <b>@message.Profile.UserName &nbsp;</b>
 
-                                    @(message.Content.Substring(0, 20)+"...")
+                                    @(message.Content.Substring(0, Parameters.SmallContentLength)+"...")
                                 }
                                 <hr />
                             }

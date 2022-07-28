@@ -6,7 +6,7 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
 
-    bool isEpisodeOwner = (Model.From == "Episodes" && Model.IsEpisodeOwner);
+    bool isEpisodeOwner = (Model.From == Parameters.Episodes && Model.IsEpisodeOwner);
 }
 
 <h1>建立</h1>

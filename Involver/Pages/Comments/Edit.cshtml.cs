@@ -100,23 +100,23 @@ namespace Involver.Pages.Comments
 
             Comment.ProfileID = comment.ProfileID;
             Comment.UpdateTime = DateTime.Now;
-            if(from == "Feedbacks")
+            if(from == Parameters.Feedbacks)
             {
                 Comment.FeedbackID = fromID;
             }
-            else if(from == "Announcements")
+            else if(from == Parameters.Announcements)
             {
                 Comment.AnnouncementID = fromID;
             }
-            else if (from == "Articles")
+            else if (from == Parameters.Articles)
             {
                 Comment.ArticleID = fromID;
             }
-            else if (from == "Novels")
+            else if (from == Parameters.Novels)
             {
                 Comment.NovelID = fromID;
             }
-            else if (from == "Episodes")
+            else if (from == Parameters.Episodes)
             {
                 Comment.EpisodeID = fromID;
             }

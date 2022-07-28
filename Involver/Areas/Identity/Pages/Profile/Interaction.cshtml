@@ -42,13 +42,13 @@
                 //}
                 <div class="row">
                     <div class="col-md-5">
-                        @if (comment.Content.Length < 200)
+                        @if (comment.Content.Length < Parameters.ContentLength)
                         {
                             @Html.AntiXssRaw(comment.Content);
                         }
                         else
                         {
-                            @Html.AntiXssRaw(comment.Content.Substring(0, 200)+"...");
+                            @Html.AntiXssRaw(comment.Content.Substring(0, Parameters.ContentLength)+"...");
                         }
                     </div>
                     <div class="col-md-4">

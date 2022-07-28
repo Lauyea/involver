@@ -37,26 +37,26 @@
             {
                 <div class="row">
                     <div class="col-md-5">
-                        @if (message.Content.Length < 200)
+                        @if (message.Content.Length < Parameters.ContentLength)
                         {
                             @Html.AntiXssRaw(message.Content);
                         }
                         else
                         {
-                            @Html.AntiXssRaw(message.Content.Substring(0, 200)+"...");
+                            @Html.AntiXssRaw(message.Content.Substring(0, Parameters.ContentLength)+"...");
                         }
                     </div>
                     <div class="col-md-4">
                         <a asp-page="/Comments/Details"
                            asp-route-id="@message.CommentID"
                            asp-route-pageIndex="1">
-                            @if (message.Comment.Content.Length < 20)
+                            @if (message.Comment.Content.Length < Parameters.SmallContentLength)
                             {
                                 @Html.AntiXssRaw(message.Comment.Content);
                             }
                             else
                             {
-                                @Html.AntiXssRaw(message.Comment.Content.Substring(0, 20)+"...");
+                                @Html.AntiXssRaw(message.Comment.Content.Substring(0, Parameters.SmallContentLength)+"...");
                             }
                         </a>
                     </div>

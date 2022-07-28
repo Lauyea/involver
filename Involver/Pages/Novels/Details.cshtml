@@ -224,7 +224,7 @@ else
                 User, Model.Novel,
                 NovelOperations.Update)).Succeeded)
                 {
-                    <a asp-page="../Episodes/Create" asp-route-from="Novels" asp-route-fromID="@Model.Novel.NovelID"
+                    <a asp-page="../Episodes/Create" asp-route-from="@Parameters.Novels" asp-route-fromID="@Model.Novel.NovelID"
                    class="btn btn-xs btn-outline-primary">新章節</a>
                 }
             </p>

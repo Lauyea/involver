@@ -8,6 +8,7 @@ using Involver.Authorization.Payment;
 using Involver.Authorization.Profile;
 using Involver.Authorization.ProfitSharing;
 using Involver.Authorization.Voting;
+using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Involver.Services
@@ -111,6 +112,8 @@ namespace Involver.Services
 
             services.AddSingleton<IAuthorizationHandler,
                                   ProfitSharingManagerAuthorizationHandler>();
+
+            services.AddScoped<INotificationSetter, NotificationSetter>();
         }
     }
 }

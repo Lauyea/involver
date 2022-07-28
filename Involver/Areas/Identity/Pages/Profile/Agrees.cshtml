@@ -39,24 +39,24 @@
                     <div class="col-md-5">
                         @if (agree.Comment != null)
                         {
-                            @if (agree.Comment.Content.Length < 200)
+                            @if (agree.Comment.Content.Length < Parameters.ContentLength)
                             {
                                 @Html.AntiXssRaw(agree.Comment.Content);
                             }
                             else
                             {
-                                @Html.AntiXssRaw(agree.Comment.Content.Substring(0, 200)+"...");
+                                @Html.AntiXssRaw(agree.Comment.Content.Substring(0, Parameters.ContentLength)+"...");
                             }
                         }
                         else
                         {
-                            @if (agree.Message.Content.Length < 200)
+                            @if (agree.Message.Content.Length < Parameters.ContentLength)
                             {
                                 @Html.AntiXssRaw(agree.Message.Content);
                             }
                             else
                             {
-                                @Html.AntiXssRaw(agree.Message.Content.Substring(0, 200)+"...");
+                                @Html.AntiXssRaw(agree.Message.Content.Substring(0, Parameters.ContentLength)+"...");
                             }
                         }
                     </div>
@@ -110,13 +110,13 @@
                             <a asp-page="/Comments/Details"
                                asp-route-id="@agree.Message.CommentID"
                                asp-route-pageIndex="1">
-                                @if (agree.Message.Comment.Content.Length < 20)
+                                @if (agree.Message.Comment.Content.Length < Parameters.SmallContentLength)
                                 {
                                     @agree.Message.Comment.Content;
                                 }
                                 else
                                 {
-                                    @(agree.Message.Comment.Content.Substring(0, 20)+"...");
+                                    @(agree.Message.Comment.Content.Substring(0, Parameters.SmallContentLength)+"...");
                                 }
                             </a>
                         }

@@ -62,6 +62,17 @@ namespace InvolverMonthlyWork
                     var rows = await cmd.ExecuteNonQueryAsync();
                     log.LogInformation($"{rows} rows were updated");
                 }
+
+                text = @"DECLARE @monthAgo dateTime
+                        SET @monthAgo = DATEADD(month, -1, GETDATE())
+                        DELETE FROM [Involver].[dbo].[Notifications] WHERE [CreatedDate] < @monthAgo";
+
+                using (SqlCommand cmd = new SqlCommand(text, conn))
+                {
+                    // Execute the command and log the # rows affected.
+                    var rows = await cmd.ExecuteNonQueryAsync();
+                    log.LogInformation($"{rows} rows were updated");
+                }
             }
         }
     }

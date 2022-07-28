@@ -115,3 +115,22 @@ function FollowNovel(btn, id) {
         }
     });
 }
+
+function ReadNotification(id, url) {
+    document.getElementById("notificationStack").removeAttribute("data-count");
+
+    $.ajax({
+        method: 'post',
+        url: url,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: { userId: id },
+        error: function (xhr, status, err) {
+            alert(err)
+        }
+    });
+
+    document.getElementById("notificationClick").removeAttribute("onclick");
+}
