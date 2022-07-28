@@ -8,7 +8,7 @@
         <button type="button" class="nav-link btn btn-link" data-toggle="dropdown" title="搜尋">
             <i class="fa-solid fa-magnifying-glass"></i>
         </button>
-        <div class="dropdown-menu" style="min-width: 300px;">
+        <div class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
             <div class="nav-item col-auto">
                 <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
                 <div class="gcse-search"></div>
@@ -25,6 +25,9 @@
     <li class="nav-item">
         <a class="nav-link"
            href="https://github.com/Lauyea/involver" title="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+    </li>
+    <li class="nav-item dropdown">
+        <div class="dropdown" id="notification"></div>
     </li>
     @if (SignInManager.IsSignedIn(User))
     {
@@ -71,3 +74,18 @@
     }
 </ul>
 
+@using (Html.BeginScripts())
+{
+    <script>
+        $(document).ready(function() {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Notifications", "Feed")',
+                data: { userId: '@UserManager.GetUserId(User)' },
+                success: function(result) {
+                    $('#notification').html(result);
+                }
+            });
+	    });
+    </script>
+}

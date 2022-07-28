@@ -99,7 +99,7 @@ namespace Involver.Services.NotificationSetterService
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
                     }
 
-                    title = $"有人在你的創作《{novel.Title}》留下評論：<br/>{comment}";
+                    title = $"有人在你的創作《{novel.Title}》留下評論：{comment}";
 
                     userToBeNotifiy = novel.ProfileID;
                     break;
@@ -123,7 +123,7 @@ namespace Involver.Services.NotificationSetterService
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
                     }
 
-                    title = $"有人在你的章節《{episode.Title}》留下評論：<br/>{comment}";
+                    title = $"有人在你的章節《{episode.Title}》留下評論：{comment}";
 
                     userToBeNotifiy = episode.OwnerID;
                     break;
@@ -147,7 +147,7 @@ namespace Involver.Services.NotificationSetterService
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
                     }
 
-                    title = $"有人在你的文章《{article.Title}》留下評論：<br/>{comment}";
+                    title = $"有人在你的文章《{article.Title}》留下評論：{comment}";
 
                     userToBeNotifiy = article.ProfileID;
                     break;
@@ -171,7 +171,7 @@ namespace Involver.Services.NotificationSetterService
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
                     }
 
-                    title = $"有人在你的意見回饋《{feedback.Title}》留下評論：<br/>{comment}";
+                    title = $"有人在你的意見回饋《{feedback.Title}》留下評論：{comment}";
 
                     userToBeNotifiy = feedback.OwnerID;
                     break;
