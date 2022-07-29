@@ -80,7 +80,7 @@
                         <a asp-page="./Details"
                asp-route-id="@fromID"
                asp-route-pageIndex="@Model.PageIndex"
-               asp-fragment="@item.CommentID"><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></a>
+               asp-fragment="@item.CommentID"><small>@TimePeriodHelper.Get(item.UpdateTime)</small></a>
                     </b>
                     @if (item.EpisodeID != null)
                     {
@@ -219,7 +219,7 @@
             <div class="pt-3 pb-3">
                 <div>
                     @Html.DisplayFor(modelItem => item.Profile.UserName)
-                    <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                    <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
                     @if (item.Episode != null)
                     {
                         if ((await AuthorizationService.AuthorizeAsync(

@@ -38,7 +38,7 @@
                     }
                     <a class="nav-link" href="@item.Url">
                         <small>@Html.AntiXssRaw(item.Title)</small><br/>
-                        <small>@item.CreatedDate</small>
+                        <small>@TimePeriodHelper.Get(item.CreatedDate)</small>
                     </a>
                 </span>
             }

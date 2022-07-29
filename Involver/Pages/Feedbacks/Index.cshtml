@@ -73,7 +73,7 @@
                     </a>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.UpdateTime)
+                    @TimePeriodHelper.Get(item.UpdateTime)
                 </td>
                 @*<td>
             <a asp-page="./Edit" asp-route-id="@item.FeedbackID">Edit</a> |

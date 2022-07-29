@@ -35,7 +35,7 @@
                    asp-page="/Profile/Index"
                    asp-route-id="@item.ProfileID">
                         @Html.DisplayFor(modelItem => item.Profile.UserName)
-                    </a> <small>@Html.DisplayFor(modelItem => item.UpdateTime)</small>
+                    </a> <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </b>
                 @if (item.Comment.EpisodeID != null)
                 {

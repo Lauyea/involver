@@ -124,11 +124,11 @@
                     <div class="col-md-3">
                         @if (agree.Comment != null)
                         {
-                            @Html.DisplayFor(modelItem => agree.Comment.UpdateTime)
+                            @TimePeriodHelper.Get(agree.Comment.UpdateTime)
                         }
                         else
                         {
-                            @Html.DisplayFor(modelItem => agree.Message.UpdateTime)
+                            @TimePeriodHelper.Get(agree.Message.UpdateTime)
                         }
 
                     </div>

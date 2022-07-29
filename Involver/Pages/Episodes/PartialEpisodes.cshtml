@@ -19,7 +19,7 @@
                                 }
                             </a>
                             <p>
-                                <small>@Html.DisplayFor(modelItem => item.UpdateTime) | 觀看數：@item.Views</small>  
+                                <small>@TimePeriodHelper.Get(item.UpdateTime) | 觀看數：@item.Views</small>  
                             </p>
                         </td>
                     </tr>

@@ -45,7 +45,7 @@
             <tr>
                 <td>
                     <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
-                    <p><small>@Html.DisplayFor(modelItem => item.UpdateTime)</small></p>
+                    <p><small>@TimePeriodHelper.Get(item.UpdateTime)</small></p>
                     @if (item.Block == true)
                     {
                         <span class="text-danger">Block</span>
@@ -131,7 +131,7 @@
                     </li>
 
                 }
-                <li class="page-item @prevDisabled">
+                <li class="page-item @nextDisabled">
                     <a asp-page="./Index"
                        asp-route-PageIndex="@Model.Articles.PageIndex+1"
                        asp-route-currentFilter="@Model.CurrentFilter"

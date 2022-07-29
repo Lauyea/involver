@@ -31,7 +31,7 @@
                     @Html.DisplayFor(modelItem => article.Profile.UserName)
                 </div>
                 <div class="col-md-3">
-                    @Html.DisplayFor(modelItem => article.UpdateTime)
+                    @TimePeriodHelper.Get(article.UpdateTime)
                 </div>
             </div>
             <hr />

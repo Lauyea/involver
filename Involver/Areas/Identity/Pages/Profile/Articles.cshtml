@@ -31,7 +31,7 @@
                     </div>
                     <div class="col-md-3">
                         <p>
-                            <small>@Html.DisplayFor(modelItem => article.UpdateTime)</small>
+                            <small>@TimePeriodHelper.Get(article.UpdateTime)</small>
                         </p>
                         <small>觀看數： @Html.DisplayFor(modelItem => article.Views)</small>
                     </div>
