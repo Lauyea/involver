@@ -147,7 +147,7 @@
                     @Html.DisplayNameFor(model => model.Profile.LastTimeLogin)
                 </dt>
                 <dd class="col-sm-9">
-                    @Html.DisplayFor(model => model.Profile.LastTimeLogin)
+                    @TimePeriodHelper.Get(Model.Profile.LastTimeLogin)
                 </dd>
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.Prime)

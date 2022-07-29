@@ -118,7 +118,7 @@ else
                     @Html.DisplayNameFor(model => model.Novel.UpdateTime)
                 </dt>
                 <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Novel.UpdateTime)
+                    @TimePeriodHelper.Get(Model.Novel.UpdateTime)
                 </dd>
                 <dt class="col-sm-2">
                     月In幣

@@ -67,7 +67,7 @@ NovelOperations.Delete)).Succeeded)
             @Html.DisplayNameFor(model => model.Episode.UpdateTime)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Episode.UpdateTime)
+            @TimePeriodHelper.Get(Model.Episode.UpdateTime)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Episode.Views)

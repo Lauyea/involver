@@ -62,7 +62,7 @@
                                asp-route-id="@follow.Novel.Profile.ProfileID">
                             <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small></a>
                         </p>
-                        <small>@Html.DisplayFor(modelItem => follow.Novel.UpdateTime)</small>
+                        <small>@TimePeriodHelper.Get(follow.Novel.UpdateTime)</small>
                     </div>
                 </div>
                 <hr />

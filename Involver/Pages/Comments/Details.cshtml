@@ -94,7 +94,7 @@ else
                 }
                 <b>@Html.DisplayFor(model => model.Comment.Profile.UserName)</b>
             </a>
-            <small>@Html.DisplayFor(model => model.Comment.UpdateTime)</small>
+            <small>@TimePeriodHelper.Get(Model.Comment.UpdateTime)</small>
         </p>
         <span class="ck-content">@Html.AntiXssRaw(Model.Comment.Content.Replace("\r\n", "<br />"))</span>
         <div class="pt-3">
