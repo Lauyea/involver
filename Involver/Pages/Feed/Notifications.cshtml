@@ -29,18 +29,25 @@
             </span>
         </button>
         <div class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
-            @foreach(var item in Model.Notifications)
+            @if (Model.Notifications.Count != 0)
             {
-                <span class="dropdown-item">
-                    @if (!item.IsRead)
-                    {
-                        <span class="dot"></span>
-                    }
-                    <a class="nav-link" href="@item.Url">
-                        <small>@Html.AntiXssRaw(item.Title)</small><br/>
-                        <small>@TimePeriodHelper.Get(item.CreatedDate)</small>
-                    </a>
-                </span>
+                foreach(var item in Model.Notifications)
+                {
+                    <span class="dropdown-item">
+                        @if (!item.IsRead)
+                        {
+                            <span class="dot"></span>
+                        }
+                        <a class="nav-link" href="@item.Url">
+                            <small>@Html.AntiXssRaw(item.Title)</small><br/>
+                            <small>@TimePeriodHelper.Get(item.CreatedDate)</small>
+                        </a>
+                    </span>
+                }
+            }
+            else
+            {
+                <span class="dropdown-item">目前沒有通知</span>
             }
         </div>
     }
