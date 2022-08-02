@@ -2,6 +2,7 @@
 {
     public class ProfileAchievement
     {
+        public int SeqNo { get; set; }
         public DateTime AchieveDate { get; set; }
 
         public string ProfileID { get; set; }

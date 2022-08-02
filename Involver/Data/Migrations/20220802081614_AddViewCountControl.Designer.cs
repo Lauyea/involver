@@ -4,6 +4,7 @@ using Involver.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Involver.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220802081614_AddViewCountControl")]
+    partial class AddViewCountControl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,14 +168,9 @@ namespace Involver.Data.Migrations
 
                     b.HasKey("ProfileID", "AchievementID");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"), false);
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"));
 
                     b.HasIndex("AchievementID");
-
-                    b.HasIndex("SeqNo")
-                        .IsUnique();
-
-                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
                     b.ToTable("ProfileAchievement");
                 });

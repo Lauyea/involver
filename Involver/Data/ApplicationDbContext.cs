@@ -48,6 +48,8 @@ namespace Involver.Data
 
         public DbSet<Notification> Notifications { get; set; }
 
+        public DbSet<ViewIp> ViewIp { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Profile>(p =>
@@ -74,13 +76,35 @@ namespace Involver.Data
                 j =>
                 {
                     j.Property(pa => pa.AchieveDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
-                    j.HasKey(a => new { a.ProfileID, a.AchievementID }).IsClustered();
+                    j.HasKey(a => new { a.ProfileID, a.AchievementID }).IsClustered(false);
+                    j.HasIndex(a => a.SeqNo).IsUnique().IsClustered();
                 });
 
             modelBuilder.Entity<Profile>().ToTable("Profile");
 
             modelBuilder.Entity<Involving>().ToTable("Involving");
             modelBuilder.Entity<Novel>().ToTable("Novel");
+
+            modelBuilder.Entity<Novel>()
+            .HasMany(n => n.Viewers)
+            .WithMany(p => p.ViewedNovels)
+            .UsingEntity<NovelViewer>(
+                j => j
+                    .HasOne(np => np.Profile)
+                    .WithMany(p => p.NovelViewers)
+                    .HasForeignKey(np => np.ProfileID)
+                    .OnDelete(DeleteBehavior.NoAction),
+                j => j
+                    .HasOne(np => np.Novel)
+                    .WithMany(n => n.NovelViewers)
+                    .HasForeignKey(np => np.NovelID),
+                j =>
+                {
+                    j.Property(np => np.ViewDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    j.HasKey(v => new { v.ProfileID, v.NovelID }).IsClustered(false);
+                    j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
+                });
+
             modelBuilder.Entity<Episode>().ToTable("Episode");
             modelBuilder.Entity<Comment>().ToTable("Comment");
             modelBuilder.Entity<Message>().ToTable("Message");
@@ -95,7 +119,28 @@ namespace Involver.Data
             modelBuilder.Entity<Feedback>().ToTable("Feedback");
 
             modelBuilder.Entity<Article>().Property(a => a.CreateTime).HasDefaultValueSql("getdate()");
+
             modelBuilder.Entity<Article>().ToTable("Article");
+
+            modelBuilder.Entity<Article>()
+            .HasMany(a => a.Viewers)
+            .WithMany(p => p.ViewedArticles)
+            .UsingEntity<ArticleViewer>(
+                j => j
+                    .HasOne(ap => ap.Profile)
+                    .WithMany(a => a.ArticleViewers)
+                    .HasForeignKey(ap => ap.ProfileID)
+                    .OnDelete(DeleteBehavior.NoAction),
+                j => j
+                    .HasOne(ap => ap.Article)
+                    .WithMany(p => p.ArticleViewers)
+                    .HasForeignKey(ap => ap.ArticleID),
+                j =>
+                {
+                    j.Property(ap => ap.ViewDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                    j.HasKey(v => new { v.ProfileID, v.ArticleID }).IsClustered(false);
+                    j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
+                });
 
             modelBuilder.Entity<Dice>().ToTable("Dice");
             modelBuilder.Entity<Payment>().ToTable("Payment");
@@ -108,6 +153,8 @@ namespace Involver.Data
             modelBuilder.Entity<ArticleTag>().ToTable("ArticleTags");
 
             modelBuilder.Entity<Notification>().ToTable("Notifications");
+
+            modelBuilder.Entity<ViewIp>().ToTable("ViewIps");
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
