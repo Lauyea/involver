@@ -9,12 +9,23 @@ namespace Involver.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_ProfileAchievement",
+                table: "ProfileAchievement");
+
             migrationBuilder.AddColumn<int>(
                 name: "SeqNo",
                 table: "ProfileAchievement",
                 type: "int",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: 0)
+                .Annotation("SqlServer:Identity", "1, 1");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_ProfileAchievement",
+                table: "ProfileAchievement",
+                columns: new[] { "ProfileID", "AchievementID" })
+                .Annotation("SqlServer:Clustered", false);
 
             migrationBuilder.CreateTable(
                 name: "ArticleViewer",
@@ -22,7 +33,7 @@ namespace Involver.Data.Migrations
                 {
                     ProfileID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ArticleID = table.Column<int>(type: "int", nullable: false),
-                    SeqNo = table.Column<int>(type: "int", nullable: false),
+                    SeqNo = table.Column<int>(type: "int", nullable: false).Annotation("SqlServer:Identity", "1, 1"),
                     ViewDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
@@ -48,7 +59,7 @@ namespace Involver.Data.Migrations
                 {
                     ProfileID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     NovelID = table.Column<int>(type: "int", nullable: false),
-                    SeqNo = table.Column<int>(type: "int", nullable: false),
+                    SeqNo = table.Column<int>(type: "int", nullable: false).Annotation("SqlServer:Identity", "1, 1"),
                     ViewDate = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },
                 constraints: table =>
@@ -130,6 +141,13 @@ namespace Involver.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProfileAchievement_SeqNo",
+                table: "ProfileAchievement",
+                column: "SeqNo",
+                unique: true)
+                .Annotation("SqlServer:Clustered", true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ArticleViewer_ArticleID",
                 table: "ArticleViewer",
                 column: "ArticleID");
@@ -181,9 +199,23 @@ namespace Involver.Data.Migrations
             migrationBuilder.DropTable(
                 name: "ViewIps");
 
+            migrationBuilder.DropPrimaryKey(
+                name: "PK_ProfileAchievement",
+                table: "ProfileAchievement");
+
+            migrationBuilder.DropIndex(
+                name: "IX_ProfileAchievement_SeqNo",
+                table: "ProfileAchievement");
+
             migrationBuilder.DropColumn(
                 name: "SeqNo",
                 table: "ProfileAchievement");
+
+            migrationBuilder.AddPrimaryKey(
+                name: "PK_ProfileAchievement",
+                table: "ProfileAchievement",
+                columns: new[] { "ProfileID", "AchievementID" })
+                .Annotation("SqlServer:Clustered", true);
         }
     }
 }

@@ -1,7 +1,10 @@
-﻿namespace Involver.Models.ArticleModel
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Involver.Models.ArticleModel
 {
     public class ArticleViewer
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int SeqNo { get; set; }
 
         public DateTime ViewDate { get; set; }

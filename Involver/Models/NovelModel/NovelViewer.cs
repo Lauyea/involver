@@ -1,7 +1,10 @@
-﻿namespace Involver.Models.NovelModel
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Involver.Models.NovelModel
 {
     public class NovelViewer
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int SeqNo { get; set; }
 
         public DateTime ViewDate { get; set; }

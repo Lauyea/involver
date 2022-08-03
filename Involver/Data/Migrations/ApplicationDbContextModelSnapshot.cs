@@ -162,6 +162,7 @@ namespace Involver.Data.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.HasKey("ProfileID", "AchievementID");
@@ -321,6 +322,7 @@ namespace Involver.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ViewDate")
@@ -845,6 +847,7 @@ namespace Involver.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ViewDate")

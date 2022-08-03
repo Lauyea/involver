@@ -28,7 +28,7 @@ namespace Involver.Pages.Novels
         }
 
         public Novel Novel { get; set; }
-        public Profile Profile { get; set; }
+        public Profile Writer { get; set; }
         public PaginatedList<Comment> Comments { get; set; }
         public PaginatedList<Episode> Episodes { get; set; }
         public List<Novel> RecommendNovels { get; set; }
@@ -45,6 +45,8 @@ namespace Involver.Pages.Novels
                 .Include(n => n.Profile)
                 .Include(n => n.Follows)
                 .Include(n => n.NovelTags)
+                .Include(n => n.Viewers)
+                .Include(n => n.ViewIps)
                 .FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
@@ -52,7 +54,7 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
-            Profile = Novel.Profile;
+            Writer = Novel.Profile;
 
             await SetComments(id, pageIndex);
 
@@ -62,7 +64,7 @@ namespace Involver.Pages.Novels
                 .Where(e => e.NovelID == id)
                 .OrderByDescending(e => e.EpisodeID);
 
-            
+
             Episodes = await PaginatedList<Episode>.CreateAsync(
                 episodes, pageIndexEpisode ?? 1, Parameters.EpisodePageSize);
 
@@ -86,7 +88,7 @@ namespace Involver.Pages.Novels
                 .Where(n => n.Block == false);
 
             // There is most 3 tags right now
-            if(tagArr.Count() > 2)
+            if (tagArr.Count() > 2)
             {
                 recommendNovels = recommendNovels
                     .Where(n => n.NovelTags.Contains(tagArr[0])
@@ -113,13 +115,11 @@ namespace Involver.Pages.Novels
 
             RecommendNovels = recommendNovels.ToList();
 
-            string UserID = _userManager.GetUserId(User);
-
             Follow ExistingFollow = Novel.Follows
-                .Where(f => f.FollowerID == UserID)
+                .Where(f => f.FollowerID == currentUserId)
                 .FirstOrDefault();
 
-            if(ExistingFollow != null)
+            if (ExistingFollow != null)
             {
                 Followed = true;
             }
@@ -128,9 +128,9 @@ namespace Involver.Pages.Novels
                 Followed = false;
             }
 
-            //Add views
-            Novel.Views++;
-            _context.Attach(Novel).State = EntityState.Modified;
+            AddViewsByIp();
+
+            await AddViewer(currentUserId);
 
             try
             {
@@ -149,6 +149,47 @@ namespace Involver.Pages.Novels
             }
 
             return Page();
+        }
+
+        private async Task AddViewer(string currentUserId)
+        {
+            var userAsViewer = Novel.Viewers.Where(v => v.ProfileID == currentUserId).FirstOrDefault();
+
+            if (userAsViewer != null)
+            {
+                var novelViewer = userAsViewer.NovelViewers.Where(v => v.ProfileID == currentUserId && v.NovelID == Novel.NovelID).FirstOrDefault();
+
+                novelViewer.ViewDate = DateTime.Now;
+
+                _context.Attach(novelViewer).State = EntityState.Modified;
+            }
+            else
+            {
+                var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
+
+                Novel.Viewers.Add(userProfile);
+            }
+        }
+
+        private void AddViewsByIp()
+        {
+            var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            var ipRecord = Novel.ViewIps.Where(i => i.Ip == ip).FirstOrDefault();
+
+            if (ipRecord != null)
+            {
+                return;
+            }
+
+            var newIp = new ViewIp()
+            {
+                Ip = ip
+            };
+
+            Novel.Views++;
+            Novel.ViewIps.Add(newIp);
+            _context.Attach(Novel).State = EntityState.Modified;
         }
 
         private async Task SetComments(int? id, int? pageIndex)

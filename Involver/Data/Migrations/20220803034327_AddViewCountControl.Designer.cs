@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Involver.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220802081614_AddViewCountControl")]
+    [Migration("20220803034327_AddViewCountControl")]
     partial class AddViewCountControl
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,13 +164,19 @@ namespace Involver.Data.Migrations
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.HasKey("ProfileID", "AchievementID");
 
-                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"));
+                    SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("ProfileID", "AchievementID"), false);
 
                     b.HasIndex("AchievementID");
+
+                    b.HasIndex("SeqNo")
+                        .IsUnique();
+
+                    SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
                     b.ToTable("ProfileAchievement");
                 });
@@ -318,6 +324,7 @@ namespace Involver.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ViewDate")
@@ -842,6 +849,7 @@ namespace Involver.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("SeqNo")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ViewDate")
