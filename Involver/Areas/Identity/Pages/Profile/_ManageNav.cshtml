@@ -10,6 +10,8 @@
                                 asp-page="./Follow" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">追蹤</a></li>
         <li class="nav-item"><a class="nav-link @ManageNavPages.InteractionNavClass(ViewContext)" id="Interaction" 
                                 asp-page="./Interaction" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">互動紀錄</a></li>
+        <li class="nav-item"><a class="nav-link @ManageNavPages.ViewedsNavClass(ViewContext)" id="Vieweds" 
+                                asp-page="./Vieweds" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">觀看紀錄</a></li>
         <li class="nav-item"><a class="nav-link @ManageNavPages.InvolvingNavClass(ViewContext)" id="Involving" 
                                 asp-page="./Involving" asp-route-id="@ManageNavPages.GetProfileID(ViewContext)">Involving</a></li>
         <li class="nav-item"><a class="nav-link @ManageNavPages.MissionsNavClass(ViewContext)" id="Missions" 

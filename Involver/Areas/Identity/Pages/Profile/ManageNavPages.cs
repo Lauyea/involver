@@ -24,6 +24,8 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         public static string Achievements => "Achievements";
 
+        public static string Vieweds => "Vieweds";
+
         public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
 
         public static string CreationsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Creations);
@@ -39,6 +41,8 @@ namespace Involver.Areas.Identity.Pages.Profile
         public static string MissionsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Missions);
 
         public static string AchievementsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Achievements);
+
+        public static string ViewedsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Vieweds);
 
         private static string PageNavClass(ViewContext viewContext, string page)
         {
