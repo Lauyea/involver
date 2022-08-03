@@ -96,5 +96,11 @@ namespace Involver.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public int SeqNo { get; set; }
+
+        public ICollection<Article> ViewedArticles { get; set; }
+        public List<ArticleViewer> ArticleViewers { get; set; }
+
+        public ICollection<Novel> ViewedNovels { get; set; }
+        public List<NovelViewer> NovelViewers { get; set; }
     }
 }

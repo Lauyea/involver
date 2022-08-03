@@ -42,6 +42,8 @@ namespace Involver.Pages.Articles
             Article = await _context.Articles
                 .Include(a => a.Profile)
                 .Include(a => a.ArticleTags)
+                .Include(n => n.ViewIps)
+                .Include(n => n.Viewers)
                 .FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Article == null)
@@ -64,9 +66,10 @@ namespace Involver.Pages.Articles
 
             await SetComments(id, pageIndex);
 
-            //Add views
-            Article.Views++;
-            _context.Attach(Article).State = EntityState.Modified;
+            AddViewsByIp();
+
+            await AddViewer(currentUserId);
+
             await CheckMissionWatchArticle();
 
             try
@@ -86,6 +89,47 @@ namespace Involver.Pages.Articles
             }
 
             return Page();
+        }
+
+        private async Task AddViewer(string currentUserId)
+        {
+            var userAsViewer = Article.Viewers.Where(v => v.ProfileID == currentUserId).FirstOrDefault();
+
+            if (userAsViewer != null)
+            {
+                var articleViewer = userAsViewer.ArticleViewers.Where(v => v.ProfileID == currentUserId && v.ArticleID == Article.ArticleID).FirstOrDefault();
+
+                articleViewer.ViewDate = DateTime.Now;
+
+                _context.Attach(articleViewer).State = EntityState.Modified;
+            }
+            else
+            {
+                var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
+
+                Article.Viewers.Add(userProfile);
+            }
+        }
+
+        private void AddViewsByIp()
+        {
+            var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+
+            var ipRecord = Article.ViewIps.Where(i => i.Ip == ip).FirstOrDefault();
+
+            if(ipRecord != null)
+            {
+                return;
+            }
+
+            var newIp = new ViewIp()
+            {
+                Ip = ip
+            };
+
+            Article.Views++;
+            Article.ViewIps.Add(newIp);
+            _context.Attach(Article).State = EntityState.Modified;
         }
 
         private async Task CheckMissionWatchArticle()

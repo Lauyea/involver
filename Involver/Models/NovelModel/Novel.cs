@@ -61,6 +61,7 @@ namespace Involver.Models.NovelModel
         [Required]
         public string ProfileID { get; set; }
         [ForeignKey("ProfileID")]
+        [InverseProperty("Novels")]
         public Profile Profile { get; set; }
 
         public ICollection<Episode> Episodes { get; set; }
@@ -72,5 +73,10 @@ namespace Involver.Models.NovelModel
         public ICollection<Follow> Follows { get; set; }
 
         public ICollection<NovelTag> NovelTags { get; set; }
+
+        public ICollection<ViewIp> ViewIps { get; set; }
+
+        public ICollection<Profile> Viewers { get; set; }
+        public List<NovelViewer> NovelViewers { get; set; }
     }
 }

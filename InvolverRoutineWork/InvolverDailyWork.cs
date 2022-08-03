@@ -32,6 +32,15 @@ namespace InvolverDailyWork
                     var rows = await cmd.ExecuteNonQueryAsync();
                     log.LogInformation($"{rows} rows were updated");
                 }
+
+                text = "DELETE FROM [dbo].[ViewIps]";
+
+                using (SqlCommand cmd = new SqlCommand(text, conn))
+                {
+                    // Execute the command and log the # rows affected.
+                    var rows = await cmd.ExecuteNonQueryAsync();
+                    log.LogInformation($"{rows} rows were updated");
+                }
             }
         }
     }

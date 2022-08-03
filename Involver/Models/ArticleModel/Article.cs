@@ -44,6 +44,7 @@ namespace Involver.Models.ArticleModel
         [Required]
         public string ProfileID { get; set; }
         [ForeignKey("ProfileID")]
+        [InverseProperty("Articles")]
         public Profile Profile { get; set; }
 
         public ICollection<Comment> Comments { get; set; }
@@ -51,5 +52,10 @@ namespace Involver.Models.ArticleModel
         public ICollection<Involving> Involvers { get; set; }
 
         public ICollection<ArticleTag> ArticleTags { get; set; }
+
+        public ICollection<ViewIp> ViewIps { get; set; }
+
+        public ICollection<Profile> Viewers { get; set; }
+        public List<ArticleViewer> ArticleViewers { get; set; }
     }
 }

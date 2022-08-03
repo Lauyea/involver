@@ -1,0 +1,67 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.ViewedArticlesModel
+@{
+    ViewData["Title"] = "觀看紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Vieweds;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
+    {
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Vieweds"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">創作</a>
+        &nbsp&nbsp
+        <a asp-page="./ViewedArticles"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">文章</a>
+    </div>
+    <p></p>
+    <div>
+        @if (Model.Articles != null)
+        {
+            @foreach (Article article in Model.Articles)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <a asp-page="/Articles/Details"
+                           asp-route-id="@article.ArticleID"
+                           asp-route-pageIndex="1">
+                            @if (article.Title.Length < Parameters.SmallContentLength)
+                            {
+                                @Html.AntiXssRaw(article.Title);
+                            }
+                            else
+                            {
+                                @Html.AntiXssRaw(article.Title.Substring(0, Parameters.SmallContentLength)+"...");
+                            }
+                        </a>
+                    </div>
+                    <div class="col-md-5">
+                        @if (article.Content.Length < Parameters.ContentLength)
+                        {
+                            @Html.AntiXssRaw(article.Content);
+                        }
+                        else
+                        {
+                            @Html.AntiXssRaw(article.Content.Substring(0, Parameters.ContentLength)+"...");
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        @TimePeriodHelper.Get(article.ArticleViewers.FirstOrDefault()?.ViewDate ?? new DateTime())
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
+

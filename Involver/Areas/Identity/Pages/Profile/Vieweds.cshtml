@@ -1,0 +1,60 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.ViewesModel
+@{
+    ViewData["Title"] = "觀看紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Vieweds;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
+    {
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Vieweds"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">創作</a>
+        &nbsp&nbsp
+        <a asp-page="./ViewedArticles"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">文章</a>
+    </div>
+    <p></p>
+    <div>
+        @if (Model.Novels != null)
+        {
+            @foreach (var novel in Model.Novels)
+            {
+                <div class="row">
+                    <div class="col-md-4">
+                        <a asp-page="/Novels/Details"
+                           asp-route-id="@novel.NovelID"
+                           asp-route-pageIndex="1">
+                            @Html.AntiXssRaw(novel.Title)
+                        </a>
+                    </div>
+                    <div class="col-md-5">
+                        @if (novel.Introduction.Length < Parameters.ContentLength)
+                        {
+                            @Html.AntiXssRaw(novel.Introduction);
+                        }
+                        else
+                        {
+                            @Html.AntiXssRaw(novel.Introduction.Substring(0, Parameters.ContentLength)+"...");
+                        }
+                    </div>
+                    <div class="col-md-3">
+                        @TimePeriodHelper.Get(novel.NovelViewers.FirstOrDefault()?.ViewDate ?? new DateTime())
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
+
