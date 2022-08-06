@@ -130,7 +130,10 @@ namespace Involver.Pages.Novels
 
             AddViewsByIp();
 
-            await AddViewer(currentUserId);
+            if (currentUserId != null)
+            {
+                await AddViewer(currentUserId);
+            }
 
             try
             {
@@ -166,11 +169,6 @@ namespace Involver.Pages.Novels
             else
             {
                 var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
-
-                if (userProfile == null)
-                {
-                    return;
-                }
 
                 Novel.Viewers.Add(userProfile);
             }
