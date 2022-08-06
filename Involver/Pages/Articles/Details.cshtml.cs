@@ -68,7 +68,10 @@ namespace Involver.Pages.Articles
 
             AddViewsByIp();
 
-            await AddViewer(currentUserId);
+            if (currentUserId != null)
+            {
+                await AddViewer(currentUserId);
+            }
 
             await CheckMissionWatchArticle();
 
@@ -106,11 +109,6 @@ namespace Involver.Pages.Articles
             else
             {
                 var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
-
-                if (userProfile == null)
-                {
-                    return;
-                }
 
                 Article.Viewers.Add(userProfile);
             }
