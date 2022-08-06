@@ -167,6 +167,11 @@ namespace Involver.Pages.Novels
             {
                 var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
 
+                if (userProfile == null)
+                {
+                    return;
+                }
+
                 Novel.Viewers.Add(userProfile);
             }
         }
