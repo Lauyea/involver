@@ -107,6 +107,11 @@ namespace Involver.Pages.Articles
             {
                 var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
 
+                if (userProfile == null)
+                {
+                    return;
+                }
+
                 Article.Viewers.Add(userProfile);
             }
         }
