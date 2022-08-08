@@ -1,6 +1,7 @@
 ﻿using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
 using Involver.Models;
 using Involver.Models.NovelModel;
 using Involver.Services.NotificationSetterService;
@@ -166,7 +167,16 @@ namespace Involver.Pages.Comments
                 GetDiceTotal();
             }
 
-            ReplaceRollDiceString(random);
+            var strToDice = Comment.Content;
+
+            var hasChange = DiceHelper.ReplaceRollDiceString(ref strToDice);
+
+            if (hasChange)
+            {
+                Comment.Dices.Add(new Dice { CommentID = Comment.CommentID, Sides = 0, Value = 0 });
+            }
+
+            Comment.Content = strToDice;
 
             _context.Comments.Add(Comment);
             await CheckMissionLeaveComment();
@@ -189,78 +199,6 @@ namespace Involver.Pages.Comments
             }
 
             return Page();
-        }
-
-        private void ReplaceRollDiceString(Random random)
-        {
-            string StrToDice = Comment.Content;
-            int start = 0;
-            int at = 0;
-            int end = StrToDice.Length;
-            int count;
-            int DiceValue;
-            int DiceRollTimes = 0;
-            int DiceSides = 0;
-            bool HasChange = false;
-
-            while ((start <= end) && (at > -1))
-            {
-                end = StrToDice.Length;
-                DiceValue = 0;
-                count = end - start;
-                at = StrToDice.IndexOf("Dice", start, count);
-                //-1 等於沒找到
-                if (at == -1) break;
-                //Dice05D10，D 在index = 6
-                if (StrToDice[at + 6] == 'D')
-                {
-                    HasChange = true;
-                    RollTimes = int.Parse(StrToDice[at + 4].ToString() + StrToDice[at + 5].ToString());
-                    DiceRollTimes = RollTimes;
-                    DiceSides = int.Parse(StrToDice[at + 7].ToString() + StrToDice[at + 8].ToString());
-                    while (RollTimes > 0)
-                    {
-                        DiceValue += random.Next(1, DiceSides+1);
-                        RollTimes--;
-                    }
-                
-                    string StrToBeChanged;
-                    string ChangingStr;
-                    if (DiceRollTimes < 10 && DiceSides < 10)
-                    {
-                        StrToBeChanged = "Dice0" + DiceRollTimes + "D0" + DiceSides;
-                        ChangingStr = DiceRollTimes + "D0" + DiceSides + ": " + DiceValue;
-                    }
-                    else if(DiceRollTimes < 10)
-                    {
-                        StrToBeChanged = "Dice0" + DiceRollTimes + "D" + DiceSides;
-                        ChangingStr = DiceRollTimes + "D" + DiceSides + ": " + DiceValue;
-                    }
-                    else if(DiceSides < 10)
-                    {
-                        StrToBeChanged = "Dice" + DiceRollTimes + "D0" + DiceSides;
-                        ChangingStr = DiceRollTimes + "D0" + DiceSides + ": " + DiceValue;
-                    }
-                    else
-                    {
-                        StrToBeChanged = "Dice" + DiceRollTimes + "D" + DiceSides;
-                        ChangingStr = DiceRollTimes + "D" + DiceSides + ": " + DiceValue;
-                    }
-                    StringBuilder stringBuilder = new StringBuilder(StrToDice);
-                    stringBuilder.Replace(StrToBeChanged, ChangingStr, at, StrToBeChanged.Length);
-                    StrToDice = stringBuilder.ToString();
-                }
-                //因為StringBuilder 可以分段改字串了，而且Roll也不見了，就不需要改start 的位置了(X)
-                //start變動，不用每次都從頭算，剩下需要計算的位數會變少，增加效率
-
-                //11d22 有五的位數
-                start = at + 5;
-            }
-            if (HasChange)
-            {
-                Comment.Dices.Add(new Dice { CommentID = Comment.CommentID, Sides = 0, Value = 0 });
-            }
-            Comment.Content = StrToDice;
         }
 
         private void GetDiceTotal()
