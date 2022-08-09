@@ -76,7 +76,7 @@
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.UserName)
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     @Html.DisplayFor(model => model.Profile.UserName)
                     @if (Model.Profile.CanChangeUserName && Model.ProfileOwner)
                     {
@@ -92,7 +92,7 @@
                     <dt class="col-sm-3">
                         @Html.DisplayNameFor(model => model.Profile.Introduction)
                     </dt>
-                    <dd class="col-sm-9">
+                    <dd class="col-sm-9 text-muted">
                         @Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))
                     </dd>
                 }
@@ -104,7 +104,7 @@
                   User, Model.Profile,
                   ProfileOperations.Update)).Succeeded)
                     {
-                        <div class="col-auto">
+                        <div class="col-auto text-muted">
                             @Html.DisplayFor(model => model.Profile.RealCoins)
                         </div>
                         <div class="col-auto">
@@ -119,14 +119,14 @@
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.VirtualCoins)
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     @Html.DisplayFor(model => model.Profile.VirtualCoins)
                 </dd>
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.MonthlyCoins)
                 </dt>
                 <dd class="col-sm-9 row">
-                    <div class="col-auto">
+                    <div class="col-auto text-muted">
                         @Html.DisplayFor(model => model.Profile.MonthlyCoins)
                     </div>
                     <div class="col-auto">
@@ -140,13 +140,13 @@
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.EnrollmentDate)
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     @Html.DisplayFor(model => model.Profile.EnrollmentDate)
                 </dd>
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.LastTimeLogin)
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     @TimePeriodHelper.Get(Model.Profile.LastTimeLogin)
                 </dd>
                 <dt class="col-sm-3">
@@ -215,13 +215,13 @@
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.Views)
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     @Html.DisplayFor(model => model.Profile.Views)
                 </dd>
                 <dt class="col-sm-3">
                     追蹤數
                 </dt>
-                <dd class="col-sm-9">
+                <dd class="col-sm-9 text-muted">
                     <a asp-page="./Followers"
                        asp-route-id="@Model.Profile.ProfileID">
                         @Model.Profile.Follows.Count() 個追蹤者
