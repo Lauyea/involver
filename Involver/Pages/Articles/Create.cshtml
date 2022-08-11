@@ -6,7 +6,8 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
 }
-
+<partial name="_Toasts" model="Model.Toasts" />
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 <h1>新增</h1>
 
 <h4>討論</h4>

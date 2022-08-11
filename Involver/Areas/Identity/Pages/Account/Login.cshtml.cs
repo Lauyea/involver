@@ -15,6 +15,8 @@ using Involver.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
 using Involver.Models.AchievementModel;
+using Involver.Common;
+using System.Text.Json;
 
 namespace Involver.Areas.Identity.Pages.Account
 {
@@ -49,6 +51,9 @@ namespace Involver.Areas.Identity.Pages.Account
 
         [TempData]
         public string StatusMessage { get; set; }
+
+        [TempData]
+        public string ToastsJson { get; set; }
 
         public class InputModel
         {
@@ -142,12 +147,23 @@ namespace Involver.Areas.Identity.Pages.Account
                     UserProfile.VirtualCoins += 5;
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
-                //Beta時間登入即可解鎖成就，之後這個要刪掉
-                if (UserProfile.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefault() == null)
+                // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
+                if (UserProfile.Achievements.Where(a => a.Title == AchievementNames.BetaInvolver).FirstOrDefault() == null)
                 {
-                    Achievement achievement = await Context.Achievements.Where(a => a.Title == "Beta Involver").FirstOrDefaultAsync();
+                    Achievement achievement = await Context.Achievements.Where(a => a.Title == AchievementNames.BetaInvolver).FirstOrDefaultAsync();
 
                     UserProfile.Achievements.Add(achievement);
+
+                    var toasts = new List<Toast>()
+                    {
+                        new Toast()
+                        {
+                            Header = AchievementNames.BetaInvolver,
+                            Body = "Beta時期加入的會員"
+                        }
+                    };
+
+                    ToastsJson = JsonSerializer.Serialize(toasts);
                 }
                 Context.Attach(UserProfile).State = EntityState.Modified;
                 await Context.SaveChangesAsync();

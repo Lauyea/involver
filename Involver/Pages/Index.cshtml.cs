@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Involver.Common;
 using Involver.Data;
 using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,26 +16,31 @@ using Microsoft.Extensions.Logging;
 namespace Involver.Pages
 {
     [AllowAnonymous]
-    public class IndexModel : PageModel
+    public class IndexModel : DI_BasePageModel
     {
-        private readonly ILogger<IndexModel> _logger;
+        //private readonly ILogger<IndexModel> _logger;
         private ApplicationDbContext Context;
         private UserManager<InvolverUser> UserManager { get; }
 
         public Models.Profile UserProfile;
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
         public ICollection<Follow> Follows { get; set; }
 
-        public IndexModel(ILogger<IndexModel> logger, 
-            ApplicationDbContext context, 
-            UserManager<InvolverUser> userManager)
+        //public IndexModel(ILogger<IndexModel> logger, 
+        //    ApplicationDbContext context, 
+        //    UserManager<InvolverUser> userManager)
+        //{
+        //    _logger = logger;
+        //    Context = context;
+        //    UserManager = userManager;
+        //}
+
+        public IndexModel(
+        ApplicationDbContext context,
+        IAuthorizationService authorizationService,
+        UserManager<InvolverUser> userManager)
+        : base(context, authorizationService, userManager)
         {
-            _logger = logger;
-            Context = context;
-            UserManager = userManager;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -72,6 +79,11 @@ namespace Involver.Pages
                 }
                 Context.Attach(UserProfile).State = EntityState.Modified;
                 await Context.SaveChangesAsync();
+            }
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
             return Page();
