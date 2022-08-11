@@ -69,6 +69,10 @@ namespace Involver.Pages.Feedbacks
                 Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
+            var toasts = await Helpers.AchievementHelper.ReadFeedbackAsync(_context, UserID);
+
+            Toasts.AddRange(toasts);
+
             return Page();
         }
 

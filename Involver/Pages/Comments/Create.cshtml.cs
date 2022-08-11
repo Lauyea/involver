@@ -195,6 +195,12 @@ namespace Involver.Pages.Comments
 
             if (from != null)
             {
+                var toasts = await Helpers.AchievementHelper.RollDicesAsync(_context, UserID);
+
+                Toasts.AddRange(toasts);
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                 return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "CommentHead");
             }
 

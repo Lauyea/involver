@@ -140,7 +140,7 @@
         public static readonly string GetCoin666666 = "萊茵的黃金";
 
         /// <summary>
-        /// 使用虛擬 1 InCoin
+        /// 使用 1 InCoin
         /// </summary>
         public static readonly string UseCoin1 = "Involver";
         public static readonly string UseCoin500 = "樂善布施";

@@ -152,6 +152,10 @@ namespace Involver.Pages.Episodes
                 Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
+            var toasts = await Helpers.AchievementHelper.ReadEpisodeAsync(_context, UserID);
+
+            Toasts.AddRange(toasts);
+
             return Page();
         }
 

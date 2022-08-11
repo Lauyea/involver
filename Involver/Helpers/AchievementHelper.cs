@@ -132,5 +132,119 @@ namespace Involver.Helpers
                             .Include(p => p.Achievements)
                             .FirstOrDefaultAsync();
         }
+
+        /// <summary>
+        /// 第一次閱讀公告
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ReadAnnouncementAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.Witness;
+
+            string body = "第一次閱讀公告";
+
+            decimal award = Parameters.BronzeBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 第一次閱讀創作
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ReadNovelAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.Gilgamesh;
+
+            string body = "第一次閱讀創作";
+
+            decimal award = Parameters.GoldBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 第一次閱讀章節
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ReadEpisodeAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.LongTimeAgo;
+
+            string body = "第一次閱讀章節";
+
+            decimal award = Parameters.BronzeBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 第一次閱讀文章
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ReadArticleAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.Reader;
+
+            string body = "第一次閱讀文章";
+
+            decimal award = Parameters.BronzeBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 第一次閱讀意見與回饋
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ReadFeedbackAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.Brainstorm;
+
+            string body = "第一次閱讀意見與回饋";
+
+            decimal award = Parameters.BronzeBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 第一次擲骰
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> RollDicesAsync(ApplicationDbContext context, string profileId)
+        {
+            string header = AchievementNames.Rubicon;
+
+            string body = "第一次擲骰";
+
+            decimal award = Parameters.BronzeBadgeAward;
+
+            var toasts = await GetToasts(context, profileId, header, body, award);
+
+            return toasts;
+        }
     }
 }
