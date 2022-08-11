@@ -37,8 +37,6 @@ namespace Involver.Pages.Votings
         public string ErrorMessage { get; set; }
 
         public bool Voted { get; set; } = false;
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {

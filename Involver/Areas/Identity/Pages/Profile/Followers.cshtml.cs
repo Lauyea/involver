@@ -19,9 +19,6 @@ namespace Involver.Areas.Identity.Pages.Profile
         {
         }
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
         public Models.Profile Profile { get; set; }
         public ICollection<Follow> Follows { get; set; }
 

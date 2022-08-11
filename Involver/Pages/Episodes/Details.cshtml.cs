@@ -39,8 +39,6 @@ namespace Involver.Pages.Episodes
         public List<Voting> Votings { get; set; }
 
         public string UserID { get; set; }
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {

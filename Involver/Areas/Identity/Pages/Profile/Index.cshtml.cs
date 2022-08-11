@@ -18,9 +18,6 @@ namespace Involver.Areas.Identity.Pages.Profile
         : base(context, authorizationService, userManager)
         {
         }
-
-        [TempData]
-        public string StatusMessage { get; set; }
         public Models.Profile Profile { get; set; }
         public string UserID { get; set; }
         public bool ProfileOwner { get; set; } = false;
@@ -52,6 +49,11 @@ namespace Involver.Areas.Identity.Pages.Profile
                 {
                     Followed = false;
                 }
+            }
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
         }
 

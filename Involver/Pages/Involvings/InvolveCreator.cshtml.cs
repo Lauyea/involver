@@ -19,8 +19,6 @@ namespace Involver.Pages.Involvings
         {
         }
 
-        public string StatusMessage { get; set; }
-
         [BindProperty]
         public Involving Involving { get; set; }
         public Profile Profile { get; set; }

@@ -20,9 +20,6 @@ namespace Involver.Pages.Involvings
         {
         }
 
-        //[TempData]
-        public string StatusMessage { get; set; }
-
         [BindProperty]
         public Involving Involving { get; set; }
         public Novel Novel { get; set; }

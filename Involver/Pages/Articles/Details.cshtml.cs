@@ -29,8 +29,6 @@ namespace Involver.Pages.Articles
 
         public PaginatedList<Comment> Comments { get; set; }
         public Article Article { get; set; }
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {

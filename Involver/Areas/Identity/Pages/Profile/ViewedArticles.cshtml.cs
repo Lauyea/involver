@@ -19,8 +19,6 @@ namespace Involver.Areas.Identity.Pages.Profile
         : base(context, authorizationService, userManager)
         {
         }
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public Models.Profile Profile { get; set; }
 

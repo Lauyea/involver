@@ -19,9 +19,6 @@ namespace Involver.Areas.Identity.Pages.Profile
         {
         }
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
         [BindProperty]
         public Models.Profile Profile { get; set; }
         //[BindProperty]

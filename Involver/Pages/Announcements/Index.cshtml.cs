@@ -29,9 +29,6 @@ namespace Involver.Pages.Announcements
         public PaginatedList<Announcement> Announcements { get; set; }
         public string CurrentFilter { get; set; }
 
-        [TempData]
-        public string StatusMessage { get; set; }
-
         public async Task OnGetAsync(
             string currentFilter, 
             string searchString,

@@ -8,6 +8,7 @@ using Involver.Models;
 using Microsoft.EntityFrameworkCore;
 using Involver.Common;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace Involver.Pages.Articles
 {
@@ -24,6 +25,11 @@ namespace Involver.Pages.Articles
 
         public IActionResult OnGet()
         {
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
             return Page();
         }
 
