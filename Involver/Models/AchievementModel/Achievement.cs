@@ -16,5 +16,7 @@ namespace Involver.Models.AchievementModel
         public ICollection<Profile> Profiles { get; set; }
 
         public List<ProfileAchievement> ProfileAchievements { get; set; }
+
+        public int Rank { get; set; }
     }
 }

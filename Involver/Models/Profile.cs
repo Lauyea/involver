@@ -102,5 +102,9 @@ namespace Involver.Models
 
         public ICollection<Novel> ViewedNovels { get; set; }
         public List<NovelViewer> NovelViewers { get; set; }
+
+        [Column(TypeName = "money")]
+        [Display(Name = "使用過的In幣")]
+        public decimal UsedCoins { get; set; }
     }
 }
