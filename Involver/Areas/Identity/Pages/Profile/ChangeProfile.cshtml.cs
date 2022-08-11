@@ -50,6 +50,13 @@ namespace Involver.Areas.Identity.Pages.Profile
             _context.Attach(ProfileToUpdate).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             StatusMessage = "更改資料成功";
+
+            var toasts = await Helpers.AchievementHelper.BeAutobiographerAsync(_context, ProfileToUpdate.ProfileID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return RedirectToPage("./Index", "OnGet", new { id = ProfileToUpdate.ProfileID });
         }
     }

@@ -74,8 +74,10 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
+            var profileId = _userManager.GetUserId(User);
+
             Profile = await _context.Profiles
-                .Where(p => p.ProfileID == _userManager.GetUserId(User))
+                .Where(p => p.ProfileID == profileId)
                 .FirstOrDefaultAsync();
 
             if (Voting.Limit == Voting.LimitType.Time && Voting.DeadLine == null)
@@ -155,6 +157,12 @@ namespace Involver.Pages.Votings
 
                 _context.Votings.Add(NewVoting);
                 await _context.SaveChangesAsync();
+
+                var toasts = await Helpers.AchievementHelper.FirstTimeCreateVotingAsync(_context, profileId);
+
+                Toasts.AddRange(toasts);
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id }, "Voting");
             }

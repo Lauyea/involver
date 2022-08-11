@@ -180,6 +180,13 @@ namespace Involver.Pages.Articles
 
                 Toasts.AddRange(toasts);
 
+                if (articleTags.Count > 0)
+                {
+                    toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
                 ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
                 return RedirectToPage("./Index");

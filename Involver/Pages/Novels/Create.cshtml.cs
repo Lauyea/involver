@@ -1,6 +1,7 @@
 ﻿using Involver.Authorization.Novel;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
 using Involver.Models;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
@@ -186,6 +187,15 @@ namespace Involver.Pages.Novels
 
                 _context.Novels.Add(emptyNovel);
                 await _context.SaveChangesAsync();
+
+                if (novelTags.Count > 0)
+                {
+                     var toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Novel.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
                 return RedirectToPage("./Index");
             }

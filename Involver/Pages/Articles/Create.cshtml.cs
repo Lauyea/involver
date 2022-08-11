@@ -156,6 +156,15 @@ namespace Involver.Pages.Articles
                 _context.Articles.Add(emptyArticle);
                 await _context.SaveChangesAsync();
 
+                if (articleTags.Count > 0)
+                {
+                    var toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                 return RedirectToPage("./Index");
             }
 
