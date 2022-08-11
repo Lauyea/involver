@@ -5,8 +5,8 @@
     {
         foreach (var item in Model)
         {
-            <div aria-live="polite" aria-atomic="true" style="position: relative;">
-                <div class="toast" style="position: absolute; top: 0; right: 0;min-width: 300px;" data-autohide="false">
+            <div aria-live="polite" aria-atomic="true">
+                <div class="toast" style="position: fixed; top: 30px; right: 30px;min-width: 300px;" data-autohide="false">
                     <div class="toast-header">
                         <strong class="mr-auto text-primary">@item.Header</strong>
                         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">

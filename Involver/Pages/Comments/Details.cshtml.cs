@@ -137,6 +137,11 @@ namespace Involver.Pages.Comments
 
             await SetMessages(id, pageIndex);
 
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
             return Page();
         }
 

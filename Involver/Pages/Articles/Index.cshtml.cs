@@ -78,6 +78,11 @@ namespace Involver.Pages.Articles
             
             Articles = await PaginatedList<Article>.CreateAsync(
                 articles.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
         }
     }
 }

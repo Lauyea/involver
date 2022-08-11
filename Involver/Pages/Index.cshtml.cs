@@ -19,46 +19,44 @@ namespace Involver.Pages
     public class IndexModel : DI_BasePageModel
     {
         //private readonly ILogger<IndexModel> _logger;
-        private ApplicationDbContext Context;
-        private UserManager<InvolverUser> UserManager { get; }
 
         public Models.Profile UserProfile;
 
         public ICollection<Follow> Follows { get; set; }
 
         //public IndexModel(ILogger<IndexModel> logger, 
-        //    ApplicationDbContext context, 
+        //    ApplicationDb_context _context, 
         //    UserManager<InvolverUser> userManager)
         //{
         //    _logger = logger;
-        //    Context = context;
+        //    _context = _context;
         //    UserManager = userManager;
         //}
 
         public IndexModel(
-        ApplicationDbContext context,
+        ApplicationDbContext _context,
         IAuthorizationService authorizationService,
         UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        : base(_context, authorizationService, userManager)
         {
         }
 
         public async Task<IActionResult> OnGetAsync()
         {
-            string UserId = UserManager.GetUserId(User);
+            string UserId = _userManager.GetUserId(User);
 
             if(UserId == null)
             {
                 return RedirectToPage("/Feed/TrendingCreations", "OnGet");
             }
 
-            UserProfile = await Context
+            UserProfile = await _context
                                     .Profiles
                                     .Where(p => p.ProfileID == UserId)
                                     .Include(p => p.Missions)
                                     .FirstOrDefaultAsync();
 
-            Follows = await Context.Follows
+            Follows = await _context.Follows
                 .Include(f => f.Novel)
                     .ThenInclude(n => n.Episodes)
                  .Include(f => f.Novel)
@@ -77,8 +75,8 @@ namespace Involver.Pages
                     UserProfile.VirtualCoins += 5;
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
-                Context.Attach(UserProfile).State = EntityState.Modified;
-                await Context.SaveChangesAsync();
+                _context.Attach(UserProfile).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
             }
 
             if (!string.IsNullOrEmpty(ToastsJson))

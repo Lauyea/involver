@@ -151,6 +151,11 @@ namespace Involver.Pages.Novels
                 }
             }
 
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
             return Page();
         }
 

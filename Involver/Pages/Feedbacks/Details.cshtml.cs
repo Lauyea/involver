@@ -64,6 +64,11 @@ namespace Involver.Pages.Feedbacks
                 return Forbid();
             }
 
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
             return Page();
         }
 

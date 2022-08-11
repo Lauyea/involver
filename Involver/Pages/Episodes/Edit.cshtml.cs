@@ -107,6 +107,12 @@ namespace Involver.Pages.Episodes
                 }
             }
 
+            var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Episode.OwnerID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return RedirectToPage("/Novels/Details", "OnGet", new { id = Episode.NovelID }, "EpisodeHead");
         }
 

@@ -15,7 +15,7 @@ namespace Involver.Common
         [TempData]
         public string ToastsJson { get; set; }
 
-        public List<Toast> Toasts { get; set; }
+        public List<Toast> Toasts { get; set; } = new List<Toast>();
 
         [TempData]
         public string StatusMessage { get; set; }

@@ -154,3 +154,7 @@ body {
 .bronze {
     background-image: linear-gradient(195deg,#e4ab73,#CD7F32);
 }
+
+.toast{
+    z-index: 90;
+}

@@ -5,7 +5,7 @@
     ViewData["Title"] = "回報與意見";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
-
+<partial name="_Toasts" model="Model.Toasts" />
 <span style="font-size:xx-large;">回報與意見</span> <a asp-page="Create" class="btn btn-xs btn-outline-primary m-2 align-top">建立新文章</a>
 
 @{
