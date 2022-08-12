@@ -38,6 +38,8 @@ namespace Involver.Pages.Votings
 
         public bool Voted { get; set; } = false;
 
+        public string UserId { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             if (id == null)
@@ -59,11 +61,11 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            string UserID = _userManager.GetUserId(User);
+            UserId = _userManager.GetUserId(User);
 
             foreach(var option in Voting.NormalOptions)
             {
-                Voted = option.Votes.Any(v =>v.OwnerID == UserID); 
+                Voted = option.Votes.Any(v =>v.OwnerID == UserId); 
                 if(Voted == true)
                 {
                     break;
@@ -108,13 +110,13 @@ namespace Involver.Pages.Votings
                 ErrorMessage = "票價不足於投票設定的最小值";
                 return Page();
             }
-            string UserID = _userManager.GetUserId(User);
+            UserId = _userManager.GetUserId(User);
             Vote ExistingVote = null;
             foreach (var option in NormalOptions)
             {
                 ExistingVote = option
                     .Votes
-                    .Where(v => v.OwnerID == UserID)
+                    .Where(v => v.OwnerID == UserId)
                     .FirstOrDefault();
                 if(ExistingVote != null)
                 {
@@ -136,7 +138,7 @@ namespace Involver.Pages.Votings
                     "Vote",   // Prefix for form value.
                     v => v.Value))
                 {
-                    NewVote.OwnerID = UserID;
+                    NewVote.OwnerID = UserId;
                     NewVote.NormalOptionID = NormalOption.NormalOptionID;
                     _context.Votes.Add(NewVote);
                 }
@@ -147,8 +149,8 @@ namespace Involver.Pages.Votings
                 ErrorMessage = "已經投過票了";
                 return Page();
             }
-            
-            if(Vote.Value > 0)
+
+            if (Vote.Value > 0)
             {
                 if (VirtualVote)
                 {
@@ -163,22 +165,27 @@ namespace Involver.Pages.Votings
                 {
                     return Page();
                 }
+
+                await VoteCountAchievements(UserId);
+
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
             else
             {
                 await _context.SaveChangesAsync();
+
+                await VoteCountAchievements(UserId);
+
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
         }
 
         async Task VoteOptionAsync(ApplicationDbContext Context, NormalOption option, int value)
         {
-            string UserID = _userManager.GetUserId(User);
             Profile Voter = await Context
                 .Profiles
                 .Include(p => p.Missions)
-                .Where(p => p.ProfileID == UserID)
+                .Where(p => p.ProfileID == UserId)
                 .FirstOrDefaultAsync();
             Profile Creator = await Context
                 .Profiles
@@ -244,7 +251,7 @@ namespace Involver.Pages.Votings
                     MonthlyValue = value,
                     TotalValue = value,
                     LastTime = DateTime.Now,
-                    InvolverID = UserID,
+                    InvolverID = UserId,
                     NovelID = novel.NovelID
                 };
                 Context.Involvings.Add(newInvolving);
@@ -255,13 +262,21 @@ namespace Involver.Pages.Votings
             await Context.SaveChangesAsync();
         }
 
+        private async Task VoteCountAchievements(string UserId)
+        {
+            var toasts = await Helpers.AchievementHelper.VoteCountAsync(_context, UserId);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+        }
+
         async Task VirtualVoteOptionAsync(ApplicationDbContext Context, NormalOption option, int value)
         {
-            string UserID = _userManager.GetUserId(User);
             Profile Voter = await Context
                 .Profiles
                 .Include(p => p.Missions)
-                .Where(p => p.ProfileID == UserID)
+                .Where(p => p.ProfileID == UserId)
                 .FirstOrDefaultAsync();
 
             if (Voter.VirtualCoins < value)
@@ -314,7 +329,7 @@ namespace Involver.Pages.Votings
                     MonthlyValue = value,
                     TotalValue = value,
                     LastTime = DateTime.Now,
-                    InvolverID = UserID,
+                    InvolverID = UserId,
                     NovelID = novel.NovelID
                 };
                 Context.Involvings.Add(newInvolving);

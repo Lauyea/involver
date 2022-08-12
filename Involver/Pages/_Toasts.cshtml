@@ -5,9 +5,23 @@
     {
         foreach (var item in Model)
         {
+            string badgeColor = "";
+            if (item.Award == Parameters.BronzeBadgeAward)
+            {
+                badgeColor = "bronze";
+            }
+            else if (item.Award == Parameters.SilverBadgeAward)
+            {
+                badgeColor = "silver";
+            }
+            else
+            {
+                badgeColor = "gold";
+            }
             <div aria-live="polite" aria-atomic="true">
                 <div class="toast" style="position: fixed; top: 30px; right: 30px;min-width: 300px;" data-autohide="false">
                     <div class="toast-header">
+                        <span class="dot mr-1 @badgeColor"></span>
                         <strong class="mr-auto text-primary">@item.Header</strong>
                         <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
                             <span aria-hidden="true">&times;</span>

@@ -94,7 +94,7 @@ namespace Involver.Pages.Articles
                 Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
-            var toasts = await Helpers.AchievementHelper.ReadAnnouncementAsync(_context, currentUserId);
+            var toasts = await Helpers.AchievementHelper.ReadArticleAsync(_context, currentUserId);
 
             Toasts.AddRange(toasts);
 

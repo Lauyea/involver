@@ -87,23 +87,13 @@ namespace Involver.Pages.Involvings
             {
                 Profile.Professional = true;
 
-                var achievement = await _context.Achievements.Where(a => a.Title == AchievementNames.Professional).FirstOrDefaultAsync();
+                var toasts = await Helpers.AchievementHelper.BeProfessionalAsync(_context, ProfileID);
 
-                Profile.Achievements.Add(achievement);
-
-                var toasts = new List<Toast>()
-                    {
-                        new Toast()
-                        {
-                            Header = AchievementNames.Professional,
-                            Body = "¾n¯¸§@®a"
-                        }
-                    };
+                Toasts.AddRange(toasts);
 
                 ToastsJson = JsonSerializer.Serialize(toasts);
             }
-            _context.Attach(Profile).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
             return RedirectToPage("/Profile/Index", "OnGet", new { area = "Identity", id = ProfileID });
         }
     }

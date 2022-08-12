@@ -55,6 +55,8 @@ namespace Involver.Areas.Identity.Pages.Account
         [TempData]
         public string ToastsJson { get; set; }
 
+        public List<Toast> Toasts { get; set; } = new List<Toast>();
+
         public class InputModel
         {
             [Required]
@@ -147,26 +149,17 @@ namespace Involver.Areas.Identity.Pages.Account
                     UserProfile.VirtualCoins += 5;
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
+
+                var toasts = await Helpers.AchievementHelper.CheckGradeAsync(Context, UserProfile.ProfileID, UserProfile.EnrollmentDate);
+
+                Toasts.AddRange(toasts);
+
                 // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
-                if (UserProfile.Achievements.Where(a => a.Title == AchievementNames.BetaInvolver).FirstOrDefault() == null)
-                {
-                    Achievement achievement = await Context.Achievements.Where(a => a.Title == AchievementNames.BetaInvolver).FirstOrDefaultAsync();
+                toasts = await Helpers.AchievementHelper.BeBetaInvolverAsync(Context, UserProfile.ProfileID);
 
-                    UserProfile.Achievements.Add(achievement);
+                Toasts.AddRange(toasts);
 
-                    var toasts = new List<Toast>()
-                    {
-                        new Toast()
-                        {
-                            Header = AchievementNames.BetaInvolver,
-                            Body = "Beta時期加入的會員"
-                        }
-                    };
-
-                    ToastsJson = JsonSerializer.Serialize(toasts);
-                }
-                Context.Attach(UserProfile).State = EntityState.Modified;
-                await Context.SaveChangesAsync();
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
             }
         }
     }
