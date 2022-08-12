@@ -166,7 +166,7 @@ namespace Involver.Pages.Votings
                     return Page();
                 }
 
-                await VoteCountAchievements(UserId);
+                await SetAchievements(UserId);
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
@@ -174,7 +174,7 @@ namespace Involver.Pages.Votings
             {
                 await _context.SaveChangesAsync();
 
-                await VoteCountAchievements(UserId);
+                await SetAchievements(UserId);
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
@@ -216,6 +216,7 @@ namespace Involver.Pages.Votings
             Context.Attach(Creator).State = EntityState.Modified;
             //消耗實體貨幣
             Voter.RealCoins -= value;
+            Voter.UsedCoins += value;
             CheckMissionVote(Voter);
             Context.Attach(Voter).State = EntityState.Modified;
 
@@ -262,7 +263,7 @@ namespace Involver.Pages.Votings
             await Context.SaveChangesAsync();
         }
 
-        private async Task VoteCountAchievements(string UserId)
+        private async Task SetAchievements(string UserId)
         {
             var toasts = await Helpers.AchievementHelper.VoteCountAsync(_context, UserId);
 
@@ -287,6 +288,7 @@ namespace Involver.Pages.Votings
 
             //消耗虛擬貨幣
             Voter.VirtualCoins -= value;
+            Voter.UsedCoins += value;
             CheckMissionVote(Voter);
             Context.Attach(Voter).State = EntityState.Modified;
 

@@ -12,18 +12,23 @@ using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Feedback;
 using Involver.Models;
 using Involver.Common;
+using Involver.Services.NotificationSetterService;
 
 namespace Involver.Pages.Feedbacks
 {
     [AllowAnonymous]
     public class DetailsModel : DI_BasePageModel
     {
+        private readonly INotificationSetter _notificationSetter;
+
         public DetailsModel(
         ApplicationDbContext context,
         IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
+        UserManager<InvolverUser> userManager,
+        INotificationSetter notificationSetter)
         : base(context, authorizationService, userManager)
         {
+            _notificationSetter = notificationSetter;
         }
 
         
@@ -140,6 +145,13 @@ namespace Involver.Pages.Feedbacks
             profile.VirtualCoins += 50;//回報錯誤與採納意見獲得虛擬In幣50枚
             _context.Attach(profile).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+
+            var toasts = await Helpers.AchievementHelper.AcceptCountAsync(_context, feedback.OwnerID);
+
+            // Set notification
+            var url = $"{Request.Scheme}://{Request.Host}/Feedbacks/Details?id={id}";
+
+            await _notificationSetter.ForFeedbackAcceptAsync(feedback.Title, feedback.OwnerID, url, toasts);
 
             return RedirectToPage("./Index");
         }

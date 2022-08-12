@@ -21,9 +21,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.BetaInvolver,
-                    Body = "Beta時期加入的會員",
-                    Award = Parameters.GoldBadgeAward
+                    Header = AchievementNames.BetaInvolver
                 }
             };
 
@@ -44,9 +42,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Professional,
-                    Body = "成為駐站作家",
-                    Award = Parameters.GoldBadgeAward
+                    Header = AchievementNames.Professional
                 }
             };
 
@@ -67,9 +63,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Editor,
-                    Body = "第一次編輯",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Editor
                 }
             };
 
@@ -90,9 +84,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Autobiographer,
-                    Body = "第一次填寫自我介紹",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Autobiographer
                 }
             };
 
@@ -113,9 +105,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Assemblies,
-                    Body = "第一次舉辦投票",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Assemblies
                 }
             };
 
@@ -136,9 +126,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Taxonomist,
-                    Body = "第一次使用標籤",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Taxonomist
                 }
             };
 
@@ -171,8 +159,8 @@ namespace Involver.Helpers
                     toasts.Add(new Toast
                     {
                         Header = item.Header,
-                        Body = item.Body,
-                        Award = item.Award
+                        Body = achievement.Content,
+                        Award = GetAward(achievement.Rank)
                     });
 
                     profile.VirtualCoins += item.Award;
@@ -184,6 +172,22 @@ namespace Involver.Helpers
             }
 
             return toasts;
+        }
+
+        private static decimal GetAward(int rank)
+        {
+            if (rank == 1)
+            {
+                return Parameters.BronzeBadgeAward;
+            }
+            else if (rank == 2)
+            {
+                return Parameters.SilverBadgeAward;
+            }
+            else
+            {
+                return Parameters.GoldBadgeAward;
+            }
         }
 
         private static async Task<Profile> GetProfileWithAchievements(ApplicationDbContext context, string profileId)
@@ -206,9 +210,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Witness,
-                    Body = "第一次閱讀公告",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Witness
                 }
             };
 
@@ -229,9 +231,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Gilgamesh,
-                    Body = "第一次閱讀創作",
-                    Award = Parameters.GoldBadgeAward
+                    Header = AchievementNames.Gilgamesh
                 }
             };
 
@@ -252,9 +252,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.LongTimeAgo,
-                    Body = "第一次閱讀章節",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.LongTimeAgo
                 }
             };
 
@@ -275,9 +273,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Reader,
-                    Body = "第一次閱讀文章",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Reader
                 }
             };
 
@@ -298,9 +294,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Brainstorm,
-                    Body = "第一次閱讀意見與回饋",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Brainstorm
                 }
             };
 
@@ -321,9 +315,7 @@ namespace Involver.Helpers
             {
                 new Toast
                 {
-                    Header = AchievementNames.Rubicon,
-                    Body = "第一次擲骰",
-                    Award = Parameters.BronzeBadgeAward
+                    Header = AchievementNames.Rubicon
                 }
             };
 
@@ -364,9 +356,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast 
                     {
-                        Header = AchievementNames.FirstGrade,
-                        Body = "註冊滿1年",
-                        Award = Parameters.BronzeBadgeAward
+                        Header = AchievementNames.FirstGrade
                     });
             }
 
@@ -375,9 +365,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.SecondGrade,
-                        Body = "註冊滿2年",
-                        Award = Parameters.BronzeBadgeAward
+                        Header = AchievementNames.SecondGrade
                     });
             }
 
@@ -386,9 +374,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.ThirdGrade,
-                        Body = "註冊滿3年",
-                        Award = Parameters.SilverBadgeAward
+                        Header = AchievementNames.ThirdGrade
                     });
             }
 
@@ -397,9 +383,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.FourthGrade,
-                        Body = "註冊滿4年",
-                        Award = Parameters.SilverBadgeAward
+                        Header = AchievementNames.FourthGrade
                     });
             }
 
@@ -408,9 +392,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.FifthGrade,
-                        Body = "註冊滿5年",
-                        Award = Parameters.SilverBadgeAward
+                        Header = AchievementNames.FifthGrade
                     });
             }
 
@@ -419,9 +401,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.SixthGrade,
-                        Body = "註冊滿6年",
-                        Award = Parameters.SilverBadgeAward
+                        Header = AchievementNames.SixthGrade
                     });
             }
 
@@ -430,9 +410,7 @@ namespace Involver.Helpers
                 list.Add(
                     new Toast
                     {
-                        Header = AchievementNames.SeventhGrade,
-                        Body = "註冊滿7年",
-                        Award = Parameters.GoldBadgeAward
+                        Header = AchievementNames.SeventhGrade
                     });
             }
 
@@ -457,9 +435,7 @@ namespace Involver.Helpers
             {
                 list.Add(new Toast
                     {
-                        Header = AchievementNames.Vote1,
-                        Body = "投票1次",
-                        Award = Parameters.BronzeBadgeAward
+                        Header = AchievementNames.Vote1
                     });
             }
 
@@ -467,9 +443,7 @@ namespace Involver.Helpers
             {
                 list.Add(new Toast
                 {
-                    Header = AchievementNames.Vote30,
-                    Body = "投票30次",
-                    Award = Parameters.SilverBadgeAward
+                    Header = AchievementNames.Vote30
                 });
             }
 
@@ -477,9 +451,7 @@ namespace Involver.Helpers
             {
                 list.Add(new Toast
                 {
-                    Header = AchievementNames.Vote300,
-                    Body = "投票300次",
-                    Award = Parameters.GoldBadgeAward
+                    Header = AchievementNames.Vote300
                 });
             }
 
@@ -487,9 +459,7 @@ namespace Involver.Helpers
             {
                 list.Add(new Toast
                 {
-                    Header = AchievementNames.Vote600,
-                    Body = "投票600次",
-                    Award = Parameters.GoldBadgeAward
+                    Header = AchievementNames.Vote600
                 });
             }
 
@@ -497,5 +467,365 @@ namespace Involver.Helpers
 
             return toasts;
         }
+
+        /// <summary>
+        /// 發表創作次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> NovelCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var novelCount = await context.Novels.Where(n => n.ProfileID == profileId).CountAsync();
+
+            List<Toast> list = new();
+
+            if (novelCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Novel1
+                });
+            }
+
+            if (novelCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Novel30
+                });
+            }
+
+            if (novelCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Novel100
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 發表章節次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> EpisodeCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var episodeCount = await context.Episodes.Where(e => e.OwnerID == profileId).CountAsync();
+
+            List<Toast> list = new();
+
+            if (episodeCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Episode1
+                });
+            }
+
+            if (episodeCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Episode30
+                });
+            }
+
+            if (episodeCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Episode100
+                });
+            }
+
+            if (episodeCount > 299)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Episode300
+                });
+            }
+
+            if (episodeCount > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Episode1000
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 發表文章次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> ArticleCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var articleCount = await context.Articles.Where(e => e.ProfileID == profileId).CountAsync();
+
+            List<Toast> list = new();
+
+            if (articleCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article1
+                });
+            }
+
+            if (articleCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article30
+                });
+            }
+
+            if (articleCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article100
+                });
+            }
+
+            if (articleCount > 299)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article300
+                });
+            }
+
+            if (articleCount > 599)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article600
+                });
+            }
+
+            if (articleCount > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Article1000
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 發表意見次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> FeedbackCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var feedbackCount = await context.Feedbacks.Where(n => n.OwnerID == profileId).CountAsync();
+
+            List<Toast> list = new();
+
+            if (feedbackCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Feedback1
+                });
+            }
+
+            if (feedbackCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Feedback30
+                });
+            }
+
+            if (feedbackCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Feedback100
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 發表評論次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> CommentCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var commentCount = await context.Comments.Where(n => n.ProfileID == profileId).CountAsync();
+
+            List<Toast> list = new();
+
+            if (commentCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Comment1
+                });
+            }
+
+            if (commentCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Comment30
+                });
+            }
+
+            if (commentCount > 299)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Comment300
+                });
+            }
+
+            if (commentCount > 599)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Comment600
+                });
+            }
+
+            if (commentCount > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Comment1000
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 意見被接受次數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> AcceptCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var feedbackCount = await context.Feedbacks.Where(n => n.OwnerID == profileId && n.Accept == true).CountAsync();
+
+            List<Toast> list = new();
+
+            if (feedbackCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Accept1
+                });
+            }
+
+            if (feedbackCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Accept30
+                });
+            }
+
+            if (feedbackCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Accept100
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 獲得InCoins
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <param name="coins"></param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> GetCoinsCountAsync(ApplicationDbContext context, string profileId, decimal coins)
+        {
+            List<Toast> list = new();
+
+            if (coins > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetCoin1
+                });
+            }
+
+            if (coins > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetCoin1000
+                });
+            }
+
+            if (coins > 9999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetCoin10000
+                });
+            }
+
+            if (coins > 99999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetCoin100000
+                });
+            }
+
+            if (coins > 666665)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetCoin666666
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+
     }
 }

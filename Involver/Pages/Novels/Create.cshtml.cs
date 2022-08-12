@@ -188,9 +188,13 @@ namespace Involver.Pages.Novels
                 _context.Novels.Add(emptyNovel);
                 await _context.SaveChangesAsync();
 
+                var toasts = await AchievementHelper.NovelCountAsync(_context, Novel.ProfileID);
+
+                Toasts.AddRange(toasts);
+
                 if (novelTags.Count > 0)
                 {
-                     var toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Novel.ProfileID);
+                    toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Novel.ProfileID);
 
                     Toasts.AddRange(toasts);
                 }

@@ -97,6 +97,12 @@ namespace Involver.Pages.Feedbacks
                     _context.Feedbacks.Add(emptyFeedback);
                     await _context.SaveChangesAsync();
 
+                    var toasts = await Helpers.AchievementHelper.FeedbackCountAsync(_context, Feedback.OwnerID);
+
+                    Toasts.AddRange(toasts);
+
+                    ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                     return RedirectToPage("./Index");
                 }
             }

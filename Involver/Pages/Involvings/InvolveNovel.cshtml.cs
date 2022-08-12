@@ -94,6 +94,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作直接贊助，作者得50%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
+            Involver.UsedCoins += Involving.Value;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Novel.MonthlyCoins += Involving.Value;
@@ -181,6 +182,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作每月Involve，作者得60%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= InvolveValue;
+            Involver.UsedCoins += InvolveValue;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Novel.MonthlyCoins += InvolveValue;

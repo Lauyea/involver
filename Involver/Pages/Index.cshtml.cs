@@ -43,16 +43,16 @@ namespace Involver.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            string UserId = _userManager.GetUserId(User);
+            string userId = _userManager.GetUserId(User);
 
-            if(UserId == null)
+            if(userId == null)
             {
                 return RedirectToPage("/Feed/TrendingCreations", "OnGet");
             }
 
             UserProfile = await _context
                                     .Profiles
-                                    .Where(p => p.ProfileID == UserId)
+                                    .Where(p => p.ProfileID == userId)
                                     .Include(p => p.Missions)
                                     .FirstOrDefaultAsync();
 
@@ -61,7 +61,7 @@ namespace Involver.Pages
                     .ThenInclude(n => n.Episodes)
                  .Include(f => f.Novel)
                     .ThenInclude(n => n.Profile)
-                .Where(f => f.FollowerID == UserId)
+                .Where(f => f.FollowerID == userId)
                 .OrderByDescending(f => f.Novel.UpdateTime)
                 .Take(10)
                 .ToListAsync();
@@ -83,6 +83,10 @@ namespace Involver.Pages
             {
                 Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
+
+            var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, userId, UserProfile.VirtualCoins);
+
+            Toasts.AddRange(toasts);
 
             return Page();
         }

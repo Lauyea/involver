@@ -124,6 +124,12 @@ namespace Involver.Pages.Episodes
 
                 if (from != null)
                 {
+                    var toasts = await Helpers.AchievementHelper.EpisodeCountAsync(_context, Novel.ProfileID);
+
+                    Toasts.AddRange(toasts);
+
+                    ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                     return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "EpisodeHead");
                 }
             }

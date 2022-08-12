@@ -156,9 +156,13 @@ namespace Involver.Pages.Articles
                 _context.Articles.Add(emptyArticle);
                 await _context.SaveChangesAsync();
 
+                var toasts = await Helpers.AchievementHelper.ArticleCountAsync(_context, Article.ProfileID);
+
+                Toasts.AddRange(toasts);
+
                 if (articleTags.Count > 0)
                 {
-                    var toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
+                    toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
 
                     Toasts.AddRange(toasts);
                 }

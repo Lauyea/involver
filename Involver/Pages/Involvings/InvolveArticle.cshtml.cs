@@ -89,6 +89,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//文章直接贊助，作者得50%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
+            Involver.UsedCoins += Involving.Value;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Article.MonthlyCoins += Involving.Value;

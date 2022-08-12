@@ -1,4 +1,6 @@
-﻿namespace Involver.Services.NotificationSetterService
+﻿using Involver.Common;
+
+namespace Involver.Services.NotificationSetterService
 {
     public interface INotificationSetter
     {
@@ -21,5 +23,15 @@
         /// <param name="comment">評論內容</param>
         /// <returns></returns>
         Task ForCommentAsync(string from, int fromId, string url, string userId, string comment);
+
+        /// <summary>
+        /// 設定意見被接受通知
+        /// </summary>
+        /// <param name="feedbackTitle">意見標題</param>
+        /// <param name="userId">User ID</param>
+        /// <param name="url"></param>
+        /// <param name="toasts"></param>
+        /// <returns></returns>
+        Task ForFeedbackAcceptAsync(string feedbackTitle, string userId, string url, List<Toast> toasts);
     }
 }

@@ -65,6 +65,11 @@ namespace Involver.Areas.Identity.Pages.Profile
                 Profile.Views++;
                 _context.Attach(Profile).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, Profile.ProfileID, Profile.VirtualCoins);
+
+                Toasts.AddRange(toasts);
+
                 return Page();
             }
             else
