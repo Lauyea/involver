@@ -1,5 +1,7 @@
-﻿using Involver.Data;
+﻿using Involver.Common;
+using Involver.Data;
 using Involver.Models;
+using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,17 +16,23 @@ namespace Involver.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<InvolverUser> _userManager;
+        private readonly INotificationSetter _notificationSetter;
 
-        public AgreeController(ApplicationDbContext context, UserManager<InvolverUser> userManager)
+        public AgreeController(ApplicationDbContext context, 
+            UserManager<InvolverUser> userManager,
+            INotificationSetter notificationSetter)
         {
             _context = context;
             _userManager = userManager;
+            _notificationSetter = notificationSetter;
         }
+
+        public string OwenrID { get; set; }
 
         [HttpGet]
         public async Task<IActionResult> AgreeMessage(int messageId)
         {
-            string OwenrID = _userManager.GetUserId(User);
+            OwenrID = _userManager.GetUserId(User);
 
             if (OwenrID == null)
             {
@@ -54,31 +62,8 @@ namespace Involver.Controllers
                     .Include(c => c.Profile)
                     .Include(c => c.Agrees)
                     .FirstOrDefaultAsync();
-                string UserID = message.ProfileID;
-                Profile Commenter = await _context.Profiles
-                    .Where(p => p.ProfileID == UserID)
-                    .Include(p => p.Missions)
-                    .FirstOrDefaultAsync();
-                if (Commenter.Missions.BeAgreed != true)
-                {
-                    Commenter.Missions.BeAgreed = true;
-                    Commenter.VirtualCoins += 5;
-                    _context.Attach(Commenter).State = EntityState.Modified;
-                }
-                //Check other missions
-                Missions missions = Commenter.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    Commenter.Missions.CompleteOtherMissions = true;
-                    _context.Attach(Commenter).State = EntityState.Modified;
-                }
 
-                await _context.SaveChangesAsync();
+                await CheckMissions(message);
             }
             else
             {
@@ -100,10 +85,49 @@ namespace Involver.Controllers
             }
         }
 
+        private async Task CheckMissions(Message message)
+        {
+            string userId = message.ProfileID;
+            Profile Commenter = await _context.Profiles
+                .Where(p => p.ProfileID == userId)
+                .Include(p => p.Missions)
+                .FirstOrDefaultAsync();
+            if (Commenter.Missions.BeAgreed != true)
+            {
+                Commenter.Missions.BeAgreed = true;
+                Commenter.VirtualCoins += 5;
+                _context.Attach(Commenter).State = EntityState.Modified;
+            }
+            //Check other missions
+            Missions missions = Commenter.Missions;
+            if (missions.WatchArticle
+                && missions.Vote
+                && missions.LeaveComment
+                && missions.ViewAnnouncement
+                && missions.ShareCreation
+                && missions.BeAgreed)
+            {
+                Commenter.Missions.CompleteOtherMissions = true;
+                _context.Attach(Commenter).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, Commenter.ProfileID);
+
+            if (OwenrID != Commenter.ProfileID)
+            {
+                // Set notification
+                var url = $"{Request.Scheme}://{Request.Host}/Comments/Details?id={message.CommentID}";
+
+                await _notificationSetter.ForMessageBeAgreedAsync(message.Content, Commenter.ProfileID, url, toasts);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> AgreeComment(int commentId)
         {
-            string OwenrID = _userManager.GetUserId(User);
+            OwenrID = _userManager.GetUserId(User);
 
             if (OwenrID == null)
             {
@@ -133,31 +157,8 @@ namespace Involver.Controllers
                     .Include(c => c.Profile)
                     .Include(c => c.Agrees)
                     .FirstOrDefaultAsync();
-                string UserID = comment.ProfileID;
-                Profile Commenter = await _context.Profiles
-                    .Where(p => p.ProfileID == UserID)
-                    .Include(p => p.Missions)
-                    .FirstOrDefaultAsync();
-                if (Commenter.Missions.BeAgreed != true)
-                {
-                    Commenter.Missions.BeAgreed = true;
-                    Commenter.VirtualCoins += 5;
-                    _context.Attach(Commenter).State = EntityState.Modified;
-                }
-                //Check other missions
-                Missions missions = Commenter.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    Commenter.Missions.CompleteOtherMissions = true;
-                    _context.Attach(Commenter).State = EntityState.Modified;
-                }
 
-                await _context.SaveChangesAsync();
+                await CheckMissions(comment);
             }
             else
             {
@@ -176,6 +177,79 @@ namespace Involver.Controllers
             else
             {
                 return BadRequest();
+            }
+        }
+
+        private async Task CheckMissions(Comment comment)
+        {
+            string userId = comment.ProfileID;
+            Profile Commenter = await _context.Profiles
+                .Where(p => p.ProfileID == userId)
+                .Include(p => p.Missions)
+                .FirstOrDefaultAsync();
+            if (Commenter.Missions.BeAgreed != true)
+            {
+                Commenter.Missions.BeAgreed = true;
+                Commenter.VirtualCoins += 5;
+                _context.Attach(Commenter).State = EntityState.Modified;
+            }
+            //Check other missions
+            Missions missions = Commenter.Missions;
+            if (missions.WatchArticle
+                && missions.Vote
+                && missions.LeaveComment
+                && missions.ViewAnnouncement
+                && missions.ShareCreation
+                && missions.BeAgreed)
+            {
+                Commenter.Missions.CompleteOtherMissions = true;
+                _context.Attach(Commenter).State = EntityState.Modified;
+            }
+
+            await _context.SaveChangesAsync();
+
+            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, Commenter.ProfileID);
+
+            var from = string.Empty;
+            var fromId = string.Empty;
+
+            if (comment.ArticleID != null)
+            {
+                from = Parameters.Articles;
+                fromId = comment.ArticleID.ToString();
+            }
+            else if(comment.NovelID != null)
+            {
+                from = Parameters.Novels;
+                fromId = comment.NovelID.ToString();
+            }
+            else if(comment.EpisodeID != null)
+            {
+                from = Parameters.Episodes;
+                fromId = comment.EpisodeID.ToString();
+            }
+            else if(comment.AnnouncementID != null)
+            {
+                from = Parameters.Announcements;
+                fromId = comment.AnnouncementID.ToString();
+            }
+            else if(comment.FeedbackID != null)
+            {
+                from = Parameters.Feedbacks;
+                fromId = comment.FeedbackID.ToString();
+            }
+            else
+            {
+                from = string.Empty;
+                fromId = string.Empty;
+            }
+
+            if (OwenrID != Commenter.ProfileID)
+            {
+                // Set notification
+                var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}";
+
+                await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, Commenter.ProfileID, url, toasts);
             }
         }
     }

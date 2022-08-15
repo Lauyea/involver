@@ -48,6 +48,11 @@ namespace Involver.Pages.Involvings
 
             if (Profile != null)
             {
+                if (!string.IsNullOrEmpty(ToastsJson))
+                {
+                    Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+                }
+
                 return Page();
             }
             else
@@ -120,6 +125,13 @@ namespace Involver.Pages.Involvings
             }
             await _context.SaveChangesAsync();
             StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
+
+            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return Page();
         }
 
@@ -206,6 +218,13 @@ namespace Involver.Pages.Involvings
             await _context.SaveChangesAsync();
 
             StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
+
+            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return Page();
         }
 

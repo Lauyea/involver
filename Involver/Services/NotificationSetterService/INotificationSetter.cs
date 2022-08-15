@@ -33,5 +33,25 @@ namespace Involver.Services.NotificationSetterService
         /// <param name="toasts"></param>
         /// <returns></returns>
         Task ForFeedbackAcceptAsync(string feedbackTitle, string userId, string url, List<Toast> toasts);
+
+        /// <summary>
+        /// 設定留言被讚時的通知
+        /// </summary>
+        /// <param name="messageContent">留言內容</param>
+        /// <param name="commenterId"></param>
+        /// <param name="url"></param>
+        /// <param name="toasts"></param>
+        /// <returns></returns>
+        Task ForMessageBeAgreedAsync(string messageContent, string commenterId, string url, List<Toast> toasts);
+
+        /// <summary>
+        /// 設定評論被讚時的通知
+        /// </summary>
+        /// <param name="commentContent">評論內容</param>
+        /// <param name="commenterId"></param>
+        /// <param name="url"></param>
+        /// <param name="toasts"></param>
+        /// <returns></returns>
+        Task ForCommentBeAgreedAsync(string commentContent, string commenterId, string url, List<Toast> toasts);
     }
 }

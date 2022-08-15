@@ -826,6 +826,189 @@ namespace Involver.Helpers
             return toasts;
         }
 
+        /// <summary>
+        /// 使用InCoins
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <param name="coins"></param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> UseCoinsCountAsync(ApplicationDbContext context, string profileId, decimal coins)
+        {
+            List<Toast> list = new();
 
+            if (coins > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin1
+                });
+            }
+
+            if (coins > 499)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin500
+                });
+            }
+
+            if (coins > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin1000
+                });
+            }
+
+            if (coins > 9999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin10000
+                });
+            }
+
+            if (coins > 29999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin30000
+                });
+            }
+
+            if (coins > 77776)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.UseCoin77777
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 計算使用讚數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <param name="coins"></param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> AgreeCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var agreeCount = await context.Agrees
+                .Where(a => a.ProfileID == profileId)
+                .CountAsync();
+
+            List<Toast> list = new();
+
+            if (agreeCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Agree1
+                });
+            }
+
+            if (agreeCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Agree30
+                });
+            }
+
+            if (agreeCount > 99)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Agree100
+                });
+            }
+
+            if (agreeCount > 299)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Agree300
+                });
+            }
+
+            if (agreeCount > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.Agree1000
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
+        /// 計算獲得讚數
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <param name="coins"></param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> GetAgreeCountAsync(ApplicationDbContext context, string profileId)
+        {
+            var totalCount = await context.Agrees
+                .Where(a => (a.Comment.ProfileID == profileId || a.Message.ProfileID == profileId)
+                && a.ProfileID != profileId)
+                .CountAsync();
+
+            List<Toast> list = new();
+
+            if (totalCount > 0)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetAgree1
+                });
+            }
+
+            if (totalCount > 29)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetAgree30
+                });
+            }
+
+            if (totalCount > 299)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetAgree300
+                });
+            }
+
+            if (totalCount > 599)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetAgree600
+                });
+            }
+
+            if (totalCount > 999)
+            {
+                list.Add(new Toast
+                {
+                    Header = AchievementNames.GetAgree1000
+                });
+            }
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
     }
 }

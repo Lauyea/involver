@@ -166,15 +166,11 @@ namespace Involver.Pages.Votings
                     return Page();
                 }
 
-                await SetAchievements(UserId);
-
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
             else
             {
                 await _context.SaveChangesAsync();
-
-                await SetAchievements(UserId);
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
             }
@@ -261,11 +257,17 @@ namespace Involver.Pages.Votings
             Context.Attach(option).State = EntityState.Modified;
 
             await Context.SaveChangesAsync();
+
+            await SetAchievements(Voter);
         }
 
-        private async Task SetAchievements(string UserId)
+        private async Task SetAchievements(Profile Voter)
         {
-            var toasts = await Helpers.AchievementHelper.VoteCountAsync(_context, UserId);
+            var toasts = await Helpers.AchievementHelper.VoteCountAsync(_context, Voter.ProfileID);
+
+            Toasts.AddRange(toasts);
+
+            toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Voter.ProfileID, Voter.UsedCoins);
 
             Toasts.AddRange(toasts);
 
@@ -339,6 +341,8 @@ namespace Involver.Pages.Votings
             option.TotalCoins += value;
             Context.Attach(option).State = EntityState.Modified;
             await Context.SaveChangesAsync();
+
+            await SetAchievements(Voter);
         }
 
         private void CheckMissionVote(Profile Voter)
