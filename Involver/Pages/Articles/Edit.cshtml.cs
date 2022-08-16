@@ -1,6 +1,8 @@
 ﻿using Involver.Authorization.Article;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
+using Involver.Models.AchievementModel;
 using Involver.Models.ArticleModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -173,6 +175,20 @@ namespace Involver.Pages.Articles
                         throw;
                     }
                 }
+
+                var toasts = await AchievementHelper.FirstTimeEditAsync(_context, Article.ProfileID);
+
+                Toasts.AddRange(toasts);
+
+                if (articleTags.Count > 0)
+                {
+                    toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                 return RedirectToPage("./Index");
             }
 

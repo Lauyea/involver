@@ -19,8 +19,6 @@ namespace Involver.Pages.Involvings
         {
         }
 
-        public string StatusMessage { get; set; }
-
         [BindProperty]
         public Involving Involving { get; set; }
         public Profile Profile { get; set; }
@@ -50,6 +48,11 @@ namespace Involver.Pages.Involvings
 
             if (Profile != null)
             {
+                if (!string.IsNullOrEmpty(ToastsJson))
+                {
+                    Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+                }
+
                 return Page();
             }
             else
@@ -91,6 +94,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作者直接贊助，作者得50%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
+            Involver.UsedCoins += Involving.Value;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Involving ExistingInvolving = await _context.Involvings
@@ -121,6 +125,13 @@ namespace Involver.Pages.Involvings
             }
             await _context.SaveChangesAsync();
             StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
+
+            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return Page();
         }
 
@@ -174,6 +185,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作者每月Involve，作者得60%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= InvolveValue;
+            Involver.UsedCoins += InvolveValue;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Involving ExistingInvolving = await _context.Involvings
@@ -206,6 +218,13 @@ namespace Involver.Pages.Involvings
             await _context.SaveChangesAsync();
 
             StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
+
+            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return Page();
         }
 

@@ -89,6 +89,7 @@ namespace Involver.Pages.Involvings
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//文章直接贊助，作者得50%分潤
             _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
+            Involver.UsedCoins += Involving.Value;
             _context.Attach(Involver).State = EntityState.Modified;
 
             Article.MonthlyCoins += Involving.Value;
@@ -122,6 +123,13 @@ namespace Involver.Pages.Involvings
                 _context.Involvings.Add(newInvolving);
             }
             await _context.SaveChangesAsync();
+
+            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return RedirectToPage("/Articles/Details", "OnGet", new { id = Article.ArticleID });
         }
     }

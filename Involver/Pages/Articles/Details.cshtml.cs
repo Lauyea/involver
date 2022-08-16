@@ -29,8 +29,6 @@ namespace Involver.Pages.Articles
 
         public PaginatedList<Comment> Comments { get; set; }
         public Article Article { get; set; }
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
@@ -90,6 +88,15 @@ namespace Involver.Pages.Articles
                     throw;
                 }
             }
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
+            var toasts = await Helpers.AchievementHelper.ReadArticleAsync(_context, currentUserId);
+
+            Toasts.AddRange(toasts);
 
             return Page();
         }

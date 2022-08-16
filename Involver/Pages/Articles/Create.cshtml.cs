@@ -8,6 +8,7 @@ using Involver.Models;
 using Microsoft.EntityFrameworkCore;
 using Involver.Common;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace Involver.Pages.Articles
 {
@@ -24,6 +25,11 @@ namespace Involver.Pages.Articles
 
         public IActionResult OnGet()
         {
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
             return Page();
         }
 
@@ -149,6 +155,19 @@ namespace Involver.Pages.Articles
 
                 _context.Articles.Add(emptyArticle);
                 await _context.SaveChangesAsync();
+
+                var toasts = await Helpers.AchievementHelper.ArticleCountAsync(_context, Article.ProfileID);
+
+                Toasts.AddRange(toasts);
+
+                if (articleTags.Count > 0)
+                {
+                    toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
                 return RedirectToPage("./Index");
             }

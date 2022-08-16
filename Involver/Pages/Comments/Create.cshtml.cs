@@ -151,7 +151,9 @@ namespace Involver.Pages.Comments
 
             Random random = new();
 
-            if (Dice != null && from == Parameters.Episodes && Dice.Sides != 0)
+            bool hasDices = Dice != null && from == Parameters.Episodes && Dice.Sides != 0;
+
+            if (hasDices)
             {
                 while (RollTimes > 0)
                 {
@@ -195,6 +197,19 @@ namespace Involver.Pages.Comments
 
             if (from != null)
             {
+                var toasts = await Helpers.AchievementHelper.CommentCountAsync(_context, UserID);
+
+                Toasts.AddRange(toasts);
+
+                if (hasChange || hasDices)
+                {
+                    toasts = await Helpers.AchievementHelper.RollDicesAsync(_context, UserID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                 return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "CommentHead");
             }
 

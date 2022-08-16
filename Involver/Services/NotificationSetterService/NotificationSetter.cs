@@ -1,6 +1,7 @@
 ﻿using Involver.Common;
 using Involver.Data;
 using Involver.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
@@ -189,6 +190,184 @@ namespace Involver.Services.NotificationSetterService
             };
 
             _context.Notifications.Add(notification);
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ForFeedbackAcceptAsync(string feedbackTitle, string userId, string url, List<Toast> toasts)
+        {
+            string title = $"你的意見《{feedbackTitle}》被接受了。";
+
+            if (toasts.Count == 0)
+            {
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = userId
+                };
+
+                _context.Notifications.Add(notification);
+
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            foreach(var toast in toasts)
+            {
+                string badgeColor = string.Empty;
+
+                if (toast.Award == Parameters.BronzeBadgeAward)
+                {
+                    badgeColor = "bronze";
+                }
+                else if (toast.Award == Parameters.SilverBadgeAward)
+                {
+                    badgeColor = "silver";
+                }
+                else
+                {
+                    badgeColor = "gold";
+                }
+
+                title = $"你的意見《{feedbackTitle}》被接受了。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = userId
+                };
+
+                _context.Notifications.Add(notification);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ForMessageBeAgreedAsync(string messageContent, string commenterId, string url, List<Toast> toasts)
+        {
+            if (messageContent.Length > 20)
+            {
+                messageContent = messageContent[..20] + "...";
+            }
+
+            string title = $"有人在你的留言「{messageContent}」留下了一個讚。";
+
+            if (toasts.Count == 0)
+            {
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = commenterId
+                };
+
+                _context.Notifications.Add(notification);
+
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            foreach (var toast in toasts)
+            {
+                string badgeColor = string.Empty;
+
+                if (toast.Award == Parameters.BronzeBadgeAward)
+                {
+                    badgeColor = "bronze";
+                }
+                else if (toast.Award == Parameters.SilverBadgeAward)
+                {
+                    badgeColor = "silver";
+                }
+                else
+                {
+                    badgeColor = "gold";
+                }
+
+                title = $"有人在你的留言「{messageContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = commenterId
+                };
+
+                _context.Notifications.Add(notification);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ForCommentBeAgreedAsync(string commentContent, string commenterId, string url, List<Toast> toasts)
+        {
+            if (commentContent.Length > 20)
+            {
+                commentContent = commentContent[..20] + "...";
+            }
+
+            string title = $"有人在你的評論「{commentContent}」留下了一個讚。";
+
+            if (toasts.Count == 0)
+            {
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = commenterId
+                };
+
+                _context.Notifications.Add(notification);
+
+                await _context.SaveChangesAsync();
+
+                return;
+            }
+
+            foreach (var toast in toasts)
+            {
+                string badgeColor = string.Empty;
+
+                if (toast.Award == Parameters.BronzeBadgeAward)
+                {
+                    badgeColor = "bronze";
+                }
+                else if (toast.Award == Parameters.SilverBadgeAward)
+                {
+                    badgeColor = "silver";
+                }
+                else
+                {
+                    badgeColor = "gold";
+                }
+
+                title = $"有人在你的評論「{commentContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+
+                Notification notification = new()
+                {
+                    CreatedDate = DateTime.Now,
+                    Title = title,
+                    IsRead = false,
+                    Url = url,
+                    ProfileID = commenterId
+                };
+
+                _context.Notifications.Add(notification);
+            }
 
             await _context.SaveChangesAsync();
         }

@@ -190,6 +190,19 @@ namespace Involver.Pages.Novels
                     }
                 }
 
+                var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Novel.ProfileID);
+
+                Toasts.AddRange(toasts);
+
+                if (novelTags.Count > 0)
+                {
+                    toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Novel.ProfileID);
+
+                    Toasts.AddRange(toasts);
+                }
+
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
                 return RedirectToPage("./Index");
             }
 

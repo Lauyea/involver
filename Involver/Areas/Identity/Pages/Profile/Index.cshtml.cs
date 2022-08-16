@@ -18,9 +18,6 @@ namespace Involver.Areas.Identity.Pages.Profile
         : base(context, authorizationService, userManager)
         {
         }
-
-        [TempData]
-        public string StatusMessage { get; set; }
         public Models.Profile Profile { get; set; }
         public string UserID { get; set; }
         public bool ProfileOwner { get; set; } = false;
@@ -53,6 +50,11 @@ namespace Involver.Areas.Identity.Pages.Profile
                     Followed = false;
                 }
             }
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
         }
 
         public async Task<IActionResult> OnGetAsync(string id)
@@ -63,6 +65,15 @@ namespace Involver.Areas.Identity.Pages.Profile
                 Profile.Views++;
                 _context.Attach(Profile).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
+
+                var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
+
+                Toasts.AddRange(toasts);
+
+                toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, Profile.ProfileID, Profile.EnrollmentDate);
+
+                Toasts.AddRange(toasts);
+
                 return Page();
             }
             else

@@ -13,14 +13,25 @@
 
 <h4>@ViewData["Title"]</h4>
 <hr />
-<dl class="row">
+<div class="row">
     @foreach(var item in Model.Achievements)
     {
-        <dt class="col-auto" title="@item.Content">
-            @item.Title
-        </dt>
-        <dd class="col-auto">
-            <small>@item.ProfileAchievements.FirstOrDefault()?.AchieveDate</small>
-        </dd>
+        string badgeColor = "";
+        if (item.Rank == 1)
+        {
+            badgeColor = "bronze";
+        }
+        else if (item.Rank == 2)
+        {
+            badgeColor = "silver";
+        }
+        else
+        {
+            badgeColor = "gold";
+        }
+        <span class="col-auto" title="@item.Content">
+            <span class="badge badge-pill @badgeColor">@item.Title</span>
+            <small class="text-muted">@item.ProfileAchievements.FirstOrDefault()?.AchieveDate</small>
+        </span>
     }
-</dl>
+</div>

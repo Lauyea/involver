@@ -84,6 +84,11 @@ namespace Involver.Pages.Feedbacks
             
             Feedbacks = await PaginatedList<Feedback>.CreateAsync(
                 feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
         }
     }
 }

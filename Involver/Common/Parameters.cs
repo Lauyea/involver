@@ -35,5 +35,11 @@
         public static readonly int SmallContentLength = 20;
 
         public static readonly int ContentLength = 20;
+
+        public static readonly decimal BronzeBadgeAward = 10;
+
+        public static readonly decimal SilverBadgeAward = 30;
+
+        public static readonly decimal GoldBadgeAward = 100;
     }
 }

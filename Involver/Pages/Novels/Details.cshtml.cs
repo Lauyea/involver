@@ -151,6 +151,15 @@ namespace Involver.Pages.Novels
                 }
             }
 
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
+            var toasts = await Helpers.AchievementHelper.ReadNovelAsync(_context, currentUserId);
+
+            Toasts.AddRange(toasts);
+
             return Page();
         }
 

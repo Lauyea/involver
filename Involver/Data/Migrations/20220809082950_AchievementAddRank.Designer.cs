@@ -4,6 +4,7 @@ using Involver.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Involver.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220809082950_AchievementAddRank")]
+    partial class AchievementAddRank
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1007,9 +1009,6 @@ namespace Involver.Data.Migrations
                     b.Property<int>("SeqNo")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int");
-
-                    b.Property<decimal>("UsedCoins")
-                        .HasColumnType("money");
 
                     b.Property<string>("UserName")
                         .IsRequired()

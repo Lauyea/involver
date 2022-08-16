@@ -63,6 +63,17 @@ namespace Involver.Pages.Announcements
                 }
             }
 
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
+            var profileId = _userManager.GetUserId(User);
+
+            var toasts = await Helpers.AchievementHelper.ReadAnnouncementAsync(_context, profileId);
+
+            Toasts.AddRange(toasts);
+
             return Page();
         }
 

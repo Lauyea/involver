@@ -7,6 +7,7 @@
     ViewData["Title"] = Model.Episode.Title;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
+<partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 <h1>@Html.DisplayFor(model => model.Episode.Title)</h1>
 

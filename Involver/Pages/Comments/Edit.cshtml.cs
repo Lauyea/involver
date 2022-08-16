@@ -1,6 +1,7 @@
 ﻿using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
 using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -138,6 +139,12 @@ namespace Involver.Pages.Comments
                     throw;
                 }
             }
+
+            var toasts = await AchievementHelper.FirstTimeEditAsync(_context, Comment.ProfileID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
             return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "CommentHead");
         }

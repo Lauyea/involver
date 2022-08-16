@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Involver.Pages.Involvings
 {
@@ -86,12 +87,13 @@ namespace Involver.Pages.Involvings
             {
                 Profile.Professional = true;
 
-                var achievement = await _context.Achievements.Where(a => a.Title == "Professional").FirstOrDefaultAsync();
+                var toasts = await Helpers.AchievementHelper.BeProfessionalAsync(_context, ProfileID);
 
-                Profile.Achievements.Add(achievement);
+                Toasts.AddRange(toasts);
+
+                ToastsJson = JsonSerializer.Serialize(toasts);
             }
-            _context.Attach(Profile).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+
             return RedirectToPage("/Profile/Index", "OnGet", new { area = "Identity", id = ProfileID });
         }
     }

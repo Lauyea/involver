@@ -142,6 +142,11 @@ namespace Involver.Pages.Novels
             
             Novels = await PaginatedList<Novel>.CreateAsync(
                 NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
         }
     }
 }

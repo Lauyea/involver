@@ -39,8 +39,6 @@ namespace Involver.Pages.Episodes
         public List<Voting> Votings { get; set; }
 
         public string UserID { get; set; }
-        [TempData]
-        public string StatusMessage { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
@@ -148,6 +146,15 @@ namespace Involver.Pages.Episodes
                     throw;
                 }
             }
+
+            if (!string.IsNullOrEmpty(ToastsJson))
+            {
+                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+            }
+
+            var toasts = await Helpers.AchievementHelper.ReadEpisodeAsync(_context, UserID);
+
+            Toasts.AddRange(toasts);
 
             return Page();
         }

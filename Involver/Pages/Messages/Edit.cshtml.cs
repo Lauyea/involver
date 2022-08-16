@@ -99,6 +99,12 @@ namespace Involver.Pages.Messages
                 }
             }
 
+            var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Message.ProfileID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+
             return RedirectToPage("/Comments/Details", "OnGet", new { id = fromID, pageIndex = 1 });
         }
 
