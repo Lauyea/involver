@@ -66,7 +66,7 @@ namespace Involver.Areas.Identity.Pages.Profile
                 _context.Attach(Profile).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
-                var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, Profile.ProfileID, Profile.VirtualCoins);
+                var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
 
                 Toasts.AddRange(toasts);
 

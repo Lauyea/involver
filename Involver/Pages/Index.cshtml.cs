@@ -84,11 +84,11 @@ namespace Involver.Pages
                 Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
-            var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, userId, UserProfile.VirtualCoins);
+            var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, userId, UserProfile.VirtualCoins + UserProfile.RealCoins);
 
             Toasts.AddRange(toasts);
 
-            toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, Profile.ProfileID, Profile.EnrollmentDate);
+            toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, UserProfile.ProfileID, UserProfile.EnrollmentDate);
 
             Toasts.AddRange(toasts);
 
