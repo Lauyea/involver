@@ -88,6 +88,10 @@ namespace Involver.Pages
 
             Toasts.AddRange(toasts);
 
+            toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, Profile.ProfileID, Profile.EnrollmentDate);
+
+            Toasts.AddRange(toasts);
+
             return Page();
         }
     }

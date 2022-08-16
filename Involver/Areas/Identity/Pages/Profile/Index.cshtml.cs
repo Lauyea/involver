@@ -70,6 +70,10 @@ namespace Involver.Areas.Identity.Pages.Profile
 
                 Toasts.AddRange(toasts);
 
+                toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, Profile.ProfileID, Profile.EnrollmentDate);
+
+                Toasts.AddRange(toasts);
+
                 return Page();
             }
             else

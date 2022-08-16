@@ -151,7 +151,9 @@ namespace Involver.Pages.Comments
 
             Random random = new();
 
-            if (Dice != null && from == Parameters.Episodes && Dice.Sides != 0)
+            bool hasDices = Dice != null && from == Parameters.Episodes && Dice.Sides != 0;
+
+            if (hasDices)
             {
                 while (RollTimes > 0)
                 {
@@ -195,13 +197,16 @@ namespace Involver.Pages.Comments
 
             if (from != null)
             {
-                var toasts = await Helpers.AchievementHelper.RollDicesAsync(_context, UserID);
+                var toasts = await Helpers.AchievementHelper.CommentCountAsync(_context, UserID);
 
                 Toasts.AddRange(toasts);
 
-                toasts = await Helpers.AchievementHelper.CommentCountAsync(_context, UserID);
+                if (hasChange || hasDices)
+                {
+                    toasts = await Helpers.AchievementHelper.RollDicesAsync(_context, UserID);
 
-                Toasts.AddRange(toasts);
+                    Toasts.AddRange(toasts);
+                }
 
                 ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
