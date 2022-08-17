@@ -293,7 +293,7 @@
                 <li class="page-item @prevDisabled">
                     <a asp-page="./Details"
                        asp-route-id="@fromID"
-                       asp-route-pageIndex="Model.PageIndex-1"
+                       asp-route-pageIndex="@(Model.PageIndex-1)"
                        asp-fragment="CommentHead"
                        class="page-link">
                         前
@@ -319,7 +319,7 @@
                 <li class="page-item @prevDisabled">
                     <a asp-page="./Details"
                        asp-route-id="@fromID"
-                       asp-route-pageIndex="Model.PageIndex+1"
+                       asp-route-pageIndex="@(Model.PageIndex+1)"
                        asp-fragment="CommentHead"
                        class="page-link">
                         後
