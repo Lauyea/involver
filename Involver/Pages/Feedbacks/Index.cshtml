@@ -120,7 +120,7 @@
                 </li>
                 <li class="page-item @prevDisabled">
                     <a asp-page="./Index"
-                       asp-route-PageIndex="@Model.Feedbacks.PageIndex-1"
+                       asp-route-PageIndex="@(Model.Feedbacks.PageIndex-1)"
                        asp-route-currentFilter="@Model.CurrentFilter"
                        asp-route-currentType="@Model.CurrentType"
                        class="page-link">
@@ -146,7 +146,7 @@
                 }
                 <li class="page-item @prevDisabled">
                     <a asp-page="./Index"
-                       asp-route-PageIndex="@Model.Feedbacks.PageIndex+1"
+                       asp-route-PageIndex="@(Model.Feedbacks.PageIndex+1)"
                        asp-route-currentFilter="@Model.CurrentFilter"
                        asp-route-currentType="@Model.CurrentType"
                        class="page-link">

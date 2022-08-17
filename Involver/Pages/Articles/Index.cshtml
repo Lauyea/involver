@@ -110,7 +110,7 @@
                 </li>
                 <li class="page-item @prevDisabled">
                     <a asp-page="./Index"
-                       asp-route-PageIndex="@Model.Articles.PageIndex-1"
+                       asp-route-PageIndex="@(Model.Articles.PageIndex-1)"
                        asp-route-currentFilter="@Model.CurrentFilter"
                        class="page-link">
                         前
@@ -134,7 +134,7 @@
                 }
                 <li class="page-item @nextDisabled">
                     <a asp-page="./Index"
-                       asp-route-PageIndex="@Model.Articles.PageIndex+1"
+                       asp-route-PageIndex="@(Model.Articles.PageIndex+1)"
                        asp-route-currentFilter="@Model.CurrentFilter"
                        class="page-link">
                         後
