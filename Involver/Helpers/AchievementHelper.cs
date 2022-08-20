@@ -148,6 +148,11 @@ namespace Involver.Helpers
 
             Profile profile = await GetProfileWithAchievements(context, profileId);
 
+            if (profile == null)
+            {
+                return toasts;
+            }
+
             foreach(var item in list)
             {
                 if (profile.Achievements.Where(a => a.Title == item.Header).FirstOrDefault() == null)
