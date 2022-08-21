@@ -9,7 +9,7 @@ appsettings.Development.json
 
 # Web deploy files
 serviceDependencies.json
-profile.arm.json
+*.arm.json
 *Deploy.json
 
 # User-specific files

@@ -8,6 +8,10 @@ namespace Involver.Models.AchievementModel
 
         [Required]
         [StringLength(32)]
+        public string Code { get; set; }
+
+        [Required]
+        [StringLength(32)]
         public string Title { get; set; }
 
         [StringLength(128)]
