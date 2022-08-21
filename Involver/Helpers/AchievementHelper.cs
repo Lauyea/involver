@@ -155,7 +155,7 @@ namespace Involver.Helpers
 
             foreach(var item in list)
             {
-                if (profile.Achievements.Where(a => a.Title == item.Header).FirstOrDefault() == null)
+                if (profile.Achievements.Where(a => a.Code == item.Header).FirstOrDefault() == null)
                 {
                     Achievement achievement = await context.Achievements.Where(a => a.Code == item.Header).FirstOrDefaultAsync();
 
