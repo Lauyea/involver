@@ -157,13 +157,18 @@ namespace Involver.Helpers
             {
                 if (profile.Achievements.Where(a => a.Title == item.Header).FirstOrDefault() == null)
                 {
-                    Achievement achievement = await context.Achievements.Where(a => a.Title == item.Header).FirstOrDefaultAsync();
+                    Achievement achievement = await context.Achievements.Where(a => a.Code == item.Header).FirstOrDefaultAsync();
+
+                    if (achievement == null)
+                    {
+                        continue;
+                    }
 
                     profile.Achievements.Add(achievement);
 
                     toasts.Add(new Toast
                     {
-                        Header = item.Header,
+                        Header = achievement.Title,
                         Body = achievement.Content,
                         Award = GetAward(achievement.Rank)
                     });

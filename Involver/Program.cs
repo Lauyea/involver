@@ -27,7 +27,7 @@ services.AddHttpClient();
 services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("InvolverConnection"),
+        builder.Configuration.GetConnectionString("ConnectionStrings"),
         o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 
     // Use it when you need to analyze EF Core performance

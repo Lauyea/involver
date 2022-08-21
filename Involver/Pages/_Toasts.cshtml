@@ -4,7 +4,7 @@
     @if (Model != null)
     {
         <div aria-live="polite" aria-atomic="true">
-            <div style="position: fixed; top: 30px; right: 30px;min-width: 300px;">
+            <div style="position: fixed; top: 30px; right: 30px;min-width: 300px;z-index: 99;">
                 @foreach (var item in Model)
                 {
                     string badgeColor = "";
