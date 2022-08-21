@@ -18,7 +18,7 @@
         public static readonly string Editor = "Editor";
 
         /// <summary>
-        /// 第一次編輯
+        /// 第一次刪除
         /// </summary>
         public static readonly string Discipline = "Discipline";
 
