@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Article;
 using Involver.Common;
+using Involver.Helpers;
 
 namespace Involver.Pages.Articles
 {
@@ -79,6 +80,12 @@ namespace Involver.Pages.Articles
                 _context.Articles.Remove(Article);
                 await _context.SaveChangesAsync();
             }
+
+            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Article.ProfileID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
             return RedirectToPage("./Index");
         }

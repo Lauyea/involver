@@ -1,6 +1,8 @@
 ﻿using Involver.Authorization.Novel;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
+using Involver.Models.ArticleModel;
 using Involver.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -81,6 +83,12 @@ namespace Involver.Pages.Episodes
                 _context.Episodes.Remove(Episode);
                 await _context.SaveChangesAsync();
             }
+
+            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Episode.OwnerID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
             //return RedirectToPage("./Index");
             return RedirectToPage("/Novels/Details", "OnGet", new { id = Episode.NovelID });

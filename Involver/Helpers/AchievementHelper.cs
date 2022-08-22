@@ -73,6 +73,27 @@ namespace Involver.Helpers
         }
 
         /// <summary>
+        /// 第一次刪除
+        /// </summary>
+        /// <param name="context">DB context</param>
+        /// <param name="profileId">Profile ID</param>
+        /// <returns></returns>
+        public static async Task<List<Toast>> FirstTimeDeleteAsync(ApplicationDbContext context, string profileId)
+        {
+            List<Toast> list = new()
+            {
+                new Toast
+                {
+                    Header = AchievementNames.Discipline
+                }
+            };
+
+            var toasts = await GetToasts(context, profileId, list);
+
+            return toasts;
+        }
+
+        /// <summary>
         /// 第一次填寫自我介紹
         /// </summary>
         /// <param name="context">DB context</param>

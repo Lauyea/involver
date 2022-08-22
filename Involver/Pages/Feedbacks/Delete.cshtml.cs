@@ -1,6 +1,8 @@
 ﻿using Involver.Authorization.Feedback;
 using Involver.Common;
 using Involver.Data;
+using Involver.Helpers;
+using Involver.Models.ArticleModel;
 using Involver.Models.FeedbackModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -75,6 +77,12 @@ namespace Involver.Pages.Feedbacks
                 _context.Feedbacks.Remove(Feedback);
                 await _context.SaveChangesAsync();
             }
+
+            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Feedback.OwnerID);
+
+            Toasts.AddRange(toasts);
+
+            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
             return RedirectToPage("./Index");
         }
