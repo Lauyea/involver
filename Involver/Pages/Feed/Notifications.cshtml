@@ -31,7 +31,7 @@
         <div class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
             @if (Model.Notifications.Count != 0)
             {
-                foreach(var item in Model.Notifications)
+                foreach (var item in Model.Notifications)
                 {
                     <span class="dropdown-item">
                         @if (!item.IsRead)
@@ -44,6 +44,14 @@
                         </a>
                     </span>
                 }
+                <span class="dropdown-item">
+                    <a asp-area ="Identity"
+                       asp-page="/Profile/Notifications"
+                       asp-route-id="@userManager.GetUserId(User)" 
+                       class="nav-link text-info text-center">
+                        查看所有通知
+                    </a>
+                </span>
             }
             else
             {

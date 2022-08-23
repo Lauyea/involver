@@ -1,5 +1,6 @@
 ﻿using Involver.Common;
 using Involver.Data;
+using Involver.Extensions;
 using Involver.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -37,15 +38,11 @@ namespace Involver.Services.NotificationSetterService
                 return;
             }
 
-            string commentContent;
+            string commentContent = comment.Content.StripHTML();
 
-            if (comment.Content.Length < Parameters.SmallContentLength)
+            if (commentContent.Length > Parameters.SmallContentLength)
             {
-                commentContent = comment.Content;
-            }
-            else
-            {
-                commentContent = string.Concat(comment.Content.AsSpan(0, Parameters.SmallContentLength), "...");
+                commentContent = string.Concat(commentContent.AsSpan(0, Parameters.SmallContentLength), "...");
             }
 
             if (message.Length > Parameters.SmallContentLength)
@@ -95,6 +92,8 @@ namespace Involver.Services.NotificationSetterService
                         return;
                     }
 
+                    comment = comment.StripHTML();
+
                     if (comment.Length > Parameters.SmallContentLength)
                     {
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
@@ -118,6 +117,8 @@ namespace Involver.Services.NotificationSetterService
                     {
                         return;
                     }
+
+                    comment = comment.StripHTML();
 
                     if (comment.Length > Parameters.SmallContentLength)
                     {
@@ -143,6 +144,8 @@ namespace Involver.Services.NotificationSetterService
                         return;
                     }
 
+                    comment = comment.StripHTML();
+
                     if (comment.Length > Parameters.SmallContentLength)
                     {
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
@@ -166,6 +169,8 @@ namespace Involver.Services.NotificationSetterService
                     {
                         return;
                     }
+
+                    comment = comment.StripHTML();
 
                     if (comment.Length > Parameters.SmallContentLength)
                     {
@@ -252,9 +257,11 @@ namespace Involver.Services.NotificationSetterService
 
         public async Task ForMessageBeAgreedAsync(string messageContent, string commenterId, string url, List<Toast> toasts)
         {
-            if (messageContent.Length > 20)
+            messageContent = messageContent.StripHTML();
+
+            if (messageContent.Length > Parameters.SmallContentLength)
             {
-                messageContent = messageContent[..20] + "...";
+                messageContent = messageContent[..Parameters.SmallContentLength] + "...";
             }
 
             string title = $"有人在你的留言「{messageContent}」留下了一個讚。";
@@ -313,9 +320,11 @@ namespace Involver.Services.NotificationSetterService
 
         public async Task ForCommentBeAgreedAsync(string commentContent, string commenterId, string url, List<Toast> toasts)
         {
-            if (commentContent.Length > 20)
+            commentContent = commentContent.StripHTML();
+
+            if (commentContent.Length > Parameters.SmallContentLength)
             {
-                commentContent = commentContent[..20] + "...";
+                commentContent = commentContent[..Parameters.SmallContentLength] + "...";
             }
 
             string title = $"有人在你的評論「{commentContent}」留下了一個讚。";
