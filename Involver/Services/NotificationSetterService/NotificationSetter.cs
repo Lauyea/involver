@@ -1,5 +1,6 @@
 ﻿using Involver.Common;
 using Involver.Data;
+using Involver.Extensions;
 using Involver.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -37,15 +38,11 @@ namespace Involver.Services.NotificationSetterService
                 return;
             }
 
-            string commentContent;
+            string commentContent = comment.Content.StripHTML();
 
-            if (comment.Content.Length < Parameters.SmallContentLength)
+            if (commentContent.Length > Parameters.SmallContentLength)
             {
-                commentContent = comment.Content;
-            }
-            else
-            {
-                commentContent = string.Concat(comment.Content.AsSpan(0, Parameters.SmallContentLength), "...");
+                commentContent = string.Concat(commentContent.AsSpan(0, Parameters.SmallContentLength), "...");
             }
 
             if (message.Length > Parameters.SmallContentLength)
@@ -95,6 +92,8 @@ namespace Involver.Services.NotificationSetterService
                         return;
                     }
 
+                    comment = comment.StripHTML();
+
                     if (comment.Length > Parameters.SmallContentLength)
                     {
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
@@ -118,6 +117,8 @@ namespace Involver.Services.NotificationSetterService
                     {
                         return;
                     }
+
+                    comment = comment.StripHTML();
 
                     if (comment.Length > Parameters.SmallContentLength)
                     {
@@ -143,6 +144,8 @@ namespace Involver.Services.NotificationSetterService
                         return;
                     }
 
+                    comment = comment.StripHTML();
+
                     if (comment.Length > Parameters.SmallContentLength)
                     {
                         comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
@@ -166,6 +169,8 @@ namespace Involver.Services.NotificationSetterService
                     {
                         return;
                     }
+
+                    comment = comment.StripHTML();
 
                     if (comment.Length > Parameters.SmallContentLength)
                     {
@@ -252,6 +257,8 @@ namespace Involver.Services.NotificationSetterService
 
         public async Task ForMessageBeAgreedAsync(string messageContent, string commenterId, string url, List<Toast> toasts)
         {
+            messageContent = messageContent.StripHTML();
+
             if (messageContent.Length > 20)
             {
                 messageContent = messageContent[..20] + "...";
@@ -313,6 +320,8 @@ namespace Involver.Services.NotificationSetterService
 
         public async Task ForCommentBeAgreedAsync(string commentContent, string commenterId, string url, List<Toast> toasts)
         {
+            commentContent = commentContent.StripHTML();
+
             if (commentContent.Length > 20)
             {
                 commentContent = commentContent[..20] + "...";

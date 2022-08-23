@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Involver.Extensions
 {
@@ -23,6 +24,11 @@ namespace Involver.Extensions
             }
 
             return sb.ToString().ToLower();
+        }
+
+        public static string StripHTML(this string s)
+        {
+            return Regex.Replace(s, "<.*?>", String.Empty);
         }
     }
 }

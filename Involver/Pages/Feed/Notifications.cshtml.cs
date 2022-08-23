@@ -37,6 +37,7 @@ namespace Involver.Pages.Feed
             Notifications = await _context.Notifications
                 .Where(n => n.ProfileID == userId)
                 .OrderByDescending(n => n.CreatedDate)
+                .Take(10)
                 .ToListAsync().ConfigureAwait(false);
 
             Count = Notifications.Where(n => n.IsRead == false).Count();

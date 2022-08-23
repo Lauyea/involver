@@ -1,0 +1,55 @@
+﻿@page
+@model Involver.Areas.Identity.Pages.Profile.NotificationsModel
+@{
+    ViewData["Title"] = "互動紀錄";
+    ViewData["ActivePage"] = ManageNavPages.Interaction;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
+    {
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
+    }
+}
+
+<h4>@ViewData["Title"]</h4>
+<hr />
+
+<div>
+    <div>
+        <a asp-page="./Interaction"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">評論</a>
+        &nbsp&nbsp
+        <a asp-page="./Messages"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">留言</a>
+        &nbsp&nbsp
+        <a asp-page="./Agrees"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-outline-info">贊同</a>
+        &nbsp&nbsp
+        <a asp-page="./Notifications"
+           asp-route-id="@Model.Profile.ProfileID"
+           class="btn btn-xs btn-info disabled">通知</a>
+    </div>
+    <p></p>
+    <div>
+        @if (Model.Notifications.Count > 0)
+        {
+            foreach(var item in Model.Notifications)
+            {
+                <div class="row">
+                    <div class="col-md-9">
+                        <a class="nav-link" href="@item.Url">
+                            @Html.AntiXssRaw(item.Title)
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        @TimePeriodHelper.Get(item.CreatedDate)
+                    </div>
+                </div>
+                <hr />
+            }
+        }
+    </div>
+</div>
