@@ -259,9 +259,9 @@ namespace Involver.Services.NotificationSetterService
         {
             messageContent = messageContent.StripHTML();
 
-            if (messageContent.Length > 20)
+            if (messageContent.Length > Parameters.SmallContentLength)
             {
-                messageContent = messageContent[..20] + "...";
+                messageContent = messageContent[..Parameters.SmallContentLength] + "...";
             }
 
             string title = $"有人在你的留言「{messageContent}」留下了一個讚。";
@@ -322,9 +322,9 @@ namespace Involver.Services.NotificationSetterService
         {
             commentContent = commentContent.StripHTML();
 
-            if (commentContent.Length > 20)
+            if (commentContent.Length > Parameters.SmallContentLength)
             {
-                commentContent = commentContent[..20] + "...";
+                commentContent = commentContent[..Parameters.SmallContentLength] + "...";
             }
 
             string title = $"有人在你的評論「{commentContent}」留下了一個讚。";
