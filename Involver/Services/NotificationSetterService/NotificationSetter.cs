@@ -259,6 +259,15 @@ namespace Involver.Services.NotificationSetterService
 
             string title = $"有人在你的留言「{messageContent}」留下了一個讚。";
 
+            var existingNotification = await _context.Notifications
+                .Where(n => n.Title == title && n.ProfileID == commenterId && n.IsRead == false)
+                .FirstOrDefaultAsync();
+
+            if (existingNotification != null)
+            {
+                return;
+            }
+
             if (toasts.Count == 0)
             {
                 Notification notification = new()
@@ -319,6 +328,15 @@ namespace Involver.Services.NotificationSetterService
             }
 
             string title = $"有人在你的評論「{commentContent}」留下了一個讚。";
+
+            var existingNotification = await _context.Notifications
+                .Where(n => n.Title == title && n.ProfileID == commenterId && n.IsRead == false)
+                .FirstOrDefaultAsync();
+
+            if (existingNotification != null)
+            {
+                return;
+            }
 
             if (toasts.Count == 0)
             {
