@@ -65,6 +65,7 @@
             height: 50px;
             color: #fff;
             background: #33b5e5;
+            background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
             line-height: 50px;
             border-radius: 50%;
             transition: all 0.5s;
@@ -73,7 +74,7 @@
         }
 
             #gotop :hover {
-                background: #0099CC;
+                background: transparent;
             }
     </style>
 </head>
@@ -86,7 +87,7 @@
     <header id="TopHead">
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom navbar-themed box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">Involver</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico"> Involver</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
