@@ -4,16 +4,12 @@
     ViewData["Title"] = "互動紀錄";
     ViewData["ActivePage"] = ManageNavPages.Interaction;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
     //DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 
 <div>
     <div>
@@ -45,13 +41,14 @@
                 //}
                 <div class="row">
                     <div class="col-md-5">
-                        @if (comment.Content.Length < Parameters.ContentLength)
+                        @if (comment.Content.StripHTML().Length < Parameters.ContentLength)
                         {
-                            @Html.AntiXssRaw(comment.Content);
+                            @Html.AntiXssRaw(comment.Content.StripHTML());
                         }
                         else
                         {
-                            @Html.AntiXssRaw(comment.Content.Substring(0, Parameters.ContentLength)+"...");
+                            @Html.AntiXssRaw(comment.Content.StripHTML().Substring(0, Parameters.ContentLength)+"...")
+                            ;
                         }
                     </div>
                     <div class="col-md-4">

@@ -4,15 +4,11 @@
     ViewData["Title"] = "每週任務";
     ViewData["ActivePage"] = ManageNavPages.Missions;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 <dl class="row">
     <dt class="col-sm-4">
         @Html.DisplayNameFor(model => model.Missions.WatchArticle)

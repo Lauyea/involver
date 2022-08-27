@@ -4,15 +4,11 @@
     ViewData["Title"] = "追蹤";
     ViewData["ActivePage"] = ManageNavPages.Follow;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 
 <div>
     <div>

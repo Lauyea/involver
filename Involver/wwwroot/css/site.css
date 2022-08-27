@@ -172,7 +172,7 @@ body {
     background-image: linear-gradient(128deg,rgb(255 245 211), rgb(247 226 152));
 }
 
-.bootstrap nav {
+.bootstrap nav, .bootstrap-dark nav {
     background: rgb(247 226 152);
     background-image: linear-gradient(128deg,rgb(255 245 211), rgb(247 226 152));
 }
@@ -186,11 +186,11 @@ body {
 }
 
 .bootstrap a, .bootstrap-dark a {
-    color: #ff8900;
+    color: hwb(32deg 0% 8%);
 }
 
     .bootstrap a:hover, .bootstrap-dark a:hover {
-        color: #d06100;
+        color: hwb(32deg 0% 25%);
     }
 
 /*.bootstrap .dropdown-menu, .bootstrap-dark .dropdown-menu {
@@ -226,8 +226,12 @@ body {
 }
 
 .bootstrap .page-link, .bootstrap-dark .page-link {
-    color: #ff8900;
+    color: hwb(32deg 0% 8%);
 }
+
+    .bootstrap .page-link:hover, .bootstrap-dark .page-link:hover {
+        color: hwb(32deg 0% 25%);
+    }
 
 .bootstrap .page-item.active .page-link, .bootstrap-dark .page-item.active .page-link {
     border-color: #00000000;
@@ -238,6 +242,20 @@ body {
     z-index:1;
 }
 
+.bootstrap .btn-link, .bootstrap-dark .btn-link {
+    color: hwb(32deg 0% 8%);
+}
+    .bootstrap .btn-link:hover, .bootstrap-dark .btn-link:hover {
+        color: hwb(32deg 0% 25%);
+    }
+
+.bootstrap-dark .navbar-dark .navbar-nav .nav-link:focus, .bootstrap-dark .navbar-dark .navbar-nav .nav-link:hover, .bootstrap-dark .navbar-themed .navbar-nav .nav-link:focus, .bootstrap-dark .navbar-themed .navbar-nav .nav-link:hover {
+    color: rgb(255 180 0 / 90%);
+}
+
+.bootstrap .navbar-dark .navbar-nav .nav-link:focus, .bootstrap .navbar-dark .navbar-nav .nav-link:hover, .bootstrap .navbar-themed .navbar-nav .nav-link:focus, .bootstrap .navbar-themed .navbar-nav .nav-link:hover {
+    color: rgb(255 180 0 / 90%);
+}
 /* Layout styles
 -------------------------------------------------- */
 

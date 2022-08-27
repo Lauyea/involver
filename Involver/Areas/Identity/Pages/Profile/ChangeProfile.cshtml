@@ -4,10 +4,12 @@
     ViewData["Title"] = "基本資料";
     ViewData["ActivePage"] = ManageNavPages.Index;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
+    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
+    {
+        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
+    }
 }
 
-<h4>@ViewData["Title"]</h4>
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 <div class="row">
     <div class="col-md-4">

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Involvers";
     ViewData["ActivePage"] = ManageNavPages.Involving;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
@@ -32,12 +31,9 @@
     }
 }
 
-<h4>@ViewData["Title"] - @TitleSub</h4>
-<hr />
-
 <div>
-    <div class="row">
-        <div class="dropdown col-md-3">
+    <div class="nav nav-pills flex-column flex-sm-row">
+        <div class="dropdown col-md-3 nav-link">
             <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
                 Involving <i class="fas fa-chevron-down"></i>
             </button>
@@ -58,7 +54,7 @@
                    title="TotalTime">總共</a>
             </div>
         </div>
-        <div class="dropdown col-md-3">
+        <div class="dropdown col-md-3 nav-link">
             <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
                 Involvers <i class="fas fa-chevron-down"></i>
             </button>

@@ -111,19 +111,19 @@ else
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.Novel.Introduction)
                 </dt>
-                <dd class="col-sm-10 ck-content">
+                <dd class="col-sm-10 ck-content text-muted">
                     @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
                 </dd>
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.Novel.UpdateTime)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-10 text-muted">
                     @TimePeriodHelper.Get(Model.Novel.UpdateTime)
                 </dd>
                 <dt class="col-sm-2">
                     月In幣
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-10 text-muted">
                     <div class="row">
                         <div class="col-auto">
                             @Html.DisplayFor(model => model.Novel.MonthlyCoins)
@@ -140,7 +140,7 @@ else
                 <dt class="col-sm-2">
                     總In幣
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-10 text-muted">
                     <div class="row">
                         <div class="col-auto">
                             @Html.DisplayFor(model => model.Novel.TotalCoins)
@@ -192,7 +192,7 @@ else
                 <dt class="col-sm-2">
                     @Html.DisplayNameFor(model => model.Novel.Views)
                 </dt>
-                <dd class="col-sm-10">
+                <dd class="col-sm-10 text-muted">
                     @Html.DisplayFor(model => model.Novel.Views)
                 </dd>
                 <dt class="col-sm-2">
