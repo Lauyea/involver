@@ -7,7 +7,7 @@
     string navDisabled = Model.UserProfileID != null ? "" : "disabled";
 }
 
-<nav class="nav nav-pills flex-column flex-sm-row">
+<nav class="nav nav-pills flex-column flex-sm-row" style="border-radius: 0.75rem;">
     <a asp-page="/Index" class="flex-sm-fill text-sm-center nav-link @navDisabled">追蹤創作</a>
     <a asp-page="/Feed/FollowArticles"
        asp-route-id="@Model.UserProfileID" class="flex-sm-fill text-sm-center nav-link @navDisabled">追蹤文章</a>
@@ -31,10 +31,10 @@
                             @Html.DisplayFor(modelItem => novel.Title)
                         </a>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4 text-muted">
                         @Html.DisplayFor(modelItem => novel.Profile.UserName)
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 text-muted">
                         @TimePeriodHelper.Get(novel.UpdateTime)
                     </div>
                 </div>

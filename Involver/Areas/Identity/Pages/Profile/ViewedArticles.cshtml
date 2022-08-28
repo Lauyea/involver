@@ -4,15 +4,11 @@
     ViewData["Title"] = "觀看紀錄";
     ViewData["ActivePage"] = ManageNavPages.Vieweds;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 
 <div>
     <div>
@@ -46,13 +42,13 @@
                         </a>
                     </div>
                     <div class="col-md-5">
-                        @if (article.Content.Length < Parameters.ContentLength)
+                        @if (article.Content.StripHTML().Length < Parameters.ContentLength)
                         {
-                            @Html.AntiXssRaw(article.Content);
+                            @Html.AntiXssRaw(article.Content.StripHTML());
                         }
                         else
                         {
-                            @Html.AntiXssRaw(article.Content.Substring(0, Parameters.ContentLength)+"...");
+                            @Html.AntiXssRaw(article.Content.StripHTML().Substring(0, Parameters.ContentLength)+"...");
                         }
                     </div>
                     <div class="col-md-3">

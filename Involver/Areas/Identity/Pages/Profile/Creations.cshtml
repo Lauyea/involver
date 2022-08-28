@@ -4,15 +4,12 @@
     ViewData["Title"] = "創作";
     ViewData["ActivePage"] = ManageNavPages.Creations;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
 
-<h4>@ViewData["Title"]</h4>
-<hr />
 <div class="row">
     <div class="col-md-12">
         @if (Model.Novels != null)

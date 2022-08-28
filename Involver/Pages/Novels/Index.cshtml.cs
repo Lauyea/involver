@@ -59,7 +59,7 @@ namespace Involver.Pages.Novels
             CurrentFilter = searchString;
             CurrentType = searchType;
 
-            IQueryable<Novel> NovelsIQ = from n in _context.Novels.Include("Profile")
+            IQueryable<Novel> NovelsIQ = from n in _context.Novels.Include("Profile").Include(n => n.NovelTags)
                                          select n;
 
             if (!String.IsNullOrEmpty(searchString))

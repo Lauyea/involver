@@ -56,10 +56,10 @@
     <thead>
         <tr>
             <th style="width:15%">
-                @Html.DisplayNameFor(model => model.Novels[0].Type)
+                
             </th>
-            <th style="width:40%" class="text-center">
-                @Html.DisplayNameFor(model => model.Novels[0].Title)
+            <th style="width:40%">
+                
             </th>
             <th style="width:25%">
                 <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort"
@@ -68,19 +68,23 @@
                     In幣
                 </a>
             </th>
-            <th style="width:20%">
-                <small>
-                    <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
+            <th class="container" style="width:20%">
+                <small class="row">
+                    <span class="col-auto">
+                        <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
                        asp-route-currentType="@Model.CurrentType"
                        asp-route-currentFilter="@Model.CurrentFilter">
-                        @Html.DisplayNameFor(model => model.Novels[0].UpdateTime)
+                        時間
                     </a>
-                    &
-                    <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort"
+                    </span>
+                    <span class="col-auto">&</span>
+                    <span class="col-auto">
+                        <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort"
                        asp-route-currentType="@Model.CurrentType"
                        asp-route-currentFilter="@Model.CurrentFilter">
                         @Html.DisplayNameFor(model => model.Novels[0].Views)
                     </a>
+                    </span>
                 </small>
             </th>
         </tr>
@@ -91,6 +95,16 @@
             <tr>
                 <td>
                     @novelTypeDetermination.GetTypeName(item.Type)
+                    <p>
+                        @foreach (var tag in item.NovelTags)
+                        {
+                            <a asp-page="./Index"
+                            asp-route-currentFilter="@tag.Name"
+                            class="badge badge-pill badge-info">
+                                @tag.Name
+                            </a>
+                        }
+                    </p>
                 </td>
                 <td>
                     <p>
@@ -100,22 +114,24 @@
                             <span class="text-danger">Block</span>
                         }
                     </p>
-                    @if (!string.IsNullOrEmpty(item.ImageUrl))
-                    {
-                        <img src="@item.ImageUrl"
-                     asp-append-version="true"
-                     alt="讀取失敗"
-                     title="@item.Title"
-                     style="max-width: 100%; max-height: 100px">
+                    <a asp-page="./Details" asp-route-id="@item.NovelID">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl"
+                         asp-append-version="true"
+                         alt="讀取失敗"
+                         title="@item.Title"
+                         style="max-width: 100%; max-height: 100px">
 
-                    }
-                    else
-                    {
-                        <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
-                     alt="讀取失敗"
-                     title="主題圖片"
-                     style="max-width: 100%; max-height: 100px" />
-                    }
+                        }
+                        else
+                        {
+                            <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
+                         alt="讀取失敗"
+                         title="主題圖片"
+                         style="max-width: 100%; max-height: 100px" />
+                        }
+                    </a>
                     <p>
                         <small>
                             <a asp-area="Identity"

@@ -7,10 +7,25 @@
 }
 <partial name="_Toasts" model="Model.Toasts" />
 <h1>@Html.DisplayFor(model => model.Novel.Title)</h1>
-<h4>創作</h4>
+<h4>
+    創作
+    <span class="d-inline mt-3">
+        @if (Model.Followed)
+        {
+            <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+                class="btn btn-xs btn-primary disabled">取消追蹤</button>
+        }
+        else
+        {
+            <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+                class="btn btn-xs btn-primary">追蹤創作</button>
+        }
+    </span>
+</h4>
+
 <hr />
 
-<div class="btn-group row">
+<div class="btn-group">
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
     @if ((await AuthorizationService.AuthorizeAsync(
     User, Model.Novel,
@@ -34,22 +49,6 @@
     }
     <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
 </div>
-&nbsp;
-&nbsp;
-@if (Model.Followed)
-{
-    <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-        class="btn btn-xs btn-primary mb-1 disabled">
-        取消追蹤
-    </button>
-}
-else
-{
-    <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-        class="btn btn-xs mb-1 btn-primary">
-        追蹤創作
-    </button>
-}
 <div>
     @if (!Model.Novel.Block)
     {
@@ -79,14 +78,14 @@ else
 <p></p>
 <div class="row">
     <div class="col-md-8">
-        <div>
+        <div class="mb-3">
             @if (!string.IsNullOrEmpty(Model.Novel.ImageUrl))
             {
                 <img src="@Model.Novel.ImageUrl"
                  asp-append-version="true"
                  alt="讀取失敗"
                  title="@Model.Novel.Title"
-                 style="width: 100%; max-height: 400px">
+                 style="width: 100%; max-height: 400px;border-radius:.5rem;">
                 <p></p>
             }
             else
@@ -94,128 +93,130 @@ else
                 <img src="https://picsum.photos/600/300?grayscale&random=@Model.Novel.NovelID"
                  alt="讀取失敗"
                  title="主題圖片"
-                 style="width: 100%; height: auto" />
+                 style="width: 100%; height: auto;border-radius:.5rem;" />
                 <p></p>
             }
-            <dl class="row">
-                <dt class="col-sm-2">
-                    作者名稱
-                </dt>
-                <dd class="col-sm-10">
-                    <a asp-area="Identity"
-                       asp-page="/Profile/Index"
-                       asp-route-id="@Model.Novel.ProfileID">
-                        @Html.DisplayFor(model => model.Writer.UserName)
-                    </a>
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Novel.Introduction)
-                </dt>
-                <dd class="col-sm-10 ck-content">
-                    @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Novel.UpdateTime)
-                </dt>
-                <dd class="col-sm-10">
-                    @TimePeriodHelper.Get(Model.Novel.UpdateTime)
-                </dd>
-                <dt class="col-sm-2">
-                    月In幣
-                </dt>
-                <dd class="col-sm-10">
-                    <div class="row">
-                        <div class="col-auto">
-                            @Html.DisplayFor(model => model.Novel.MonthlyCoins)
-                        </div>
-                        <div class="col-auto">
-                            <a class="btn btn-xs btn-outline-danger"
-                               asp-page="/Involvings/InvolveNovel"
-                               asp-route-id="@Model.Novel.NovelID">
-                                <i class="fas fa-coins"></i> Involve
-                            </a>
-                        </div>
-                    </div>
-                </dd>
-                <dt class="col-sm-2">
-                    總In幣
-                </dt>
-                <dd class="col-sm-10">
-                    <div class="row">
-                        <div class="col-auto">
-                            @Html.DisplayFor(model => model.Novel.TotalCoins)
-                        </div>
-                        <div class="dropdown col-auto">
-                            <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
-                                Involvers <i class="fas fa-chevron-down"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="btn btn-xs btn-outline-info dropdown-item"
-                                   asp-page="/Involvings/Involvers"
-                                   asp-route-id="@Model.Novel.NovelID"
-                                   title="Recent">最近</a>
-                                <a class="btn btn-xs btn-outline-info dropdown-item"
-                                   asp-page="/Involvings/Involvers"
-                                   asp-route-id="@Model.Novel.NovelID"
-                                   asp-route-TimeSpan="Monthly"
-                                   title="Monthly">每月</a>
-                                <a class="btn btn-xs btn-outline-info dropdown-item"
-                                   asp-page="/Involvings/Involvers"
-                                   asp-route-id="@Model.Novel.NovelID"
-                                   asp-route-TimeSpan="TotalTime"
-                                   title="TotalTime">總共</a>
-                            </div>
-                        </div>
-                    </div>
-                </dd>
-                <dt class="col-sm-2" title="只有會員可以觀看最新章節">
-                    @Html.DisplayNameFor(model => model.Novel.PrimeRead)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Novel.PrimeRead)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Novel.End)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Novel.End)
-                </dd>
-                @if (Model.Novel.Block)
-                {
-                    <dt class="col-sm-2" title="列表是否看得見這個創作，如果要解封請提出申請">
-                        @Html.DisplayNameFor(model => model.Novel.Block)
+            <div class="card mx-auto" style="margin-top:-4rem;width:90%;border-radius: 0.75rem;">
+                <dl class="card-body row">
+                    <dt class="col-sm-2">
+                        作者
                     </dt>
                     <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.Novel.Block)
-                    </dd>
-                }
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Novel.Views)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Novel.Views)
-                </dd>
-                <dt class="col-sm-2">
-                    追蹤數
-                </dt>
-                <dd class="col-sm-10">
-                    <a asp-page="/Follows/Followers"
-                       asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count() 位追蹤者</a>
-                </dd>
-                <dt class="col-sm-2">
-                    標籤
-                </dt>
-                <dd class="col-sm-10">
-                    @foreach(var tag in Model.Novel.NovelTags)
-                    {
-                        <a asp-page="./Index"
-                            asp-route-currentFilter="@tag.Name"
-                            class="badge badge-pill badge-info">
-                            @tag.Name
+                        <a asp-area="Identity"
+                           asp-page="/Profile/Index"
+                           asp-route-id="@Model.Novel.ProfileID">
+                            @Html.DisplayFor(model => model.Writer.UserName)
                         </a>
+                    </dd>
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Novel.Introduction)
+                    </dt>
+                    <dd class="col-sm-10 ck-content text-muted">
+                        @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
+                    </dd>
+                    <dt class="col-sm-2">
+                        更新
+                    </dt>
+                    <dd class="col-sm-10 text-muted">
+                        @TimePeriodHelper.Get(Model.Novel.UpdateTime)
+                    </dd>
+                    <dt class="col-sm-2">
+                        月In幣
+                    </dt>
+                    <dd class="col-sm-10 text-muted">
+                        <div class="row">
+                            <div class="col-auto">
+                                @Html.DisplayFor(model => model.Novel.MonthlyCoins)
+                            </div>
+                            <div class="col-auto">
+                                <a class="btn btn-xs btn-outline-danger"
+                                   asp-page="/Involvings/InvolveNovel"
+                                   asp-route-id="@Model.Novel.NovelID">
+                                    <i class="fas fa-coins"></i> Involve
+                                </a>
+                            </div>
+                        </div>
+                    </dd>
+                    <dt class="col-sm-2">
+                        總In幣
+                    </dt>
+                    <dd class="col-sm-10 text-muted">
+                        <div class="row">
+                            <div class="col-auto">
+                                @Html.DisplayFor(model => model.Novel.TotalCoins)
+                            </div>
+                            <div class="dropdown col-auto">
+                                <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
+                                    Involvers <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a class="btn btn-xs btn-outline-info dropdown-item"
+                                       asp-page="/Involvings/Involvers"
+                                       asp-route-id="@Model.Novel.NovelID"
+                                       title="Recent">最近</a>
+                                    <a class="btn btn-xs btn-outline-info dropdown-item"
+                                       asp-page="/Involvings/Involvers"
+                                       asp-route-id="@Model.Novel.NovelID"
+                                       asp-route-TimeSpan="Monthly"
+                                       title="Monthly">每月</a>
+                                    <a class="btn btn-xs btn-outline-info dropdown-item"
+                                       asp-page="/Involvings/Involvers"
+                                       asp-route-id="@Model.Novel.NovelID"
+                                       asp-route-TimeSpan="TotalTime"
+                                       title="TotalTime">總共</a>
+                                </div>
+                            </div>
+                        </div>
+                    </dd>
+                    <dt class="col-sm-2" title="只有會員可以觀看最新章節">
+                        @Html.DisplayNameFor(model => model.Novel.PrimeRead)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.DisplayFor(model => model.Novel.PrimeRead)
+                    </dd>
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Novel.End)
+                    </dt>
+                    <dd class="col-sm-10">
+                        @Html.DisplayFor(model => model.Novel.End)
+                    </dd>
+                    @if (Model.Novel.Block)
+                    {
+                        <dt class="col-sm-2" title="列表是否看得見這個創作，如果要解封請提出申請">
+                            @Html.DisplayNameFor(model => model.Novel.Block)
+                        </dt>
+                        <dd class="col-sm-10">
+                            @Html.DisplayFor(model => model.Novel.Block)
+                        </dd>
                     }
-                </dd>
-            </dl>
+                    <dt class="col-sm-2">
+                        @Html.DisplayNameFor(model => model.Novel.Views)
+                    </dt>
+                    <dd class="col-sm-10 text-muted">
+                        @Html.DisplayFor(model => model.Novel.Views)
+                    </dd>
+                    <dt class="col-sm-2">
+                        追蹤數
+                    </dt>
+                    <dd class="col-sm-10">
+                        <a asp-page="/Follows/Followers"
+                           asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count() 位追蹤者</a>
+                    </dd>
+                    <dt class="col-sm-2">
+                        標籤
+                    </dt>
+                    <dd class="col-sm-10">
+                        @foreach (var tag in Model.Novel.NovelTags)
+                        {
+                            <a asp-page="./Index"
+                           asp-route-currentFilter="@tag.Name"
+                           class="badge badge-pill badge-info">
+                                @tag.Name
+                            </a>
+                        }
+                    </dd>
+                </dl>
+            </div>
         </div>
 
         <div>
@@ -240,7 +241,7 @@ else
     </div>
 </div>
 
-<div>
+<div class="mt-3">
     <partial name="Comments/PartialComments" for="@Model.Comments" />
 </div>
 
@@ -253,12 +254,12 @@ else
             prev: "前",
             next: "後",
             last: "末",
-            onPageClick: function(event, page) {
+            onPageClick: function (event, page) {
                 $.ajax({
                     type: 'GET',
                     url: '@Url.Action("Get", "PartialEpisodes")',
                     data: { novelId: @Model.Novel.NovelID, pageIndex: page },
-                    success: function(result) {
+                    success: function (result) {
                         $('#partialEpisodes').html(result);
                     }
                 });

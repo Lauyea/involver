@@ -4,15 +4,11 @@
     ViewData["Title"] = "互動紀錄";
     ViewData["ActivePage"] = ManageNavPages.Interaction;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 
 <div>
     <div>

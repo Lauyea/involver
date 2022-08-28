@@ -4,15 +4,11 @@
     ViewData["Title"] = "互動紀錄";
     ViewData["ActivePage"] = ManageNavPages.Interaction;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-
-<h4>@ViewData["Title"]</h4>
-<hr />
 
 <div>
     <div>
@@ -53,13 +49,13 @@
                         <a asp-page="/Comments/Details"
                            asp-route-id="@message.CommentID"
                            asp-route-pageIndex="1">
-                            @if (message.Comment.Content.Length < Parameters.SmallContentLength)
+                            @if (message.Comment.Content.StripHTML().Length < Parameters.SmallContentLength)
                             {
-                                @Html.AntiXssRaw(message.Comment.Content);
+                                @Html.AntiXssRaw(message.Comment.Content.StripHTML());
                             }
                             else
                             {
-                                @Html.AntiXssRaw(message.Comment.Content.Substring(0, Parameters.SmallContentLength)+"...");
+                                @Html.AntiXssRaw(message.Comment.Content.StripHTML().Substring(0, Parameters.SmallContentLength)+"...");
                             }
                         </a>
                     </div>

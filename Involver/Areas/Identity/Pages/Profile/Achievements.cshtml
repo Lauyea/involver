@@ -4,15 +4,12 @@
     ViewData["Title"] = "成就";
     ViewData["ActivePage"] = ManageNavPages.Achievements;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    ViewData["ProfileName"] = Model.Profile.UserName;
     if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
 
-<h4>@ViewData["Title"]</h4>
-<hr />
 <div class="row">
     @foreach(var item in Model.Achievements)
     {
@@ -30,7 +27,7 @@
             badgeColor = "gold";
         }
         <span class="col-auto" title="@item.Content">
-            <span class="badge badge-pill @badgeColor">@item.Title</span>
+            <span class="badge badge-pill @badgeColor text-dark">@item.Title</span>
             <small class="text-muted">@item.ProfileAchievements.FirstOrDefault()?.AchieveDate</small>
         </span>
     }
