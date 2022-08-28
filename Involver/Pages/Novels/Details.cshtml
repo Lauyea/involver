@@ -85,7 +85,7 @@
                  asp-append-version="true"
                  alt="讀取失敗"
                  title="@Model.Novel.Title"
-                 style="width: 100%; max-height: 400px">
+                 style="width: 100%; max-height: 400px;border-radius:.5rem;">
                 <p></p>
             }
             else
@@ -93,13 +93,13 @@
                 <img src="https://picsum.photos/600/300?grayscale&random=@Model.Novel.NovelID"
                  alt="讀取失敗"
                  title="主題圖片"
-                 style="width: 100%; height: auto" />
+                 style="width: 100%; height: auto;border-radius:.5rem;" />
                 <p></p>
             }
             <div class="card mx-auto" style="margin-top:-4rem;width:90%;border-radius: 0.75rem;">
                 <dl class="card-body row">
                     <dt class="col-sm-2">
-                        作者名稱
+                        作者
                     </dt>
                     <dd class="col-sm-10">
                         <a asp-area="Identity"
@@ -115,7 +115,7 @@
                         @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
                     </dd>
                     <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Novel.UpdateTime)
+                        更新
                     </dt>
                     <dd class="col-sm-10 text-muted">
                         @TimePeriodHelper.Get(Model.Novel.UpdateTime)
@@ -241,7 +241,7 @@
     </div>
 </div>
 
-<div>
+<div class="mt-3">
     <partial name="Comments/PartialComments" for="@Model.Comments" />
 </div>
 
