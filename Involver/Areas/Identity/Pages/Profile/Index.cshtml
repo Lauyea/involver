@@ -30,16 +30,12 @@
             @if (Model.Followed)
             {
                 <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
-                class="btn btn-xs btn-primary disabled">
-                    取消追蹤
-                </button>
+                class="btn btn-xs btn-primary disabled">取消追蹤</button>
             }
             else
             {
                 <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
-                class="btn btn-xs btn-primary">
-                    追蹤作者
-                </button>
+                class="btn btn-xs btn-primary">追蹤作者</button>
             }
         }
         &nbsp&nbsp
@@ -70,7 +66,7 @@
     </div>
     <p></p>
     <div class="row">
-        <div class="col-md-4 my-3 text-center">
+        <div class="col-md-5 my-3 text-center">
             @if (!string.IsNullOrEmpty(Model.Profile.ImageUrl))
             {
                 <img src="@Model.Profile.ImageUrl"
@@ -87,7 +83,9 @@
                  title="@Model.Profile.UserName"
                  style="max-width: 100%; max-height: 150px; display:inline; border-radius:50%">
             }
-            <b>@Html.DisplayFor(model => model.Profile.UserName)</b>
+            <p class="mt-1">
+                <b>@Html.DisplayFor(model => model.Profile.UserName)</b>
+            </p>
             @if (Model.Profile.CanChangeUserName && Model.ProfileOwner)
             {
                 <a class="btn btn-xs btn-outline-primary my-3"
@@ -101,7 +99,7 @@
                 <div class="mt-3 text-center text-muted">@Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))</div>
             }
         </div>
-        <div class="col-md-8">
+        <div class="col-md-7">
             <dl class="row">
                 <dt class="col-sm-3">
                     @Html.DisplayNameFor(model => model.Profile.RealCoins)

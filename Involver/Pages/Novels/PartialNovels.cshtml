@@ -5,28 +5,36 @@
     <div>
         @foreach (var item in Model)
         {
-            @if (!string.IsNullOrEmpty(item.ImageUrl))
-            {
+            <div class="card" style="width: 18rem;">
                 <a asp-page="./Details" asp-route-id="@item.NovelID">
-                    <img src="@item.ImageUrl"
-                         asp-append-version="true"
-                         alt="讀取失敗"
-                         title="@item.Title"
-                         style="max-width: 100%; max-height : 140px">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl"
+                     asp-append-version="true"
+                     alt="讀取失敗"
+                     title="@item.Title"
+                     style="max-width: 100%; max-height : 140px"
+                     class="card-img-top">
+                    }
+                    else
+                    {
+                        <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
+                     asp-append-version="true"
+                     alt="讀取失敗"
+                     title="主題圖片"
+                     style="max-width: 100%; max-height : 140px"
+                     class="card-img-top">
+                    }
                 </a>
-            }
-            else
-            {
-                <a asp-page="./Details" asp-route-id="@item.NovelID">
-                    <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
-                         asp-append-version="true"
-                         alt="讀取失敗"
-                         title="主題圖片"
-                         style="max-width: 100%; max-height : 140px">
-                </a>
-            }
-            <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
-            <hr />
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a asp-page="./Details" asp-route-id="@item.NovelID">
+                            @Html.DisplayFor(modelItem => item.Title)
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted" style="font-size:small">@item.Introduction.StripHTML()</p>
+                </div>
+            </div>
         }
     </div>
 </div>
