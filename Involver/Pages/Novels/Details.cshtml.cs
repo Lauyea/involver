@@ -34,6 +34,8 @@ namespace Involver.Pages.Novels
         public List<Novel> RecommendNovels { get; set; }
         public bool Followed { get; set; } = false;
 
+        public string UserId { get; set; }
+
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex, int? pageIndexEpisode)
         {
             if (id == null)
@@ -72,10 +74,10 @@ namespace Involver.Pages.Novels
             var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
                            User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
 
-            var currentUserId = _userManager.GetUserId(User);
+            UserId = _userManager.GetUserId(User);
 
             if (!isAuthorized
-                && currentUserId != Novel.ProfileID
+                && UserId != Novel.ProfileID
                 && Novel.Block)
             {
                 return Forbid();
@@ -116,7 +118,7 @@ namespace Involver.Pages.Novels
             RecommendNovels = recommendNovels.ToList();
 
             Follow ExistingFollow = Novel.Follows
-                .Where(f => f.FollowerID == currentUserId)
+                .Where(f => f.FollowerID == UserId)
                 .FirstOrDefault();
 
             if (ExistingFollow != null)
@@ -130,9 +132,9 @@ namespace Involver.Pages.Novels
 
             AddViewsByIp();
 
-            if (currentUserId != null)
+            if (UserId != null)
             {
-                await AddViewer(currentUserId);
+                await AddViewer();
             }
 
             try
@@ -156,20 +158,20 @@ namespace Involver.Pages.Novels
                 Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
             }
 
-            var toasts = await Helpers.AchievementHelper.ReadNovelAsync(_context, currentUserId);
+            var toasts = await Helpers.AchievementHelper.ReadNovelAsync(_context, UserId);
 
             Toasts.AddRange(toasts);
 
             return Page();
         }
 
-        private async Task AddViewer(string currentUserId)
+        private async Task AddViewer()
         {
-            var userAsViewer = Novel.Viewers.Where(v => v.ProfileID == currentUserId).FirstOrDefault();
+            var userAsViewer = Novel.Viewers.Where(v => v.ProfileID == UserId).FirstOrDefault();
 
             if (userAsViewer != null)
             {
-                var novelViewer = userAsViewer.NovelViewers.Where(v => v.ProfileID == currentUserId && v.NovelID == Novel.NovelID).FirstOrDefault();
+                var novelViewer = userAsViewer.NovelViewers.Where(v => v.ProfileID == UserId && v.NovelID == Novel.NovelID).FirstOrDefault();
 
                 novelViewer.ViewDate = DateTime.Now;
 
@@ -177,7 +179,7 @@ namespace Involver.Pages.Novels
             }
             else
             {
-                var userProfile = await _context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
+                var userProfile = await _context.Profiles.Where(p => p.ProfileID == UserId).FirstOrDefaultAsync();
 
                 Novel.Viewers.Add(userProfile);
             }
