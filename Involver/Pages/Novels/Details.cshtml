@@ -9,18 +9,21 @@
 <h1>@Html.DisplayFor(model => model.Novel.Title)</h1>
 <h4>
     創作
-    <span class="d-inline mt-3">
-        @if (Model.Followed)
-        {
-            <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+    @if (Model.UserId != null)
+    {
+        <span class="d-inline mt-3">
+            @if (Model.Followed)
+            {
+                <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
                 class="btn btn-xs btn-primary disabled">取消追蹤</button>
-        }
-        else
-        {
-            <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
+            }
+            else
+            {
+                <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
                 class="btn btn-xs btn-primary">追蹤創作</button>
-        }
-    </span>
+            }
+        </span>
+    }
 </h4>
 
 <hr />

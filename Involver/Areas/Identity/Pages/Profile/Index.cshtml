@@ -25,7 +25,7 @@
                 編輯
             </a>
         }
-        @if (!Model.ProfileOwner)
+        @if (!Model.ProfileOwner && Model.UserID != null)
         {
             @if (Model.Followed)
             {
