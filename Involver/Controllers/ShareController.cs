@@ -38,7 +38,6 @@ namespace Involver.Controllers
                 {
                     userProfile.Missions.ShareCreation = true;
                     userProfile.VirtualCoins += 5;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                     statusMessage = "每週任務：分享一次創作 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -51,7 +50,6 @@ namespace Involver.Controllers
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
 
                 await _context.SaveChangesAsync();

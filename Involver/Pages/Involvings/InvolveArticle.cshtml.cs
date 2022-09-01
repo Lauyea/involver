@@ -87,14 +87,11 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//文章直接贊助，作者得50%分潤
-            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
             Involver.UsedCoins += Involving.Value;
-            _context.Attach(Involver).State = EntityState.Modified;
 
             Article.MonthlyCoins += Involving.Value;
             Article.TotalCoins += Involving.Value;
-            _context.Attach(Article).State = EntityState.Modified;
 
             Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.ArticleID == ArticleID)
@@ -107,7 +104,6 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += Involving.Value;
                 ExistingInvolving.TotalValue += Involving.Value;
                 ExistingInvolving.LastTime = DateTime.Now;
-                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {

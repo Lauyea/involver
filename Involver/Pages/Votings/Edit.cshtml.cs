@@ -50,8 +50,6 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            _context.Attach(Voting).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();

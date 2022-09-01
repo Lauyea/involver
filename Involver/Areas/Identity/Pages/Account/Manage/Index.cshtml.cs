@@ -107,7 +107,6 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                 Profile.UserName = Input.UserName;
                 Profile.CanChangeUserName = false;
                 var setNameResult = await _userManager.SetUserNameAsync(user, Input.UserName);
-                Context.Attach(Profile).State = EntityState.Modified;
                 if (!setNameResult.Succeeded)
                 {
                     var userId = await _userManager.GetUserIdAsync(user);

@@ -110,8 +110,6 @@ namespace Involver.Pages.Articles
                 var articleViewer = userAsViewer.ArticleViewers.Where(v => v.ProfileID == currentUserId && v.ArticleID == Article.ArticleID).FirstOrDefault();
 
                 articleViewer.ViewDate = DateTime.Now;
-
-                _context.Attach(articleViewer).State = EntityState.Modified;
             }
             else
             {
@@ -139,7 +137,6 @@ namespace Involver.Pages.Articles
 
             Article.Views++;
             Article.ViewIps.Add(newIp);
-            _context.Attach(Article).State = EntityState.Modified;
         }
 
         private async Task CheckMissionWatchArticle()
@@ -156,7 +153,6 @@ namespace Involver.Pages.Articles
                 {
                     userProfile.Missions.WatchArticle = true;
                     userProfile.VirtualCoins += 5;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -169,7 +165,6 @@ namespace Involver.Pages.Articles
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
             }
         }

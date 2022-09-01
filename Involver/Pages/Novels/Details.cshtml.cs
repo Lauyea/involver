@@ -56,6 +56,19 @@ namespace Involver.Pages.Novels
                 return NotFound();
             }
 
+            //Check authorization
+            var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) 
+                || User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
+
+            UserId = _userManager.GetUserId(User);
+
+            if (!isAuthorized
+                && UserId != Novel.ProfileID
+                && Novel.Block)
+            {
+                return Forbid();
+            }
+
             Writer = Novel.Profile;
 
             await SetComments(id, pageIndex);
@@ -69,19 +82,6 @@ namespace Involver.Pages.Novels
 
             Episodes = await PaginatedList<Episode>.CreateAsync(
                 episodes, pageIndexEpisode ?? 1, Parameters.EpisodePageSize);
-
-            //Check authorization
-            var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
-                           User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
-
-            UserId = _userManager.GetUserId(User);
-
-            if (!isAuthorized
-                && UserId != Novel.ProfileID
-                && Novel.Block)
-            {
-                return Forbid();
-            }
 
             var tagArr = Novel.NovelTags.ToArray();
 
@@ -174,8 +174,6 @@ namespace Involver.Pages.Novels
                 var novelViewer = userAsViewer.NovelViewers.Where(v => v.ProfileID == UserId && v.NovelID == Novel.NovelID).FirstOrDefault();
 
                 novelViewer.ViewDate = DateTime.Now;
-
-                _context.Attach(novelViewer).State = EntityState.Modified;
             }
             else
             {
@@ -203,7 +201,6 @@ namespace Involver.Pages.Novels
 
             Novel.Views++;
             Novel.ViewIps.Add(newIp);
-            _context.Attach(Novel).State = EntityState.Modified;
         }
 
         private async Task SetComments(int? id, int? pageIndex)

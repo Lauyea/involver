@@ -96,7 +96,6 @@ namespace Involver.Controllers
             {
                 Commenter.Missions.BeAgreed = true;
                 Commenter.VirtualCoins += 5;
-                _context.Attach(Commenter).State = EntityState.Modified;
             }
             //Check other missions
             Missions missions = Commenter.Missions;
@@ -108,7 +107,6 @@ namespace Involver.Controllers
                 && missions.BeAgreed)
             {
                 Commenter.Missions.CompleteOtherMissions = true;
-                _context.Attach(Commenter).State = EntityState.Modified;
             }
 
             await _context.SaveChangesAsync();
@@ -191,7 +189,6 @@ namespace Involver.Controllers
             {
                 Commenter.Missions.BeAgreed = true;
                 Commenter.VirtualCoins += 5;
-                _context.Attach(Commenter).State = EntityState.Modified;
             }
             //Check other missions
             Missions missions = Commenter.Missions;
@@ -203,7 +200,6 @@ namespace Involver.Controllers
                 && missions.BeAgreed)
             {
                 Commenter.Missions.CompleteOtherMissions = true;
-                _context.Attach(Commenter).State = EntityState.Modified;
             }
 
             await _context.SaveChangesAsync();

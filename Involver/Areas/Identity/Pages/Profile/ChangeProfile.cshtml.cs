@@ -47,7 +47,6 @@ namespace Involver.Areas.Identity.Pages.Profile
 
             ProfileToUpdate.BannerImageUrl = Profile.BannerImageUrl;
 
-            _context.Attach(ProfileToUpdate).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             StatusMessage = "更改資料成功";
 

@@ -85,8 +85,6 @@ namespace Involver.Pages.Announcements
             Announcement.UpdateTime = DateTime.Now;
             Announcement.Views = announcement.Views;
 
-            _context.Attach(Announcement).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();

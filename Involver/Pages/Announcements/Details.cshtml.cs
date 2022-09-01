@@ -45,7 +45,6 @@ namespace Involver.Pages.Announcements
             }
 
             Announcement.Views++;
-            _context.Attach(Announcement).State = EntityState.Modified;
 
             try
             {

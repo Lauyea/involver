@@ -240,7 +240,6 @@ namespace Involver.Pages.Comments
             {
                 Commenter.Missions.LeaveComment = true;
                 Commenter.VirtualCoins += 5;
-                _context.Attach(Commenter).State = EntityState.Modified;
                 //StatusMessage = "每週任務：留一則評論 已完成，獲得5 虛擬In幣。";
             }
             //Check other missions
@@ -253,7 +252,6 @@ namespace Involver.Pages.Comments
                 && missions.BeAgreed)
             {
                 Commenter.Missions.CompleteOtherMissions = true;
-                _context.Attach(Commenter).State = EntityState.Modified;
             }
         }
 

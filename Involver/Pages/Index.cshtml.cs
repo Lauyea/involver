@@ -75,7 +75,6 @@ namespace Involver.Pages
                     UserProfile.VirtualCoins += 5;
                     StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
                 }
-                _context.Attach(UserProfile).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
             }
 

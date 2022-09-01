@@ -119,7 +119,6 @@ namespace Involver.Pages.Episodes
                 emptyEpisode.HasVoting = true;
                 _context.Episodes.Add(emptyEpisode);
                 Novel.UpdateTime = DateTime.Now;
-                _context.Attach(Novel).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 if (from != null)
