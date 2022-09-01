@@ -27,19 +27,6 @@
 </form>
 <p></p>
 <table class="table">
-    <thead>
-        <tr>
-            <th style="width:50%" class="text-center">
-                @Html.DisplayNameFor(model => model.Articles[0].Title)
-            </th>
-            <th>
-
-            </th>
-            <th>
-                In幣
-            </th>
-        </tr>
-    </thead>
     <tbody>
         @foreach (var item in Model.Articles)
         {
@@ -61,11 +48,12 @@
                         </a>
                     </p>
                     <p>
-                        <small>觀看數:@Html.DisplayFor(modelItem => item.Views)</small>
+                        <small>觀看數 @Html.DisplayFor(modelItem => item.Views)</small>
                     </p>
-                    <small>評論數:@(item.Comments.Count()-1)</small>
+                    <small>評論數 @(item.Comments.Count()-1)</small>
                 </td>
                 <td>
+                    In幣
                     <p>
                         <small>總計 @Html.DisplayFor(modelItem => item.TotalCoins)</small>
                     </p>

@@ -27,20 +27,6 @@
 </form>
 <p></p>
 <table class="table">
-    <thead>
-        <tr>
-            <th style="width:50%" class="text-center">
-                @Html.DisplayNameFor(model => model.Announcements[0].Title)
-            </th>
-            <th>
-
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Announcements[0].Views)
-            </th>
-            @*<th></th>*@
-        </tr>
-    </thead>
     <tbody>
         @foreach (var item in Model.Announcements)
         {
@@ -53,7 +39,7 @@
                     <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Views)
+                    觀看數 @Html.DisplayFor(modelItem => item.Views)
                 </td>
                 @*<td>
             <a asp-page="./Edit" asp-route-id="@item.AnnouncementID">Edit</a> |
