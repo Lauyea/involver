@@ -94,7 +94,6 @@ namespace Involver.Pages.Episodes
                     if (dateString.StartsWith("-") && voting.End == false)
                     {
                         voting.End = true;
-                        _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
 
@@ -109,7 +108,6 @@ namespace Involver.Pages.Episodes
                     if (TotalVotesCount > voting.NumberLimit && voting.End == false)
                     {
                         voting.End = true;
-                        _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
 
@@ -119,15 +117,12 @@ namespace Involver.Pages.Episodes
                     if (voting.TotalCoins > voting.CoinLimit && voting.End == false)
                     {
                         voting.End = true;
-                        _context.Attach(voting).State = EntityState.Modified;
                     }
                 }
             }
 
             //Add views
             Episode.Views++;
-
-            _context.Attach(Episode).State = EntityState.Modified;
 
             await CheckMissionWatchArticle();
 
@@ -173,7 +168,6 @@ namespace Involver.Pages.Episodes
                 {
                     userProfile.Missions.WatchArticle = true;
                     userProfile.VirtualCoins += 5;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -186,7 +180,6 @@ namespace Involver.Pages.Episodes
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
             }
         }
@@ -238,7 +231,6 @@ namespace Involver.Pages.Episodes
             {
                 comment.Block = false;
             }
-            _context.Attach(comment).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Details", "OnGet", new { id = fromID, pageIndex }, "CommentHead");

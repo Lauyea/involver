@@ -143,7 +143,6 @@ namespace Involver.Pages.Feedbacks
             feedback.Accept = true;
             _context.Feedbacks.Update(feedback);
             profile.VirtualCoins += 50;//回報錯誤與採納意見獲得虛擬In幣50枚
-            _context.Attach(profile).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             var toasts = await Helpers.AchievementHelper.AcceptCountAsync(_context, feedback.OwnerID);

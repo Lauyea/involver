@@ -81,8 +81,6 @@ namespace Involver.Pages.Messages
             Message.UpdateTime = DateTime.Now;
             Message.CommentID = fromID;
 
-            _context.Attach(Message).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();

@@ -63,7 +63,6 @@ namespace Involver.Areas.Identity.Pages.Profile
             if(Profile != null)
             {
                 Profile.Views++;
-                _context.Attach(Profile).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 
                 var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
@@ -97,8 +96,6 @@ namespace Involver.Areas.Identity.Pages.Profile
                 Profile.Banned = true;
                 StatusMessage = "You banned this user successfully.";
             }
-            _context.Attach(Profile).State = EntityState.Modified;
-            _context.Attach(InvolverUser).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             
             return Page();

@@ -158,8 +158,6 @@ namespace Involver.Pages.Articles
 
                 articleToUpdate.ArticleTags = articleTags;
 
-                _context.Attach(articleToUpdate).State = EntityState.Modified;
-
                 try
                 {
                     await _context.SaveChangesAsync();
@@ -191,18 +189,6 @@ namespace Involver.Pages.Articles
 
                 return RedirectToPage("./Index");
             }
-
-
-            //Article.OwnerID = articleToUpdate.OwnerID;
-            //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.OwnerID);
-            //Article.OwnerName = tempUser.UserName;
-            //Article.UpdateTime = DateTime.Now;
-            //Article.Views = articleToUpdate.Views;
-            //Article.Block = articleToUpdate.Block;
-            //Article.TotalIncome = articleToUpdate.TotalIncome;
-            //Article.MonthlyIncome = articleToUpdate.MonthlyIncome;
-
-            //Context.Attach(Article).State = EntityState.Modified;
 
             return Page();
         }

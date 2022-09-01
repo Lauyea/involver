@@ -89,8 +89,6 @@ namespace Involver.Pages.Episodes
             Episode.IsLast = episode.IsLast;
             Episode.NovelID = episode.NovelID;
 
-            _context.Attach(Episode).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();

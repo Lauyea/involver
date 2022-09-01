@@ -97,14 +97,11 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作直接贊助，作者得50%分潤
-            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= Involving.Value;
             Involver.UsedCoins += Involving.Value;
-            _context.Attach(Involver).State = EntityState.Modified;
 
             Novel.MonthlyCoins += Involving.Value;
             Novel.TotalCoins += Involving.Value;
-            _context.Attach(Novel).State = EntityState.Modified;
 
             Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.NovelID == NovelID)
@@ -117,7 +114,6 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += Involving.Value;
                 ExistingInvolving.TotalValue += Involving.Value;
                 ExistingInvolving.LastTime = DateTime.Now;
-                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {
@@ -179,7 +175,6 @@ namespace Involver.Pages.Involvings
                 }
                 existingFollow.NovelMonthlyInvolver = true;
                 existingFollow.UpdateTime = DateTime.Now;
-                _context.Attach(existingFollow).State = EntityState.Modified;
             }
 
             Profile Creator = await _context.Profiles
@@ -192,14 +187,11 @@ namespace Involver.Pages.Involvings
                 return Page();
             }
             Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作每月Involve，作者得60%分潤
-            _context.Attach(Creator).State = EntityState.Modified;
             Involver.RealCoins -= InvolveValue;
             Involver.UsedCoins += InvolveValue;
-            _context.Attach(Involver).State = EntityState.Modified;
 
             Novel.MonthlyCoins += InvolveValue;
             Novel.TotalCoins += InvolveValue;
-            _context.Attach(Novel).State = EntityState.Modified;
 
             Involving ExistingInvolving = await _context.Involvings
                 .Where(i => i.NovelID == NovelID)
@@ -212,7 +204,6 @@ namespace Involver.Pages.Involvings
                 ExistingInvolving.MonthlyValue += InvolveValue;
                 ExistingInvolving.TotalValue += InvolveValue;
                 ExistingInvolving.LastTime = DateTime.Now;
-                _context.Attach(ExistingInvolving).State = EntityState.Modified;
             }
             else
             {
@@ -269,7 +260,6 @@ namespace Involver.Pages.Involvings
                 }
                 follow.NovelMonthlyInvolver = false;
             }
-            _context.Attach(follow).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             StatusMessage = "UnInvolve成功";
             return Page();

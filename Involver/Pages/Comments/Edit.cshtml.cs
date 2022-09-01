@@ -122,8 +122,6 @@ namespace Involver.Pages.Comments
                 Comment.EpisodeID = fromID;
             }
 
-            _context.Attach(Comment).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();

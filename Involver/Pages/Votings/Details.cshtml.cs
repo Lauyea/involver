@@ -198,7 +198,6 @@ namespace Involver.Pages.Votings
                 .Where(v => v.VotingID == option.VotingID)
                 .FirstOrDefaultAsync();
             Voting.TotalCoins += value;
-            Context.Attach(Voting).State = EntityState.Modified;
 
             //主要用來判斷月收入的來源
             if (Voting.Policy == Voting.PolicyType.Liberty)
@@ -209,12 +208,10 @@ namespace Involver.Pages.Votings
             {
                 Creator.MonthlyCoins += (decimal)(value * 0.7);//平等模式，作者得70%分潤
             }
-            Context.Attach(Creator).State = EntityState.Modified;
             //消耗實體貨幣
             Voter.RealCoins -= value;
             Voter.UsedCoins += value;
             CheckMissionVote(Voter);
-            Context.Attach(Voter).State = EntityState.Modified;
 
             var episode = await Context
                 .Episodes.Where(e => e.EpisodeID == Voting.EpisodeID)
@@ -226,7 +223,6 @@ namespace Involver.Pages.Votings
                 .FirstOrDefaultAsync();
             novel.MonthlyCoins += value;
             novel.TotalCoins += value;
-            Context.Attach(novel).State = EntityState.Modified;
 
             var Involving = await Context.Involvings
                 .Where(i => i.NovelID == novel.NovelID)
@@ -238,7 +234,6 @@ namespace Involver.Pages.Votings
                 Involving.MonthlyValue += value;
                 Involving.TotalValue += value;
                 Involving.LastTime = DateTime.Now;
-                Context.Attach(Involving).State = EntityState.Modified;
             }
             else
             {
@@ -254,7 +249,6 @@ namespace Involver.Pages.Votings
                 Context.Involvings.Add(newInvolving);
             }
             option.TotalCoins += value;
-            Context.Attach(option).State = EntityState.Modified;
 
             await Context.SaveChangesAsync();
 
@@ -292,14 +286,12 @@ namespace Involver.Pages.Votings
             Voter.VirtualCoins -= value;
             Voter.UsedCoins += value;
             CheckMissionVote(Voter);
-            Context.Attach(Voter).State = EntityState.Modified;
 
             var Voting = await Context
                 .Votings
                 .Where(v => v.VotingID == option.VotingID)
                 .FirstOrDefaultAsync();
             Voting.TotalCoins += value;
-            Context.Attach(Voting).State = EntityState.Modified;
 
             var episode = await Context
                 .Episodes.Where(e => e.EpisodeID == Voting.EpisodeID)
@@ -311,7 +303,6 @@ namespace Involver.Pages.Votings
                 .FirstOrDefaultAsync();
             novel.MonthlyCoins += value;
             novel.TotalCoins += value;
-            Context.Attach(novel).State = EntityState.Modified;
 
             var Involving = await Context.Involvings
                 .Where(i => i.NovelID == novel.NovelID)
@@ -323,7 +314,6 @@ namespace Involver.Pages.Votings
                 Involving.MonthlyValue += value;
                 Involving.TotalValue += value;
                 Involving.LastTime = DateTime.Now;
-                Context.Attach(Involving).State = EntityState.Modified;
             }
             else
             {
@@ -339,7 +329,6 @@ namespace Involver.Pages.Votings
                 Context.Involvings.Add(newInvolving);
             }
             option.TotalCoins += value;
-            Context.Attach(option).State = EntityState.Modified;
             await Context.SaveChangesAsync();
 
             await SetAchievements(Voter);

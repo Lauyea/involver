@@ -80,7 +80,6 @@ namespace Involver.Pages.Announcements
                 {
                     userProfile.Missions.ViewAnnouncement = true;
                     userProfile.VirtualCoins += 5;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                     StatusMessage = "每週任務：瀏覽公告 已完成，獲得5 虛擬In幣。";
                 }
                 //Check other missions
@@ -93,7 +92,6 @@ namespace Involver.Pages.Announcements
                     && missions.BeAgreed)
                 {
                     userProfile.Missions.CompleteOtherMissions = true;
-                    _context.Attach(userProfile).State = EntityState.Modified;
                 }
                 await _context.SaveChangesAsync();
             }

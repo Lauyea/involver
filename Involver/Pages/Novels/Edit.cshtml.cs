@@ -172,8 +172,6 @@ namespace Involver.Pages.Novels
 
                 novelToUpdate.NovelTags = novelTags;
 
-                _context.Attach(novelToUpdate).State = EntityState.Modified;
-
                 try
                 {
                     await _context.SaveChangesAsync();

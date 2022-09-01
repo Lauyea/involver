@@ -196,8 +196,6 @@ namespace Involver.Helpers
 
                     profile.VirtualCoins += item.Award;
 
-                    context.Attach(profile).State = EntityState.Modified;
-
                     await context.SaveChangesAsync();
                 }
             }

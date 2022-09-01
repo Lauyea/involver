@@ -85,8 +85,6 @@ namespace Involver.Pages.Feedbacks
             Feedback.OwnerName = tempUser.UserName;
             Feedback.UpdateTime = DateTime.Now;
 
-            _context.Attach(Feedback).State = EntityState.Modified;
-
             try
             {
                 await _context.SaveChangesAsync();
