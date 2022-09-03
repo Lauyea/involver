@@ -17,7 +17,7 @@ namespace InvolverMonthlyWork
             using (SqlConnection conn = new SqlConnection(str))
             {
                 conn.Open();
-                var UseTable = "USE [InvolverDatabase];";
+                var UseTable = "USE [Involver];";
                 using (SqlCommand cmd = new SqlCommand(UseTable, conn))
                 {
                     var rows = await cmd.ExecuteNonQueryAsync();
