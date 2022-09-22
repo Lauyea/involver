@@ -200,6 +200,7 @@ namespace Involver.Pages.Novels
             };
 
             Novel.Views++;
+            Novel.DailyView++;
             Novel.ViewIps.Add(newIp);
         }
 
