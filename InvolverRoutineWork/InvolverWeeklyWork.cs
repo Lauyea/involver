@@ -1,29 +1,27 @@
-using System;
-using System.Data.SqlClient;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using InvolverRoutineWork.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InvolverWeeklyWork
 {
-    public static class InvolverWeeklyWork
+    public class InvolverWeeklyWork
     {
-        [FunctionName("InvolverWeeklyWork")]
-        public static async Task Run([TimerTrigger("0 0 0 * * 1")] TimerInfo myTimer, ILogger log)
-        {
-            // Get the connection string from app settings and use it to create a connection.
-            var str = Environment.GetEnvironmentVariable("sqldb_connection");
-            using (SqlConnection conn = new SqlConnection(str))
-            {
-                conn.Open();
-                var UseTable = "USE [Involver];";
-                using (SqlCommand cmd = new SqlCommand(UseTable, conn))
-                {
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                }
+        private readonly DatabaseContext _context;
 
-                var text = "UPDATE [dbo].[Missions] " +
+        public InvolverWeeklyWork(DatabaseContext context)
+        {
+            _context = context;
+        }
+
+        [FunctionName("InvolverWeeklyWork")]
+        public async Task Run([TimerTrigger("0 0 0 * * 1")] TimerInfo myTimer, ILogger log)
+        {
+            // For use ef core to excute raw SQL
+            await _context.Database.ExecuteSqlRawAsync("USE [Involver]");
+
+            var text = "UPDATE [dbo].[Missions] " +
                         "SET [WatchArticle] = 'False'" +
                         ",[Vote] = 'False'" +
                         ",[LeaveComment] = 'False'" +
@@ -32,13 +30,9 @@ namespace InvolverWeeklyWork
                         ",[BeAgreed] = 'False'" +
                         ",[CompleteOtherMissions] = 'False';";
 
-                using (SqlCommand cmd = new SqlCommand(text, conn))
-                {
-                    // Execute the command and log the # rows affected.
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                    log.LogInformation($"{rows} rows were updated");
-                }
-            }
+            int rows = await _context.Database.ExecuteSqlRawAsync(text);
+
+            log.LogInformation($"Reset weekly missions, {rows} rows were updated");
         }
     }
 }
