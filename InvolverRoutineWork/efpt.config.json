@@ -1,0 +1,189 @@
+﻿{
+   "CodeGenerationMode": 2,
+   "ContextClassName": "DatabaseContext",
+   "ContextNamespace": null,
+   "DefaultDacpacSchema": null,
+   "FilterSchemas": false,
+   "IncludeConnectionString": false,
+   "ModelNamespace": null,
+   "OutputContextPath": "Data",
+   "OutputPath": "Models\/Database",
+   "PreserveCasingWithRegex": true,
+   "ProjectRootNamespace": "Data",
+   "Schemas": null,
+   "SelectedHandlebarsLanguage": 0,
+   "SelectedToBeGenerated": 0,
+   "Tables": [
+      {
+         "Name": "[dbo].[Achievements]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Agree]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Announcement]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Article]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ArticleArticleTag]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ArticleTags]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ArticleViewer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ArticleViewIp]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoleClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserClaims]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserLogins]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserRoles]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUsers]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[AspNetUserTokens]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[BiddingOption]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Comment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Dice]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Episode]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Feedback]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Follow]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Involving]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Message]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Missions]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NormalOption]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Notifications]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Novel]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NovelNovelTag]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NovelTags]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NovelViewer]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[NovelViewIp]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Payment]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Profile]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProfileAchievement]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProfitSharing]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ViewIps]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Vote]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Voting]",
+         "ObjectType": 0
+      }
+   ],
+   "UiHint": "..\\Database\\Database.sqlproj",
+   "UseBoolPropertiesWithoutDefaultSql": false,
+   "UseDatabaseNames": false,
+   "UseDbContextSplitting": false,
+   "UseFluentApiOnly": false,
+   "UseHandleBars": false,
+   "UseHierarchyId": false,
+   "UseInflector": true,
+   "UseLegacyPluralizer": false,
+   "UseManyToManyEntity": true,
+   "UseNoConstructor": false,
+   "UseNoDefaultConstructor": true,
+   "UseNoNavigations": false,
+   "UseNoObjectFilter": false,
+   "UseNodaTime": false,
+   "UseNullableReferences": true,
+   "UseSchemaFolders": false,
+   "UseSpatial": false,
+   "UseT4": false
+}
