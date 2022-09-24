@@ -1,10 +1,12 @@
 using Involver.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
 
 namespace Involver.Pages.StatisticalData
 {
+    [AllowAnonymous]
     public class PartialViewRecordModel : PageModel
     {
         public string DateArrJson { get; set; }
