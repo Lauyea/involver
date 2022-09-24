@@ -275,6 +275,9 @@ namespace Involver.Data.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("getdate()");
 
+                    b.Property<int>("DailyView")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("MonthlyCoins")
                         .HasColumnType("money");
 
@@ -292,6 +295,9 @@ namespace Involver.Data.Migrations
 
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ViewRecordJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Views")
                         .HasColumnType("int");
@@ -782,6 +788,9 @@ namespace Involver.Data.Migrations
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("DailyView")
+                        .HasColumnType("int");
+
                     b.Property<bool>("End")
                         .HasColumnType("bit");
 
@@ -817,6 +826,9 @@ namespace Involver.Data.Migrations
 
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("ViewRecordJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Views")
                         .HasColumnType("int");

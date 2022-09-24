@@ -1,0 +1,49 @@
+﻿@page
+@model Involver.Pages.StatisticalData.PartialViewRecordModel
+@{
+    Layout = null;
+}
+
+<div class="modal fade" id="viewRecordModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            @*<div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">每日觀看數</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>*@
+            <div class="modal-body">
+                <canvas id="viewRecordChart"></canvas>
+            </div>
+            @*<div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<script>
+    var labels = @Html.AntiXssRaw(Model.DateArrJson);
+
+    var data = {
+        labels: labels,
+        datasets: [{
+            label: '每日觀看數',
+            backgroundColor: 'rgb(255, 200, 132)',
+            borderColor: 'rgb(255, 200, 132)',
+            data: @Html.AntiXssRaw(Model.ViewCountArrJson),
+        }]
+    };
+
+    var config = {
+        type: 'bar',
+        data: data,
+        options: {}
+    };
+
+    var viewRecordChart = new Chart(
+        document.getElementById('viewRecordChart'),
+        config
+    );
+</script>

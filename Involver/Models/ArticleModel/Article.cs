@@ -41,6 +41,10 @@ namespace Involver.Models.ArticleModel
         [Column(TypeName = "money")]
         public decimal MonthlyCoins { get; set; }
 
+        public string ViewRecordJson { get; set; }
+
+        public int DailyView { get; set; }
+
         [Required]
         public string ProfileID { get; set; }
         [ForeignKey("ProfileID")]

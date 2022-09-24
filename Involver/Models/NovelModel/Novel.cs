@@ -58,6 +58,10 @@ namespace Involver.Models.NovelModel
         [Display(Name = "封鎖")]
         public bool Block { get; set; }
 
+        public string ViewRecordJson { get; set; }
+
+        public int DailyView { get; set; }
+
         [Required]
         public string ProfileID { get; set; }
         [ForeignKey("ProfileID")]

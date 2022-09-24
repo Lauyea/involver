@@ -48,7 +48,7 @@
                         </a>
                     </p>
                     <p>
-                        <small>觀看數 @Html.DisplayFor(modelItem => item.Views)</small>
+                        <small><a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">觀看數 @Html.DisplayFor(modelItem => item.Views)</a></small>
                     </p>
                     <small>評論數 @(item.Comments.Count()-1)</small>
                 </td>
@@ -162,3 +162,20 @@
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function ShowViewRecordModal(json) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("PartialViewRecord", "StatisticalData")',
+                data: {json: json},
+                success: function (result) {
+                    $('#modal').html("");
+                    $('#modal').html(result);
+                    $('#viewRecordModal').modal('show');
+                }
+            });
+        }
+    </script>
+}

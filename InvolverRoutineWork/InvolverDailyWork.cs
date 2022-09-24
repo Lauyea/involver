@@ -1,46 +1,138 @@
 using System;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using System.Data.SqlClient;
 using System.Threading.Tasks;
+using InvolverRoutineWork.Data;
+using InvolverRoutineWork.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Linq;
+using Data.Models.Database;
 
 namespace InvolverDailyWork
 {
-    public static class InvolverDailyWork
+    public class InvolverDailyWork
     {
-        [FunctionName("InvolverDailyWork")]
-        public static async Task Run([TimerTrigger("0 0 0 * * *")]TimerInfo myTimer, ILogger log)
-        {
-            // Get the connection string from app settings and use it to create a connection.
-            var str = Environment.GetEnvironmentVariable("sqldb_connection");
-            using (SqlConnection conn = new SqlConnection(str))
-            {
-                conn.Open();
-                var UseTable = "USE [Involver];";
-                using (SqlCommand cmd = new SqlCommand(UseTable, conn))
-                {
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                }
+        private readonly DatabaseContext _context;
 
-                var text = "UPDATE [dbo].[Missions] " +
+        public InvolverDailyWork(DatabaseContext context)
+        {
+            _context = context;
+        }
+
+        [FunctionName("InvolverDailyWork")]
+        public async Task Run([TimerTrigger("0 0 0 * * *")]TimerInfo myTimer, ILogger log)
+
+        {
+            var novels = await _context.Novels.ToListAsync();
+
+            SetViewRecord(novels);
+
+            var article = await _context.Articles.ToListAsync();
+
+            SetViewRecord(article);
+
+            await _context.SaveChangesAsync();
+
+            // For use ef core to excute raw SQL
+            await _context.Database.ExecuteSqlRawAsync("USE [Involver]");
+
+            var text = "UPDATE [dbo].[Missions] " +
                         "SET [DailyLogin] = 'False';";
 
-                using (SqlCommand cmd = new SqlCommand(text, conn))
+            int rows = await _context.Database.ExecuteSqlRawAsync(text);
+
+            log.LogInformation($"Update missions, {rows} rows were updated");
+
+            text = "DELETE FROM [dbo].[ViewIps]";
+
+            rows = await _context.Database.ExecuteSqlRawAsync(text);
+
+            log.LogInformation($"Delete view IPs, {rows} rows were updated");
+        }
+
+        private static void SetViewRecord(List<Novel> novels)
+        {
+            foreach (var item in novels)
+            {
+                var views = item.DailyView;
+
+                ViewRecord viewRecord = new()
                 {
-                    // Execute the command and log the # rows affected.
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                    log.LogInformation($"{rows} rows were updated");
+                    Date = DateTime.Now.AddDays(-1).Date,
+                    ViewCount = views
+                };
+
+                List<ViewRecord> records = null;
+
+                try
+                {
+                    records = JsonSerializer.Deserialize<List<ViewRecord>>(item.ViewRecordJson);
+                }
+                catch
+                {
+                    records = new List<ViewRecord>();
                 }
 
-                text = "DELETE FROM [dbo].[ViewIps]";
-
-                using (SqlCommand cmd = new SqlCommand(text, conn))
+                if (records == null)
                 {
-                    // Execute the command and log the # rows affected.
-                    var rows = await cmd.ExecuteNonQueryAsync();
-                    log.LogInformation($"{rows} rows were updated");
+                    records = new List<ViewRecord>();
                 }
+
+                var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+
+                records = records.Where(r => r.Date > threeMonthsAgo).ToList();
+
+                records.Add(viewRecord);
+
+                string recordJson = JsonSerializer.Serialize(records);
+
+                item.ViewRecordJson = recordJson;
+
+                item.DailyView = 0;
+            }
+        }
+
+        private static void SetViewRecord(List<Article> articles)
+        {
+            foreach (var item in articles)
+            {
+                var views = item.DailyView;
+
+                ViewRecord viewRecord = new()
+                {
+                    Date = DateTime.Now.AddDays(-1).Date,
+                    ViewCount = views
+                };
+
+                List<ViewRecord> records = null;
+
+                try
+                {
+                    records = JsonSerializer.Deserialize<List<ViewRecord>>(item.ViewRecordJson);
+                }
+                catch
+                {
+                    records = new List<ViewRecord>();
+                }
+
+                if (records == null)
+                {
+                    records = new List<ViewRecord>();
+                }
+
+                var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+
+                records = records.Where(r => r.Date > threeMonthsAgo).ToList();
+
+                records.Add(viewRecord);
+
+                string recordJson = JsonSerializer.Serialize(records);
+
+                item.ViewRecordJson = recordJson;
+
+                item.DailyView = 0;
             }
         }
     }

@@ -136,6 +136,7 @@ namespace Involver.Pages.Articles
             };
 
             Article.Views++;
+            Article.DailyView++;
             Article.ViewIps.Add(newIp);
         }
 

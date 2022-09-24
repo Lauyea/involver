@@ -150,7 +150,7 @@
                     <p>
                         <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
                     </p>
-                    <small>@Html.DisplayFor(modelItem => item.Views)</small>
+                    <small><a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
                 </td>
             </tr>
         }
@@ -278,6 +278,23 @@
     </div>
 </div>
 
+
+@section Scripts{
+    <script>
+        function ShowViewRecordModal(json) {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("PartialViewRecord", "StatisticalData")',
+                data: { json: json },
+                success: function (result) {
+                    $('#modal').html("");
+                    $('#modal').html(result);
+                    $('#viewRecordModal').modal('show');
+                }
+            });
+        }
+    </script>
+}
 
 @*@{
         string GetTypeName(Involver.Models.NovelModel.Type? type)

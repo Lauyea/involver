@@ -30,6 +30,7 @@
     <link rel="stylesheet" href=@toggleBootstrapDark />
     <link rel="stylesheet" href=@toggleBootstrapPrint />
     <link rel="stylesheet" href="~/css/site.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @RenderSection("Styles", required: false)
     <style>
@@ -120,6 +121,7 @@
             </div>
         </nav>
     </header>
+    <div id="modal"></div>
     <div class="container mb-5 pb-3">
         <partial name="_CookieConsentPartial" />
         <main role="main" class="pb-3">
