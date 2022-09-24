@@ -13,7 +13,16 @@ namespace Involver.Pages.StatisticalData
 
         public void OnGet(string json)
         {
-            List<ViewRecord> records = JsonSerializer.Deserialize<List<ViewRecord>>(json);
+            List<ViewRecord> records;
+
+            try
+            {
+                records = JsonSerializer.Deserialize<List<ViewRecord>>(json);
+            }
+            catch
+            {
+                records = new();
+            }
 
             records = records.OrderBy(r => r.Date).ToList();
 
