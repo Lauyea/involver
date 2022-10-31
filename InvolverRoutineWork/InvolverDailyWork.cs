@@ -80,9 +80,9 @@ namespace InvolverDailyWork
                     records = new List<ViewRecord>();
                 }
 
-                var threeMonthsAgo = DateTime.Now.AddMonths(-3);
+                var halfMonthAgo = DateTime.Now.AddDays(-15);
 
-                records = records.Where(r => r.Date > threeMonthsAgo).ToList();
+                records = records.Where(r => r.Date > halfMonthAgo).ToList();
 
                 records.Add(viewRecord);
 
