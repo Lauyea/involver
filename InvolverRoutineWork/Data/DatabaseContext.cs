@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Data.Models.Database;
 
-namespace InvolverRoutineWork.Data
+namespace Data.Data
 {
     public partial class DatabaseContext : DbContext
     {

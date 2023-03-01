@@ -32,7 +32,18 @@
         {
             <tr>
                 <td>
-                    <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
+                    <a asp-page="./Details" asp-route-id="@item.ArticleID">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl"
+                            asp-append-version="true"
+                                 alt="讀取失敗"
+                                 title="@item.Title"
+                                 style="max-width: 100%; max-height: 100px">
+
+                        }
+                        <p>@Html.DisplayFor(modelItem => item.Title)</p>
+                        </a>
                     <p><small>@TimePeriodHelper.Get(item.UpdateTime)</small></p>
                     @if (item.Block == true)
                     {

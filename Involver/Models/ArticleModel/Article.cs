@@ -31,6 +31,11 @@ namespace Involver.Models.ArticleModel
         [Display(Name = "觀看數")]
         public int Views { get; set; }
 
+        [DataType(DataType.ImageUrl)]
+        [Display(Name = "主題圖片網址")]
+        [StringLength(1024)]
+        public string ImageUrl { get; set; }
+
         public bool Block { get; set; }
 
         
