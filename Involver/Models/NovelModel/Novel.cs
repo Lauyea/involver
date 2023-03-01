@@ -25,7 +25,7 @@ namespace Involver.Models.NovelModel
 
         [DataType(DataType.ImageUrl)]
         [Display(Name = "主題圖片網址")]
-        [StringLength(128)]
+        [StringLength(1024)]
         public string ImageUrl { get; set; }
 
         [DisplayFormat(NullDisplayText = "No type")]

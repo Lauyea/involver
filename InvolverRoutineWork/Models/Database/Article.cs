@@ -39,6 +39,8 @@ namespace Data.Models.Database
         public DateTime CreateTime { get; set; }
         public int DailyView { get; set; }
         public string? ViewRecordJson { get; set; }
+        [StringLength(1024)]
+        public string? ImageUrl { get; set; }
 
         [ForeignKey("ProfileId")]
         [InverseProperty("Articles")]

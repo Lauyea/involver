@@ -152,7 +152,7 @@ namespace Involver.Pages.Articles
             if (await TryUpdateModelAsync<Article>(
                 articleToUpdate,
                 "article",
-                a => a.Title, a => a.Content, a => a.Block))
+                a => a.Title, a => a.Content, a => a.Block, articleTags => articleTags.ImageUrl))
             {
                 articleToUpdate.UpdateTime = DateTime.Now;
 

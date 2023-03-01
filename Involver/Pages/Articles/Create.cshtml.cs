@@ -141,7 +141,7 @@ namespace Involver.Pages.Articles
             if (await TryUpdateModelAsync<Article>(
                 emptyArticle,
                 "Article",   // Prefix for form value.
-                f => f.Title, f => f.Content))
+                a => a.Title, a => a.Content, a => a.ImageUrl))
             {
                 emptyArticle.UpdateTime = DateTime.Now;
                 var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);

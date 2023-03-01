@@ -43,7 +43,7 @@ namespace Data.Models.Database
         public bool Block { get; set; }
         [Column("ProfileID")]
         public string ProfileId { get; set; } = null!;
-        [StringLength(128)]
+        [StringLength(1024)]
         public string? ImageUrl { get; set; }
         public int DailyView { get; set; }
         public string? ViewRecordJson { get; set; }
