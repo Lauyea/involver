@@ -26,54 +26,50 @@
     </div>
 </form>
 <p></p>
-<table class="table">
-    <tbody>
-        @foreach (var item in Model.Articles)
-        {
-            <tr>
-                <td>
-                    <a asp-page="./Details" asp-route-id="@item.ArticleID">
-                        @if (!string.IsNullOrEmpty(item.ImageUrl))
-                        {
-                            <img src="@item.ImageUrl"
-                            asp-append-version="true"
-                                 alt="讀取失敗"
-                                 title="@item.Title"
-                                 style="max-width: 100%; max-height: 100px">
+<div class="row row-cols-1 row-cols-md-3">
+    @foreach (var item in Model.Articles)
+    {
+        <div class="col mb-4">
+            <div class="card">
+                <a asp-page="./Details" asp-route-id="@item.ArticleID">
+                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                    {
+                        <img src="@item.ImageUrl"
+                     asp-append-version="true"
+                             alt="讀取失敗"
+                             title="@item.Title"
+                             class="card-img-top">
 
-                        }
-                        <p>@Html.DisplayFor(modelItem => item.Title)</p>
-                        </a>
-                    <p><small>@TimePeriodHelper.Get(item.UpdateTime)</small></p>
+                    }
+                </a>
+                <div class="card-body">
+                    <a asp-page="./Details" asp-route-id="@item.ArticleID">
+                        <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
+                    </a>
                     @if (item.Block == true)
                     {
                         <span class="text-danger">Block</span>
                     }
-                </td>
-                <td>
+                    <p class="card-text">@Html.AntiXssRaw((item.Content.Substring(0, Parameters.ContentLength) + "..."))</p>
                     <p>
                         <a asp-area="Identity"
                        asp-page="/Profile/Index"
                        asp-route-id="@item.ProfileID">
                             <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                         </a>
-                    </p>
-                    <p>
+                        &nbsp;
                         <small><a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">觀看數 @Html.DisplayFor(modelItem => item.Views)</a></small>
+                        &nbsp;
+                        <small>評論數 @(item.Comments.Count() - 1)</small>
                     </p>
-                    <small>評論數 @(item.Comments.Count()-1)</small>
-                </td>
-                <td>
-                    In幣
-                    <p>
-                        <small>總計 @Html.DisplayFor(modelItem => item.TotalCoins)</small>
-                    </p>
-                    <small>月計 @Html.DisplayFor(modelItem => item.MonthlyCoins)</small>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 @{
     var prevDisabled = !Model.Articles.HasPreviousPage ? "disabled" : "";
