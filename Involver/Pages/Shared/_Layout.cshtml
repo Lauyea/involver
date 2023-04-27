@@ -86,7 +86,7 @@
     string theme = Context.Session.GetString("_DarkMode") == "On" ? "bootstrap-dark" : "bootstrap";
 }
 
-<body class="@theme" id="layout-body">
+<body class="@theme" id="layout-body" oncontextmenu="return false" onselectstart="return false" onkeydown="return false">
     <div class="text-center" style="position: absolute;top: 15rem;right: 50%;z-index:100;">
         <div id="loading" class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
