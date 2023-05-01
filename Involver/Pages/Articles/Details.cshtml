@@ -2,7 +2,7 @@
 @model Involver.Pages.Articles.DetailsModel
 
 @{
-    ViewData["Title"] = "討論";
+    ViewData["Title"] = Model.Article.Title;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />
