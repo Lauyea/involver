@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = Model.Episode.Title;
     Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["ReturnRightFunction"] = false;
 }
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
