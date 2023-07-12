@@ -73,7 +73,7 @@ namespace Involver.Pages.Comments
 
             // Fetch data from DB to get OwnerID.
             var comment = await _context
-                .Comments.AsNoTracking()
+                .Comments
                 .FirstOrDefaultAsync(c => c.CommentID == id);
 
             if (comment == null)
@@ -99,28 +99,29 @@ namespace Involver.Pages.Comments
                 return Page();
             }
 
-            Comment.ProfileID = comment.ProfileID;
-            Comment.UpdateTime = DateTime.Now;
+            comment.UpdateTime = DateTime.Now;
             if(from == Parameters.Feedbacks)
             {
-                Comment.FeedbackID = fromID;
+                comment.FeedbackID = fromID;
             }
             else if(from == Parameters.Announcements)
             {
-                Comment.AnnouncementID = fromID;
+                comment.AnnouncementID = fromID;
             }
             else if (from == Parameters.Articles)
             {
-                Comment.ArticleID = fromID;
+                comment.ArticleID = fromID;
             }
             else if (from == Parameters.Novels)
             {
-                Comment.NovelID = fromID;
+                comment.NovelID = fromID;
             }
             else if (from == Parameters.Episodes)
             {
-                Comment.EpisodeID = fromID;
+                comment.EpisodeID = fromID;
             }
+
+            comment.Content = Comment.Content;
 
             try
             {
