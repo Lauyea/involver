@@ -63,7 +63,7 @@ namespace Involver.Pages.Feedbacks
 
             // Fetch data from DB to get OwnerID.
             var feedback = await _context
-                .Feedbacks.AsNoTracking()
+                .Feedbacks
                 .FirstOrDefaultAsync(f => f.FeedbackID == id);
 
             if (feedback == null)

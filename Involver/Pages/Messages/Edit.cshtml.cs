@@ -61,7 +61,6 @@ namespace Involver.Pages.Messages
             var message = await _context
                 .Messages
                 .Include(m => m.Comment)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.MessageID == id);
 
             if (message == null)
