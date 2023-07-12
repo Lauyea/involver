@@ -52,7 +52,7 @@ namespace Involver.Pages.Episodes
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if(Episode.Content.Length > Parameters.ArticleLength)
+            if (Episode.Content.Length > Parameters.ArticleLength)
             {
                 return Page();
             }
@@ -66,7 +66,6 @@ namespace Involver.Pages.Episodes
             Episode episode = await _context
                 .Episodes
                 .Include(e => e.Novel)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.EpisodeID == id);
 
             if (episode == null)
@@ -82,12 +81,11 @@ namespace Involver.Pages.Episodes
                 return Forbid();
             }
 
-            Episode.UpdateTime = DateTime.Now;
-            Episode.Views = episode.Views;
-            Episode.OwnerID = _userManager.GetUserId(User);
-            Episode.HasVoting = episode.HasVoting;
-            Episode.IsLast = episode.IsLast;
-            Episode.NovelID = episode.NovelID;
+            episode.UpdateTime = DateTime.Now;
+            episode.OwnerID = _userManager.GetUserId(User);
+            episode.Content = Episode.Content;
+            episode.Title = Episode.Title;
+
 
             try
             {
@@ -111,7 +109,7 @@ namespace Involver.Pages.Episodes
 
             ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
-            return RedirectToPage("/Novels/Details", "OnGet", new { id = Episode.NovelID }, "EpisodeHead");
+            return RedirectToPage("/Novels/Details", "OnGet", new { id = episode.NovelID }, "EpisodeHead");
         }
 
         private bool EpisodeExists(int id)

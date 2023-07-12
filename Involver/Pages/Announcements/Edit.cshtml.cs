@@ -63,7 +63,7 @@ namespace Involver.Pages.Announcements
 
             // Fetch data from DB to get OwnerID.
             var announcement = await _context
-                .Announcements.AsNoTracking()
+                .Announcements
                 .FirstOrDefaultAsync(f => f.AnnouncementID == id);
 
             if (announcement == null)
@@ -79,11 +79,11 @@ namespace Involver.Pages.Announcements
                 return Forbid();
             }
 
-            Announcement.OwnerID = announcement.OwnerID;
             var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
-            Announcement.OwnerName = tempUser.UserName;
-            Announcement.UpdateTime = DateTime.Now;
-            Announcement.Views = announcement.Views;
+            announcement.OwnerName = tempUser.UserName;
+            announcement.UpdateTime = DateTime.Now;
+            announcement.Content = Announcement.Content;
+            announcement.Title = Announcement.Title;
 
             try
             {

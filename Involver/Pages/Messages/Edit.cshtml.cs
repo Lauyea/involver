@@ -77,9 +77,9 @@ namespace Involver.Pages.Messages
                 return Forbid();
             }
 
-            Message.ProfileID = message.ProfileID;
-            Message.UpdateTime = DateTime.Now;
-            Message.CommentID = fromID;
+            message.UpdateTime = DateTime.Now;
+            message.CommentID = fromID;
+            message.Content = Message.Content;
 
             try
             {

@@ -79,11 +79,11 @@ namespace Involver.Pages.Feedbacks
                 return Forbid();
             }
 
-            Feedback.OwnerID = feedback.OwnerID;
-            Feedback.Block = feedback.Block;
             var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
-            Feedback.OwnerName = tempUser.UserName;
-            Feedback.UpdateTime = DateTime.Now;
+            feedback.OwnerName = tempUser.UserName;
+            feedback.UpdateTime = DateTime.Now;
+            feedback.Title = Feedback.Title;
+            feedback.Content = Feedback.Content;
 
             try
             {
