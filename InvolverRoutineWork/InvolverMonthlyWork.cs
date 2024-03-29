@@ -1,8 +1,8 @@
-﻿using Microsoft.Azure.WebJobs;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using InvolverRoutineWork.Data;
+using Data.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Azure.Functions.Worker;
 
 namespace InvolverMonthlyWork
 {
@@ -15,7 +15,7 @@ namespace InvolverMonthlyWork
             _context = context;
         }
 
-        [FunctionName("InvolverMonthlyWork")]
+        [Function("InvolverMonthlyWork")]
         public async Task Run([TimerTrigger("0 0 0 1 * *")] TimerInfo myTimer, ILogger log)
         {
             // For use ef core to excute raw SQL

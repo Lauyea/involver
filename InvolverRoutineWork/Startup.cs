@@ -1,4 +1,4 @@
-﻿using InvolverRoutineWork.Data;
+﻿using Data.Data;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
