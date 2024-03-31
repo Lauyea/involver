@@ -6,8 +6,16 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WebPWrecover.Services;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsProduction())
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri($"https://{builder.Configuration["KeyVaultName"]}.vault.azure.net/"),
+        new DefaultAzureCredential());
+}
 
 var services = builder.Services;
 
@@ -94,11 +102,8 @@ services.ConfigureApplicationCookie(options =>
 services.AddAuthentication()
     .AddGoogle(options =>
     {
-        IConfigurationSection googleAuthNSection =
-            builder.Configuration.GetSection("Authentication:Google");
-
-        options.ClientId = googleAuthNSection["ClientId"];
-        options.ClientSecret = googleAuthNSection["ClientSecret"];
+        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
     })
     .AddFacebook(facebookOptions =>
     {

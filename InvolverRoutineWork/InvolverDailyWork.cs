@@ -1,14 +1,14 @@
 using System;
-using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using InvolverRoutineWork.Data;
+using Data.Data;
 using InvolverRoutineWork.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Linq;
 using Data.Models.Database;
+using Microsoft.Azure.Functions.Worker;
 
 namespace InvolverDailyWork
 {
@@ -21,7 +21,7 @@ namespace InvolverDailyWork
             _context = context;
         }
 
-        [FunctionName("InvolverDailyWork")]
+        [Function("InvolverDailyWork")]
         public async Task Run([TimerTrigger("0 0 0 * * *")]TimerInfo myTimer, ILogger log)
 
         {
