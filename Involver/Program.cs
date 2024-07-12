@@ -110,7 +110,12 @@ services.AddAuthentication()
         facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"];
         facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
-services.AddApplicationInsightsTelemetry(builder.Configuration.GetValue<string>("APPINSIGHTS_INSTRUMENTATIONKEY"));
+
+builder.Logging.AddApplicationInsights(
+        configureTelemetryConfiguration: (config) =>
+            config.ConnectionString = builder.Configuration.GetConnectionString("APPLICATIONINSIGHTS_CONNECTION_STRING"),
+            configureApplicationInsightsLoggerOptions: (options) => { }
+    );
 
 services.AddDistributedMemoryCache();
 
@@ -157,13 +162,10 @@ app.UseAuthorization();
 
 app.UseSession();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapRazorPages();
-    //加上MapDefaultControllerRoute()
-    endpoints.MapDefaultControllerRoute();
-    //支援透過Attribute指定路由
-    endpoints.MapControllers();
-});
+app.MapRazorPages();
+//加上MapDefaultControllerRoute()
+app.MapDefaultControllerRoute();
+//支援透過Attribute指定路由
+app.MapControllers();
 
 app.Run();
