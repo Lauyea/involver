@@ -111,6 +111,7 @@ services.AddAuthentication()
         facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
 
+//TODO: Remember it's probably need to use ApplicationInsights.config file instead.
 builder.Logging.AddApplicationInsights(
         configureTelemetryConfiguration: (config) =>
             config.ConnectionString = builder.Configuration.GetConnectionString("APPLICATIONINSIGHTS_CONNECTION_STRING"),
