@@ -26,7 +26,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1個月前", result);
+            Assert.That("1個月前" == result);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1年前", result);
+            Assert.That("1年前" == result);
         }
 
         [Test]
@@ -54,7 +54,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1年前", result);
+            Assert.That("1年前" == result);
         }
 
         [Test]
@@ -68,7 +68,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("3年前", result);
+            Assert.That("3年前" == result);
         }
 
         [Test]
@@ -82,7 +82,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1分鐘前", result);
+            Assert.That("1分鐘前" == result);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1小時前", result);
+            Assert.That("1小時前" == result);
         }
 
         [Test]
@@ -110,7 +110,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1小時前", result);
+            Assert.That("1小時前" == result);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1天前", result);
+            Assert.That("1天前" == result);
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1天前", result);
+            Assert.That("1天前" == result);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace InvolverTest.Helpers
                 time);
 
             // Assert
-            Assert.AreEqual("1個月前", result);
+            Assert.That("1個月前" == result);
         }
 
 

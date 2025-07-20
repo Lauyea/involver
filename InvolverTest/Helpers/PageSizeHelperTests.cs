@@ -31,8 +31,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(1, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(1 == endPage);
         }
 
         [Test]
@@ -52,8 +52,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(3, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(3 == endPage);
         }
 
         [Test]
@@ -73,8 +73,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(5, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(5 == endPage);
         }
 
         [Test]
@@ -94,8 +94,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(5, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(5 == endPage);
         }
 
         [Test]
@@ -115,8 +115,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(3, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(3 == endPage);
         }
 
         [Test]
@@ -136,8 +136,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(5, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(5 == endPage);
         }
 
         [Test]
@@ -157,8 +157,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(5, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(5 == endPage);
         }
 
         [Test]
@@ -178,8 +178,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(3, startPage);
-            Assert.AreEqual(5, endPage);
+            Assert.That(3 == startPage);
+            Assert.That(5 == endPage);
         }
 
         [Test]
@@ -199,8 +199,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(3, startPage);
-            Assert.AreEqual(7, endPage);
+            Assert.That(3 == startPage);
+            Assert.That(7 == endPage);
         }
 
         [Test]
@@ -220,8 +220,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(5, startPage);
-            Assert.AreEqual(7, endPage);
+            Assert.That(5 == startPage);
+            Assert.That(7 == endPage);
         }
 
         [Test]
@@ -241,8 +241,8 @@ namespace InvolverTest.Helpers
                 ref endPage);
 
             // Assert
-            Assert.AreEqual(1, startPage);
-            Assert.AreEqual(4, endPage);
+            Assert.That(1 == startPage);
+            Assert.That(4 == endPage);
         }
     }
 }
