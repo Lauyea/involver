@@ -27,8 +27,8 @@ namespace InvolverTest.Helpers
                 ref strToDice);
 
             // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual("5D10: ", strToDice[..6]);
+            Assert.That(result);
+            Assert.That("5D10: " == strToDice[..6]);
         }
 
         [Test]
@@ -42,8 +42,8 @@ namespace InvolverTest.Helpers
                 ref strToDice);
 
             // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual("<p>5D10: ", strToDice[..9]);
+            Assert.That(result);
+            Assert.That("<p>5D10: " == strToDice[..9]);
         }
 
         [Test]
@@ -79,9 +79,9 @@ namespace InvolverTest.Helpers
             }
 
             // Assert
-            Assert.IsTrue(count1 > 0);
-            Assert.IsTrue(count2 > 0);
-            Assert.IsTrue(count3 > 0);
+            Assert.That(count1 > 0);
+            Assert.That(count2 > 0);
+            Assert.That(count3 > 0);
         }
     }
 }

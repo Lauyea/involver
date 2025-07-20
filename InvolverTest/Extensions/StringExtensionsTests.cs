@@ -27,7 +27,7 @@ namespace InvolverTest.Extensions
                 s);
 
             // Assert
-            Assert.AreEqual("aaa0890957be5148be6b9066461cf9b4", result);
+            Assert.That("aaa0890957be5148be6b9066461cf9b4" == result);
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace InvolverTest.Extensions
                 s);
 
             // Assert
-            Assert.AreEqual("312112d06c5f78cb50ca55a1bbe5bb60", result);
+            Assert.That("312112d06c5f78cb50ca55a1bbe5bb60" == result);
         }
     }
 }
