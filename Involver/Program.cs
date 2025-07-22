@@ -1,3 +1,5 @@
+using Azure.Identity;
+using Azure.Monitor.OpenTelemetry.AspNetCore;
 using Involver.Data;
 using Involver.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -6,9 +8,12 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using WebPWrecover.Services;
-using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Call AddOpenTelemetry() to add OpenTelemetry to your ServiceCollection.
+// Call UseAzureMonitor() to fully configure OpenTelemetry.
+builder.Services.AddOpenTelemetry().UseAzureMonitor();
 
 if (builder.Environment.IsProduction())
 {
@@ -110,13 +115,6 @@ services.AddAuthentication()
         facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"];
         facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
     });
-
-//TODO: Remember it's probably need to use ApplicationInsights.config file instead.
-builder.Logging.AddApplicationInsights(
-        configureTelemetryConfiguration: (config) =>
-            config.ConnectionString = builder.Configuration.GetConnectionString("APPLICATIONINSIGHTS_CONNECTION_STRING"),
-            configureApplicationInsightsLoggerOptions: (options) => { }
-    );
 
 services.AddDistributedMemoryCache();
 
