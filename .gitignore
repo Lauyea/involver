@@ -341,3 +341,4 @@ healthchecksdb
 
 # MCP files
 *mcp.json
+settings.json
