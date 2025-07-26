@@ -191,14 +191,14 @@
                             }
                         </h5>
                         <p class="card-text">
+                            <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
+                        </p>
+                        <p class="card-text">
                             <span class="badge badge-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
                             @foreach (var tag in item.NovelTags)
                             {
                                 <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info">@tag.Name</a>
                             }
-                        </p>
-                        <p class="card-text">
-                            <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
                         </p>
                         <p class="card-text">
                             <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
