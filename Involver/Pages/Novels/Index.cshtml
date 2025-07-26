@@ -52,6 +52,14 @@
     </div>
 </form>
 <p></p>
+<!-- Toggle Button for List/Card View -->
+<div class="mb-3">
+    <button id="toggleViewBtn" class="btn btn-outline-secondary">
+        <i class="fas fa-th-list"></i> 切換卡片/列表
+    </button>
+</div>
+<!-- List/Table View -->
+<div id="listView">
 <table class="table">
     <thead>
         <tr>
@@ -156,6 +164,57 @@
         }
     </tbody>
 </table>
+</div>
+<!-- Card View -->
+<div id="cardView" style="display:none;">
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        @foreach (var item in Model.Novels)
+        {
+            <div class="col mb-4">
+                <div class="card h-100">
+                    <a asp-page="./Details" asp-route-id="@item.NovelID">
+                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                        {
+                            <img src="@item.ImageUrl" asp-append-version="true" alt="讀取失敗" title="@item.Title" class="card-img-top" style="max-height:180px;object-fit:cover;">
+                        }
+                        else
+                        {
+                            <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID" alt="讀取失敗" title="主題圖片" class="card-img-top" style="max-height:180px;object-fit:cover;" />
+                        }
+                    </a>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
+                            @if (item.Block == true)
+                            {
+                                <span class="text-danger">Block</span>
+                            }
+                        </h5>
+                        <p class="card-text">
+                            <span class="badge badge-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
+                            @foreach (var tag in item.NovelTags)
+                            {
+                                <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info">@tag.Name</a>
+                            }
+                        </p>
+                        <p class="card-text">
+                            <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
+                        </p>
+                        <p class="card-text">
+                            <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
+                        </p>
+                        <p class="card-text">
+                            <small>更新時間：@TimePeriodHelper.Get(item.UpdateTime)</small>
+                        </p>
+                        <p class="card-text">
+                            <small>觀看數：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
 
 @{
     var prevDisabled = !Model.Novels.HasPreviousPage ? "disabled" : "";
@@ -293,6 +352,25 @@
                 }
             });
         }
+        // Toggle List/Card View
+        $(function () {
+            var viewMode = localStorage.getItem('novelViewMode') || 'list';
+            function setView(mode) {
+                if (mode === 'card') {
+                    $('#listView').hide();
+                    $('#cardView').show();
+                } else {
+                    $('#listView').show();
+                    $('#cardView').hide();
+                }
+                localStorage.setItem('novelViewMode', mode);
+            }
+            setView(viewMode);
+            $('#toggleViewBtn').click(function () {
+                viewMode = (viewMode === 'list') ? 'card' : 'list';
+                setView(viewMode);
+            });
+        });
     </script>
 }
 
