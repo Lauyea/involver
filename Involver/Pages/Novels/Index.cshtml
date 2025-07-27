@@ -53,112 +53,77 @@
 </form>
 <p></p>
 <!-- Toggle Button for List/Card View -->
-<div class="mb-3">
+<div class="mb-3 d-flex align-items-center justify-content-between">
+    <div>
+        <!-- Sort Buttons for Card View (also used in List View) -->
+        <div id="sortBar" class="btn-group mb-2">
+            <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.IncoinSort ? "active" : "")">In幣</a>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.DateSort ? "active" : "")">時間</a>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.ViewSort ? "active" : "")">觀看數</a>
+        </div>
+    </div>
     <button id="toggleViewBtn" class="btn btn-outline-secondary">
         <i class="fas fa-th-list"></i> 切換卡片/列表
     </button>
 </div>
 <!-- List/Table View -->
 <div id="listView">
-<table class="table">
-    <thead>
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th style="width:15%">
-                
-            </th>
-            <th style="width:40%">
-                
-            </th>
-            <th style="width:25%">
-                <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort"
-                   asp-route-currentType="@Model.CurrentType"
-                   asp-route-currentFilter="@Model.CurrentFilter">
-                    In幣
-                </a>
-            </th>
-            <th class="container" style="width:20%">
-                <small class="row">
-                    <span class="col-auto">
-                        <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort"
-                       asp-route-currentType="@Model.CurrentType"
-                       asp-route-currentFilter="@Model.CurrentFilter">
-                        時間
-                    </a>
-                    </span>
-                    <span class="col-auto">&</span>
-                    <span class="col-auto">
-                        <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort"
-                       asp-route-currentType="@Model.CurrentType"
-                       asp-route-currentFilter="@Model.CurrentFilter">
-                        @Html.DisplayNameFor(model => model.Novels[0].Views)
-                    </a>
-                    </span>
-                </small>
-            </th>
+            <th style="width:12%;text-align:center;">類型/標籤</th>
+            <th style="width:38%;"></th>
+            <th style="width:20%;text-align:center;">In幣</th>
+            <th style="width:15%;text-align:center;">時間</th>
+            <th style="width:15%;text-align:center;">觀看數</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model.Novels)
         {
             <tr>
-                <td>
-                    @novelTypeDetermination.GetTypeName(item.Type)
-                    <p>
+                <td style="vertical-align:middle;text-align:center;">
+                    <span class="badge badge-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
+                    <div class="mt-1">
                         @foreach (var tag in item.NovelTags)
                         {
-                            <a asp-page="./Index"
-                            asp-route-currentFilter="@tag.Name"
-                            class="badge badge-pill badge-info">
-                                @tag.Name
-                            </a>
+                            <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info">@tag.Name</a>
                         }
-                    </p>
+                    </div>
                 </td>
-                <td>
-                    <p>
-                        <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
-                        @if (item.Block == true)
-                        {
-                            <span class="text-danger">Block</span>
-                        }
-                    </p>
-                    <a asp-page="./Details" asp-route-id="@item.NovelID">
-                        @if (!string.IsNullOrEmpty(item.ImageUrl))
-                        {
-                            <img src="@item.ImageUrl"
-                         asp-append-version="true"
-                         alt="讀取失敗"
-                         title="@item.Title"
-                         style="max-width: 100%; max-height: 100px">
-
-                        }
-                        else
-                        {
-                            <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID"
-                         alt="讀取失敗"
-                         title="主題圖片"
-                         style="max-width: 100%; max-height: 100px" />
-                        }
-                    </a>
-                    <p>
-                        <small>
-                            <a asp-area="Identity"
-                           asp-page="/Profile/Index"
-                           asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a>
-                        </small>
-                    </p>
+                <td style="vertical-align:middle;">
+                    <div class="d-flex align-items-center">
+                        <a asp-page="./Details" asp-route-id="@item.NovelID">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" asp-append-version="true" alt="讀取失敗" title="@item.Title" style="height:80px;object-fit:cover;border-radius:6px;margin-right:10px;">
+                            }
+                            else
+                            {
+                                <img src="https://picsum.photos/600/300?grayscale&random=@item.NovelID" alt="讀取失敗" title="主題圖片" style="height:80px;object-fit:cover;border-radius:6px;margin-right:10px;" />
+                            }
+                        </a>
+                        <div>
+                            <a asp-page="./Details" asp-route-id="@item.NovelID" class="fw-bold">@Html.DisplayFor(modelItem => item.Title)</a>
+                            @if (item.Block == true)
+                            {
+                                <span class="text-danger ms-1">Block</span>
+                            }
+                            <div>
+                                <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
+                            </div>
+                        </div>
+                    </div>
                 </td>
-                <td>
-                    <p>
-                        <small>總計 @Html.DisplayFor(modelItem => item.TotalCoins)</small>
-                    </p>
-                    <small>月計 @Html.DisplayFor(modelItem => item.MonthlyCoins)</small>
+                <td style="vertical-align:middle;text-align:center;">
+                    <div><small>總計 @Html.DisplayFor(modelItem => item.TotalCoins)</small></div>
+                    <div><small>月計 @Html.DisplayFor(modelItem => item.MonthlyCoins)</small></div>
                 </td>
-                <td>
-                    <p>
-                        <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
-                    </p>
-                    <small><a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
+                <td style="vertical-align:middle;text-align:center;">
+                    <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
+                </td>
+                <td style="vertical-align:middle;text-align:center;">
+                    <a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a>
                 </td>
             </tr>
         }
@@ -171,7 +136,7 @@
         @foreach (var item in Model.Novels)
         {
             <div class="col mb-4">
-                <div class="card h-100">
+                <div class="card h-100 shadow-sm">
                     <a asp-page="./Details" asp-route-id="@item.NovelID">
                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                         {
@@ -183,32 +148,32 @@
                         }
                     </a>
                     <div class="card-body">
-                        <h5 class="card-title">
+                        <h5 class="card-title mb-1">
                             <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
                             @if (item.Block == true)
                             {
-                                <span class="text-danger">Block</span>
+                                <span class="text-danger ms-1">Block</span>
                             }
                         </h5>
-                        <p class="card-text">
-                            <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
-                        </p>
-                        <p class="card-text">
+                        <div class="mb-1">
                             <span class="badge badge-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
                             @foreach (var tag in item.NovelTags)
                             {
                                 <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info">@tag.Name</a>
                             }
-                        </p>
-                        <p class="card-text">
+                        </div>
+                        <div class="mb-1">
+                            <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
+                        </div>
+                        <div class="mb-1">
                             <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
-                        </p>
-                        <p class="card-text">
-                            <small>更新時間：@TimePeriodHelper.Get(item.UpdateTime)</small>
-                        </p>
-                        <p class="card-text">
-                            <small>觀看數：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
-                        </p>
+                        </div>
+                        <div class="mb-1">
+                            <small>更新：@TimePeriodHelper.Get(item.UpdateTime)</small>
+                        </div>
+                        <div>
+                            <small>觀看：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
+                        </div>
                     </div>
                 </div>
             </div>
