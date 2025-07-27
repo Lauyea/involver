@@ -5,6 +5,25 @@
     ViewData["Title"] = "創作";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     NovelTypeDetermination novelTypeDetermination = new NovelTypeDetermination();
+    // 箭頭顯示判斷
+    string arrowIncoin = string.Empty;
+    string arrowDate = string.Empty;
+    string arrowView = string.Empty;
+    if (!String.IsNullOrEmpty(Model.CurrentSort))
+    {
+        if (Model.CurrentSort.StartsWith("Incoin"))
+        {
+            arrowIncoin = Model.CurrentSort.EndsWith("desc") ? "<i class='fa-solid fa-chevron-down'></i>" : "<i class='fa-solid fa-chevron-up'></i>";
+        }
+        if (Model.CurrentSort.StartsWith("Date"))
+        {
+            arrowDate = Model.CurrentSort.EndsWith("desc") ? "<i class='fa-solid fa-chevron-down'></i>" : "<i class='fa-solid fa-chevron-up'></i>";
+        }
+        if (Model.CurrentSort.StartsWith("View"))
+        {
+            arrowView = Model.CurrentSort.EndsWith("desc") ? "<i class='fa-solid fa-chevron-down'></i>" : "<i class='fa-solid fa-chevron-up'></i>";
+        }
+    }
 }
 <partial name="_Toasts" model="Model.Toasts" />
 <span style="font-size:xx-large;">創作</span> <a asp-page="Create" class="btn btn-xs btn-outline-primary m-2 align-top">新創作</a>
@@ -57,9 +76,9 @@
     <div>
         <!-- Sort Buttons for Card View (also used in List View) -->
         <div id="sortBar" class="btn-group mb-2">
-            <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.IncoinSort ? "active" : "")">In幣</a>
-            <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.DateSort ? "active" : "")">時間</a>
-            <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.ViewSort ? "active" : "")">觀看數</a>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.IncoinSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.IncoinSort ? "active" : "")">In幣 @Html.Raw(arrowIncoin)</a>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.DateSort ? "active" : "")">時間 @Html.Raw(arrowDate)</a>
+            <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary btn-sm @(Model.CurrentSort == Model.ViewSort ? "active" : "")">觀看數 @Html.Raw(arrowView)</a>
         </div>
     </div>
     <button id="toggleViewBtn" class="btn btn-outline-secondary">
@@ -68,6 +87,7 @@
 </div>
 <!-- List/Table View -->
 <div id="listView">
+<div class="table-responsive">
 <table class="table table-hover align-middle">
     <thead class="table-light">
         <tr>
@@ -130,13 +150,14 @@
     </tbody>
 </table>
 </div>
+</div>
 <!-- Card View -->
 <div id="cardView" style="display:none;">
     <div class="row row-cols-1 row-cols-md-3 g-4">
         @foreach (var item in Model.Novels)
         {
             <div class="col mb-4">
-                <div class="card h-100 shadow-sm">
+                <div class="card h-100">
                     <a asp-page="./Details" asp-route-id="@item.NovelID">
                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                         {
@@ -165,15 +186,12 @@
                         <div class="mb-1">
                             <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
                         </div>
-                        <div class="mb-1">
-                            <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
-                        </div>
-                        <div class="mb-1">
-                            <small>更新：@TimePeriodHelper.Get(item.UpdateTime)</small>
-                        </div>
-                        <div>
-                            <small>觀看：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
-                        </div>
+                        <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
+                        &nbsp;
+                        <small>觀看數：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">@TimePeriodHelper.Get(item.UpdateTime)</small>
                     </div>
                 </div>
             </div>

@@ -42,10 +42,10 @@ namespace Involver.Pages.Novels
             int? PageIndex)
         {
             CurrentSort = sortOrder;
-            DateSort = String.IsNullOrEmpty(sortOrder) ? "Date" : "";
+            DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
 
-            IncoinSort = sortOrder == "incoin_desc" ? "Incoin" : "incoin_desc";
-            ViewSort = sortOrder == "view_desc" ? "View" : "view_desc";
+            IncoinSort = sortOrder == "Incoin_desc" ? "Incoin" : "Incoin_desc";
+            ViewSort = sortOrder == "View_desc" ? "View" : "View_desc";
 
             if (searchType != null || searchString != null)
             {
@@ -109,13 +109,13 @@ namespace Involver.Pages.Novels
                 case "Date":
                     NovelsIQ = NovelsIQ.OrderBy(s => s.UpdateTime);
                     break;
-                case "incoin_desc":
+                case "Incoin_desc":
                     NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins);
                     break;
                 case "Incoin":
                     NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins);
                     break;
-                case "view_desc":
+                case "View_desc":
                     NovelsIQ = NovelsIQ.OrderByDescending(s => s.Views);
                     break;
                 case "View":
