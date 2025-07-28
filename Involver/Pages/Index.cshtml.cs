@@ -45,16 +45,21 @@ namespace Involver.Pages
         {
             string userId = _userManager.GetUserId(User);
 
-            if(userId == null)
-            {
-                return RedirectToPage("/Feed/TrendingCreations", "OnGet");
-            }
+            //if(userId == null)
+            //{
+            //    return RedirectToPage("/Feed/TrendingCreations", "OnGet");
+            //}
 
             UserProfile = await _context
                                     .Profiles
                                     .Where(p => p.ProfileID == userId)
                                     .Include(p => p.Missions)
                                     .FirstOrDefaultAsync();
+
+            if(UserProfile == null)
+            {
+                return Page();
+            }
 
             Follows = await _context.Follows
                 .Include(f => f.Novel)

@@ -6,6 +6,38 @@
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
+@section Styles{
+    <style>
+        .hero-section {
+            background: linear-gradient(to right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2)), url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2070&auto=format&fit=crop");
+            background-size: cover;
+            background-position: center;
+            padding: 16rem 5rem;
+            border-radius: 0.5rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+            .hero-section h1 {
+                font-size: 3.5rem;
+                font-weight: bold;
+            }
+
+            .hero-section p {
+                font-size: 1.25rem;
+                max-width: 600px;
+            }
+
+        .section-title {
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            border-bottom: 3px solid #0d6efd;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+    </style>
+}
+
 @if (Model.UserProfile != null)
 {
     <nav class="nav nav-pills flex-column flex-sm-row" style="border-radius: 0.75rem;">
@@ -63,20 +95,19 @@
 }
 else
 {
-    <div class="text-center">
+    <div class="hero-section text-start">
         <h1 class="display-4">Welcome to Involver!</h1>
-        <a asp-page="/Novels/Index">在這裡找到喜歡的作品，並參與創作吧！</a>
-        <p></p>
-        <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="img-fluid" /></a>
+        <p class="lead">在這裡找到喜歡的作品，並參與創作吧！</p>
+        <a asp-area="" asp-page="/Novels/Index" class="btn btn-outline-warning btn-lg">立即參與創作<i class="fas fa-arrow-right ms-2"></i></a>
     </div>
 }
 
 <p></p>
 <!-- Your share button code -->
-<div class="fb-share-button"
+@* <div class="fb-share-button"
      data-href="https://involver.tw"
      data-layout="button_count">
-</div>
+</div> *@
 <!-- Load Facebook SDK for JavaScript -->
 <div id="fb-root"></div>
 <p></p>

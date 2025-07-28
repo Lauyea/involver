@@ -39,7 +39,7 @@ namespace Involver.Pages.Announcements
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if(Announcement.Content.Length > Parameters.ArticleLength)
+            if(Announcement.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }
