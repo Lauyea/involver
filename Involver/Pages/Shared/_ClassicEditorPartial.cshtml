@@ -1,0 +1,93 @@
+@* ClassicEditor Partial View for Razor Pages *@
+@{
+    // Required parameters: editorId, wordCountDivId, maxLength
+    var editorId = ViewData["EditorId"] as string ?? "editor";
+    var wordCountDivId = ViewData["WordCountDivId"] as string ?? "word-count";
+    var maxLength = ViewData["MaxLength"] ?? 10000; // default max length
+}
+<script>
+    ClassicEditor
+        .create(document.querySelector('#@editorId'), {
+            toolbar: {
+                items: [
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'underline',
+                    'strikethrough',
+                    'fontBackgroundColor',
+                    'fontColor',
+                    'removeFormat',
+                    'findAndReplace',
+                    '|',
+                    'alignment',
+                    'bulletedList',
+                    'numberedList',
+                    'outdent',
+                    'indent',
+                    'horizontalLine',
+                    '|',
+                    'link',
+                    'imageInsert',
+                    'blockQuote',
+                    'insertTable',
+                    'mediaEmbed',
+                    'sourceEditing',
+                    'undo',
+                    'redo'
+                ]
+            },
+            link: {
+                addTargetToExternalLinks: true
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative',
+                    'imageStyle:inline',
+                    'imageStyle:block',
+                    'imageStyle:side'
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells'
+                ]
+            },
+            licenseKey: '',
+            mediaEmbed: {
+                previewsInData: true
+            },
+            wordCount: {
+                displayWords: false,
+                onUpdate: stats => {
+                    if (stats.characters > @maxLength) {
+                        alert("輸入字元超過最大限制: @maxLength");
+                    }
+                }
+            }
+        })
+        .then(editor => {
+            window.editor = editor;
+            const wordCountPlugin = editor.plugins.get('WordCount');
+            const wordCountWrapper = document.getElementById('@wordCountDivId');
+            if (wordCountPlugin && wordCountWrapper) {
+                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+            }
+
+            // TODO: Validation JS 會在中途去驗證Editor的內容但是失敗。以下code只有在 submit的時候可以避免這種情況。
+            // 只在 editor 初始化完成後綁定 submit，同步內容
+            var form = document.getElementById('form');
+            if (form) {
+                form.addEventListener('submit', function () {
+                    document.getElementById('@editorId').value = editor.getData();
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Oops, something went wrong!');
+            console.error(error);
+        });
+</script>

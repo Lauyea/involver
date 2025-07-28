@@ -52,7 +52,7 @@ namespace Involver.Pages.Episodes
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if (Episode.Content.Length > Parameters.ArticleLength)
+            if (Episode.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }

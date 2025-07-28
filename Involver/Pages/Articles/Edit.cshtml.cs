@@ -80,7 +80,7 @@ namespace Involver.Pages.Articles
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if(Article.Content.Length > Parameters.ArticleLength)
+            if(Article.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }

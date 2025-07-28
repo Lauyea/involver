@@ -61,7 +61,7 @@ namespace Involver.Pages.Comments
                 return Page();
             }
 
-            if (Comment.Content.Length > Parameters.CommentLength)
+            if (Comment.Content?.Length > Parameters.CommentLength)
             {
                 Page();
             }

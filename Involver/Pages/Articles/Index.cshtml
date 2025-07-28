@@ -50,7 +50,10 @@
                     {
                         <span class="text-danger">Block</span>
                     }
-                    <p class="card-text">@Html.AntiXssRaw((item.Content.Substring(0, Parameters.ContentLength) + "..."))</p>
+                    @{
+                        string cardText = item.Content?.Length > Parameters.ContentLength ? item.Content.Substring(0, Parameters.ContentLength) + "..." : item.Content;
+                    }
+                    <p class="card-text">@Html.AntiXssRaw((cardText))</p>
                     <p>
                         <a asp-area="Identity"
                        asp-page="/Profile/Index"
