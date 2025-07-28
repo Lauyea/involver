@@ -5,19 +5,15 @@
     {
         @if (!userManager.GetUserAsync(User).Result.Prime)
         {
-        #if RELEASE
             //Google AdSense
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
             crossorigin="anonymous"></script>
-        #endif
         }
     }
     else
     {
-        #if RELEASE
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
             crossorigin="anonymous"></script>
-        #endif
     }
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

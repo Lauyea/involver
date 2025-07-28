@@ -110,10 +110,10 @@ namespace Involver.Pages.Novels
                     NovelsIQ = NovelsIQ.OrderBy(s => s.UpdateTime);
                     break;
                 case "Incoin_desc":
-                    NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins);
+                    NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins).OrderByDescending(s => s.TotalCoins);
                     break;
                 case "Incoin":
-                    NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins);
+                    NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins).OrderBy(s => s.TotalCoins);
                     break;
                 case "View_desc":
                     NovelsIQ = NovelsIQ.OrderByDescending(s => s.Views);
