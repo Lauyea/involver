@@ -11,6 +11,7 @@ var host = new HostBuilder()
         var connectionString = Environment.GetEnvironmentVariable("sqldb_connection");
         services.AddDbContext<DatabaseContext>(options =>
             options.UseSqlServer(connectionString));
+        services.AddLogging(); // µù¥UILogger
     })
     .Build();
 
