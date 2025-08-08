@@ -1,0 +1,37 @@
+﻿@page
+@model Involver.Pages.Functions.CreateCoverModel
+@{
+    ViewData["Title"] = "製作小說封面";
+}
+
+<h1>@ViewData["Title"]</h1>
+<p>上傳一張背景圖，輸入品牌、主標題和副標題，即可產生專屬的小說封面！</p>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="upload" class="form-label"><b>1. 上傳背景圖片</b></label>
+                <input type="file" class="form-control" id="upload" asp-for="Upload" accept="image/png, image/jpeg" required>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="BrandText" class="form-label"><b>2. 輸入系列名</b></label>
+                <input type="text" class="form-control" asp-for="BrandText" placeholder="系列名稱">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"><b>3. 輸入主標題</b></label>
+                <input type="text" class="form-control" asp-for="Title" placeholder="主標題名稱">
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SubTitle" class="form-label"><b>4. 輸入副標題</b> (可用 \n 手動換行)</label>
+                <textarea class="form-control" asp-for="SubTitle" rows="3" placeholder="副標題第一行\n副標題第二行"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">產生封面</button>
+        </form>
+    </div>
+</div>
