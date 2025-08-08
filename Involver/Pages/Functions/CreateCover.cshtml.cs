@@ -25,7 +25,7 @@ namespace Involver.Pages.Functions
 
         [BindProperty]
         [Display(Name = "品牌文字")]
-        public string BrandText { get; set; } = "involver";
+        public string BrandText { get; set; }
 
         [BindProperty]
         [Required(ErrorMessage = "請輸入主標題。")]

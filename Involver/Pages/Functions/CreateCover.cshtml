@@ -12,17 +12,17 @@
     <div class="col-md-6">
         <form method="post" enctype="multipart/form-data">
             <div class="mb-3">
-                <label for="upload" class="form-label"><b>1. 上傳背景圖片</b> (建議尺寸 1200x800)</label>
+                <label for="upload" class="form-label"><b>1. 上傳背景圖片</b></label>
                 <input type="file" class="form-control" id="upload" asp-for="Upload" accept="image/png, image/jpeg" required>
             </div>
 
             <div class="mb-3">
-                <label asp-for="BrandText" class="form-label"><b>2. 輸入品牌文字</b> (例如：involver)</label>
-                <input type="text" class="form-control" asp-for="BrandText" placeholder="品牌名稱">
+                <label asp-for="BrandText" class="form-label"><b>2. 輸入系列名</b></label>
+                <input type="text" class="form-control" asp-for="BrandText" placeholder="系列名稱">
             </div>
 
             <div class="mb-3">
-                <label asp-for="Title" class="form-label"><b>3. 輸入主標題</b> (作品名稱)</label>
+                <label asp-for="Title" class="form-label"><b>3. 輸入主標題</b></label>
                 <input type="text" class="form-control" asp-for="Title" placeholder="主標題名稱">
             </div>
 
