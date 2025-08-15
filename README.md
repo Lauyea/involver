@@ -15,4 +15,6 @@ Clone 方案以後，需要安裝 SQL server Express。
 
 ### DB schema
 
-用 Visual studio 從 DB project compare schema 到 SQL server Express。
+用 CLI 或是 Visual studio，從 DataAccess 這個 library 去建立DB。
+
+可以[參考這裡](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/?tabs=dotnet-core-cli#create-your-database-and-schema)。
