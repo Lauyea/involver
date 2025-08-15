@@ -1,22 +1,24 @@
 using System;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Data.Data;
+using DataAccess.Data;
 using InvolverRoutineWork.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Linq;
-using Data.Models.Database;
+using DataAccess.Models;
 using Microsoft.Azure.Functions.Worker;
+using DataAccess.Models.NovelModel;
+using DataAccess.Models.ArticleModel;
 
 namespace InvolverDailyWork
 {
     public class InvolverDailyWork
     {
-        private readonly DatabaseContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public InvolverDailyWork(DatabaseContext context)
+        public InvolverDailyWork(ApplicationDbContext context)
         {
             _context = context;
         }
