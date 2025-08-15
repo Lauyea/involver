@@ -1,8 +1,8 @@
 ﻿using Involver.Common;
-using Involver.Data;
-using Involver.Models;
-using Involver.Models.AchievementModel;
-using Involver.Models.ArticleModel;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.AchievementModel;
+using DataAccess.Models.ArticleModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Helpers

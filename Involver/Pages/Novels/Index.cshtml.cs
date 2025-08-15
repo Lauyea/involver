@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.NovelModel;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Common;
@@ -76,28 +76,28 @@ namespace Involver.Pages.Novels
                 switch (searchType)
                 {
                     case "Fantasy":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Fantasy);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Fantasy);
                         break;
                     case "History":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.History);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.History);
                         break;
                     case "Love":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Love);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Love);
                         break;
                     case "Real":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Real);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Real);
                         break;
                     case "Modern":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Modern);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Modern);
                         break;
                     case "Science":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Science);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Science);
                         break;
                     case "Horror":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Horror);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Horror);
                         break;
                     case "Detective":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Models.NovelModel.Type.Detective);
+                        NovelsIQ = NovelsIQ.Where(n => n.Type == DataAccess.Models.NovelModel.Type.Detective);
                         break;
                     default:
                         break;

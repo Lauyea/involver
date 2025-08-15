@@ -1,7 +1,7 @@
 using Involver.Common;
-using Involver.Data;
-using Involver.Models;
-using Involver.Models.ArticleModel;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.ArticleModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         {
         }
 
-        public Models.Profile Profile { get; set; }
+        public DataAccess.Models.Profile Profile { get; set; }
         public ICollection<Follow> Follows { get; set; }
         public ICollection<Article> Articles { get; set; } = new List<Article>();
 

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Involver.Data;
+using DataAccess.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
@@ -90,7 +90,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
 
         private async Task DeleteProfile(string userId)
         {
-            Models.Profile ProfileToBeDeleted = await _context
+            DataAccess.Models.Profile ProfileToBeDeleted = await _context
                 .Profiles
                 .Where(p => p.ProfileID == userId)
                 .FirstOrDefaultAsync();

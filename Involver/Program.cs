@@ -1,6 +1,6 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

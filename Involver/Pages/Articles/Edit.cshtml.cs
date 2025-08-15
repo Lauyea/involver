@@ -1,9 +1,9 @@
 ﻿using Involver.Authorization.Article;
 using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Helpers;
-using Involver.Models.AchievementModel;
-using Involver.Models.ArticleModel;
+using DataAccess.Models.AchievementModel;
+using DataAccess.Models.ArticleModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

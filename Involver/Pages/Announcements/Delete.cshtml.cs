@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.AnnouncementModel;
+using DataAccess.Data;
+using DataAccess.Models.AnnouncementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Announcement;

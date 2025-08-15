@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Comment
 {
     public class CommentManagerAuthorizationHandler :
-        AuthorizationHandler<OperationAuthorizationRequirement, Models.Comment>
+        AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Comment>
     {
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.Comment resource)
+                                   DataAccess.Models.Comment resource)
         {
             if (context.User == null || resource == null)
             {

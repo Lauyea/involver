@@ -101,6 +101,7 @@ Razor Pages 程式碼風格指南 (Code Style Guide)
           .OrderByDescending(p => p.CreatedAt)
           .ToListAsync(cancellationToken);
       ```
+  * 用 Code First 的方式開發。
 
 6. 相容性
 

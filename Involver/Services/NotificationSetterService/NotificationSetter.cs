@@ -1,7 +1,7 @@
 ﻿using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Extensions;
-using Involver.Models;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;

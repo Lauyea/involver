@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Message
 {
     public class MessageManagerAuthorizationHandler :
-        AuthorizationHandler<OperationAuthorizationRequirement, Models.Message>
+        AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Message>
     {
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.Message resource)
+                                   DataAccess.Models.Message resource)
         {
             if (context.User == null || resource == null)
             {

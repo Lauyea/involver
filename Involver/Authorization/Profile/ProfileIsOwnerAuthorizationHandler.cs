@@ -1,4 +1,4 @@
-﻿using Involver.Data;
+﻿using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Profile
 {
     public class ProfileIsOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Models.Profile>
+        : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Profile>
     {
         UserManager<InvolverUser> _userManager;
 
@@ -23,7 +23,7 @@ namespace Involver.Authorization.Profile
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.Profile resource)
+                                   DataAccess.Models.Profile resource)
         {
             if (context.User == null || resource == null)
             {

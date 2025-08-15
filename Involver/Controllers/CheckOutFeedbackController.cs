@@ -8,8 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Involver.Data;
-using Involver.Models;
+using DataAccess.Data;
+using DataAccess.Models;
 using Involver.Pages;
 using Involver.Services.ECPay;
 using Microsoft.AspNetCore.Authorization;
@@ -177,7 +177,7 @@ namespace Involver.Controllers
             try
             {
                 _context.Payments.Add(
-                new Models.StatisticalData.Payment
+                new DataAccess.Models.StatisticalData.Payment
                 {
                     InvolverID = CustomField1,
                     PaymentDate = szPaymentDate,
@@ -196,7 +196,7 @@ namespace Involver.Controllers
             {
                 _logger.LogError(ex, ex.ToString());
                 _context.Payments.Add(
-                new Models.StatisticalData.Payment
+                new DataAccess.Models.StatisticalData.Payment
                 {
                     PaymentDate = DateTime.Now.ToString(),
                     ReturnString = ReturnString,

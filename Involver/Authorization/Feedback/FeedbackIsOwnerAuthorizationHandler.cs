@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Involver.Data;
+using DataAccess.Data;
 
 namespace Involver.Authorization.Feedback
 {
     public class FeedbackIsOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Models.FeedbackModel.Feedback>
+        : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.FeedbackModel.Feedback>
     {
         UserManager<InvolverUser> _userManager;
 
@@ -23,7 +23,7 @@ namespace Involver.Authorization.Feedback
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.FeedbackModel.Feedback resource)
+                                   DataAccess.Models.FeedbackModel.Feedback resource)
         {
             if (context.User == null || resource == null)
             {

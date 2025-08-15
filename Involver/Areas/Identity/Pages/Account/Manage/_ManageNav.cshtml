@@ -1,4 +1,4 @@
-﻿@using Involver.Data;
+﻿@using DataAccess.Data;
 @inject SignInManager<InvolverUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

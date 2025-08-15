@@ -1,6 +1,6 @@
 ﻿using Involver.Common;
-using Involver.Data;
-using Involver.Models.NovelModel;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

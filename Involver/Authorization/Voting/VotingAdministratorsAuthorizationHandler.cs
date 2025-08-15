@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Voting
 {
     public class VotingAdministratorsAuthorizationHandler
-                    : AuthorizationHandler<OperationAuthorizationRequirement, Models.NovelModel.Voting>
+                    : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.NovelModel.Voting>
     {
         protected override Task HandleRequirementAsync(
                                               AuthorizationHandlerContext context,
                                     OperationAuthorizationRequirement requirement,
-                                     Models.NovelModel.Voting resource)
+                                     DataAccess.Models.NovelModel.Voting resource)
         {
             if (context.User == null)
             {

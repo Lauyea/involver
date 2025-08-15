@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Involver.Data;
+using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Areas.Identity.Pages.Account
@@ -87,7 +87,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 var user = new InvolverUser { UserName = Input.UserName, Email = Input.Email };
                 //設定每個用戶獨立郵件地址
                 _userManager.Options.User.RequireUniqueEmail = true;
-                Models.Profile profile = await _context.Profiles.Where(p => p.UserName == user.UserName).FirstOrDefaultAsync();
+                DataAccess.Models.Profile profile = await _context.Profiles.Where(p => p.UserName == user.UserName).FirstOrDefaultAsync();
                 if(profile != null)
                 {
                     ModelState.AddModelError("Input.UserName", "已經有同樣的用戶名");

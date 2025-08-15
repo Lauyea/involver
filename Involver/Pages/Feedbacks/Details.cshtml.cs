@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.FeedbackModel;
+using DataAccess.Data;
+using DataAccess.Models.FeedbackModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Feedback;
-using Involver.Models;
+using DataAccess.Models;
 using Involver.Common;
 using Involver.Services.NotificationSetterService;
 

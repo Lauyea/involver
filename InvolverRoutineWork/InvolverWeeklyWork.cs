@@ -1,16 +1,16 @@
+using DataAccess.Data;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
-using Data.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Azure.Functions.Worker;
 
 namespace InvolverWeeklyWork
 {
     public class InvolverWeeklyWork
     {
-        private readonly DatabaseContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public InvolverWeeklyWork(DatabaseContext context)
+        public InvolverWeeklyWork(ApplicationDbContext context)
         {
             _context = context;
         }

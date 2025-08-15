@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Involver.Data;
+using DataAccess.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
-using Involver.Models.AchievementModel;
+using DataAccess.Models.AchievementModel;
 using Involver.Common;
 using System.Text.Json;
 
@@ -129,7 +129,7 @@ namespace Involver.Areas.Identity.Pages.Account
 
         private async Task ProfileOperation()
         {
-            Models.Profile UserProfile = await Context
+            DataAccess.Models.Profile UserProfile = await Context
                                     .Profiles
                                     .Where(p => p.UserName == Input.Username)
                                     .Include(p => p.Achievements)

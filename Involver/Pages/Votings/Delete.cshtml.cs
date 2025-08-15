@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.NovelModel;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
 
 namespace Involver.Pages.Votings
 {
     public class DeleteModel : PageModel
     {
-        private readonly Involver.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public DeleteModel(Involver.Data.ApplicationDbContext context)
+        public DeleteModel(ApplicationDbContext context)
         {
             _context = context;
         }

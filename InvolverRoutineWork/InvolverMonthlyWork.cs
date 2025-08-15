@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-using Data.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using DataAccess.Data;
+using DataAccess.Data;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace InvolverMonthlyWork
 {
     public class InvolverMonthlyWork
     {
-        private readonly DatabaseContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public InvolverMonthlyWork(DatabaseContext context)
+        public InvolverMonthlyWork(ApplicationDbContext context)
         {
             _context = context;
         }

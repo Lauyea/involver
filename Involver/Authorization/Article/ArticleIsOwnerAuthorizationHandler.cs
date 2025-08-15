@@ -1,4 +1,4 @@
-﻿using Involver.Data;
+﻿using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Article
 {
     public class ArticleIsOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Models.ArticleModel.Article>
+        : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.ArticleModel.Article>
     {
         UserManager<InvolverUser> _userManager;
 
@@ -23,7 +23,7 @@ namespace Involver.Authorization.Article
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.ArticleModel.Article resource)
+                                   DataAccess.Models.ArticleModel.Article resource)
         {
             if (context.User == null || resource == null)
             {

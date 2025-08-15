@@ -1,4 +1,4 @@
-﻿using Involver.Data;
+﻿using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Announcement
 {
     public class AnnouncementIsOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Models.AnnouncementModel.Announcement>
+        : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.AnnouncementModel.Announcement>
     {
         UserManager<InvolverUser> _userManager;
 
@@ -23,7 +23,7 @@ namespace Involver.Authorization.Announcement
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.AnnouncementModel.Announcement resource)
+                                   DataAccess.Models.AnnouncementModel.Announcement resource)
         {
             if (context.User == null || resource == null)
             {

@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.NovelModel;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
 
 namespace Involver.Pages.Votings
 {
     public class EditModel : PageModel
     {
-        private readonly Involver.Data.ApplicationDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public EditModel(Involver.Data.ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context)
         {
             _context = context;
         }
