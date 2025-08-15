@@ -1,6 +1,6 @@
 ﻿using Involver.Common;
-using Involver.Data;
-using Involver.Models;
+using DataAccess.Data;
+using DataAccess.Models;
 using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

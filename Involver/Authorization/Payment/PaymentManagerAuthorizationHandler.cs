@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Payment
 {
     public class PaymentManagerAuthorizationHandler :
-        AuthorizationHandler<OperationAuthorizationRequirement, Models.StatisticalData.Payment>
+        AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.StatisticalData.Payment>
     {
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.StatisticalData.Payment resource)
+                                   DataAccess.Models.StatisticalData.Payment resource)
         {
             if (context.User == null || resource == null)
             {

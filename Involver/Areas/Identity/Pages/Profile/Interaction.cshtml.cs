@@ -1,6 +1,6 @@
 using Involver.Common;
-using Involver.Data;
-using Involver.Models;
+using DataAccess.Data;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +19,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         {
         }
 
-        public Models.Profile Profile { get; set; }
+        public DataAccess.Models.Profile Profile { get; set; }
 
         public string UserID { get; set; }
         public ICollection<Comment> Comments { get; set; }

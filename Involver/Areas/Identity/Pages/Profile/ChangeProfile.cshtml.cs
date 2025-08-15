@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Involver.Data;
+using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Involver.Common;
@@ -20,7 +20,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         }
 
         [BindProperty]
-        public Models.Profile Profile { get; set; }
+        public DataAccess.Models.Profile Profile { get; set; }
         //[BindProperty]
         //public BufferedSingleFileUploadDb FileUpload { get; set; }
         //[BindProperty]
@@ -39,24 +39,24 @@ namespace Involver.Areas.Identity.Pages.Profile
                 return Page();
             }
 
-            Models.Profile ProfileToUpdate = await _context.Profiles.Where(p => p.ProfileID == _userManager.GetUserId(User)).FirstOrDefaultAsync();
+            DataAccess.Models.Profile profileToUpdate = await _context.Profiles.Where(p => p.ProfileID == _userManager.GetUserId(User)).FirstOrDefaultAsync();
 
-            ProfileToUpdate.Introduction = Profile.Introduction;
+            profileToUpdate.Introduction = Profile.Introduction;
 
-            ProfileToUpdate.ImageUrl = Profile.ImageUrl;
+            profileToUpdate.ImageUrl = Profile.ImageUrl;
 
-            ProfileToUpdate.BannerImageUrl = Profile.BannerImageUrl;
+            profileToUpdate.BannerImageUrl = Profile.BannerImageUrl;
 
             await _context.SaveChangesAsync();
             StatusMessage = "更改資料成功";
 
-            var toasts = await Helpers.AchievementHelper.BeAutobiographerAsync(_context, ProfileToUpdate.ProfileID);
+            var toasts = await Helpers.AchievementHelper.BeAutobiographerAsync(_context, profileToUpdate.ProfileID);
 
             Toasts.AddRange(toasts);
 
             ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
-            return RedirectToPage("./Index", "OnGet", new { id = ProfileToUpdate.ProfileID });
+            return RedirectToPage("./Index", "OnGet", new { id = profileToUpdate.ProfileID });
         }
     }
 

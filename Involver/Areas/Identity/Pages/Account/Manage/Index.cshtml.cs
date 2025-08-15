@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Involver.Data;
+using DataAccess.Data;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +38,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
 
         public InvolverUser user { get; set; }
 
-        public Models.Profile Profile { get; set; }
+        public DataAccess.Models.Profile Profile { get; set; }
 
         public class InputModel
         {

@@ -1,8 +1,8 @@
 ﻿using Involver.Authorization.Comment;
 using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Helpers;
-using Involver.Models;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

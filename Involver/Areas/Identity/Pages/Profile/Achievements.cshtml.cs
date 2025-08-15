@@ -1,6 +1,6 @@
 using Involver.Common;
-using Involver.Data;
-using Involver.Models.AchievementModel;
+using DataAccess.Data;
+using DataAccess.Models.AchievementModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +18,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         : base(context, authorizationService, userManager)
         {
         }
-        public Models.Profile Profile { get; set; }
+        public DataAccess.Models.Profile Profile { get; set; }
 
         public List<Achievement> Achievements { get; set; }
         public string UserID { get; set; }

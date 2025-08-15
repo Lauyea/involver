@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Announcement
 {
     public class AnnouncementAdministratorsAuthorizationHandler
-                    : AuthorizationHandler<OperationAuthorizationRequirement, Models.AnnouncementModel.Announcement>
+                    : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.AnnouncementModel.Announcement>
     {
         protected override Task HandleRequirementAsync(
                                               AuthorizationHandlerContext context,
                                     OperationAuthorizationRequirement requirement,
-                                     Models.AnnouncementModel.Announcement resource)
+                                     DataAccess.Models.AnnouncementModel.Announcement resource)
         {
             if (context.User == null)
             {

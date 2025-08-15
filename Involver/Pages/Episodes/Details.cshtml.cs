@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.NovelModel;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Involver.Models;
+using DataAccess.Models;
 using System.Text.Json;
 using Involver.Common;
 

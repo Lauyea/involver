@@ -8,8 +8,8 @@ using Involver.Authorization.Payment;
 using Involver.Authorization.Profile;
 using Involver.Authorization.ProfitSharing;
 using Involver.Authorization.Voting;
-using Involver.Models.AchievementModel;
-using Involver.Models.StatisticalData;
+using DataAccess.Models.AchievementModel;
+using DataAccess.Models.StatisticalData;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +17,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataAccess.Data;
+using DataAccess.Models;
 
 namespace Involver.Data
 {
@@ -84,25 +86,25 @@ namespace Involver.Data
             return user.Id;
         }
 
-        private static async Task EnsureProfile(ApplicationDbContext context, string UserName, string ID)
+        private static async Task EnsureProfile(ApplicationDbContext context, string userName, string id)
         {
-            var userID = await context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == ID);
+            var userID = await context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == id);
             if (userID == null)
             {
-                var Profile = new Models.Profile
+                Profile profile = new Profile
                 {
-                    ProfileID = ID,
-                    UserName = UserName,
+                    ProfileID = id,
+                    UserName = userName,
                     RealCoins = 300,
                     EnrollmentDate = DateTime.Now,
                     LastTimeLogin = DateTime.Now,
                     Professional = false,
                     Prime = true,
                     Banned = false,
-                    Missions = new Models.Missions(),
+                    Missions = new Missions() { ProfileID = id},
                     Achievements = new List<Achievement>()
                 };
-                context.Profiles.Add(Profile);
+                context.Profiles.Add(profile);
                 await context.SaveChangesAsync();
             }
         }

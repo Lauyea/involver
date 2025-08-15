@@ -1,9 +1,9 @@
 ﻿using Involver.Authorization.Feedback;
 using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Helpers;
-using Involver.Models.ArticleModel;
-using Involver.Models.FeedbackModel;
+using DataAccess.Models.ArticleModel;
+using DataAccess.Models.FeedbackModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

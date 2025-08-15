@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Involver.Data;
-using Involver.Models;
-using Involver.Models.ArticleModel;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.ArticleModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

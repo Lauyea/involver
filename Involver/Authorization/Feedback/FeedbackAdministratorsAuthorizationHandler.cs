@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Feedback
 {
     public class FeedbackAdministratorsAuthorizationHandler
-                    : AuthorizationHandler<OperationAuthorizationRequirement, Models.FeedbackModel.Feedback>
+                    : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.FeedbackModel.Feedback>
     {
         protected override Task HandleRequirementAsync(
                                               AuthorizationHandlerContext context,
                                     OperationAuthorizationRequirement requirement,
-                                     Models.FeedbackModel.Feedback resource)
+                                     DataAccess.Models.FeedbackModel.Feedback resource)
         {
             if (context.User == null)
             {

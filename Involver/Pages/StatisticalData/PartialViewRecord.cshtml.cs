@@ -1,3 +1,4 @@
+using DataAccess.Models;
 using Involver.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

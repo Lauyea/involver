@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Involver.Data;
-using Involver.Models.ArticleModel;
+using DataAccess.Data;
+using DataAccess.Models.ArticleModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Article;

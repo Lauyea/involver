@@ -1,9 +1,9 @@
 ﻿using Involver.Authorization.Novel;
 using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Helpers;
-using Involver.Models;
-using Involver.Models.NovelModel;
+using DataAccess.Models;
+using DataAccess.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -46,14 +46,14 @@ namespace Involver.Pages.Novels
 
         public List<SelectListItem> Types { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Value = Models.NovelModel.Type.Fantasy.ToString(), Text = "奇幻" },
-            new SelectListItem { Value = Models.NovelModel.Type.History.ToString(), Text = "歷史" },
-            new SelectListItem { Value = Models.NovelModel.Type.Love.ToString(), Text = "愛情" },
-            new SelectListItem { Value = Models.NovelModel.Type.Real.ToString(), Text = "真實" },
-            new SelectListItem { Value = Models.NovelModel.Type.Modern.ToString(), Text = "現代" },
-            new SelectListItem { Value = Models.NovelModel.Type.Science.ToString(), Text = "科幻" },
-            new SelectListItem { Value = Models.NovelModel.Type.Horror.ToString(), Text = "驚悚" },
-            new SelectListItem { Value = Models.NovelModel.Type.Detective.ToString(), Text = "推理" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Fantasy.ToString(), Text = "奇幻" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.History.ToString(), Text = "歷史" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Love.ToString(), Text = "愛情" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Real.ToString(), Text = "真實" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Modern.ToString(), Text = "現代" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Science.ToString(), Text = "科幻" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Horror.ToString(), Text = "驚悚" },
+            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Detective.ToString(), Text = "推理" },
         };
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for

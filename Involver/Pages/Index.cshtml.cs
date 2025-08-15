@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Involver.Common;
-using Involver.Data;
-using Involver.Models;
+using DataAccess.Data;
+using DataAccess.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +20,7 @@ namespace Involver.Pages
     {
         //private readonly ILogger<IndexModel> _logger;
 
-        public Models.Profile UserProfile;
+        public Profile UserProfile;
 
         public ICollection<Follow> Follows { get; set; }
 

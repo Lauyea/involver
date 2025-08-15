@@ -1,9 +1,9 @@
 ﻿using Involver.Authorization.Comment;
 using Involver.Common;
-using Involver.Data;
+using DataAccess.Data;
 using Involver.Helpers;
-using Involver.Models;
-using Involver.Models.NovelModel;
+using DataAccess.Models;
+using DataAccess.Models.NovelModel;
 using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

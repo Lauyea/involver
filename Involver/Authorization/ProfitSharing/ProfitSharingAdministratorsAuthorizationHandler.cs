@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.ProfitSharing
 {
     public class ProfitSharingAdministratorsAuthorizationHandler
-                    : AuthorizationHandler<OperationAuthorizationRequirement, Models.StatisticalData.ProfitSharing>
+                    : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.StatisticalData.ProfitSharing>
     {
         protected override Task HandleRequirementAsync(
                                               AuthorizationHandlerContext context,
                                     OperationAuthorizationRequirement requirement,
-                                     Models.StatisticalData.ProfitSharing resource)
+                                     DataAccess.Models.StatisticalData.ProfitSharing resource)
         {
             if (context.User == null)
             {

@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Novel
 {
     public class NovelManagerAuthorizationHandler :
-        AuthorizationHandler<OperationAuthorizationRequirement, Models.NovelModel.Novel>
+        AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.NovelModel.Novel>
     {
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.NovelModel.Novel resource)
+                                   DataAccess.Models.NovelModel.Novel resource)
         {
             if (context.User == null || resource == null)
             {

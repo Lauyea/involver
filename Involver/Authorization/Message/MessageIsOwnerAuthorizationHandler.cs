@@ -1,4 +1,4 @@
-﻿using Involver.Data;
+﻿using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Message
 {
     public class MessageIsOwnerAuthorizationHandler
-        : AuthorizationHandler<OperationAuthorizationRequirement, Models.Message>
+        : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Message>
     {
         UserManager<InvolverUser> _userManager;
 
@@ -23,7 +23,7 @@ namespace Involver.Authorization.Message
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.Message resource)
+                                   DataAccess.Models.Message resource)
         {
             if (context.User == null || resource == null)
             {

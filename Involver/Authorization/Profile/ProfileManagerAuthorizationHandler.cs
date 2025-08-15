@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace Involver.Authorization.Profile
 {
     public class ProfileManagerAuthorizationHandler :
-        AuthorizationHandler<OperationAuthorizationRequirement, Models.Profile>
+        AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Profile>
     {
         protected override Task
             HandleRequirementAsync(AuthorizationHandlerContext context,
                                    OperationAuthorizationRequirement requirement,
-                                   Models.Profile resource)
+                                   DataAccess.Models.Profile resource)
         {
             if (context.User == null || resource == null)
             {
