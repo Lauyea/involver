@@ -1,6 +1,6 @@
-﻿@page
+@page
 @model Involver.Pages.Functions.CreateCoverModel
-@{
+@{ 
     ViewData["Title"] = "製作小說封面";
 }
 
@@ -10,7 +10,8 @@
 
 <div class="row">
     <div class="col-md-6">
-        <form method="post" enctype="multipart/form-data">
+        <form id="cover-form" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
             <div class="mb-3">
                 <label for="upload" class="form-label"><b>1. 上傳背景圖片</b></label>
                 <input type="file" class="form-control" id="upload" asp-for="Upload" accept="image/png, image/jpeg" required>
@@ -31,7 +32,61 @@
                 <textarea class="form-control" asp-for="SubTitle" rows="3" placeholder="副標題第一行\n副標題第二行"></textarea>
             </div>
 
-            <button type="submit" class="btn btn-primary">產生封面</button>
+            <button id="generate-button" type="submit" class="btn btn-primary">
+                <span id="button-text">產生封面</span>
+                <span id="loading-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+            </button>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('cover-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            var form = this;
+            var formData = new FormData(form);
+            var generateButton = document.getElementById('generate-button');
+            var buttonText = document.getElementById('button-text');
+            var loadingSpinner = document.getElementById('loading-spinner');
+
+            // Disable the button and show spinner
+            generateButton.disabled = true;
+            buttonText.style.display = 'none';
+            loadingSpinner.style.display = 'inline-block';
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.getElementsByName('__RequestVerificationToken')[0].value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Create a download link
+                    var a = document.createElement('a');
+                    a.href = 'data:image/png;base64,' + data.fileContents;
+                    a.download = data.fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An unexpected error occurred.');
+            })
+            .finally(() => {
+                // Reset the button
+                generateButton.disabled = false;
+                buttonText.style.display = 'inline-block';
+                loadingSpinner.style.display = 'none';
+            });
+        });
+    </script>
+}

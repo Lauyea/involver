@@ -19,40 +19,41 @@ namespace Involver.Pages.Functions
         }
 
         [BindProperty]
-        [Required(ErrorMessage = "½Ğ¿ï¾Ü­n¤W¶Çªº­I´º¹Ï¤ù¡C")]
-        [Display(Name = "­I´º¹Ï¤ù")]
+        [Required(ErrorMessage = "è«‹é¸æ“‡è¦ä¸Šå‚³çš„èƒŒæ™¯åœ–ç‰‡ã€‚")]
+        [Display(Name = "èƒŒæ™¯åœ–ç‰‡")]
         public IFormFile Upload { get; set; }
 
         [BindProperty]
-        [Display(Name = "«~µP¤å¦r")]
+        [Display(Name = "ç³»åˆ—åç¨±")]
         public string BrandText { get; set; }
 
         [BindProperty]
-        [Required(ErrorMessage = "½Ğ¿é¤J¥D¼ĞÃD¡C")]
-        [Display(Name = "¥D¼ĞÃD")]
+        [Required(ErrorMessage = "è«‹è¼¸å…¥ä¸»æ¨™é¡Œã€‚")]
+        [Display(Name = "ä¸»æ¨™é¡Œ")]
         public string Title { get; set; }
 
         [BindProperty]
-        [Display(Name = "°Æ¼ĞÃD")]
+        [Display(Name = "å‰¯æ¨™é¡Œ")]
         public string SubTitle { get; set; }
 
         public void OnGet()
         {
-            // ­¶­±ªì¦¸¸ü¤J®É°õ¦æªºµ{¦¡½X
+            // é é¢åˆæ¬¡è¼‰å…¥æ™‚åŸ·è¡Œçš„ç¨‹å¼ç¢¼
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
             {
+                // This is not ideal for AJAX, but as a fallback.
                 return Page();
             }
 
-            // 1. ³B²z¤W¶Çªº¹Ï¤ù¡A¨ÃÀx¦s¨ì¦øªA¾¹¼È¦s°Ï
+            // 1. è™•ç†ä¸Šå‚³çš„åœ–ç‰‡ï¼Œä¸¦å„²å­˜åˆ°ä¼ºæœå™¨æš«å­˜å€
             var tempFileName = $"{Guid.NewGuid()}{Path.GetExtension(Upload.FileName)}";
             var tempBgImagePath = Path.Combine(_environment.WebRootPath, "temp", tempFileName);
 
-            // ½T«O¼È¦s¸ê®Æ§¨¦s¦b
+            // ç¢ºä¿æš«å­˜è³‡æ–™å¤¾å­˜åœ¨
             Directory.CreateDirectory(Path.GetDirectoryName(tempBgImagePath));
 
             using (var stream = new FileStream(tempBgImagePath, FileMode.Create))
@@ -60,12 +61,11 @@ namespace Involver.Pages.Functions
                 await Upload.CopyToAsync(stream);
             }
 
-            // 2. ·Ç³Æ CoverMaker ©Ò»İªº°Ñ¼Æ
+            // 2. æº–å‚™ CoverMaker æ‰€éœ€çš„åƒæ•¸
             var fontPath = Path.Combine(_environment.WebRootPath, "fonts", "NotoSansTC-Bold.ttf");
             if (!System.IO.File.Exists(fontPath))
             {
-                ModelState.AddModelError(string.Empty, "¿ù»~¡G¦øªA¾¹¤W§ä¤£¨ì¦rÅéÀÉ®× NotoSansTC-Bold.ttf¡C");
-                return Page();
+                return new JsonResult(new { success = false, error = "å­—å‹æª”æ¡ˆéºå¤±ã€‚" });
             }
 
             var processedSubTitle = (SubTitle ?? string.Empty).Replace("\\n", Environment.NewLine);
@@ -74,28 +74,27 @@ namespace Involver.Pages.Functions
 
             try
             {
-                // 3. °õ¦æ«Ê­±»s§@
-                var maker = new CoverMaker(fontPath, fontPath); // ¥D¼ĞÃD©M°Æ¼ĞÃD¨Ï¥Î¬Û¦P¦rÅé
+                // 3. åŸ·è¡Œå°é¢è£½ä½œ
+                var maker = new CoverMaker(fontPath, fontPath); // ä¸»æ¨™é¡Œå’Œå‰¯æ¨™é¡Œä½¿ç”¨ç›¸åŒå­—é«”
                 maker.Generate(tempBgImagePath, BrandText, Title, processedSubTitle, outputFilePath);
 
-                // 4. ±N²£¥Íªº¹ÏÀÉÅª¨ú¬° byte array¡A·Ç³Æ¦^¶Çµ¹¨Ï¥ÎªÌ
+                // 4. å°‡ç”¢ç”Ÿçš„åœ–æª”è®€å–ç‚º byte arrayï¼Œæº–å‚™å›å‚³çµ¦ä½¿ç”¨è€…
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(outputFilePath);
+                var fileContents = Convert.ToBase64String(fileBytes);
 
-                // 5. ²M²z¦øªA¾¹¤Wªº¼È¦sÀÉ®×
+                // 5. æ¸…ç†ä¼ºæœå™¨ä¸Šçš„æš«å­˜æª”æ¡ˆ
                 System.IO.File.Delete(tempBgImagePath);
                 System.IO.File.Delete(outputFilePath);
 
-                // 6. ±NÀÉ®×¦^¶Çµ¹ÂsÄı¾¹¤U¸ü
-                return File(fileBytes, "image/png", outputFileName);
+                return new JsonResult(new { success = true, fileName = outputFileName, fileContents });
             }
             catch (Exception ex)
             {
-                // µo¥Í¿ù»~®É¡A¤]­n²M²z¼È¦sÀÉ
+                // ç™¼ç”ŸéŒ¯èª¤æ™‚ï¼Œä¹Ÿè¦æ¸…ç†æš«å­˜æª”
                 if (System.IO.File.Exists(tempBgImagePath)) System.IO.File.Delete(tempBgImagePath);
                 if (System.IO.File.Exists(outputFilePath)) System.IO.File.Delete(outputFilePath);
 
-                ModelState.AddModelError(string.Empty, $"«Ê­±»s§@¥¢±Ñ¡G{ex.Message}");
-                return Page();
+                return new JsonResult(new { success = false, error = $"ç”¢ç”Ÿå°é¢æ™‚ç™¼ç”ŸéŒ¯èª¤: {ex.Message}" });
             }
         }
     }
