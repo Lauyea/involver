@@ -16,7 +16,7 @@
         </div>
     </li>
     @{
-        string themeIcon = Context.Session.GetString("_DarkMode") == "On" ? "fa-sun" : "fa-moon";
+        string themeIcon = Context.Request.Cookies["_DarkMode"] == "On" ? "fa-sun" : "fa-moon";
     }
     <li class="nav-item">
         <a class="nav-link"

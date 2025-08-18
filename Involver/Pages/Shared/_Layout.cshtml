@@ -83,7 +83,7 @@
 </head>
 
 @{
-    string theme = Context.Session.GetString("_DarkMode") == "On" ? "bootstrap-dark" : "bootstrap";
+    string theme = Context.Request.Cookies["_DarkMode"] == "On" ? "bootstrap-dark" : "bootstrap";
     string returnRightFunction = ViewData["ReturnRightFunction"] != null ? "false" : "true";
 }
 
