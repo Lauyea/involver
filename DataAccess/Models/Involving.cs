@@ -9,12 +9,21 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models
 {
+    /// <summary>
+    /// 參與、訂閱
+    /// </summary>
     public class Involving
     {
         public int InvolvingID { get; set; }
 
+        /// <summary>
+        /// FK to Involver
+        /// </summary>
         [Required]
         public required string InvolverID { get; set; }
+        /// <summary>
+        /// Reference navigation to Involver
+        /// </summary>
         [ForeignKey("InvolverID")]
         [InverseProperty("Involvers")]
         public Profile? Involver { get; set; }
@@ -28,20 +37,40 @@ namespace DataAccess.Models
         [Column(TypeName = "money")]
         public int TotalValue { get; set; }
 
-
+        /// <summary>
+        /// 最新的參與時間
+        /// </summary>
         [Display(Name = "Last Time")]
         public DateTime LastTime { get; set; }
 
+        /// <summary>
+        /// FK to being involved one
+        /// </summary>
         //這個不用Required，因為這是被Involve的對象，可以是NULL
         public string? ProfileID { get; set; }
+        /// <summary>
+        /// Reference navigation to being involved one
+        /// </summary>
         [InverseProperty("Involvings")]
         [ForeignKey("ProfileID")]
         public Profile? Profile { get; set; }
 
+        /// <summary>
+        /// FK to Novel
+        /// </summary>
         public int? NovelID { get; set; }
+        /// <summary>
+        /// Reference navigation to Novel
+        /// </summary>
         public Novel? Novel { get; set; }
 
+        /// <summary>
+        /// FK to Article
+        /// </summary>
         public int? ArticleID { get; set; }
+        /// <summary>
+        /// Reference navigation to Article
+        /// </summary>
         public Article? Article { get; set; }
     }
 }

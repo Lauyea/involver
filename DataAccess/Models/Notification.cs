@@ -18,9 +18,14 @@ namespace DataAccess.Models
         [StringLength(128)]
         public string? Url { get; set; }
 
+        /// <summary>
+        /// FK to Profile
+        /// </summary>
         [Required]
         public required string ProfileID { get; set; }
-
+        /// <summary>
+        /// Reference navigation to Profile
+        /// </summary>
         [ForeignKey("ProfileID")]
         public Profile? Profile { get; set; }
     }

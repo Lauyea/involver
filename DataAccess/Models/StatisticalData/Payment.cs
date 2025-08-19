@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models.StatisticalData
 {
+    /// <summary>
+    /// 介接綠界用的Payment model
+    /// </summary>
     public class Payment
     {
         public int PaymentID { get; set; }
