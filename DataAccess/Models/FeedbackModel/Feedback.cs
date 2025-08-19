@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models.FeedbackModel
 {
+    /// <summary>
+    /// 回饋
+    /// </summary>
+    /// TODO: 之後可能會併入文章。
     public class Feedback
     {
         public int FeedbackID { get; set; }
@@ -31,8 +35,14 @@ namespace DataAccess.Models.FeedbackModel
 
         public bool Block { get; set; }
 
+        /// <summary>
+        /// 是否接受。會有In幣獎勵。
+        /// </summary>
         public bool Accept { get; set; }
 
+        /// <summary>
+        /// Collection navigation to Comments
+        /// </summary>
         public ICollection<Comment>? Comments { get; set; }
     }
 }

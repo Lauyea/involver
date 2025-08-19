@@ -21,13 +21,24 @@ namespace DataAccess.Models
 
         public bool Block { get; set; }
 
+        /// <summary>
+        /// FK to Comment
+        /// </summary>
         public int CommentID { get; set; }
-
+        /// <summary>
+        /// Reference navigation to Comment
+        /// </summary>
         public Comment? Comment { get; set; }
 
-        //Delete Profile then Set NULL
+        /// <summary>
+        /// FK to Profile
+        /// </summary>
+        // Delete Profile then Set NULL
+        // 當初可能是為了保留Message，才設定成nullable的
         public string? ProfileID { get; set; }
-
+        /// <summary>
+        /// Reference navigation to Profile
+        /// </summary>
         [ForeignKey("ProfileID")]
         public Profile? Profile { get; set; }
 

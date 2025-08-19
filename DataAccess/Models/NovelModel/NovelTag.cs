@@ -2,6 +2,10 @@
 
 namespace DataAccess.Models.NovelModel
 {
+    /// <summary>
+    /// 小說標籤。
+    /// </summary>
+    /// TODO: 之後可能會與Novel共用
     public class NovelTag
     {
         [Key]

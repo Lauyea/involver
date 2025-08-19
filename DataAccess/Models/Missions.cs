@@ -23,8 +23,14 @@ namespace DataAccess.Models
         [Display(Name = "每日登入")]
         public bool DailyLogin { get; set; }
 
+        /// <summary>
+        /// FK to Profile
+        /// </summary>
         [Required]
         public required string ProfileID { get; set; }
+        /// <summary>
+        /// Reference navigation to Profile
+        /// </summary>
         [ForeignKey("ProfileID")]
         public Profile? Profile { get; set; }
     }

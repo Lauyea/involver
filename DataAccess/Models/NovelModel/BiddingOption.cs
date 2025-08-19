@@ -5,16 +5,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Models.NovelModel
 {
+    /// <summary>
+    /// 競標選項。暫時還沒有用到
+    /// </summary>
     public class BiddingOption
     {
         public int BiddingOptionID { get; set; }
         public string? OwnerID { get; set; }
 
-        
+        /// <summary>
+        /// 競標金額
+        /// </summary>
         [Column(TypeName = "money")]
         public int BiddingCoins { get; set; }
 
-        
+        /// <summary>
+        /// 總額
+        /// </summary>
         [Column(TypeName = "money")]
         public int TotalCoins { get; set; }
 
@@ -25,9 +32,18 @@ namespace DataAccess.Models.NovelModel
         [Display(Name = "內容")]
         public string? Content { get; set; }
 
+        /// <summary>
+        /// FK to Voting
+        /// </summary>
         public int VotingID { get; set; }
+        /// <summary>
+        /// Reference navigation to Voting
+        /// </summary>
         public Voting? Voting { get; set; }
 
+        /// <summary>
+        /// Collection navigation to Votes
+        /// </summary>
         public ICollection<Vote>? Votes { get; set; }
     }
 }

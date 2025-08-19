@@ -2,6 +2,9 @@
 
 namespace DataAccess.Models.NovelModel
 {
+    /// <summary>
+    /// Many-to-many join table for novel and viewer(Profile)
+    /// </summary>
     public class NovelViewer
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
