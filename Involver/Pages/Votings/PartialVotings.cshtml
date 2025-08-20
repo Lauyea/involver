@@ -1,4 +1,5 @@
-﻿@using DataAccess.Models.NovelModel;
+﻿@using DataAccess.Common
+@using DataAccess.Models.NovelModel;
 @using Involver.Models.NovelModel;
 @model List<Voting>
 @{
@@ -49,7 +50,7 @@
         }
     }
     <div>
-        @if (voting.Limit == Voting.LimitType.Time)
+        @if (voting.Limit == LimitType.Time)
         {
             var countDownId = "CountDownID" + voting.VotingID;
             var countDownTime = voting.DeadLine;
@@ -58,12 +59,12 @@
             <span style="text-align: right"> 剩餘： </span>
             <span id=@countDownId></span>
         }
-        else if (voting.Limit == Voting.LimitType.Number)
+        else if (voting.Limit == LimitType.Number)
         {
             <span title="這個投票有限制投票人數上限">限量上限： @voting.NumberLimit</span>
             <span>現量： @voting.TotalNumber</span>
         }
-        else if (voting.Limit == Voting.LimitType.Value)
+        else if (voting.Limit == LimitType.Value)
         {
             <span title="這個投票有限制總Coins上限">限值上限： @voting.CoinLimit</span>
             <span>現值： @voting.TotalCoins</span>
@@ -74,11 +75,11 @@
                 <span>投票標題： @voting.Title</span>
             </div>
             <div style="text-align: right">
-                @if (voting.Policy == Voting.PolicyType.Equality)
+                @if (voting.Policy == PolicyType.Equality)
                 {
                     <span title="這個投票的每張票價值有限">平等</span>
                 }
-                else if (voting.Policy == Voting.PolicyType.Liberty)
+                else if (voting.Policy == PolicyType.Liberty)
                 {
                     <span title="這個投票的每張票價值無限">自由</span>
                 }
@@ -94,7 +95,7 @@
         //{
         //    Voted = option.Votes.Any(v => v.OwnerID == Model.UserID);
         //}
-        if (voting.Policy == Voting.PolicyType.Liberty)
+        if (voting.Policy == PolicyType.Liberty)
         {
             <div>
                 @{

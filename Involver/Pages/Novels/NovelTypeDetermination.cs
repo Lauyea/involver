@@ -2,38 +2,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataAccess.Common;
+using Type = DataAccess.Common.Type;
 
 namespace Involver.Pages.Novels
 {
     public class NovelTypeDetermination
     {
-        public string GetTypeName(DataAccess.Models.NovelModel.Type? type)
+        public string GetTypeName(Type? type)
         {
             string TypeName = "";
             switch (type)
             {
-                case (DataAccess.Models.NovelModel.Type.Fantasy):
+                case (Type.Fantasy):
                     TypeName = "奇幻";
                     break;
-                case (DataAccess.Models.NovelModel.Type.History):
+                case (Type.History):
                     TypeName = "歷史";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Love):
+                case (Type.Love):
                     TypeName = "愛情";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Real):
+                case (Type.Real):
                     TypeName = "真實";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Modern):
+                case (Type.Modern):
                     TypeName = "現代";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Science):
+                case (Type.Science):
                     TypeName = "科幻";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Horror):
+                case (Type.Horror):
                     TypeName = "驚悚";
                     break;
-                case (DataAccess.Models.NovelModel.Type.Detective):
+                case (Type.Detective):
                     TypeName = "推理";
                     break;
                 default:

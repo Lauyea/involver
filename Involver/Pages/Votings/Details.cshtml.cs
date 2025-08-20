@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using DataAccess.Common;
 
 namespace Involver.Pages.Votings
 {
@@ -100,7 +101,7 @@ namespace Involver.Pages.Votings
 
             NormalOptions = Voting.NormalOptions.ToArray();
 
-            if (Voting.Policy == Voting.PolicyType.Equality)
+            if (Voting.Policy == PolicyType.Equality)
             {
                 Vote.Value = Voting.Threshold;
             }
@@ -200,7 +201,7 @@ namespace Involver.Pages.Votings
             Voting.TotalCoins += value;
 
             //主要用來判斷月收入的來源
-            if (Voting.Policy == Voting.PolicyType.Liberty)
+            if (Voting.Policy == PolicyType.Liberty)
             {
                 Creator.MonthlyCoins += (decimal)(value * 0.6);//自由模式，作者得60%分潤
             }

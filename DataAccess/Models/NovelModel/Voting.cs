@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccess.Common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -6,21 +7,6 @@ namespace DataAccess.Models.NovelModel
 {
     public class Voting
     {
-        public enum PolicyType
-        {
-            Equality, Liberty
-        }
-
-        public enum ModeType
-        {
-            Normal, Bidding
-        }
-
-        public enum LimitType
-        {
-            Time, Number, Value
-        }
-
         public int VotingID { get; set; }
 
         public string? OwnerID { get; set; }

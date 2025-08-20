@@ -8,10 +8,6 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Models.NovelModel
 {
-    public enum Type
-    {
-        Fantasy, History, Love, Real, Modern, Science, Horror, Detective
-    }
     public class Novel
     {
         public int NovelID { get; set; }
@@ -33,7 +29,7 @@ namespace DataAccess.Models.NovelModel
 
         [DisplayFormat(NullDisplayText = "No type")]
         [Display(Name = "類型")]
-        public Type? Type { get; set; }
+        public Common.Type? Type { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Name = "創建時間")]
