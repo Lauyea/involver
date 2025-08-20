@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using DataAccess.Models;
 using System.Text.Json;
 using Involver.Common;
+using DataAccess.Common;
 
 namespace Involver.Pages.Episodes
 {
@@ -86,7 +87,7 @@ namespace Involver.Pages.Episodes
                     continue;
                 }
 
-                if (voting.Limit == Voting.LimitType.Time)
+                if (voting.Limit == LimitType.Time)
                 {
                     //限時已過，投票結束
                     TimeSpan? date = voting.DeadLine - DateTime.Now;
@@ -97,7 +98,7 @@ namespace Involver.Pages.Episodes
                     }
                 }
 
-                if (voting.Limit == Voting.LimitType.Number)
+                if (voting.Limit == LimitType.Number)
                 {
                     //限定票數已過，投票結束
                     int TotalVotesCount = 0;
@@ -111,7 +112,7 @@ namespace Involver.Pages.Episodes
                     }
                 }
 
-                if (voting.Limit == Voting.LimitType.Value)
+                if (voting.Limit == LimitType.Value)
                 {
                     //限定總值已過，投票結束
                     if (voting.TotalCoins > voting.CoinLimit && voting.End == false)

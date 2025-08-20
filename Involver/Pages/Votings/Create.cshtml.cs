@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Common;
 
 namespace Involver.Pages.Votings
 {
@@ -54,15 +55,15 @@ namespace Involver.Pages.Votings
 
         public List<SelectListItem> Policys { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Value = Voting.PolicyType.Equality.ToString(), Text = "平等" },
-            new SelectListItem { Value = Voting.PolicyType.Liberty.ToString(), Text = "自由" }
+            new SelectListItem { Value = PolicyType.Equality.ToString(), Text = "平等" },
+            new SelectListItem { Value = PolicyType.Liberty.ToString(), Text = "自由" }
         };
 
         public List<SelectListItem> Limits { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Value = Voting.LimitType.Time.ToString(), Text = "限時" },
-            new SelectListItem { Value = Voting.LimitType.Number.ToString(), Text = "限量" },
-            new SelectListItem { Value = Voting.LimitType.Value.ToString(), Text = "限值" }
+            new SelectListItem { Value = LimitType.Time.ToString(), Text = "限時" },
+            new SelectListItem { Value = LimitType.Number.ToString(), Text = "限量" },
+            new SelectListItem { Value = LimitType.Value.ToString(), Text = "限值" }
         };
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
@@ -80,17 +81,17 @@ namespace Involver.Pages.Votings
                 .Where(p => p.ProfileID == profileId)
                 .FirstOrDefaultAsync();
 
-            if (Voting.Limit == Voting.LimitType.Time && Voting.DeadLine == null)
+            if (Voting.Limit == LimitType.Time && Voting.DeadLine == null)
             {
                 ErrorMessage = "限時投票必須要設定期限";
                 return Page();
             }
-            else if(Voting.Limit == Voting.LimitType.Number && Voting.NumberLimit == null)
+            else if(Voting.Limit == LimitType.Number && Voting.NumberLimit == null)
             {
                 ErrorMessage = "限量投票必須要設定人數上限";
                 return Page();
             }
-            else if (Voting.Limit == Voting.LimitType.Value && Voting.CoinLimit == null)
+            else if (Voting.Limit == LimitType.Value && Voting.CoinLimit == null)
             {
                 ErrorMessage = "限值投票必須要設定總InCoins上限";
                 return Page();
@@ -137,21 +138,21 @@ namespace Involver.Pages.Votings
                 v => v.Policy, v => v.Limit, v => v.Threshold, v => v.Title))
             {
                 NewVoting.OwnerID = _userManager.GetUserId(User);
-                NewVoting.Mode = Voting.ModeType.Normal;
+                NewVoting.Mode = ModeType.Normal;
                 NewVoting.End = false;
                 NewVoting.TotalCoins = 0;
                 NewVoting.TotalNumber = 0;
                 NewVoting.CreateTime = DateTime.Now;
                 NewVoting.EpisodeID = id;
-                if(NewVoting.Limit == Voting.LimitType.Time)
+                if(NewVoting.Limit == LimitType.Time)
                 {
                     NewVoting.DeadLine = Voting.DeadLine;
                 }
-                else if(NewVoting.Limit == Voting.LimitType.Number)
+                else if(NewVoting.Limit == LimitType.Number)
                 {
                     NewVoting.NumberLimit = Voting.NumberLimit;
                 }
-                else if(NewVoting.Limit == Voting.LimitType.Value)
+                else if(NewVoting.Limit == LimitType.Value)
                 {
                     NewVoting.CoinLimit = Voting.CoinLimit;
                 }

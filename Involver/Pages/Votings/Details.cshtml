@@ -1,11 +1,12 @@
 ﻿@page
 @model Involver.Pages.Votings.DetailsModel
+@using DataAccess.Common;
 
 @{
     ViewData["Title"] = "投票";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     var submitDisabled = Model.Voting.End ? "disabled" : "";
-    bool valueEnabled = Model.Voting.Policy == DataAccess.Models.NovelModel.Voting.PolicyType.Liberty;
+    bool valueEnabled = Model.Voting.Policy == PolicyType.Liberty;
 }
 <h1>投票</h1>
 

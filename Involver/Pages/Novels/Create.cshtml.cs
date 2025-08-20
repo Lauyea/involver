@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using Type = DataAccess.Common.Type;
 
 namespace Involver.Pages.Novels
 {
@@ -46,14 +47,14 @@ namespace Involver.Pages.Novels
 
         public List<SelectListItem> Types { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Fantasy.ToString(), Text = "奇幻" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.History.ToString(), Text = "歷史" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Love.ToString(), Text = "愛情" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Real.ToString(), Text = "真實" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Modern.ToString(), Text = "現代" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Science.ToString(), Text = "科幻" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Horror.ToString(), Text = "驚悚" },
-            new SelectListItem { Value = DataAccess.Models.NovelModel.Type.Detective.ToString(), Text = "推理" },
+            new SelectListItem { Value = Type.Fantasy.ToString(), Text = "奇幻" },
+            new SelectListItem { Value = Type.History.ToString(), Text = "歷史" },
+            new SelectListItem { Value = Type.Love.ToString(), Text = "愛情" },
+            new SelectListItem { Value = Type.Real.ToString(), Text = "真實" },
+            new SelectListItem { Value = Type.Modern.ToString(), Text = "現代" },
+            new SelectListItem { Value = Type.Science.ToString(), Text = "科幻" },
+            new SelectListItem { Value = Type.Horror.ToString(), Text = "驚悚" },
+            new SelectListItem { Value = Type.Detective.ToString(), Text = "推理" },
         };
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
