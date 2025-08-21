@@ -122,6 +122,16 @@ namespace DataAccess.Data
                     j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
                 });
 
+            modelBuilder.Entity<Article>()
+                .HasMany(a => a.ArticleTags)
+                .WithMany(t => t.Articles)
+                .UsingEntity(j => j.ToTable("ArticleTaggings"));
+
+            modelBuilder.Entity<Novel>()
+                .HasMany(a => a.NovelTags)
+                .WithMany(t => t.Novels)
+                .UsingEntity(j => j.ToTable("NovelTaggings"));
+
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
