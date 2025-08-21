@@ -80,11 +80,6 @@ namespace DataAccess.Data
                     j.HasIndex(a => a.SeqNo).IsUnique().IsClustered();
                 });
 
-            modelBuilder.Entity<Profile>().ToTable("Profile");
-
-            modelBuilder.Entity<Involving>().ToTable("Involving");
-            modelBuilder.Entity<Novel>().ToTable("Novel");
-
             modelBuilder.Entity<Novel>()
             .HasMany(n => n.Viewers)
             .WithMany(p => p.ViewedNovels)
@@ -104,18 +99,6 @@ namespace DataAccess.Data
                     j.HasKey(v => new { v.ProfileID, v.NovelID }).IsClustered(false);
                     j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
                 });
-
-            modelBuilder.Entity<Episode>().ToTable("Episode");
-            modelBuilder.Entity<Comment>().ToTable("Comment");
-            modelBuilder.Entity<Message>().ToTable("Message");
-            modelBuilder.Entity<Agree>().ToTable("Agree");
-            modelBuilder.Entity<Voting>().ToTable("Voting");
-            modelBuilder.Entity<NormalOption>().ToTable("NormalOption");
-            modelBuilder.Entity<BiddingOption>().ToTable("BiddingOption");
-            modelBuilder.Entity<Vote>().ToTable("Vote");
-            modelBuilder.Entity<Follow>().ToTable("Follow");
-            modelBuilder.Entity<Announcement>().ToTable("Announcement");
-            modelBuilder.Entity<Feedback>().ToTable("Feedback");
 
             modelBuilder.Entity<Article>().Property(a => a.CreateTime).HasDefaultValueSql("getdate()");
 
@@ -138,10 +121,6 @@ namespace DataAccess.Data
                     j.HasKey(v => new { v.ProfileID, v.ArticleID }).IsClustered(false);
                     j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
                 });
-
-            modelBuilder.Entity<Dice>().ToTable("Dice");
-            modelBuilder.Entity<Payment>().ToTable("Payment");
-            modelBuilder.Entity<ProfitSharing>().ToTable("ProfitSharing");
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
