@@ -4,6 +4,7 @@ using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250821013546_RenameArticleToArticles")]
+    partial class RenameArticleToArticles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,7 +219,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Agrees");
+                    b.ToTable("Agree", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.AnnouncementModel.Announcement", b =>
@@ -251,7 +254,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("AnnouncementID");
 
-                    b.ToTable("Announcements");
+                    b.ToTable("Announcement", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.ArticleModel.Article", b =>
@@ -414,7 +417,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comment", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.FeedbackModel.Feedback", b =>
@@ -452,7 +455,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("FeedbackID");
 
-                    b.ToTable("Feedbacks");
+                    b.ToTable("Feedback", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Follow", b =>
@@ -490,7 +493,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Follows");
+                    b.ToTable("Follow", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Involving", b =>
@@ -536,7 +539,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Involvings");
+                    b.ToTable("Involving", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Message", b =>
@@ -570,7 +573,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Missions", b =>
@@ -614,7 +617,7 @@ namespace DataAccess.Migrations
                     b.HasIndex("ProfileID")
                         .IsUnique();
 
-                    b.ToTable("Missions");
+                    b.ToTable("Missions", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Notification", b =>
@@ -680,7 +683,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("VotingID");
 
-                    b.ToTable("BiddingOptions");
+                    b.ToTable("BiddingOption", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.Dice", b =>
@@ -704,7 +707,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("CommentID");
 
-                    b.ToTable("Dices");
+                    b.ToTable("Dice", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.Episode", b =>
@@ -747,7 +750,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("NovelID");
 
-                    b.ToTable("Episodes");
+                    b.ToTable("Episode", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.NormalOption", b =>
@@ -775,7 +778,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("VotingID");
 
-                    b.ToTable("NormalOptions");
+                    b.ToTable("NormalOption", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.Novel", b =>
@@ -841,7 +844,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Novels");
+                    b.ToTable("Novel", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.NovelTag", b =>
@@ -919,7 +922,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("NormalOptionID");
 
-                    b.ToTable("Votes");
+                    b.ToTable("Vote", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.Voting", b =>
@@ -981,7 +984,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("EpisodeID");
 
-                    b.ToTable("Votings");
+                    b.ToTable("Voting", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.Profile", b =>
@@ -1052,7 +1055,7 @@ namespace DataAccess.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
-                    b.ToTable("Profiles");
+                    b.ToTable("Profile", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.StatisticalData.Payment", b =>
@@ -1098,7 +1101,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("PaymentID");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payment", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.StatisticalData.ProfitSharing", b =>
@@ -1123,7 +1126,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("ProfitSharingID");
 
-                    b.ToTable("ProfitSharings");
+                    b.ToTable("ProfitSharing", (string)null);
                 });
 
             modelBuilder.Entity("DataAccess.Models.ViewIp", b =>
