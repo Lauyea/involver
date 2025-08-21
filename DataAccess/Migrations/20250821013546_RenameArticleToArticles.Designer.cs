@@ -4,6 +4,7 @@ using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250821013546_RenameArticleToArticles")]
+    partial class RenameArticleToArticles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ArticlesArticleID");
 
-                    b.ToTable("ArticleArticleTag", (string)null);
+                    b.ToTable("ArticleArticleTag");
                 });
 
             modelBuilder.Entity("ArticleViewIp", b =>
@@ -49,7 +52,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ViewIpsId");
 
-                    b.ToTable("ArticleViewIp", (string)null);
+                    b.ToTable("ArticleViewIp");
                 });
 
             modelBuilder.Entity("DataAccess.Data.InvolverUser", b =>
@@ -153,7 +156,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("AchievementID");
 
-                    b.ToTable("Achievements", (string)null);
+                    b.ToTable("Achievements");
                 });
 
             modelBuilder.Entity("DataAccess.Models.AchievementModel.ProfileAchievement", b =>
@@ -184,7 +187,7 @@ namespace DataAccess.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
-                    b.ToTable("ProfileAchievement", (string)null);
+                    b.ToTable("ProfileAchievement");
                 });
 
             modelBuilder.Entity("DataAccess.Models.Agree", b =>
@@ -310,7 +313,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("DataAccess.Models.ArticleModel.ArticleTag", b =>
@@ -328,7 +331,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("TagId");
 
-                    b.ToTable("ArticleTags", (string)null);
+                    b.ToTable("ArticleTags");
                 });
 
             modelBuilder.Entity("DataAccess.Models.ArticleModel.ArticleViewer", b =>
@@ -359,7 +362,7 @@ namespace DataAccess.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
-                    b.ToTable("ArticleViewer", (string)null);
+                    b.ToTable("ArticleViewer");
                 });
 
             modelBuilder.Entity("DataAccess.Models.Comment", b =>
@@ -646,7 +649,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ProfileID");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.BiddingOption", b =>
@@ -859,7 +862,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("TagId");
 
-                    b.ToTable("NovelTags", (string)null);
+                    b.ToTable("NovelTags");
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.NovelViewer", b =>
@@ -890,7 +893,7 @@ namespace DataAccess.Migrations
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
-                    b.ToTable("NovelViewer", (string)null);
+                    b.ToTable("NovelViewer");
                 });
 
             modelBuilder.Entity("DataAccess.Models.NovelModel.Vote", b =>
@@ -1141,7 +1144,7 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ViewIps", (string)null);
+                    b.ToTable("ViewIps");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1293,7 +1296,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("NovelsNovelID");
 
-                    b.ToTable("NovelNovelTag", (string)null);
+                    b.ToTable("NovelNovelTag");
                 });
 
             modelBuilder.Entity("NovelViewIp", b =>
@@ -1308,7 +1311,7 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ViewIpsId");
 
-                    b.ToTable("NovelViewIp", (string)null);
+                    b.ToTable("NovelViewIp");
                 });
 
             modelBuilder.Entity("ArticleArticleTag", b =>

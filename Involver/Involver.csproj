@@ -44,8 +44,6 @@
     <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
   </ItemGroup>
   <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties appsettings_1json__JsonSchema="" />
-    </VisualStudio>
+    <VisualStudio><UserProperties /></VisualStudio>
   </ProjectExtensions>
 </Project>
