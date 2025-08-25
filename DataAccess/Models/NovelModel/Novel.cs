@@ -53,17 +53,11 @@ namespace DataAccess.Models.NovelModel
         [Display(Name = "完結")]
         public bool End { get; set; }
 
-        [Display(Name = "觀看數")]
-        public int Views { get; set; }
+        [Display(Name = "總觀看數")]
+        public int TotalViews { get; set; }
 
         [Display(Name = "封鎖")]
         public bool Block { get; set; }
-
-        /// <summary>
-        /// Gets or sets the JSON representation of the view record.
-        /// </summary>
-        /// TODO: 之後可能會刪除
-        public string? ViewRecordJson { get; set; }
 
         public int DailyView { get; set; }
 
@@ -105,9 +99,9 @@ namespace DataAccess.Models.NovelModel
         public ICollection<NovelTag>? NovelTags { get; set; }
 
         /// <summary>
-        /// Collection navigation to ViewIps
+        /// Collection navigation to Views
         /// </summary>
-        public ICollection<ViewIp>? ViewIps { get; set; }
+        public ICollection<View>? Views { get; set; }
 
         /// <summary>
         /// Collection navigation to Viewers

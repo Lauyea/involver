@@ -193,10 +193,10 @@
                         </dd>
                     }
                     <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Novel.Views)
+                        @Html.DisplayNameFor(model => model.Novel.TotalViews)
                     </dt>
                     <dd class="col-sm-10 text-muted">
-                        <a href="#" onclick="ShowViewRecordModal('@Model.Novel.ViewRecordJson')">@Html.DisplayFor(model => model.Novel.Views)</a>
+                        @Html.DisplayFor(model => model.Novel.TotalViews)
                     </dd>
                     <dt class="col-sm-2">
                         追蹤數
@@ -219,6 +219,9 @@
                         }
                     </dd>
                 </dl>
+                <div class="px-4 pb-2">
+                    <canvas id="viewChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -250,6 +253,53 @@
 
 @section Scripts{
     <script>
+        (async function () {
+            const ctx = document.getElementById('viewChart');
+            const novelId = @Model.Novel.NovelID;
+
+            let response = await fetch(`/api/Views/GetNovelViews/${novelId}`);
+            let viewsData = await response.json();
+
+            // Create a complete 7-day label set
+            const labels = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                labels.push(d.toISOString().split('T')[0]);
+            }
+
+            // Map the data from the API to the 7-day label set
+            const dataPoints = labels.map(label => {
+                const apiDataPoint = viewsData.find(d => d.date.startsWith(label));
+                return apiDataPoint ? apiDataPoint.views : 0;
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.map(l => new Date(l).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' })), // Format date for display
+                    datasets: [{
+                        label: '過去七日觀看數',
+                        data: dataPoints,
+                        backgroundColor: 'rgb(255, 200, 132)',
+                        borderColor: 'rgb(255, 200, 132)',
+                        borderWidth: 1,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0 // Ensure Y-axis only shows whole numbers
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+
         $('#partialEpisodesPagination').twbsPagination({
             totalPages: @Model.Episodes.TotalPages,
             visiblePages: @Parameters.EpisodePageSize,
@@ -268,18 +318,5 @@
                 });
             }
         });
-
-        function ShowViewRecordModal(json) {
-            $.ajax({
-                type: 'GET',
-                url: '@Url.Action("PartialViewRecord", "StatisticalData")',
-                data: { json: json },
-                success: function (result) {
-                    $('#modal').html("");
-                    $('#modal').html(result);
-                    $('#viewRecordModal').modal('show');
-                }
-            });
-        }
     </script>
 }

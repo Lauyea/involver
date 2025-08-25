@@ -48,8 +48,8 @@ namespace DataAccess.Models.ArticleModel
         /// <summary>
         /// 觀看數
         /// </summary>
-        [Display(Name = "觀看數")]
-        public int Views { get; set; }
+        [Display(Name = "總觀看數")]
+        public int TotalViews { get; set; }
 
         /// <summary>
         /// 主題圖片網址
@@ -75,12 +75,6 @@ namespace DataAccess.Models.ArticleModel
         /// </summary>
         [Column(TypeName = "money")]
         public decimal MonthlyCoins { get; set; }
-
-        /// <summary>
-        /// Gets or sets the JSON representation of the view record.
-        /// </summary>
-        /// TODO: 之後可能會刪除
-        public string? ViewRecordJson { get; set; }
 
         /// <summary>
         /// 每日觀看數
@@ -115,9 +109,9 @@ namespace DataAccess.Models.ArticleModel
         public ICollection<ArticleTag>? ArticleTags { get; set; }
 
         /// <summary>
-        /// Collection navigation to ViewIps
+        /// Collection navigation to Views
         /// </summary>
-        public ICollection<ViewIp>? ViewIps { get; set; }
+        public ICollection<View>? Views { get; set; }
 
         /// <summary>
         /// Collection navigation to Viewers

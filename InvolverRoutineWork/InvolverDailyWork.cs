@@ -2,15 +2,8 @@ using System;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using DataAccess.Data;
-using InvolverRoutineWork.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Text.Json;
-using System.Linq;
-using DataAccess.Models;
 using Microsoft.Azure.Functions.Worker;
-using DataAccess.Models.NovelModel;
-using DataAccess.Models.ArticleModel;
 
 namespace InvolverDailyWork
 {
@@ -24,118 +17,26 @@ namespace InvolverDailyWork
         }
 
         [Function("InvolverDailyWork")]
-        public async Task Run([TimerTrigger("0 0 0 * * *")]TimerInfo myTimer, ILogger log)
-
+        public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer, ILogger log)
         {
-            var novels = await _context.Novels.ToListAsync();
-
-            SetViewRecord(novels);
-
-            var article = await _context.Articles.ToListAsync();
-
-            SetViewRecord(article);
-
-            await _context.SaveChangesAsync();
-
             // For use ef core to excute raw SQL
             await _context.Database.ExecuteSqlRawAsync("USE [Involver]");
 
-            var text = "UPDATE [dbo].[Missions] " +
-                        "SET [DailyLogin] = 'False';";
+            // Reset Daily Views for Articles and Novels
+            var resetViewsSql = "UPDATE [dbo].[Articles] SET [DailyView] = 0; UPDATE [dbo].[Novels] SET [DailyView] = 0;";
+            int resetViewsRows = await _context.Database.ExecuteSqlRawAsync(resetViewsSql);
+            log.LogInformation($"Reset daily views, {resetViewsRows} rows were updated (includes both articles and novels).");
 
-            int rows = await _context.Database.ExecuteSqlRawAsync(text);
+            // Reset Daily Login Mission
+            var resetMissionSql = "UPDATE [dbo].[Missions] SET [DailyLogin] = 'False';";
+            int missionRows = await _context.Database.ExecuteSqlRawAsync(resetMissionSql);
+            log.LogInformation($"Update missions, {missionRows} rows were updated");
 
-            log.LogInformation($"Update missions, {rows} rows were updated");
-
-            text = "DELETE FROM [dbo].[ViewIps]";
-
-            rows = await _context.Database.ExecuteSqlRawAsync(text);
-
-            log.LogInformation($"Delete view IPs, {rows} rows were updated");
-        }
-
-        private static void SetViewRecord(List<Novel> novels)
-        {
-            foreach (var item in novels)
-            {
-                var views = item.DailyView;
-
-                ViewRecord viewRecord = new()
-                {
-                    Date = DateTime.Now.AddDays(-1).Date,
-                    ViewCount = views
-                };
-
-                List<ViewRecord> records = null;
-
-                try
-                {
-                    records = JsonSerializer.Deserialize<List<ViewRecord>>(item.ViewRecordJson);
-                }
-                catch
-                {
-                    records = new List<ViewRecord>();
-                }
-
-                if (records == null)
-                {
-                    records = new List<ViewRecord>();
-                }
-
-                var halfMonthAgo = DateTime.Now.AddDays(-15);
-
-                records = records.Where(r => r.Date > halfMonthAgo).ToList();
-
-                records.Add(viewRecord);
-
-                string recordJson = JsonSerializer.Serialize(records);
-
-                item.ViewRecordJson = recordJson;
-
-                item.DailyView = 0;
-            }
-        }
-
-        private static void SetViewRecord(List<Article> articles)
-        {
-            foreach (var item in articles)
-            {
-                var views = item.DailyView;
-
-                ViewRecord viewRecord = new()
-                {
-                    Date = DateTime.Now.AddDays(-1).Date,
-                    ViewCount = views
-                };
-
-                List<ViewRecord> records = null;
-
-                try
-                {
-                    records = JsonSerializer.Deserialize<List<ViewRecord>>(item.ViewRecordJson);
-                }
-                catch
-                {
-                    records = new List<ViewRecord>();
-                }
-
-                if (records == null)
-                {
-                    records = new List<ViewRecord>();
-                }
-
-                var halfMonthAgo = DateTime.Now.AddDays(-15);
-
-                records = records.Where(r => r.Date > halfMonthAgo).ToList();
-
-                records.Add(viewRecord);
-
-                string recordJson = JsonSerializer.Serialize(records);
-
-                item.ViewRecordJson = recordJson;
-
-                item.DailyView = 0;
-            }
+            // Delete view records older than 30 days to keep the table clean
+            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
+            var deleteViewsSql = $"DELETE FROM [dbo].[Views] WHERE [CreateTime] < '{thirtyDaysAgo:yyyy-MM-dd HH:mm:ss}'";
+            int deletedViewRows = await _context.Database.ExecuteSqlRawAsync(deleteViewsSql);
+            log.LogInformation($"Delete old view records, {deletedViewRows} rows were deleted.");
         }
     }
 }

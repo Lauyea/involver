@@ -48,7 +48,7 @@ namespace DataAccess.Data
 
         public DbSet<Notification> Notifications { get; set; }
 
-        public DbSet<ViewIp> ViewIps { get; set; }
+        public DbSet<View> Views { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

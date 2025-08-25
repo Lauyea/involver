@@ -146,7 +146,7 @@ namespace Involver.Pages.Articles
                 emptyArticle.UpdateTime = DateTime.Now;
                 var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);
                 emptyArticle.ProfileID = Article.ProfileID;
-                emptyArticle.Views = 0;
+                emptyArticle.TotalViews = 0;
                 emptyArticle.Block = false;
                 emptyArticle.TotalCoins = 0;
                 emptyArticle.MonthlyCoins = 0;
