@@ -196,7 +196,7 @@
                         @Html.DisplayNameFor(model => model.Novel.TotalViews)
                     </dt>
                     <dd class="col-sm-10 text-muted">
-                        @Html.DisplayFor(model => model.Novel.TotalViews)
+                        <a href="#" data-toggle="modal" data-target="#viewChartModal">@Html.DisplayFor(model => model.Novel.TotalViews)</a>
                     </dd>
                     <dt class="col-sm-2">
                         追蹤數
@@ -219,9 +219,6 @@
                         }
                     </dd>
                 </dl>
-                <div class="px-4 pb-2">
-                    <canvas id="viewChart"></canvas>
-                </div>
             </div>
         </div>
 
@@ -251,9 +248,33 @@
     <partial name="Comments/PartialComments" for="@Model.Comments" />
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="viewChartModal" tabindex="-1" role="dialog" aria-labelledby="viewChartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="viewChartModalLabel">過去七日觀看紀錄</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <canvas id="viewChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
 @section Scripts{
     <script>
-        (async function () {
+        let chartInstance = null; // To hold the chart instance
+
+        $('#viewChartModal').on('show.bs.modal', async function (event) {
+            // Prevent multiple initializations
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
             const ctx = document.getElementById('viewChart');
             const novelId = @Model.Novel.NovelID;
 
@@ -274,7 +295,7 @@
                 return apiDataPoint ? apiDataPoint.views : 0;
             });
 
-            new Chart(ctx, {
+            chartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels.map(l => new Date(l).toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' })), // Format date for display
@@ -298,7 +319,7 @@
                     }
                 }
             });
-        })();
+        });
 
         $('#partialEpisodesPagination').twbsPagination({
             totalPages: @Model.Episodes.TotalPages,
