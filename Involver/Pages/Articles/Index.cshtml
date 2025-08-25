@@ -176,16 +176,32 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const chartCanvases = document.querySelectorAll('canvas[id^="article-chart-"]');
-            chartCanvases.forEach(async function (canvas) {
+            if (chartCanvases.length === 0) {
+                return;
+            }
+
+            const articleIdArray = Array.from(chartCanvases).map(canvas => canvas.id.split('-').pop());
+            const uniqueArticleIds = [...new Set(articleIdArray)];
+
+            const response = await fetch('/api/Views/GetBatchArticleViews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(uniqueArticleIds),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const batchData = await response.json();
+
+            chartCanvases.forEach(canvas => {
                 const articleId = canvas.id.split('-').pop();
-                
-                let response = await fetch(`/api/Views/GetArticleViews/${articleId}`);
-                if (!response.ok) {
-                    return;
-                }
-                let viewsData = await response.json();
+                const viewsData = batchData[articleId] || [];
 
                 const labels = [];
                 for (let i = 6; i >= 0; i--) {

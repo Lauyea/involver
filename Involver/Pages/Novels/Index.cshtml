@@ -325,16 +325,32 @@
 
 @section Scripts{
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const chartCanvases = document.querySelectorAll('canvas[id^="novel-chart-"]');
-            chartCanvases.forEach(async function (canvas) {
-                const novelId = canvas.id.split('-').pop();
+            if (chartCanvases.length === 0) {
+                return;
+            }
 
-                let response = await fetch(`/api/Views/GetNovelViews/${novelId}`);
-                if (!response.ok) {
-                    return;
-                }
-                let viewsData = await response.json();
+            const novelIdArray = Array.from(chartCanvases).map(canvas => canvas.id.split('-').pop());
+            const uniqueNovelIds = [...new Set(novelIdArray)];
+
+            const response = await fetch('/api/Views/GetBatchNovelViews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(uniqueNovelIds),
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            const batchData = await response.json();
+
+            chartCanvases.forEach(canvas => {
+                const novelId = canvas.id.split('-').pop();
+                const viewsData = batchData[novelId] || [];
 
                 const labels = [];
                 for (let i = 6; i >= 0; i--) {
