@@ -48,7 +48,7 @@ namespace Involver.Pages.Novels
                 .Include(n => n.Follows)
                 .Include(n => n.NovelTags)
                 .Include(n => n.Viewers)
-                .Include(n => n.ViewIps)
+                .Include(n => n.Views)
                 .FirstOrDefaultAsync(m => m.NovelID == id);
 
             if (Novel == null)
@@ -130,7 +130,7 @@ namespace Involver.Pages.Novels
                 Followed = false;
             }
 
-            AddViewsByIp();
+            await AddViewRecordAsync();
 
             if (UserId != null)
             {
@@ -165,6 +165,11 @@ namespace Involver.Pages.Novels
             return Page();
         }
 
+        /// <summary>
+        /// AddViewer
+        /// </summary>
+        /// <returns></returns>
+        /// TODO: 之後可能要與 AddView 合併
         private async Task AddViewer()
         {
             var userAsViewer = Novel.Viewers.Where(v => v.ProfileID == UserId).FirstOrDefault();
@@ -183,25 +188,53 @@ namespace Involver.Pages.Novels
             }
         }
 
-        private void AddViewsByIp()
+        private async Task AddViewRecordAsync()
         {
-            var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+            var sessionCookie = Request.Cookies["ViewSession"];
+            var sessionId = "";
 
-            var ipRecord = Novel.ViewIps.Where(i => i.Ip == ip).FirstOrDefault();
-
-            if (ipRecord != null)
+            if (sessionCookie == null)
             {
-                return;
+                sessionId = Guid.NewGuid().ToString();
+                var cookieOptions = new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(1),
+                    IsEssential = true
+                };
+                Response.Cookies.Append("ViewSession", sessionId, cookieOptions);
+            }
+            else
+            {
+                sessionId = sessionCookie;
             }
 
-            var newIp = new ViewIp()
+            var userId = _userManager.GetUserId(User);
+
+            // Check if a view has been recorded recently (e.g., in the last hour) to prevent spamming views by refreshing.
+            // This timespan can be adjusted.
+            var recentViewExists = await _context.Views
+                .Where(v => v.NovelId == Novel.NovelID)
+                .Where(v => (v.UserId != null && v.UserId == userId) || (v.SessionId == sessionId))
+                .Where(v => v.CreateTime > DateTime.Now.AddHours(-1))
+                .AnyAsync();
+
+            if (recentViewExists)
             {
-                Ip = ip
+                return; // A recent view was found, so don't record another one.
+            }
+
+            var view = new DataAccess.Models.View
+            {
+                NovelId = Novel.NovelID,
+                UserId = userId,
+                SessionId = sessionId,
+                CreateTime = DateTime.Now
             };
 
-            Novel.Views++;
+            _context.Views.Add(view);
+
+            Novel.TotalViews++;
             Novel.DailyView++;
-            Novel.ViewIps.Add(newIp);
         }
 
         private async Task SetComments(int? id, int? pageIndex)

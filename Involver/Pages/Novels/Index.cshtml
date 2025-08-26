@@ -143,7 +143,8 @@
                     <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </td>
                 <td style="vertical-align:middle;text-align:center;">
-                    <a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a>
+                    <a href="#" class="view-chart-trigger" data-type="novel" data-id="@item.NovelID">@Html.DisplayFor(modelItem => item.TotalViews)</a>
+                    <div style="width:100px; height:30px; margin:auto;"><canvas id="novel-chart-@item.NovelID"></canvas></div>
                 </td>
             </tr>
         }
@@ -186,9 +187,10 @@
                         <div class="mb-1">
                             <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
                         </div>
-                        <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
+                        <small>觀看數：<a href="#" class="view-chart-trigger" data-type="novel" data-id="@item.NovelID">@Html.DisplayFor(modelItem => item.TotalViews)</a></small>
                         &nbsp;
-                        <small>觀看數：<a href="#" onclick="ShowViewRecordModal('@item.ViewRecordJson')">@Html.DisplayFor(modelItem => item.Views)</a></small>
+                        <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
+                        <div class="m-1" style="width:100px; height:30px;"><canvas id="novel-chart-card-@item.NovelID"></canvas></div>
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">@TimePeriodHelper.Get(item.UpdateTime)</small>
@@ -323,18 +325,73 @@
 
 @section Scripts{
     <script>
-        function ShowViewRecordModal(json) {
-            $.ajax({
-                type: 'GET',
-                url: '@Url.Action("PartialViewRecord", "StatisticalData")',
-                data: { json: json },
-                success: function (result) {
-                    $('#modal').html("");
-                    $('#modal').html(result);
-                    $('#viewRecordModal').modal('show');
-                }
+        document.addEventListener('DOMContentLoaded', async function () {
+            const chartCanvases = document.querySelectorAll('canvas[id^="novel-chart-"]');
+            if (chartCanvases.length === 0) {
+                return;
+            }
+
+            const novelIdArray = Array.from(chartCanvases).map(canvas => canvas.id.split('-').pop());
+            const uniqueNovelIds = [...new Set(novelIdArray)];
+
+            const response = await fetch('/api/Views/GetBatchNovelViews', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(uniqueNovelIds),
             });
-        }
+
+            if (!response.ok) {
+                return;
+            }
+
+            const batchData = await response.json();
+
+            chartCanvases.forEach(canvas => {
+                const novelId = canvas.id.split('-').pop();
+                const viewsData = batchData[novelId] || [];
+
+                const labels = [];
+                for (let i = 6; i >= 0; i--) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toISOString().split('T')[0]);
+                }
+
+                const dataPoints = labels.map(label => {
+                    const apiDataPoint = viewsData.find(d => d.date.startsWith(label));
+                    return apiDataPoint ? apiDataPoint.views : 0;
+                });
+
+                new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dataPoints,
+                            backgroundColor: 'rgb(255, 200, 132)',
+                            borderColor: 'rgb(255, 200, 132)',
+                            borderWidth: 2,
+                            pointRadius: 0, // Hide points
+                            tension: 0.2
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: { display: false }, // Hide Y axis
+                            x: { display: false }  // Hide X axis
+                        },
+                        plugins: {
+                            legend: { display: false }, // Hide legend
+                            tooltip: { enabled: false } // Disable tooltips
+                        },
+                        maintainAspectRatio: false
+                    }
+                });
+            });
+        });
+
         // Toggle List/Card View
         $(function () {
             var viewMode = localStorage.getItem('novelViewMode') || 'list';

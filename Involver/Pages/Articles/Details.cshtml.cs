@@ -40,7 +40,7 @@ namespace Involver.Pages.Articles
             Article = await _context.Articles
                 .Include(a => a.Profile)
                 .Include(a => a.ArticleTags)
-                .Include(n => n.ViewIps)
+                .Include(n => n.Views)
                 .Include(n => n.Viewers)
                 .FirstOrDefaultAsync(m => m.ArticleID == id);
 
@@ -64,7 +64,7 @@ namespace Involver.Pages.Articles
 
             await SetComments(id, pageIndex);
 
-            AddViewsByIp();
+            await AddViewRecordAsync();
 
             if (currentUserId != null)
             {
@@ -101,6 +101,12 @@ namespace Involver.Pages.Articles
             return Page();
         }
 
+        /// <summary>
+        /// AddViewer
+        /// </summary>
+        /// <param name="currentUserId"></param>
+        /// <returns></returns>
+        /// TODO: 之後可能要與 AddView 合併
         private async Task AddViewer(string currentUserId)
         {
             var userAsViewer = Article.Viewers.Where(v => v.ProfileID == currentUserId).FirstOrDefault();
@@ -119,25 +125,53 @@ namespace Involver.Pages.Articles
             }
         }
 
-        private void AddViewsByIp()
+        private async Task AddViewRecordAsync()
         {
-            var ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+            var sessionCookie = Request.Cookies["ViewSession"];
+            var sessionId = "";
 
-            var ipRecord = Article.ViewIps.Where(i => i.Ip == ip).FirstOrDefault();
-
-            if(ipRecord != null)
+            if (sessionCookie == null)
             {
-                return;
+                sessionId = Guid.NewGuid().ToString();
+                var cookieOptions = new CookieOptions
+                {
+                    Expires = DateTime.Now.AddDays(1),
+                    IsEssential = true
+                };
+                Response.Cookies.Append("ViewSession", sessionId, cookieOptions);
+            }
+            else
+            {
+                sessionId = sessionCookie;
             }
 
-            var newIp = new ViewIp()
+            var userId = _userManager.GetUserId(User);
+
+            // Check if a view has been recorded recently (e.g., in the last hour) to prevent spamming views by refreshing.
+            // This timespan can be adjusted.
+            var recentViewExists = await _context.Views
+                .Where(v => v.ArticleId == Article.ArticleID)
+                .Where(v => (v.UserId != null && v.UserId == userId) || (v.SessionId == sessionId))
+                .Where(v => v.CreateTime > DateTime.Now.AddHours(-1))
+                .AnyAsync();
+
+            if (recentViewExists)
             {
-                Ip = ip
+                return; // A recent view was found, so don't record another one.
+            }
+
+            var view = new DataAccess.Models.View
+            {
+                ArticleId = Article.ArticleID,
+                UserId = userId,
+                SessionId = sessionId,
+                CreateTime = DateTime.Now
             };
 
-            Article.Views++;
+            _context.Views.Add(view);
+
+            Article.TotalViews++;
             Article.DailyView++;
-            Article.ViewIps.Add(newIp);
         }
 
         private async Task CheckMissionWatchArticle()

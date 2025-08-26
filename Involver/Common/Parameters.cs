@@ -41,5 +41,7 @@
         public static readonly decimal SilverBadgeAward = 30;
 
         public static readonly decimal GoldBadgeAward = 100;
+
+        public static readonly int ViewRecordDays = -30;
     }
 }
