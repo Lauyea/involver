@@ -1,24 +1,21 @@
-﻿@page
+@page
 @model Involver.Pages.StatisticalData.PartialViewRecordModel
 @{
     Layout = null;
 }
 
 <div class="modal fade" id="viewRecordModal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
-            @*<div class="modal-header">
-                <h5 class="modal-title" id="modalLabel">每日觀看數</h5>
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">@Model.Title - 過去30日觀看紀錄</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-            </div>*@
+            </div>
             <div class="modal-body">
                 <canvas id="viewRecordChart"></canvas>
             </div>
-            @*<div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>*@
         </div>
     </div>
 </div>
@@ -30,17 +27,34 @@
         labels: labels,
         datasets: [{
             label: '每日觀看數',
-            backgroundColor: 'rgb(255, 200, 132)',
+            backgroundColor: 'rgba(255, 200, 132, 0.5)',
             borderColor: 'rgb(255, 200, 132)',
             data: @Html.AntiXssRaw(Model.ViewCountArrJson),
+            tension: 0.1,
+            fill: true
         }]
     };
 
     var config = {
-        type: 'bar',
+        type: 'line',
         data: data,
-        options: {}
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    }
+                }
+            }
+        }
     };
+
+    // Ensure old chart is destroyed before creating a new one if needed, though loading into a clean div should prevent this.
+    var existingChart = Chart.getChart("viewRecordChart");
+    if (existingChart) {
+        existingChart.destroy();
+    }
 
     var viewRecordChart = new Chart(
         document.getElementById('viewRecordChart'),

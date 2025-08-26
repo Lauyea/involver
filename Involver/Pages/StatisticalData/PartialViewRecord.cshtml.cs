@@ -1,8 +1,8 @@
-using DataAccess.Models;
-using Involver.Models;
+using DataAccess.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace Involver.Pages.StatisticalData
@@ -10,32 +10,78 @@ namespace Involver.Pages.StatisticalData
     [AllowAnonymous]
     public class PartialViewRecordModel : PageModel
     {
-        public string DateArrJson { get; set; }
+        private readonly ApplicationDbContext _context;
 
-        public string ViewCountArrJson { get; set; }
-
-        public void OnGet(string json)
+        public PartialViewRecordModel(ApplicationDbContext context)
         {
-            List<ViewRecord> records;
+            _context = context;
+        }
 
-            try
+        public string DateArrJson { get; set; }
+        public string ViewCountArrJson { get; set; }
+        public string Title { get; set; }
+
+        public async Task<IActionResult> OnGetViewRecordAsync(string type, int id)
+        {
+            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+            List<DailyView> dailyViews;
+
+            if (type == "novel")
             {
-                records = JsonSerializer.Deserialize<List<ViewRecord>>(json);
+                var novel = await _context.Novels.FindAsync(id);
+                if (novel == null) return NotFound();
+                Title = novel.Title;
+
+                dailyViews = await _context.Views
+                    .Where(v => v.NovelId == id && v.CreateTime >= thirtyDaysAgo)
+                    .GroupBy(v => v.CreateTime.Date)
+                    .Select(g => new DailyView { Date = g.Key, Count = g.Count() })
+                    .OrderBy(dv => dv.Date)
+                    .ToListAsync();
             }
-            catch
+            else if (type == "article")
             {
-                records = new();
+                var article = await _context.Articles.FindAsync(id);
+                if (article == null) return NotFound();
+                Title = article.Title;
+
+                dailyViews = await _context.Views
+                    .Where(v => v.ArticleId == id && v.CreateTime >= thirtyDaysAgo)
+                    .GroupBy(v => v.CreateTime.Date)
+                    .Select(g => new DailyView { Date = g.Key, Count = g.Count() })
+                    .OrderBy(dv => dv.Date)
+                    .ToListAsync();
+            }
+            else
+            {
+                return BadRequest("Invalid type specified.");
             }
 
-            records = records.OrderBy(r => r.Date).ToList();
+            var allDates = Enumerable.Range(0, 30)
+                .Select(i => DateTime.UtcNow.AddDays(-29 + i).Date);
 
-            var dateArr = records.Select(r => r.Date.ToString("MM/dd")).ToArray();
+            var viewsWithAllDates = from date in allDates
+                                    join view in dailyViews on date equals view.Date into gj
+                                    from subView in gj.DefaultIfEmpty()
+                                    select new
+                                    {
+                                        Date = date,
+                                        Count = subView?.Count ?? 0
+                                    };
 
+            var dateArr = viewsWithAllDates.Select(r => r.Date.ToString("MM/dd")).ToArray();
             DateArrJson = JsonSerializer.Serialize(dateArr);
 
-            var viewCountArr = records.Select(r => r.ViewCount.ToString()).ToArray();
-
+            var viewCountArr = viewsWithAllDates.Select(r => r.Count).ToArray();
             ViewCountArrJson = JsonSerializer.Serialize(viewCountArr);
+
+            return Page();
+        }
+
+        private class DailyView
+        {
+            public DateTime Date { get; set; }
+            public int Count { get; set; }
         }
     }
 }

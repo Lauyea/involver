@@ -154,3 +154,19 @@ function ReadNotification(id, url) {
 
     document.getElementById("notificationClick").removeAttribute("onclick");
 }
+
+$(document).on('click', '.view-chart-trigger', function (e) {
+    e.preventDefault();
+
+    var type = $(this).data('type');
+    var id = $(this).data('id');
+    var url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
+
+    $('#modal').load(url, function () {
+        $('#viewRecordModal').modal('show');
+    });
+});
+
+$(document).on('hidden.bs.modal', '#viewRecordModal', function () {
+    $(this).remove();
+});
