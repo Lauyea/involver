@@ -26,7 +26,7 @@
                         </p>
                         <small>月計 @Html.DisplayFor(modelItem => novel.MonthlyCoins)</small>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@novel.UpdateTime">
                         <p>
                             <small>@TimePeriodHelper.Get(novel.UpdateTime)</small>
                         </p>

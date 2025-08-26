@@ -44,7 +44,7 @@
                     <div class="col-md-4">
                         @Html.DisplayFor(modelItem => article.Profile.UserName)
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@article.UpdateTime">
                         @TimePeriodHelper.Get(article.UpdateTime)
                     </div>
                 </div>

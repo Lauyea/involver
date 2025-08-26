@@ -44,7 +44,7 @@
                             @Html.AntiXssRaw(novel.Introduction.Substring(0, Parameters.ContentLength)+"...");
                         }
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@novel.NovelViewers.FirstOrDefault()?.ViewDate">
                         @TimePeriodHelper.Get(novel.NovelViewers.FirstOrDefault()?.ViewDate ?? new DateTime())
                     </div>
                 </div>

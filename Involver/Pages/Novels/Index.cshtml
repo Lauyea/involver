@@ -140,7 +140,7 @@
                     <div><small>月計 @Html.DisplayFor(modelItem => item.MonthlyCoins)</small></div>
                 </td>
                 <td style="vertical-align:middle;text-align:center;">
-                    <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
+                            <small title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </td>
                 <td style="vertical-align:middle;text-align:center;">
                     <a href="#" class="view-chart-trigger" data-type="novel" data-id="@item.NovelID">@Html.DisplayFor(modelItem => item.TotalViews)</a>
@@ -193,7 +193,7 @@
                         <div class="m-1" style="width:100px; height:30px;"><canvas id="novel-chart-card-@item.NovelID"></canvas></div>
                     </div>
                     <div class="card-footer">
-                        <small class="text-muted">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                        <small class="text-muted" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                     </div>
                 </div>
             </div>
