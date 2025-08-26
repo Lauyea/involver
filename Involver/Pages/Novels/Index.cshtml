@@ -187,10 +187,10 @@
                         <div class="mb-1">
                             <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
                         </div>
-                        <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
-                        &nbsp;
                         <small>觀看數：<a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.TotalViews)</a></small>
-                        <div style="width:100px; height:30px;"><canvas id="novel-chart-card-@item.NovelID"></canvas></div>
+                        &nbsp;
+                        <small>In幣：@Html.DisplayFor(modelItem => item.TotalCoins)（月 @Html.DisplayFor(modelItem => item.MonthlyCoins)）</small>
+                        <div class="m-1" style="width:100px; height:30px;"><canvas id="novel-chart-card-@item.NovelID"></canvas></div>
                     </div>
                     <div class="card-footer">
                         <small class="text-muted">@TimePeriodHelper.Get(item.UpdateTime)</small>
