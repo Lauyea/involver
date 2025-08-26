@@ -41,7 +41,7 @@
                         <a class="nav-link" href="@item.Url" style="color: hwb(32deg 0% 8%);">
                             <small>@Html.AntiXssRaw(item.Title)</small>
                         </a>
-                        <small>@TimePeriodHelper.Get(item.CreatedDate)</small>
+                        <small title="@item.CreatedDate">@TimePeriodHelper.Get(item.CreatedDate)</small>
                     </span>
                 }
                 <span class="dropdown-item">

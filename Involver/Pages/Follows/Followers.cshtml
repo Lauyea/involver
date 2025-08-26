@@ -55,7 +55,7 @@
                         @Html.AntiXssRaw(follow.Follower.Introduction.Replace("\r\n", "<br />"))
                     }
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3" title="@follow.UpdateTime">
                     @TimePeriodHelper.Get(follow.UpdateTime)
                 </div>
             </div>

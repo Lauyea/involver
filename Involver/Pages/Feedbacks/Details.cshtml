@@ -96,7 +96,7 @@ FeedbackOperations.Delete)).Succeeded)
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Feedback.UpdateTime)
         </dt>
-        <dd class="col-sm-10">
+        <dd class="col-sm-10" title="@Model.Feedback.UpdateTime">
             @TimePeriodHelper.Get(Model.Feedback.UpdateTime)
         </dd>
         @*<dt class="col-sm-2">

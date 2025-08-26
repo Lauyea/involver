@@ -51,7 +51,7 @@
                             @Html.AntiXssRaw(article.Content.StripHTML().Substring(0, Parameters.ContentLength)+"...");
                         }
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@article.ArticleViewers.FirstOrDefault()?.ViewDate">
                         @TimePeriodHelper.Get(article.ArticleViewers.FirstOrDefault()?.ViewDate ?? new DateTime())
                     </div>
                 </div>

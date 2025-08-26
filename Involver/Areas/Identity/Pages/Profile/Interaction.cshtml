@@ -83,7 +83,7 @@
                                asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Article.Title)</a>
                         }
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@comment.UpdateTime">
                         @TimePeriodHelper.Get(comment.UpdateTime)
                     </div>
                 </div>

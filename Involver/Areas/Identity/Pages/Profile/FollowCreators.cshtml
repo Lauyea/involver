@@ -68,7 +68,7 @@
                     <div class="col-md-4">
                         @Html.DisplayFor(modelItem => follow.Profile.Introduction)
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3" title="@follow.UpdateTime">
                         @TimePeriodHelper.Get(follow.UpdateTime)
                     </div>
                 </div>

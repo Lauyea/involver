@@ -72,7 +72,7 @@
                         @Html.DisplayFor(modelItem => item.OwnerName)
                     </a>
                 </td>
-                <td>
+                <td title="@item.UpdateTime">
                     @TimePeriodHelper.Get(item.UpdateTime)
                 </td>
                 @*<td>

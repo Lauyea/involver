@@ -36,7 +36,7 @@
                 </td>
                 <td>
                     <p><small>@Html.DisplayFor(modelItem => item.OwnerName)</small></p>
-                    <small>@TimePeriodHelper.Get(item.UpdateTime)</small>
+                    <small title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </td>
                 <td>
                     觀看數 @Html.DisplayFor(modelItem => item.Views)
