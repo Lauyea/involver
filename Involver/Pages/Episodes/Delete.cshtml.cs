@@ -78,9 +78,12 @@ namespace Involver.Pages.Episodes
 
             if (Episode != null)
             {
-                _context.Votes.RemoveRange(votes);
-                _context.Comments.RemoveRange(comments);
-                _context.Episodes.Remove(Episode);
+                //_context.Votes.RemoveRange(votes);
+                //_context.Comments.RemoveRange(comments);
+                //_context.Episodes.Remove(Episode);
+
+                Episode.IsDeleted = true;
+
                 await _context.SaveChangesAsync();
             }
 

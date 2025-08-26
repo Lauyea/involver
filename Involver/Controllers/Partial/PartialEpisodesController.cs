@@ -27,6 +27,9 @@ namespace Involver.Controllers.Partial
                 .Where(e => e.NovelID == novelId)
                 .OrderByDescending(e => e.EpisodeID);
 
+            // 不顯示軟刪除的資料
+            episodes = episodes.Where(e => e.IsDeleted == false);
+
             var paginatedEpisodes = await PaginatedList<Episode>.CreateAsync(
                 episodes, pageIndex ?? 1, Parameters.EpisodePageSize);
 

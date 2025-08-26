@@ -38,6 +38,11 @@ namespace DataAccess.Models.NovelModel
         public bool IsLast { get; set; }
 
         /// <summary>
+        /// 軟刪除Tag
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
         /// FK to Novel
         /// </summary>
         public int NovelID { get; set; }
