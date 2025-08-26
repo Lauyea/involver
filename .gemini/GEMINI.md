@@ -126,6 +126,7 @@
           * 一律使用 ES module (`import`/`export`)。
       * 位置：
           * 頁面專屬的 JavaScript 應放在頁面底部，以避免阻擋頁面渲染。
+		  * 功能共用的 JavaScript 應寫在 `wwwroot\js\site.js` 裡。
 
   * Vue.js (未來導入規範)：
 
