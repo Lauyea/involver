@@ -75,7 +75,9 @@ namespace Involver.Pages.Articles
                                             || a.ProfileID == currentUserId);
             }
 
-            
+            // 不顯示軟刪除的資料
+            articles = articles.Where(a => a.IsDeleted == false);
+
             Articles = await PaginatedList<Article>.CreateAsync(
                 articles.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
 

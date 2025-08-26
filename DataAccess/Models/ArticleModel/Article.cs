@@ -82,6 +82,11 @@ namespace DataAccess.Models.ArticleModel
         public int DailyView { get; set; }
 
         /// <summary>
+        /// 軟刪除Tag
+        /// </summary>
+        public bool IsDeleted { get; set; } = false;
+
+        /// <summary>
         /// FK to Profile
         /// </summary>
         [Required]

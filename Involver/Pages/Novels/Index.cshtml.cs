@@ -140,7 +140,9 @@ namespace Involver.Pages.Novels
                                             || a.ProfileID == currentUserId);
             }
 
-            
+            // 不顯示軟刪除的資料
+            NovelsIQ = NovelsIQ.Where(n => n.IsDeleted == false);
+
             Novels = await PaginatedList<Novel>.CreateAsync(
                 NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
 

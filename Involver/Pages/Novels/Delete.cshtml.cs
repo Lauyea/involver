@@ -90,13 +90,16 @@ namespace Involver.Pages.Novels
 
             if (Novel != null)
             {
-                _context.Follows.RemoveRange(follows);
-                _context.Involvings.RemoveRange(involvings);
-                _context.Votes.RemoveRange(votes);
-                _context.Comments.RemoveRange(comments);
-                _context.Comments.RemoveRange(commentsInEpisodes);
-                _context.Episodes.RemoveRange(episodes);
-                _context.Novels.Remove(Novel);
+                //_context.Follows.RemoveRange(follows);
+                //_context.Involvings.RemoveRange(involvings);
+                //_context.Votes.RemoveRange(votes);
+                //_context.Comments.RemoveRange(comments);
+                //_context.Comments.RemoveRange(commentsInEpisodes);
+                //_context.Episodes.RemoveRange(episodes);
+                //_context.Novels.Remove(Novel);
+
+                Novel.IsDeleted = true;
+
                 await _context.SaveChangesAsync();
             }
 

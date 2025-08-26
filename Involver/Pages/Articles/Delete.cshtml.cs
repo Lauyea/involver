@@ -75,9 +75,12 @@ namespace Involver.Pages.Articles
 
             if (Article != null)
             {
-                _context.Involvings.RemoveRange(involvings);
-                _context.Comments.RemoveRange(comments);
-                _context.Articles.Remove(Article);
+                //_context.Involvings.RemoveRange(involvings);
+                //_context.Comments.RemoveRange(comments);
+                //_context.Articles.Remove(Article);
+
+                Article.IsDeleted = true;
+
                 await _context.SaveChangesAsync();
             }
 
