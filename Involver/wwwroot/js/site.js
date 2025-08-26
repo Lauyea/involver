@@ -155,6 +155,7 @@ function ReadNotification(id, url) {
     document.getElementById("notificationClick").removeAttribute("onclick");
 }
 
+/*觀看紀錄 Modal 操作*/
 $(document).on('click', '.view-chart-trigger', function (e) {
     e.preventDefault();
 
@@ -170,3 +171,4 @@ $(document).on('click', '.view-chart-trigger', function (e) {
 $(document).on('hidden.bs.modal', '#viewRecordModal', function () {
     $(this).remove();
 });
+/*觀看紀錄 Modal 操作*/

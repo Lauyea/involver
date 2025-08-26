@@ -1,4 +1,5 @@
 using DataAccess.Data;
+using Involver.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -23,7 +24,7 @@ namespace Involver.Pages.StatisticalData
 
         public async Task<IActionResult> OnGetViewRecordAsync(string type, int id)
         {
-            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
+            var daysAgo = DateTime.UtcNow.AddDays(Parameters.ViewRecordDays);
             List<DailyView> dailyViews;
 
             if (type == "novel")
@@ -33,7 +34,7 @@ namespace Involver.Pages.StatisticalData
                 Title = novel.Title;
 
                 dailyViews = await _context.Views
-                    .Where(v => v.NovelId == id && v.CreateTime >= thirtyDaysAgo)
+                    .Where(v => v.NovelId == id && v.CreateTime >= daysAgo)
                     .GroupBy(v => v.CreateTime.Date)
                     .Select(g => new DailyView { Date = g.Key, Count = g.Count() })
                     .OrderBy(dv => dv.Date)
@@ -46,7 +47,7 @@ namespace Involver.Pages.StatisticalData
                 Title = article.Title;
 
                 dailyViews = await _context.Views
-                    .Where(v => v.ArticleId == id && v.CreateTime >= thirtyDaysAgo)
+                    .Where(v => v.ArticleId == id && v.CreateTime >= daysAgo)
                     .GroupBy(v => v.CreateTime.Date)
                     .Select(g => new DailyView { Date = g.Key, Count = g.Count() })
                     .OrderBy(dv => dv.Date)
@@ -58,7 +59,7 @@ namespace Involver.Pages.StatisticalData
             }
 
             var allDates = Enumerable.Range(0, 30)
-                .Select(i => DateTime.UtcNow.AddDays(-29 + i).Date);
+                .Select(i => DateTime.UtcNow.AddDays((Parameters.ViewRecordDays + 1) + i).Date);
 
             var viewsWithAllDates = from date in allDates
                                     join view in dailyViews on date equals view.Date into gj

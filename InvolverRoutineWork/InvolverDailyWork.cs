@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Azure.Functions.Worker;
+using InvolverRoutineWork.Common;
 
 namespace InvolverDailyWork
 {
@@ -33,8 +34,8 @@ namespace InvolverDailyWork
             log.LogInformation($"Update missions, {missionRows} rows were updated");
 
             // Delete view records older than 30 days to keep the table clean
-            var thirtyDaysAgo = DateTime.Now.AddDays(-30);
-            var deleteViewsSql = $"DELETE FROM [dbo].[Views] WHERE [CreateTime] < '{thirtyDaysAgo:yyyy-MM-dd HH:mm:ss}'";
+            var daysAgo = DateTime.Now.AddDays(Parameters.ViewRecordDays);
+            var deleteViewsSql = $"DELETE FROM [dbo].[Views] WHERE [CreateTime] < '{daysAgo:yyyy-MM-dd HH:mm:ss}'";
             int deletedViewRows = await _context.Database.ExecuteSqlRawAsync(deleteViewsSql);
             log.LogInformation($"Delete old view records, {deletedViewRows} rows were deleted.");
         }
