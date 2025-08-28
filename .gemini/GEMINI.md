@@ -64,6 +64,7 @@
         </form>
         ```
   * 部分視圖 (Partial Views)：對於重複出現的 UI 元件（如小說卡片、作者簡介區塊），應建立成部分視圖來提高重用性。
+  * 視圖元件 (View Components)：對於需要後端邏輯處理的、可重複使用的 UI 元件（例如，需要從資料庫取得資料的側邊欄、使用者選單、留言），應優先使用 View Component。這有助於將 UI 元件的邏輯與頁面本身分離，提高模組化與可測試性。
 
 ## 4. 資料存取
 
@@ -127,6 +128,22 @@
       * 位置：
           * 頁面專屬的 JavaScript 應放在頁面底部，以避免阻擋頁面渲染。
 		  * 功能共用的 JavaScript 應寫在 `wwwroot\js\site.js` 裡。
+		  
+  * jQuery (使用指南)：
+
+      * 優先使用：對於簡單的 DOM 操作、事件處理、以及 AJAX 請求，應優先使用 jQuery 來處理。
+      * 複雜互動：如果頁面需要複雜的狀態管理或大量的雙向資料綁定，才應考慮導入 Vue.js。
+      * 命名：儲存 jQuery 物件的變數，應以 `$` 符號開頭，例如 `const $modal = $('#myModal');`。
+      * DOM Ready：所有的 jQuery 程式碼都應放在 `$(function() { ... });` 區塊中，確保在 DOM 完全載入後才執行。
+      * 鏈式呼叫 (Chaining)：盡可能使用鏈式呼叫來對同一元素執行多個操作，以增加程式碼的簡潔性和可讀性。
+        ```javascript
+        // 推薦
+        $('#myElement')
+            .addClass('active')
+            .css('color', 'red')
+            .show();
+        ```
+      * 選擇器 (Selectors)：盡量使用具體且高效的選擇器。優先使用 ID 選擇器 (`$('#myId')`)，其次是 class 選擇器 (`$('.myClass')`)。避免使用過於籠統的標籤選擇器。
 
   * Vue.js (未來導入規範)：
 
