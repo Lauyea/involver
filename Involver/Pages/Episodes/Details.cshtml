@@ -134,8 +134,26 @@ VotingOperations.Create)).Succeeded)
     <partial name="Votings/PartialVotings" for="@Model.Votings" />
 </div>
 <p></p>
-<div>
-    <partial name="Comments/PartialComments" for="@Model.Comments" />
+<div id="comments-app" data-episode-id="@Model.Episode.EpisodeID">
+    <div v-if="isLoading" class="text-center">
+        <p>Loading comments...</p>
+    </div>
+    <div v-else>
+        <div v-for="comment in comments" :key="comment.commentID" class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <img :src="comment.profile.ImageUrl" alt="Profile Image" class="rounded-circle" width="50" height="50">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="mt-0">{{ comment.profile.userName }}</h5>
+                        <p v-html="comment.content"></p>
+                        <small class="text-muted">{{ formatDate(comment.UpdateTime) }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="reading-actions">
@@ -209,6 +227,7 @@ VotingOperations.Create)).Succeeded)
 }
 
 @section Scripts{
+    <script src="~/js/episode-details.js" asp-append-version="true"></script>
     <script>
         function myFunction() {
             var copyText = document.getElementById("myInput");
