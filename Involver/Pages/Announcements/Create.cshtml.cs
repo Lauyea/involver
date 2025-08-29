@@ -65,7 +65,6 @@ namespace Involver.Pages.Announcements
                 {
                     Title = "temp title",
                     Content = "temp content"
-                }
                 };
 
             //Protect from overposting attacks
