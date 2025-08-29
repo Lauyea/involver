@@ -77,28 +77,8 @@ namespace Involver.Pages.Episodes
 
             Episode emptyEpisode = new Episode
             {
-                Votings = new List<Voting>
-                {
-                    new Voting
-                    {
-                        Title = "anchor",
-                        EpisodeID = Episode.EpisodeID,
-                        OwnerID = Episode.OwnerID
-                    }
-                },
                 Title = "temp title",
-                Content = "temp content",
-                Comments = new List<Comment>
-                {
-                    //防止Comment找不到所屬的Episode
-                    new Comment
-                    {
-                        ProfileID = Episode.OwnerID,
-                        EpisodeID = Episode.EpisodeID,
-                        Block = true,
-                        Content = "anchor"
-                    }
-                }
+                Content = "temp content"
             };
 
             //Protect from overposting attacks

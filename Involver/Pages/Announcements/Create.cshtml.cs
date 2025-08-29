@@ -64,17 +64,7 @@ namespace Involver.Pages.Announcements
                 new Announcement
                 {
                     Title = "temp title",
-                    Content = "temp content",
-                    Comments = new List<Comment>
-                {
-                    //防止Comment找不到所屬的Announcement
-                    new Comment
-                    {
-                        ProfileID = Announcement.OwnerID,
-                        AnnouncementID = Announcement.AnnouncementID,
-                        Block = true,
-                        Content = "anchor"
-                    }
+                    Content = "temp content"
                 }
                 };
 

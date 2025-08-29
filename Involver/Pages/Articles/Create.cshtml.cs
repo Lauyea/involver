@@ -123,18 +123,7 @@ namespace Involver.Pages.Articles
                 {
                     Title = "temp",
                     Content = "temp content post here.",
-                    ProfileID = Article.ProfileID,
-                    Comments = new List<Comment>
-                {
-                    //防止Comment找不到所屬的Article
-                    new Comment
-                    {
-                        ProfileID = Article.ProfileID,
-                        ArticleID = Article.ArticleID,
-                        Block = true,
-                        Content = "anchor"
-                    }
-                }
+                    ProfileID = Article.ProfileID
                 };
 
             //Protect from overposting attacks

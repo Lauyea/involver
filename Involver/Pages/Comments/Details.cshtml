@@ -52,7 +52,7 @@ else if (Model.Comment.Novel != null)
     </a>
 }
 &nbsp&nbsp
-@if (Model.PreviousComment != null && Model.PreviousComment.Content != "anchor")
+@if (Model.PreviousComment != null)
 {
     <a asp-page="./Details" asp-route-id="@Model.PreviousComment.CommentID"><i class="fas fa-arrow-left"></i>上則評論</a>
 }

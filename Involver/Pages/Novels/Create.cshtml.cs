@@ -127,27 +127,7 @@ namespace Involver.Pages.Novels
                 {
                     Title = "temp title",
                     Introduction = "temp introduction",
-                    ProfileID = Novel.ProfileID,
-                    Comments = new List<Comment>
-                {
-                    //防止Comment找不到所屬的Feedback
-                    new Comment
-                    {
-                        ProfileID = Novel.ProfileID,
-                        NovelID = Novel.NovelID,
-                        Block = true,
-                        Content = "anchor"
-                    }
-                },
-                //    Episodes = new List<Episode>
-                //{
-                //    new Episode
-                //    {
-                //        Title = "anchor",
-                //        NovelID = Novel.NovelID,
-                //        Content = "anchor"
-                //    }
-                //}
+                    ProfileID = Novel.ProfileID
                 };
 
             // Code below use for upload file

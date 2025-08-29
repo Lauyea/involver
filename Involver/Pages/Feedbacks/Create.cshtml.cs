@@ -62,25 +62,7 @@ namespace Involver.Pages.Feedbacks
             Feedback emptyFeedback = 
                 new Feedback {
                     Title = "temp title",
-                    Content = "temp content",
-                Comments = new List<Comment> 
-                {
-                    //防止Comment找不到所屬的Feedback
-                    new Comment
-                    {
-                        ProfileID = Feedback.OwnerID,
-                        FeedbackID = Feedback.FeedbackID,
-                        Block = true,
-                        Content = "anchor",
-                        //加了Profile的話TryUpdateModelAsync就不動了
-                        //Profile = new Profile
-                        //{
-                        //    ProfileID = "0",
-                        //    UserName = "",
-                        //    Views = 0
-                        //}
-                    }
-                } 
+                    Content = "temp content"
                 };
             try
             {

@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "公告";
+    ViewData["From"] = Parameters.Announcements;
+    ViewData["FromId"] = Model.Announcement.AnnouncementID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />

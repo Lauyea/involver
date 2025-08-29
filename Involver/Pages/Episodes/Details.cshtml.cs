@@ -1,18 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.NovelModel;
+using Involver.Authorization.Voting;
+using Involver.Common;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.NovelModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using DataAccess.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
-using Involver.Common;
-using DataAccess.Common;
+using System.Threading.Tasks;
 
 namespace Involver.Pages.Episodes
 {
@@ -40,6 +41,8 @@ namespace Involver.Pages.Episodes
         public List<Voting> Votings { get; set; }
 
         public string UserID { get; set; }
+
+        public bool CanCreateVoting { get; set; } = false;
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
@@ -151,6 +154,11 @@ namespace Involver.Pages.Episodes
             var toasts = await Helpers.AchievementHelper.ReadEpisodeAsync(_context, UserID);
 
             Toasts.AddRange(toasts);
+
+            if (Episode.OwnerID == UserID)
+            {
+                CanCreateVoting = true;
+            }
 
             return Page();
         }
