@@ -1,216 +1,147 @@
-﻿@using DataAccess.Common
-@using DataAccess.Models.NovelModel;
-@using Involver.Models.NovelModel;
+@using DataAccess.Common
+@using DataAccess.Models.NovelModel
+@using Involver.Models.NovelModel
+@using System.Text.Json
 @model List<Voting>
+
 @{
     List<CountDown> CountDownList = new List<CountDown>();
     bool Voted = false;
 
     string GetValuePercent(Voting voting, int Value)
     {
-        int TotalCoins = 0;
-        double ratio = 0;
-        foreach (NormalOption option in voting.NormalOptions)
-        {
-            TotalCoins += option.TotalCoins;
-        }
-        if (TotalCoins != 0)
-        {
-            ratio = double.Parse(Value.ToString()) / double.Parse(TotalCoins.ToString());
-        }
-        string percent = (ratio * 100).ToString() + "%";
-        return percent;
+        int TotalCoins = voting.NormalOptions.Sum(o => o.TotalCoins);
+        if (TotalCoins == 0) return "0";
+        double ratio = (double)Value / TotalCoins;
+        return (ratio * 100).ToString("0");
     }
+
     string GetNumberPercent(Voting voting, int Number)
     {
-        int TotalNumber = 0;
-        double ratio = 0;
-        foreach (NormalOption option in voting.NormalOptions)
-        {
-            TotalNumber += option.Votes.Count();
-        }
-        if (TotalNumber != 0)
-        {
-            ratio = double.Parse(Number.ToString()) / double.Parse(TotalNumber.ToString());
-        }
-        string percent = (ratio * 100).ToString() + "%";
-        return percent;
+        int TotalNumber = voting.NormalOptions.Sum(o => o.Votes.Count());
+        if (TotalNumber == 0) return "0";
+        double ratio = (double)Number / TotalNumber;
+        return (ratio * 100).ToString("0");
     }
 }
+
 @foreach (Voting voting in Model)
 {
-    @if (voting.NormalOptions.Count == 0)
+    if (!voting.NormalOptions.Any())
     {
         continue;
     }
-    {
-        foreach (NormalOption option in voting.NormalOptions)
-        {
-            Voted = option.Votes.Any(v => v.OwnerID == userManager.GetUserId(User));
-        }
-    }
-    <div>
-        @if (voting.Limit == LimitType.Time)
-        {
-            var countDownId = "CountDownID" + voting.VotingID;
-            var countDownTime = voting.DeadLine;
-            CountDownList.Add(new CountDown { countDownTime = countDownTime, id = countDownId });
-            <span title="這個投票有限制時間">限時： @voting.DeadLine.ToString()</span>
-            <span style="text-align: right"> 剩餘： </span>
-            <span id=@countDownId></span>
-        }
-        else if (voting.Limit == LimitType.Number)
-        {
-            <span title="這個投票有限制投票人數上限">限量上限： @voting.NumberLimit</span>
-            <span>現量： @voting.TotalNumber</span>
-        }
-        else if (voting.Limit == LimitType.Value)
-        {
-            <span title="這個投票有限制總Coins上限">限值上限： @voting.CoinLimit</span>
-            <span>現值： @voting.TotalCoins</span>
-        }
-        <p></p>
-        <div>
-            <div style="float: left">
-                <span>投票標題： @voting.Title</span>
-            </div>
-            <div style="text-align: right">
-                @if (voting.Policy == PolicyType.Equality)
+
+    Voted = voting.NormalOptions.Any(o => o.Votes.Any(v => v.OwnerID == userManager.GetUserId(User)));
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-truncate" title="@voting.Title">@voting.Title</h5>
+            @if (voting.Policy == PolicyType.Equality)
+            {
+                <span class="badge badge-pill badge-success" title="這個投票的每張票價值有限">平等</span>
+            }
+            else if (voting.Policy == PolicyType.Liberty)
+            {
+                <span class="badge badge-pill badge-warning" title="這個投票的每張票價值無限">自由</span>
+            }
+        </div>
+
+        <div class="card-body">
+            @foreach (NormalOption option in voting.NormalOptions)
+            {
+                string percent = "0";
+                string displayText;
+                if (voting.Policy == PolicyType.Liberty)
                 {
-                    <span title="這個投票的每張票價值有限">平等</span>
+                    percent = GetValuePercent(voting, option.TotalCoins);
+                    displayText = $"{option.TotalCoins} In幣";
                 }
-                else if (voting.Policy == PolicyType.Liberty)
+                else
                 {
-                    <span title="這個投票的每張票價值無限">自由</span>
+                    percent = GetNumberPercent(voting, option.Votes.Count());
+                    displayText = $"{option.Votes.Count()} 票";
                 }
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-truncate" title="@option.Content">
+                            @if (option.Content.Length < Parameters.VotingOptionContentLength)
+                            {
+                                @option.Content
+                            }
+                            else
+                            {
+                                @(option.Content.Substring(0, Parameters.VotingOptionContentLength) + "...")
+                            }
+                        </span>
+                        @if (Voted || voting.End)
+                        {
+                            <span class="font-weight-bold">@displayText (@percent%)</span>
+                        }
+                    </div>
+                    <div class="progress" style="height: 20px;">
+                        @if (Voted || voting.End)
+                        {
+                            <div class="progress-bar" role="progressbar" style="width: @percent%; background-color: #e66532;" aria-valuenow="@percent" aria-valuemin="0" aria-valuemax="100"></div>
+                        }
+                        else
+                        {
+                            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #e67b50;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        }
+                    </div>
+                </div>
+            }
+            @if (!Voted && !voting.End)
+            {
+                <div class="text-center text-muted mt-3">
+                    <small>投票後或投票結束後查看結果</small>
+                </div>
+            }
+        </div>
+
+        <div class="card-footer bg-white text-muted">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="small">
+                    @if (voting.Limit == LimitType.Time)
+                    {
+                        var countDownId = "CountDownID" + voting.VotingID;
+                        CountDownList.Add(new CountDown { countDownTime = voting.DeadLine, id = countDownId });
+                        <span title="這個投票有限制時間">
+                            <i class="far fa-clock"></i>
+                            <strong id="@countDownId">計算中...</strong>
+                        </span>
+                    }
+                    else if (voting.Limit == LimitType.Number)
+                    {
+                        <span title="這個投票有限制投票人數上限">
+                            <i class="fas fa-users"></i>
+                            @voting.TotalNumber / @voting.NumberLimit
+                        </span>
+                    }
+                    else if (voting.Limit == LimitType.Value)
+                    {
+                        <span title="這個投票有限制總Coins上限">
+                            <i class="fas fa-coins"></i>
+                            @voting.TotalCoins / @voting.CoinLimit
+                        </span>
+                    }
+                </div>
+                @{
+                    var votingStatus = voting.End ? "投票結束" : "前往投票";
+                }
+                <a asp-page="../Votings/Details"
+                   asp-route-id="@voting.VotingID"
+                   class="btn btn-sm btn-primary">
+                    <i class="fas fa-vote-yea"></i> @votingStatus
+                </a>
             </div>
         </div>
     </div>
-    foreach (NormalOption option in voting.NormalOptions)
-    {
-        if (option.OwnerID == null)
-        {
-            continue;
-        }
-        //{
-        //    Voted = option.Votes.Any(v => v.OwnerID == Model.UserID);
-        //}
-        if (voting.Policy == PolicyType.Liberty)
-        {
-            <div>
-                @{
-                    var valuePercent = GetValuePercent(voting, option.TotalCoins);
-                }
-                <div class="middle">
-                    <div class="bar-container">
-                        <div style="position:absolute;">
-                            @if (option.Content.Length < Parameters.VotingOptionContentLength)
-                            {
-                                @option.Content
-                            }
-                            else
-                            {
-                                @(option.Content.Substring(0, Parameters.VotingOptionContentLength)+"...")
-                            }
-                            @valuePercent
-                        </div>
-                        @if (Voted || voting.End)
-                        {
-                            <div style="width: @valuePercent; height: 22px; background-color: #e66532;"></div>
-                        }
-                        else
-                        {
-                            <div style="width: 0; height: 22px; background-color: #e66532;"></div>
-                        }
-                    </div>
-                </div>
-                <div class="side right">
-                    <div>@option.TotalCoins In幣</div>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div>
-                @{
-                    var numberPercent = GetNumberPercent(voting, option.Votes.Count());
-                }
-                <div class="middle">
-                    <div class="bar-container">
-                        <div style="position:absolute;">
-                            @if (option.Content.Length < Parameters.VotingOptionContentLength)
-                            {
-                                @option.Content
-                            }
-                            else
-                            {
-                                @(option.Content.Substring(0, Parameters.VotingOptionContentLength)+"...")
-                            }
-                            @numberPercent
-                        </div>
-                        @if (Voted || voting.End)
-                        {
-                            <div style="width: @numberPercent; height: 22px; background-color: #e66532;"></div>
-                        }
-                        else
-                        {
-                            <div style="width: 0; height: 22px; background-color: #e66532;"></div>
-                        }
-                    </div>
-                </div>
-                <div class="side right">
-                    @if (Voted || voting.End)
-                    {
-                        <div>@option.Votes.Count() 票</div>
-                    }
-                    else
-                    {
-                        <div>? 票</div>
-                    }
-                </div>
-            </div>
-        }
-    }
-    <div style="text-align: right">
-        @{
-            var votingStatus = voting.End == true ? "投票結束" : "投票";
-        }
-        <a asp-page="../Votings/Details"
-       asp-route-id="@voting.VotingID"
-       class="btn btn-xs btn-outline-primary m-2"><i class="fas fa-vote-yea"></i>@votingStatus</a>
-    </div>
-    <hr />
 }
 
 @using (Html.BeginScripts())
 {
-    <style>
-        /* Three column layout */
-        .side {
-            float: left;
-            width: 20%;
-            margin-top: 10px;
-        }
-
-        .middle {
-            margin-top: 10px;
-            float: left;
-            width: 80%;
-        }
-
-        /* Place text to the right */
-        .right {
-            text-align: right;
-        }
-
-        /* The bar container */
-        .bar-container {
-            width: 100%;
-            background-color: #d6d6d6;
-            text-align: center;
-            color: white;
-        }
-    </style>
     <script>
         //Timer function's JS
         var countDownArray = JSON.parse('@Html.AntiXssRaw(JsonSerializer.Serialize(CountDownList))');
@@ -240,13 +171,19 @@
                 var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
                 // Output the result in an element with id="demo"
-                document.getElementById(id).innerHTML = days + "天 " + hours + "時 "
-                    + minutes + "分 " + seconds + "秒 ";
+                var element = document.getElementById(id);
+                if(element)
+                {
+                    element.innerHTML = "剩餘: " + days + "天 " + hours + "時 " + minutes + "分 " + seconds + "秒 ";
+                }
 
                 // If the count down is over, write some text
                 if (distance < 0) {
                     clearInterval(x);
-                    document.getElementById(id).innerHTML = "投票截止";
+                    if(element)
+                    {
+                        element.innerHTML = "投票已截止";
+                    }
                 }
             }, 1000);
         }

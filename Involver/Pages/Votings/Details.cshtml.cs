@@ -171,6 +171,8 @@ namespace Involver.Pages.Votings
             }
             else
             {
+                Voting.TotalNumber++;
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToPage("/Episodes/Details", "OnGet", new { id = Voting.EpisodeID }, "Voting");
