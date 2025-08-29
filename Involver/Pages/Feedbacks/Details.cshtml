@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "回報與意見";
+    ViewData["From"] = Parameters.Feedbacks;
+    ViewData["FromId"] = Model.Feedback.FeedbackID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />

@@ -5,6 +5,8 @@
 
 @{
     ViewData["Title"] = Model.Episode.Title;
+    ViewData["From"] = Parameters.Episodes;
+    ViewData["FromId"] = Model.Episode.EpisodeID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
     ViewData["ReturnRightFunction"] = false;
 }
@@ -119,9 +121,7 @@ NovelOperations.Delete)).Succeeded)
 <hr />
 
 <div id="Voting">
-    @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Votings[0],
-VotingOperations.Create)).Succeeded)
+    @if (Model.CanCreateVoting)
     {
         <p>
             <a asp-page="../Votings/Create"

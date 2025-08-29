@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = Model.Article.Title;
+    ViewData["From"] = Parameters.Articles;
+    ViewData["FromId"] = Model.Article.ArticleID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
     ViewData["ReturnRightFunction"] = false;
 }

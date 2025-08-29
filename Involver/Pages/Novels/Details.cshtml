@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = Model.Novel.Title;
+    ViewData["From"] = Parameters.Novels;
+    ViewData["FromId"] = Model.Novel.NovelID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />

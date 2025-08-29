@@ -1,4 +1,4 @@
-﻿using Involver.Authorization.Voting;
+﻿using Involver.Authorization.Novel;
 using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
@@ -25,11 +25,14 @@ namespace Involver.Pages.Votings
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Voting voting = await _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefaultAsync();
+            Novel novel = await _context.Episodes
+                    .Where(e => e.EpisodeID == id)
+                    .Select(e => e.Novel)
+                    .FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                        User, voting,
-                                                        VotingOperations.Create);
+                                                        User, novel,
+                                                        NovelOperations.Create);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -97,11 +100,15 @@ namespace Involver.Pages.Votings
                 return Page();
             }
 
-            Voting voting = await _context.Votings.Where(v => v.EpisodeID == id).FirstOrDefaultAsync();
+            Novel novel = await _context.Episodes
+                    .Where(e => e.EpisodeID == id)
+                    .Select(e => e.Novel)
+                    .FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                        User, voting,
-                                                        VotingOperations.Create);
+                                                        User, novel,
+                                                        NovelOperations.Create);
+
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
