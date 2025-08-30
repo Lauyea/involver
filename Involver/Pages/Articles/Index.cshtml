@@ -61,7 +61,7 @@
                             <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                         </a>
                         &nbsp;
-                        <small>評論數 @(item.Comments.Count() - 1)</small>
+                        <small>評論數 @(item.Comments.Count())</small>
                         <div style="width:100px; height:30px;"><canvas id="article-chart-@item.ArticleID"></canvas></div>
                         &nbsp;
                         <small>觀看數 <a href="#" class="view-chart-trigger" data-type="article" data-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.TotalViews)</a></small>
