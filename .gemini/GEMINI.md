@@ -145,18 +145,77 @@
         ```
       * 選擇器 (Selectors)：盡量使用具體且高效的選擇器。優先使用 ID 選擇器 (`$('#myId')`)，其次是 class 選擇器 (`$('.myClass')`)。避免使用過於籠統的標籤選擇器。
 
-  * Vue.js (未來導入規範)：
-
-      * 檔案結構：
-          * 元件檔案應放置在 `Components` 資料夾中，並依功能或頁面進行分類。
-          * 每個元件應為一個 `.vue` 單一檔案元件 (Single File Component)。
-      * 命名：
-          * 元件檔名：使用 `PascalCase` (例如: `NovelCard.vue`)。
-          * 元件在模板中使用：使用 `<kebab-case>` (例如: `<novel-card>`)。
-      * 開發原則：
-          * 單向數據流：嚴格遵守 `props` down, `events` up 的原則，子元件不應直接修改父元件傳入的 `props`。
-          * 元件職責：保持元件的單一職責，避免建立過於龐大且複雜的元件。
-          * 狀態管理：對於跨多個元件共享的狀態，應考慮使用 Pinia 或類似的狀態管理工具。
+  * Vue.js (未來導入規範 - Options API 風格)
+    * 檔案結構：
+  	  * 元件檔案應放置在 `Components` 資料夾中，並依功能或頁面進行分類。
+  	  * 每個元件應為一個 `.vue` 單一檔案元件 (Single File Component)。
+    * 命名：
+  	  * 元件檔名：使用 `PascalCase` (例如: `NovelCard.vue`)。
+  	  * 元件在模板中使用：使用 `<kebab-case>` (例如: `<novel-card>`)。
+    * 元件結構 (Options API)：
+  	  * 為確保程式碼的一致性與可讀性，元件內的選項 (Options) 應遵循以下建議順序。
+  	  * 建議順序：
+  		1.  `name`: 元件名稱，應與檔名保持一致的 `PascalCase`，有助於除錯。
+  		2.  `components`: 註冊此元件所使用的子元件。
+  		3.  `props`: 定義從父元件接收的屬性。
+  		4.  `emits`: 聲明此元件可以發出的自訂事件，以利於溝通。
+  		5.  `data`: 管理元件的內部響應式狀態，必須是一個函式 (`function`)。
+  		6.  `computed`: 計算屬性，用於衍生出新的狀態。
+  		7.  `watch`: 監聽器，用於觀察資料變化並執行相應操作。
+  		8.  生命週期鉤子 (Lifecycle Hooks)：按照執行的順序排列 (例如: `created`, `mounted`, `updated`, `unmounted`)。
+  		9.  `methods`: 方法，放置元件的業務邏輯函式。
+  	  * 範例：
+  		```javascript
+  		<script>
+  		import AuthorTag from './AuthorTag.vue';
+  
+  		export default {
+  		  name: 'NovelCard',
+  		  components: {
+  			AuthorTag,
+  		  },
+  		  props: {
+  			novel: {
+  			  type: Object,
+  			  required: true,
+  			},
+  		  },
+  		  emits: ['add-to-favorite'],
+  		  data() {
+  			return {
+  			  isFavorite: false,
+  			  userComment: '',
+  			};
+  		  },
+  		  computed: {
+  			displayTitle() {
+  			  return `《${this.novel.title}》`;
+  			},
+  		  },
+  		  watch: {
+  			isFavorite(newValue) {
+  			  console.log(`小說 ${this.novel.title} 的收藏狀態變更為: ${newValue}`);
+  			}
+  		  },
+  		  mounted() {
+  			// DOM 掛載後執行的操作
+  			console.log('NovelCard component has been mounted.');
+  		  },
+  		  methods: {
+  			toggleFavorite() {
+  			  this.isFavorite = !this.isFavorite;
+  			  if (this.isFavorite) {
+  				this.$emit('add-to-favorite', this.novel.id);
+  			  }
+  			},
+  		  },
+  		};
+  		</script>
+  		```
+    * 開發原則：
+  	  * 單向數據流：嚴格遵守 `props` 向下傳遞 (`props` down)，事件向上發出 (`events` up) 的原則。子元件不應直接修改父元件傳入的 `props`。
+  	  * 元件職責：保持元件的單一職責，避免建立過於龐大且複雜的元件。
+  	  * 狀態管理：對於跨多個元件共享的狀態，應考慮使用 Pinia 或類似的狀態管理工具。
 
 ## 7. 相容性與相依性
 
