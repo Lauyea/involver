@@ -6,6 +6,7 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />
+<partial name="_StatusMessage" model="Model.StatusMessage" />
 @if (Model.Comment.Article != null)
 {
     <a asp-page="../Articles/Details"

@@ -22,6 +22,8 @@
 
         public static readonly int CommentLength = 16384;
 
+        public static readonly int MessageLength = 1024;
+
         public static readonly string Novels = "Novels";
 
         public static readonly string Feedbacks = "Feedbacks";
