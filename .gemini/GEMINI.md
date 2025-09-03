@@ -22,6 +22,7 @@
         ```
   * 帳號管理：相關頁面應放在 `Areas/Identity` 資料夾中。
   * 共用視圖：共用的頁面區塊（如導覽列、頁尾）應放置在 `Pages/Shared` 資料夾中。
+  * 共用元件：共用的視圖元件 View Components 應放置在 `Views/Shared` 資料夾中。
   * 模型 (Models)：
       * 強型別模型：應放在 `Models` 資料夾中，與頁面模型 `PageModel` 區分開來。
       * ViewModels：可以建立一個 `Models/ViewModels` 資料夾，專門存放為特定 View 所設計的資料模型。這有助於區分資料庫實體模型和純粹為 UI 顯示服務的模型。
@@ -54,6 +55,7 @@
 
   * 頁面模型：每個頁面的頂部應定義強型別模型：`@model involver.Pages.Articles.IndexModel`。
   * 程式碼區塊：使用 `@` 符號來標記程式碼。盡量保持 Razor 檔案的簡潔，避免複雜的 C# 邏輯。
+  * HTML 渲染：要使用 `@Html.AntiXssRaw`。
   * 標籤協助器 (Tag Helpers)：優先使用標籤協助器來替代傳統的 HTML 輔助方法，以增加程式碼的可讀性。
       * 範例：
         ```html
