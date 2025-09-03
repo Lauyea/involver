@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using Involver.Authorization.Message;
 using Involver.Common;
 using Involver.Services.NotificationSetterService;
+using DataAccess.Common;
 
 namespace Involver.Pages.Comments
 {
@@ -162,7 +163,11 @@ namespace Involver.Pages.Comments
         {
             if (!ModelState.IsValid)
             {
-                return Page();
+                var errorMessage = string.Join("; ",
+                    ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+
+                StatusMessage = $"Error 輸入錯誤：{errorMessage}";
+                return RedirectToPage("/Comments/Details", new { id, pageIndex });
             }
 
             var user = await _userManager.GetUserAsync(User);

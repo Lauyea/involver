@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using DataAccess.Models;
 using Involver.Authorization.Novel;
-using NuGet.Frameworks;
+using DataAccess.Common;
 using Involver.Common;
 
 namespace Involver.Pages.Novels

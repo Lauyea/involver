@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using DataAccess.Common;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DataAccess.Models.AnnouncementModel
 {
@@ -21,7 +18,7 @@ namespace DataAccess.Models.AnnouncementModel
         /// 標題
         /// </summary>
         [Required(ErrorMessage = "必須要有標題")]
-        [StringLength(50, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
+        [StringLength(Parameters.ArticleTitleLength, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
         [Display(Name = "標題")]
         public required string Title { get; set; }
 
@@ -40,7 +37,7 @@ namespace DataAccess.Models.AnnouncementModel
         /// 內容
         /// </summary>
         [Required(ErrorMessage = "必須要有內容")]
-        [StringLength(65536, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
+        [StringLength(Parameters.ArticleLength, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
         [Display(Name = "內容")]
         public required string Content { get; set; }
 

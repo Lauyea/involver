@@ -13,7 +13,7 @@ namespace DataAccess.Models.NovelModel
 
         [Required(ErrorMessage = "必須要有投票標題")]
         [Display(Name = "投票標題")]
-        [StringLength(20, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
+        [StringLength(Parameters.SmallContentLength, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
         public required string Title { get; set; }
 
         [Display(Name = "投票政策")]

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using DataAccess.Common;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.NovelModel;
@@ -19,7 +20,7 @@ namespace DataAccess.Models
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public required string ProfileID { get; set; }
 
-        [StringLength(256, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 10)]
+        [StringLength(Parameters.ProfileIntroLength, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 10)]
         [Display(Name = "介紹")]
         public string? Introduction { get; set; }
 
@@ -28,7 +29,7 @@ namespace DataAccess.Models
         /// </summary>
         [DataType(DataType.ImageUrl)]
         [Display(Name = "頭像圖片網址")]
-        [StringLength(128)]
+        [StringLength(Parameters.ImageUrlLength)]
         public string? ImageUrl { get; set; }
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace DataAccess.Models
         /// </summary>
         [DataType(DataType.ImageUrl)]
         [Display(Name = "橫幅圖片網址")]
-        [StringLength(128)]
+        [StringLength(Parameters.ImageUrlLength)]
         public string? BannerImageUrl { get; set; }
 
 
@@ -53,7 +54,7 @@ namespace DataAccess.Models
         public decimal MonthlyCoins { get; set; }
 
         [Required]
-        [StringLength(50, ErrorMessage = "長度必須在2到50個字元之間", MinimumLength = 2)]
+        [StringLength(Parameters.UserNameLength, ErrorMessage = "長度必須在2到50個字元之間", MinimumLength = 2)]
         [Display(Name = "用戶名")]
         public required string UserName { get; set; }
 

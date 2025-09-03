@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DataAccess.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Models.AchievementModel
 {
@@ -16,20 +17,20 @@ namespace DataAccess.Models.AchievementModel
         /// 變數名稱。參考 AchievementNames
         /// </summary>
         [Required]
-        [StringLength(32)]
+        [StringLength(Parameters.AchievementCodeLength)]
         public required string Code { get; set; }
 
         /// <summary>
         /// 名稱
         /// </summary>
         [Required]
-        [StringLength(32)]
+        [StringLength(Parameters.AchievementCodeLength)]
         public required string Title { get; set; }
 
         /// <summary>
         /// 說明
         /// </summary>
-        [StringLength(128)]
+        [StringLength(Parameters.AchievementContentLength)]
         public string? Content { get; set; }
 
         /// <summary>

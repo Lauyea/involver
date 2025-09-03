@@ -1,8 +1,10 @@
-﻿using System;
+﻿using DataAccess.Common;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata;
 
 namespace DataAccess.Models
 {
@@ -11,8 +13,8 @@ namespace DataAccess.Models
         public int MessageID { get; set; }
 
         [Required(ErrorMessage = "必須要有內容")]
-        [StringLength(1024, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
-        [Display(Name = "內容")]
+        [StringLength(Parameters.MessageLength, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
+        [Display(Name = "留言內容")]
         public required string Content { get; set; }
 
         [DataType(DataType.DateTime)]

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DataAccess.Common;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -28,8 +29,8 @@ namespace DataAccess.Models.NovelModel
         [DataType(DataType.DateTime)]
         [Display(Name = "Create Time")]
         public DateTime CreateTime { get; set; }
-        [StringLength(10)]
-        [Display(Name = "內容")]
+        [StringLength(Parameters.SmallContentLength, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
+        [Display(Name = "選項內容")]
         public string? Content { get; set; }
 
         /// <summary>

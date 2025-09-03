@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using Type = DataAccess.Common.Type;
+using DataAccess.Common;
 
 namespace Involver.Pages.Novels
 {
