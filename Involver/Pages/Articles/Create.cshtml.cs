@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Involver.Common;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using DataAccess.Common;
 
 namespace Involver.Pages.Articles
 {

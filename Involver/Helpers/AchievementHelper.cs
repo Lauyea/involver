@@ -4,6 +4,7 @@ using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
 using Microsoft.EntityFrameworkCore;
+using DataAccess.Common;
 
 namespace Involver.Helpers
 {

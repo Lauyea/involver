@@ -3,6 +3,7 @@ using DataAccess.Data;
 using DataAccess.Models.NovelModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DataAccess.Common;
 
 namespace Involver.Controllers.Partial
 {

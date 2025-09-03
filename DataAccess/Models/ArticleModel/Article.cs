@@ -1,10 +1,6 @@
-﻿using DataAccess.Models;
-using System;
-using System.Collections.Generic;
+﻿using DataAccess.Common;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace DataAccess.Models.ArticleModel
 {
@@ -19,7 +15,7 @@ namespace DataAccess.Models.ArticleModel
         /// 標題
         /// </summary>
         [Required(ErrorMessage = "必須要有標題")]
-        [StringLength(50, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
+        [StringLength(Parameters.ArticleTitleLength, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 2)]
         [Display(Name = "標題")]
         public required string Title { get; set; }
 
@@ -27,7 +23,7 @@ namespace DataAccess.Models.ArticleModel
         /// 內容
         /// </summary>
         [Required(ErrorMessage = "必須要有內容")]
-        [StringLength(65536, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
+        [StringLength(Parameters.ArticleLength, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
         [Display(Name = "內容")]
         public required string Content { get; set; }
 
@@ -56,7 +52,7 @@ namespace DataAccess.Models.ArticleModel
         /// </summary>
         [DataType(DataType.ImageUrl)]
         [Display(Name = "主題圖片網址")]
-        [StringLength(1024)]
+        [StringLength(Parameters.ImageUrlLength)]
         public string? ImageUrl { get; set; }
 
         /// <summary>

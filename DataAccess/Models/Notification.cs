@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using DataAccess.Common;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Models
@@ -15,7 +16,7 @@ namespace DataAccess.Models
 
         [DataType(DataType.Url)]
         [Display(Name = "通知網址")]
-        [StringLength(128)]
+        [StringLength(Parameters.ImageUrlLength)]
         public string? Url { get; set; }
 
         /// <summary>

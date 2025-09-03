@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Involver.Common;
 using Type = DataAccess.Common.Type;
+using DataAccess.Common;
 
 namespace Involver.Pages.Novels
 {

@@ -1,4 +1,5 @@
-﻿using DataAccess.Models.AnnouncementModel;
+﻿using DataAccess.Common;
+using DataAccess.Models.AnnouncementModel;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.FeedbackModel;
 using DataAccess.Models.NovelModel;
@@ -14,7 +15,7 @@ namespace DataAccess.Models
         public int CommentID { get; set; }
 
         [Required(ErrorMessage = "必須要有內容")]
-        [StringLength(16384, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
+        [StringLength(Parameters.CommentLength, ErrorMessage = "{0} 最多只能有 {1} 個字元")]
         [Display(Name = "內容")]
         public required string Content { get; set; }
 
