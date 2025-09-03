@@ -171,10 +171,12 @@ namespace Involver.Pages.Comments
 
             var strToDice = Comment.Content;
 
-            var hasChange = DiceHelper.ReplaceRollDiceString(ref strToDice);
+            int diceCount = DiceHelper.ReplaceRollDiceString(ref strToDice);
 
-            if (hasChange)
+            if (diceCount > 0)
             {
+                // 新增一個 place holder dice，表示有使用文字指令擲骰，並且有 dice 的 comment 不能編輯。
+                // TODO: 可能用 Sides 或 Value 去表示文字指令的 dice 數量，以確保作者沒有濫用文字指令。還要再跟 comment view 搭配。
                 Comment.Dices.Add(new Dice { CommentID = Comment.CommentID, Sides = 0, Value = 0 });
             }
 
@@ -201,7 +203,7 @@ namespace Involver.Pages.Comments
 
                 Toasts.AddRange(toasts);
 
-                if (hasChange || hasDices)
+                if ((diceCount > 0) || hasDices)
                 {
                     toasts = await Helpers.AchievementHelper.RollDicesAsync(_context, UserID);
 

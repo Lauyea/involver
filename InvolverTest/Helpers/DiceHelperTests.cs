@@ -27,8 +27,23 @@ namespace InvolverTest.Helpers
                 ref strToDice);
 
             // Assert
-            Assert.That(result);
+            Assert.That(result == 1);
             Assert.That("5D10: " == strToDice[..6]);
+        }
+
+        [Test]
+        public void ReplaceRollDiceString_StateUnderTest_ExpectedBehavior2()
+        {
+            // Arrange
+            string strToDice = "Dice10D10";
+
+            // Act
+            var result = DiceHelper.ReplaceRollDiceString(
+                ref strToDice);
+
+            // Assert
+            Assert.That(result == 1);
+            Assert.That("10D10: " == strToDice[..7]);
         }
 
         [Test]
@@ -42,7 +57,7 @@ namespace InvolverTest.Helpers
                 ref strToDice);
 
             // Assert
-            Assert.That(result);
+            Assert.That(result == 5);
             Assert.That("<p>5D10: " == strToDice[..9]);
         }
 

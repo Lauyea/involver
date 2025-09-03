@@ -4,73 +4,68 @@ namespace Involver.Helpers
 {
     public static class DiceHelper
     {
-        public static bool ReplaceRollDiceString(ref string strToDice)
+        /// <summary>
+        /// 取代留言內容中的擲骰指令字串，並回傳成功取代的數量。
+        /// </summary>
+        /// <param name="strToDice">要處理的留言內容字串。</param>
+        /// <returns>成功取代的指令數量。</returns>
+        public static int ReplaceRollDiceString(ref string strToDice)
         {
             Random random = new();
             int start = 0;
-            int at = 0;
-            int end = strToDice.Length;
-            int count;
-            int diceValue;
-            bool hasChange = false;
+            int replacements = 0;
 
-            while ((start <= end) && (at > -1))
+            // 使用 while 迴圈來尋找所有 "Dice" 關鍵字
+            while ((start < strToDice.Length) && (start = strToDice.IndexOf("Dice", start)) != -1)
             {
-                end = strToDice.Length;
-                diceValue = 0;
-                count = end - start;
-                at = strToDice.IndexOf("Dice", start, count);
-                //-1 等於沒找到
-                if (at == -1) break;
-                //Dice05D10，D 在index = 6
-                if (strToDice[at + 6] == 'D')
+                // 檢查格式是否為 DiceXXDYY (共9個字元)
+                if (strToDice.Length >= start + 9 && strToDice[start + 6] == 'D')
                 {
-                    hasChange = true;
-                    int rollTimes = int.Parse(strToDice[at + 4].ToString() + strToDice[at + 5].ToString());
-                    int diceSides = int.Parse(strToDice[at + 7].ToString() + strToDice[at + 8].ToString());
+                    // 嘗試解析擲骰次數與骰子面數
+                    if (int.TryParse(strToDice.Substring(start + 4, 2), out int rollTimes) &&
+                        int.TryParse(strToDice.Substring(start + 7, 2), out int diceSides))
+                    {
+                        // 確保數值有效
+                        if (rollTimes > 0 && diceSides > 0)
+                        {
+                            int diceValue = 0;
+                            for (int i = 0; i < rollTimes; i++)
+                            {
+                                diceValue += random.Next(1, diceSides + 1);
+                            }
 
-                    int iterativeTimes = rollTimes;
+                            string strToBeChanged = strToDice.Substring(start, 9);
+                            string changingStr = $"{rollTimes:D1}D{diceSides:D2}: {diceValue}";
 
-                    while (iterativeTimes > 0)
-                    {
-                        diceValue += random.Next(1, diceSides + 1);
-                        iterativeTimes--;
-                    }
+                            // 使用 StringBuilder 以提升效率
+                            var stringBuilder = new StringBuilder(strToDice);
+                            stringBuilder.Replace(strToBeChanged, changingStr, start, strToBeChanged.Length);
+                            strToDice = stringBuilder.ToString();
 
-                    string strToBeChanged;
-                    string changingStr;
-                    if (rollTimes < 10 && diceSides < 10)
-                    {
-                        strToBeChanged = "Dice0" + rollTimes + "D0" + diceSides;
-                        changingStr = rollTimes + "D0" + diceSides + ": " + diceValue;
-                    }
-                    else if (rollTimes < 10)
-                    {
-                        strToBeChanged = "Dice0" + rollTimes + "D" + diceSides;
-                        changingStr = rollTimes + "D" + diceSides + ": " + diceValue;
-                    }
-                    else if (diceSides < 10)
-                    {
-                        strToBeChanged = "Dice" + rollTimes + "D0" + diceSides;
-                        changingStr = rollTimes + "D0" + diceSides + ": " + diceValue;
+                            replacements++;
+                            // 從取代後字串的結尾繼續搜尋
+                            start += changingStr.Length;
+                        }
+                        else
+                        {
+                            // 如果 rollTimes 或 diceSides 為 0，則跳過此 "Dice"
+                            start++;
+                        }
                     }
                     else
                     {
-                        strToBeChanged = "Dice" + rollTimes + "D" + diceSides;
-                        changingStr = rollTimes + "D" + diceSides + ": " + diceValue;
+                        // 解析數字失敗，跳過
+                        start++;
                     }
-                    StringBuilder stringBuilder = new StringBuilder(strToDice);
-                    stringBuilder.Replace(strToBeChanged, changingStr, at, strToBeChanged.Length);
-                    strToDice = stringBuilder.ToString();
                 }
-                //因為StringBuilder 可以分段改字串了，而且Roll也不見了，就不需要改start 的位置了(X)
-                //start變動，不用每次都從頭算，剩下需要計算的位數會變少，增加效率
-
-                // Dice has 4 digits
-                start = at + 5;
+                else
+                {
+                    // 格式不符，跳過
+                    start++;
+                }
             }
 
-            return hasChange;
+            return replacements;
         }
     }
 }
