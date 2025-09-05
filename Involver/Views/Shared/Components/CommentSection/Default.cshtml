@@ -1,0 +1,80 @@
+@model Involver.Views.Shared.Components.CommentSection.CommentSectionViewModel
+
+<div id="comment-app" 
+     data-from="@Model.From" 
+     data-from-id="@Model.FromID" 
+     data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()">
+
+    <div v-if="isLoading" class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+
+    <div v-else>
+        <!-- Controls -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <button class="btn btn-primary" @@click="showNewCommentModal">新增評論</button>
+            <div v-if="!isOrderFixed">
+                <select v-model="sortBy" @@change="changeSort" class="form-control">
+                    <option value="oldest">最舊的</option>
+                    <option value="newest">最新的</option>
+                    <option value="most_agrees">最多讚</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Comments List -->
+        <div v-for="comment in comments" :key="comment.commentID" class="card mb-3">
+            <div class="card-body">
+                <!-- Comment content, user info, etc. -->
+                <p>{{ comment.content }}</p>
+                <!-- Actions -->
+                <div>
+                    <button @@click="toggleAgree(comment)" class="btn btn-sm">讚 ({{ comment.agreesCount }})</button>
+                    <button v-if="comment.canEdit" @@click="editComment(comment)" class="btn btn-sm">編輯</button>
+                    <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="btn btn-sm btn-danger">刪除</button>
+                </div>
+                 <!-- Edit Mode -->
+                <div v-if="comment.isEditing">
+                    <textarea v-model="comment.editableContent" class="form-control"></textarea>
+                    <button @@click="saveComment(comment)" class="btn btn-sm btn-success">儲存</button>
+                    <button @@click="cancelEdit(comment)" class="btn btn-sm">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav v-if="pagination.totalPages > 1">
+            <ul class="pagination">
+                <li v-for="page in pagination.totalPages" :key="page" class="page-item" :class="{ 'active': page === pagination.currentPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- New/Edit Comment Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ editingComment ? '編輯評論' : '新增評論' }}</h5>
+                    <button type-button class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="comment-editor"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary" @@click="submitComment">送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<script src="/js/comments.js" type="module"></script>

@@ -211,7 +211,7 @@ namespace Involver.Pages.Articles
                                            select c;
             comments = comments
                 .Include(c => c.Agrees)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
+                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(Parameters.MessagePageSize))
                     .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)

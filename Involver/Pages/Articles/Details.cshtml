@@ -214,7 +214,7 @@ User, Model.Article, ArticleOperations.Block)).Succeeded)
 
 <hr />
 
-<partial name="Comments/PartialComments" for="@Model.Comments" />
+@await Component.InvokeAsync("CommentSection", new { from = "Article", fromID = Model.Article.ArticleID })
 
 @section Scripts{
     <script>

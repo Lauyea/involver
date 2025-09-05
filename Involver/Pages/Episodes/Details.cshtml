@@ -135,7 +135,7 @@ NovelOperations.Delete)).Succeeded)
 </div>
 <p></p>
 <div>
-    <partial name="Comments/PartialComments" for="@Model.Comments" />
+    @await Component.InvokeAsync("CommentSection", new { from = "Episode", fromID = Model.Episode.EpisodeID })
 </div>
 
 <div class="reading-actions">
