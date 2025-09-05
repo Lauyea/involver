@@ -5,67 +5,139 @@
      data-from-id="@Model.FromID" 
      data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()">
 
-    <div v-if="isLoading" class="text-center">
-        <div class="spinner-border" role="status">
-            <span class="sr-only">Loading...</span>
-        </div>
+    <p id="CommentHead">
+        <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
+    </p>
+
+    <!-- Sorter -->
+    <div class="d-flex justify-content-end mb-3" v-if="!isOrderFixed">
+        <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+            <option value="oldest">最舊的</option>
+            <option value="newest">最新的</option>
+            <option value="most_agrees">最多讚</option>
+        </select>
+    </div>
+
+    <div v-if="isLoading" class="text-center my-5">
+        <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
     </div>
 
     <div v-else>
-        <!-- Controls -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <button class="btn btn-primary" @@click="showNewCommentModal">新增評論</button>
-            <div v-if="!isOrderFixed">
-                <select v-model="sortBy" @@change="changeSort" class="form-control">
-                    <option value="oldest">最舊的</option>
-                    <option value="newest">最新的</option>
-                    <option value="most_agrees">最多讚</option>
-                </select>
-            </div>
-        </div>
-
         <!-- Comments List -->
-        <div v-for="comment in comments" :key="comment.commentID" class="card mb-3">
-            <div class="card-body">
-                <!-- Comment content, user info, etc. -->
-                <p>{{ comment.content }}</p>
-                <!-- Actions -->
-                <div>
-                    <button @@click="toggleAgree(comment)" class="btn btn-sm">讚 ({{ comment.agreesCount }})</button>
-                    <button v-if="comment.canEdit" @@click="editComment(comment)" class="btn btn-sm">編輯</button>
-                    <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="btn btn-sm btn-danger">刪除</button>
-                </div>
-                 <!-- Edit Mode -->
-                <div v-if="comment.isEditing">
-                    <textarea v-model="comment.editableContent" class="form-control"></textarea>
-                    <button @@click="saveComment(comment)" class="btn btn-sm btn-success">儲存</button>
-                    <button @@click="cancelEdit(comment)" class="btn btn-sm">取消</button>
+        <div v-for="comment in comments" :key="comment.commentID" :id="comment.commentID">
+            <!-- Blocked Comment View -->
+            <div v-if="comment.isBlocked" class="border p-3 rounded shadow-sm my-3">
+                本評論已被封鎖。
+                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="btn btn-sm btn-warning ml-2">解除封鎖</button>
+            </div>
+            <!-- Normal Comment View -->
+            <div v-else class="media border p-3 rounded shadow-sm my-3">
+                <a :href="'/Identity/Account/Manage?id=' + comment.profileID">
+                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                </a>
+                <div class="media-body">
+                    <b>
+                        <a :href="'/Identity/Account/Manage?id=' + comment.profileID">{{ comment.userName }}</a>
+                        <a :href="'#' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
+                    </b>
+                    <!-- Involver Info (To be implemented if needed) -->
+                    
+                    <!-- Content -->
+                    <div v-if="!comment.isEditing" class="ck-content mt-2" v-html="comment.content"></div>
+                    
+                    <!-- Editor -->
+                    <div v-if="comment.isEditing" class="mt-2">
+                        <textarea :id="'editor-' + comment.commentID"></textarea>
+                    </div>
+
+                    <!-- Dices -->
+                    <div class="pt-3 pb-3">
+                        <template v-for="dice in comment.dices">
+                            <i class="fas fa-dice-d20"></i>
+                            <template v-if="dice.sides !== 0 && dice.value !== 0">
+                                {{ dice.value }} / {{ dice.sides }} &nbsp;
+                            </template>
+                        </template>
+                    </div>
+
+                    <!-- Control Menu -->
+                    <div id="control-menu">
+                        <!-- Messages (Placeholder) -->
+                        <a href="#" title="留言" @@click.prevent="alert('留言功能將在下一階段實作')">
+                            <i class="far fa-comments"></i> 留言 ({{ comment.messages.length }})
+                        </a>
+                        <!-- Agree Button -->
+                        <button @@click="toggleAgree(comment)" class="btn">
+                            <i class="far fa-thumbs-up"></i> <span>{{ comment.agreesCount }}</span>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown d-inline-flex">
+                            <button type="button" class="btn btn-link text-dark" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="dropdown-menu">
+                                <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleEdit(comment)" class="dropdown-item">
+                                    <i class="far fa-edit"></i> {{ comment.isEditing ? '取消編輯' : '編輯' }}
+                                </button>
+                                <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="dropdown-item">
+                                    <i class="far fa-trash-alt"></i> 刪除
+                                </button>
+                                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="dropdown-item">
+                                    <i class="fas fa-lock"></i> {{ comment.isBlocked ? '解除封鎖' : '封鎖' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Pagination -->
         <nav v-if="pagination.totalPages > 1">
-            <ul class="pagination">
-                <li v-for="page in pagination.totalPages" :key="page" class="page-item" :class="{ 'active': page === pagination.currentPage }">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: !pagination.hasPreviousPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage - 1)">前一頁</a>
+                </li>
+                <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === pagination.currentPage }">
                     <a class="page-link" href="#" @@click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: !pagination.hasNextPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage + 1)">下一頁</a>
                 </li>
             </ul>
         </nav>
     </div>
 
     <!-- New/Edit Comment Modal -->
-    <div class="modal fade" id="commentModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="commentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ editingComment ? '編輯評論' : '新增評論' }}</h5>
-                    <button type-button class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title">新增評論</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <textarea id="comment-editor"></textarea>
+                    <div class="form-group">
+                        <textarea id="comment-editor"></textarea>
+                    </div>
+                    <div class="alert alert-warning" role="alert">
+                        <p><strong>可以直接在內容中使用Dice指令擲骰，ex. !roll 1d6。</strong></p>
+                        <p v-if="from.toLowerCase() === 'episode'"><strong>或是選擇用下個方式擲骰</strong></p>
+                    </div>
+                    <div v-if="from.toLowerCase() === 'episode'">
+                        <div class="form-group">
+                            擲
+                            <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control d-inline w-auto" title="最多12次" min="0" max="12">
+                            次
+                            <input type="number" v-model.number="newCommentDice.diceSides" class="form-control d-inline w-auto" title="最多999面" min="0" max="999">
+                            面骰
+                        </div>
+                        <div class="alert alert-warning" role="alert">
+                            <p><strong>此種方式骰子最多999面，擲骰最多12次，其一為0則不擲骰子</strong></p>
+                            <p><strong>內容可以用 DiceTotal 指令呈現加總後的骰子數值</strong></p>
+                        </div>
+                        <div class="alert alert-danger" role="alert">
+                            <p><strong>有擲骰的評論無法編輯</strong></p>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
@@ -76,5 +148,11 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+<script type="importmap">
+    {
+        "imports": {
+            "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js"
+        }
+    }
+</script>
 <script src="/js/comments.js" type="module"></script>

@@ -5,6 +5,7 @@ using DataAccess.Models.NovelModel;
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Models.ViewModels.Api;
+using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,22 +13,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/comments")]
     [ApiController]
     public class CommentsApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<InvolverUser> _userManager;
         private readonly IAuthorizationService _authorizationService;
+        private readonly INotificationSetter _notificationSetter;
 
         public CommentsApiController(
             ApplicationDbContext context,
             UserManager<InvolverUser> userManager,
-            IAuthorizationService authorizationService)
+            IAuthorizationService authorizationService,
+            INotificationSetter notificationSetter)
         { 
             _context = context;
             _userManager = userManager;
             _authorizationService = authorizationService;
+            _notificationSetter = notificationSetter;
         }
 
         // GET: api/Comments
@@ -177,14 +181,43 @@ namespace Involver.Controllers
                     return BadRequest("Invalid 'from' parameter.");
             }
 
-            // Dice roll logic from text
+            // Dice roll logic
+            comment.Dices = new List<Dice>();
+            bool hasDices = false;
+
+            // Handle UI-based dice rolls
+            if (createDto.RollTimes > 0 && createDto.DiceSides > 0 && createDto.From.ToLower() == "episode")
+            {
+                hasDices = true;
+                Random random = new();
+                for (int i = 0; i < createDto.RollTimes; i++)
+                {
+                    comment.Dices.Add(new Dice
+                    {
+                        Sides = createDto.DiceSides,
+                        Value = random.Next(1, createDto.DiceSides + 1)
+                    });
+                }
+
+                // Replace DiceTotal placeholder
+                int diceTotal = comment.Dices.Sum(d => d.Value);
+                string diceTotalString = $"{createDto.RollTimes}D{createDto.DiceSides}: {diceTotal}";
+                comment.Content = comment.Content.Replace("DiceTotal", diceTotalString);
+            }
+
+            // Handle text-based dice rolls
             string contentWithDiceRolls = comment.Content;
-            int diceCount = Involver.Helpers.DiceHelper.ReplaceRollDiceString(ref contentWithDiceRolls);
+            int textDiceCount = Involver.Helpers.DiceHelper.ReplaceRollDiceString(ref contentWithDiceRolls);
             comment.Content = contentWithDiceRolls;
 
-            if (diceCount > 0)
+            if (textDiceCount > 0)
             {
-                comment.Dices = new List<Dice> { new Dice { Sides = 0, Value = 0 } }; // Placeholder for text-based rolls
+                hasDices = true;
+                // Add a placeholder to indicate text-based roll, as in original logic
+                if (!comment.Dices.Any(d => d.Sides == 0))
+                {
+                    comment.Dices.Add(new Dice { Sides = 0, Value = 0 });
+                }
             }
 
             _context.Comments.Add(comment);
@@ -192,7 +225,7 @@ namespace Involver.Controllers
             // Mission check
             var commenterProfile = await _context.Profiles.Include(p => p.Missions).FirstOrDefaultAsync(p => p.ProfileID == user.Id);
             if (commenterProfile != null && commenterProfile.Missions.LeaveComment != true)
-            { 
+            {
                 commenterProfile.Missions.LeaveComment = true;
                 commenterProfile.VirtualCoins += 5;
                 // TODO: Add a way to notify user of mission completion
@@ -202,7 +235,7 @@ namespace Involver.Controllers
 
             // Achievement check
             await Involver.Helpers.AchievementHelper.CommentCountAsync(_context, user.Id);
-            if (diceCount > 0)
+            if (hasDices)
             {
                 await Involver.Helpers.AchievementHelper.RollDicesAsync(_context, user.Id);
             }
@@ -317,28 +350,38 @@ namespace Involver.Controllers
             if (existingAgree == null)
             {
                 // Agree
-                var agree = new Agree
+                _context.Agrees.Add(new Agree
                 {
                     CommentID = id,
                     ProfileID = currentUserID,
                     UpdateTime = System.DateTime.Now
-                };
-                _context.Agrees.Add(agree);
+                });
 
                 // Check mission and achievements for the comment owner
-                var ownerProfile = await _context.Profiles
-                    .Include(p => p.Missions)
-                    .FirstOrDefaultAsync(p => p.ProfileID == comment.ProfileID);
-
-                if (ownerProfile != null)
+                if (comment.ProfileID != currentUserID)
                 {
-                    if (ownerProfile.Missions.BeAgreed != true)
+                    var ownerProfile = await _context.Profiles
+                        .Include(p => p.Missions)
+                        .FirstOrDefaultAsync(p => p.ProfileID == comment.ProfileID);
+
+                    if (ownerProfile != null)
                     {
-                        ownerProfile.Missions.BeAgreed = true;
-                        ownerProfile.VirtualCoins += 5;
+                        if (ownerProfile.Missions.BeAgreed != true)
+                        {
+                            ownerProfile.Missions.BeAgreed = true;
+                            ownerProfile.VirtualCoins += 5;
+                        }
+                        
+                        await _context.SaveChangesAsync(); // Save mission changes first
+                        
+                        var toasts = await Involver.Helpers.AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
+
+                        // Set notification
+                        var from = GetCommentSource(comment);
+                        var fromId = GetCommentSourceId(comment);
+                        var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#{comment.CommentID}";
+                        await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, ownerProfile.ProfileID, url, toasts);
                     }
-                    await _context.SaveChangesAsync(); // Save mission changes first
-                    await Involver.Helpers.AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
                 }
             }
             else
@@ -349,7 +392,7 @@ namespace Involver.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { agreesCount = comment.Agrees.Count });
+            return Ok(new { agreesCount = _context.Agrees.Count(a => a.CommentID == id) });
         }
 
         [HttpPost("{id}/block")]
@@ -375,5 +418,24 @@ namespace Involver.Controllers
         }
 
         // API Endpoints will be implemented here
+        private string GetCommentSource(Comment comment)
+        {
+            if (comment.ArticleID != null) return "Articles";
+            if (comment.NovelID != null) return "Novels";
+            if (comment.EpisodeID != null) return "Episodes";
+            if (comment.AnnouncementID != null) return "Announcements";
+            if (comment.FeedbackID != null) return "Feedbacks";
+            return string.Empty;
+        }
+
+        private int? GetCommentSourceId(Comment comment)
+        {
+            if (comment.ArticleID != null) return comment.ArticleID;
+            if (comment.NovelID != null) return comment.NovelID;
+            if (comment.EpisodeID != null) return comment.EpisodeID;
+            if (comment.AnnouncementID != null) return comment.AnnouncementID;
+            if (comment.FeedbackID != null) return comment.FeedbackID;
+            return null;
+        }
     }
 }
