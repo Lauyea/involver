@@ -4,7 +4,7 @@
     {
         public const int EpisodePageSize = 10;
 
-        public const int CommetPageSize = 5;
+        public const int CommetPageSize = 10;
 
         public const int MessagePageSize = 5;
 

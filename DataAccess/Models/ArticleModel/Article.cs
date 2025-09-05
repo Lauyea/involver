@@ -83,6 +83,11 @@ namespace DataAccess.Models.ArticleModel
         public bool IsDeleted { get; set; } = false;
 
         /// <summary>
+        /// 評論順序是否固定
+        /// </summary>
+        public bool IsCommentOrderFixed { get; set; } = false;
+
+        /// <summary>
         /// FK to Profile
         /// </summary>
         [Required]
