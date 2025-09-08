@@ -32,12 +32,12 @@
             </div>
             <!-- Normal Comment View -->
             <div v-else class="media border p-3 rounded shadow-sm my-3">
-                <a :href="'/Identity/Account/Manage?id=' + comment.profileID">
+                <a :href="'/Identity/Profile?id=' + comment.profileID">
                     <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
                 </a>
                 <div class="media-body">
                     <b>
-                        <a :href="'/Identity/Account/Manage?id=' + comment.profileID">{{ comment.userName }}</a>
+                        <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
                         <a :href="'#' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
                     </b>
                     <!-- Involver Info (To be implemented if needed) -->
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Pagination -->
-        <nav v-if="pagination.totalPages > 1">
+        <nav v-if="pagination.totalPages > 1" style="background-image: none;">
             <ul class="pagination justify-content-center">
                 <li class="page-item" :class="{ disabled: !pagination.hasPreviousPage }">
                     <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage - 1)">前一頁</a>
