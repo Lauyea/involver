@@ -10,7 +10,6 @@ const app = createApp({
             from: '',
             fromID: 0,
             isOrderFixed: false,
-            modalInstance: null,
             mainEditor: null, // For the modal
             inlineEditors: {}, // For inline editing, keyed by commentID
             newCommentDice: {
@@ -49,10 +48,7 @@ const app = createApp({
         }
         this.fetchComments(1);
 
-        const modalEl = document.getElementById('commentModal');
-        this.modalInstance = new bootstrap.Modal(modalEl);
-        // Create editor when modal is shown for the first time
-        modalEl.addEventListener('shown.bs.modal', () => {
+        $('#commentModal').on('shown.bs.modal', () => {
             if (!this.mainEditor) {
                 ClassicEditor
                     .create(document.querySelector('#comment-editor'))
@@ -92,7 +88,7 @@ const app = createApp({
         },
         showNewCommentModal() {
             this.newCommentDice = { rollTimes: 0, diceSides: 0 };
-            this.modalInstance.show();
+            $('#commentModal').modal('show');
         },
         async submitComment() {
             if (!this.mainEditor) return;
@@ -100,7 +96,7 @@ const app = createApp({
             if (!content) return;
 
             await this.addNewComment(content);
-            this.modalInstance.hide();
+            $('#commentModal').modal('hide');
         },
         async addNewComment(content) {
             try {
