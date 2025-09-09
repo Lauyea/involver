@@ -1,4 +1,4 @@
-import { createApp } from 'vue';
+import { createApp, markRaw } from 'vue';
 
 const app = createApp({
     data() {
@@ -57,7 +57,7 @@ const app = createApp({
                 ClassicEditor
                     .create(document.querySelector('#comment-editor'))
                     .then(editor => {
-                        this.mainEditor = editor;
+                        this.mainEditor = markRaw(editor);
                     })
                     .catch(error => {
                         console.error('Error creating main CKEditor instance:', error);
@@ -166,11 +166,12 @@ const app = createApp({
         toggleEdit(comment) {
             comment.isEditing = !comment.isEditing;
             if (comment.isEditing) {
+                // Entering edit mode
                 this.$nextTick(() => {
                     ClassicEditor
                         .create(document.querySelector(`#editor-${comment.commentID}`))
                         .then(editor => {
-                            this.inlineEditors[comment.commentID] = editor;
+                            this.inlineEditors[comment.commentID] = markRaw(editor);
                             editor.setData(comment.content);
                         })
                         .catch(error => {
@@ -178,14 +179,24 @@ const app = createApp({
                         });
                 });
             } else {
+                // Canceling edit mode
                 const editor = this.inlineEditors[comment.commentID];
                 if (editor) {
-                    const content = editor.data.get();
-                    this.saveComment(comment, content);
                     editor.destroy();
                     delete this.inlineEditors[comment.commentID];
                 }
             }
+        },
+        async submitEdit(comment) {
+            const editor = this.inlineEditors[comment.commentID];
+            if (!editor) return;
+
+            const newContent = editor.data.get();
+            await this.saveComment(comment, newContent);
+
+            comment.isEditing = false;
+            editor.destroy();
+            delete this.inlineEditors[comment.commentID];
         },
         async saveComment(comment, newContent) {
             const originalContent = comment.content;

@@ -48,6 +48,7 @@
                     <!-- Editor -->
                     <div v-if="comment.isEditing" class="mt-2">
                         <textarea :id="'editor-' + comment.commentID"></textarea>
+                        <button @@click="submitEdit(comment)" class="btn btn-sm btn-primary mt-2">送出</button>
                     </div>
 
                     <!-- Dices -->
@@ -75,7 +76,7 @@
                             <button type="button" class="btn btn-link text-dark" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                             <div class="dropdown-menu">
                                 <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleEdit(comment)" class="dropdown-item">
-                                    <i class="far fa-edit"></i> {{ comment.isEditing ? '取消編輯' : '編輯' }}
+                                    <i class="far fa-edit"></i> {{ comment.isEditing ? '取消' : '編輯' }}
                                 </button>
                                 <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="dropdown-item">
                                     <i class="far fa-trash-alt"></i> 刪除
