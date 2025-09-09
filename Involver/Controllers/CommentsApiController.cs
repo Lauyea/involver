@@ -201,7 +201,7 @@ namespace Involver.Controllers
 
                 // Replace DiceTotal placeholder
                 int diceTotal = comment.Dices.Sum(d => d.Value);
-                string diceTotalString = $"{createDto.RollTimes}D{createDto.DiceSides}: {diceTotal}";
+                string diceTotalString = $"UI's DiceTotal: {diceTotal}";
                 comment.Content = comment.Content.Replace("DiceTotal", diceTotalString);
             }
 
@@ -214,10 +214,12 @@ namespace Involver.Controllers
             {
                 hasDices = true;
                 // Add a placeholder to indicate text-based roll, as in original logic
-                if (!comment.Dices.Any(d => d.Sides == 0))
+                if (!comment.Dices.Any(d => d.Sides == 0) && comment.Dices.Count == 0)
                 {
                     comment.Dices.Add(new Dice { Sides = 0, Value = 0 });
                 }
+
+                comment.Content += ($"<p>此段文字共用了 {textDiceCount} 次文字擲骰指令。</p>");
             }
 
             _context.Comments.Add(comment);

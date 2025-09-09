@@ -54,7 +54,7 @@
                     <!-- Dices -->
                     <div class="pt-3 pb-3">
                         <template v-for="dice in comment.dices">
-                            <i class="fas fa-dice-d20"></i>
+                            <i class="fas fa-dice-d20"></i> &nbsp;
                             <template v-if="dice.sides !== 0 && dice.value !== 0">
                                 {{ dice.value }} / {{ dice.sides }} &nbsp;
                             </template>
@@ -109,7 +109,7 @@
 
     <!-- New/Edit Comment Modal -->
     <div class="modal fade" id="commentModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">新增評論</h5>
@@ -120,7 +120,7 @@
                         <textarea id="comment-editor"></textarea>
                     </div>
                     <div class="alert alert-warning" role="alert">
-                        <p><strong>可以直接在內容中使用Dice指令擲骰，ex. !roll 1d6。</strong></p>
+                        <p><strong>可以直接在內容中使用Dice指令擲骰，ex. Dice05D10。最大99D99。</strong></p>
                         <p v-if="from.toLowerCase() === 'episode'"><strong>或是選擇用下個方式擲骰</strong></p>
                     </div>
                     <div v-if="from.toLowerCase() === 'episode'">
