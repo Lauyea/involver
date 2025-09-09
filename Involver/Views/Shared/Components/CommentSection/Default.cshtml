@@ -1,9 +1,31 @@
+<style>
+    /* 讓 .media 的主內容區可以縮，不會被內容撐住 */
+    .media .media-body { 
+        min-width: 0; 
+        flex: 1 1 0; /* 確保可縮可長 */
+    }
+
+    .editor-wrap {
+        width: 100%;
+        min-width: 0; /* 關鍵：允許內部內容縮小 */
+    }
+
+    /* 讓 CKEditor 本體與內容不超出容器 */
+    .media .media-body .ck-editor,
+    .media .media-body .ck-editor__main,
+    .media .media-body .ck-content {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+</style>
 @model Involver.Views.Shared.Components.CommentSection.CommentSectionViewModel
 
 <div id="comment-app" 
      data-from="@Model.From" 
      data-from-id="@Model.FromID" 
-     data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()">
+     data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()"
+     data-max-length="@Model.MaxLength">
 
     <p id="CommentHead">
         <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
@@ -47,7 +69,9 @@
                     
                     <!-- Editor -->
                     <div v-if="comment.isEditing" class="mt-2">
-                        <textarea :id="'editor-' + comment.commentID"></textarea>
+                        <div class="editor-wrap">
+                            <textarea :id="'editor-' + comment.commentID"></textarea>
+                        </div>
                         <button @@click="submitEdit(comment)" class="btn btn-sm btn-primary mt-2">送出</button>
                     </div>
 

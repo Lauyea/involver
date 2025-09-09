@@ -15,7 +15,8 @@ const app = createApp({
             newCommentDice: {
                 rollTimes: 0,
                 diceSides: 0
-            }
+            },
+            maxLength: 10000 // Add maxLength with a default value
         };
     },
     computed: {
@@ -43,6 +44,8 @@ const app = createApp({
         this.from = el.dataset.from;
         this.fromID = parseInt(el.dataset.fromId, 10);
         this.isOrderFixed = el.dataset.isOrderFixed === 'true';
+        this.maxLength = parseInt(el.dataset.maxLength, 10) || 10000; // Read maxLength from data attribute
+
         if (this.isOrderFixed) {
             this.sortBy = 'oldest';
         }
@@ -51,7 +54,7 @@ const app = createApp({
         $('#commentModal').on('shown.bs.modal', () => {
             if (!this.mainEditor) {
                 ClassicEditor
-                    .create(document.querySelector('#comment-editor'))
+                    .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config
                     .then(editor => {
                         this.mainEditor = markRaw(editor);
                     })
@@ -64,6 +67,34 @@ const app = createApp({
         });
     },
     methods: {
+        getEditorConfig() {
+            return {
+                toolbar: {
+                    items: [
+                        'heading', '|', 'bold', 'italic', 'underline', 'strikethrough',
+                        'fontBackgroundColor', 'fontColor', 'removeFormat', 'findAndReplace', '|',
+                        'alignment', 'bulletedList', 'numberedList', 'outdent', 'indent',
+                        'horizontalLine', '|', 'link', 'imageInsert', 'blockQuote', 'insertTable',
+                        'mediaEmbed', 'sourceEditing', 'undo', 'redo'
+                    ],
+                    shouldNotGroupWhenFull: false
+                },
+                link: { addTargetToExternalLinks: true },
+                image: { toolbar: ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'] },
+                table: { contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'] },
+                licenseKey: '',
+                mediaEmbed: { previewsInData: true },
+                wordCount: {
+                    displayWords: false,
+                    onUpdate: stats => {
+                        if (stats.characters > this.maxLength) {
+                            console.warn(`Character limit exceeded: ${stats.characters}/${this.maxLength}`);
+                            // Here you might want to add UI feedback
+                        }
+                    }
+                }
+            };
+        },
         async fetchComments(page = 1) {
             this.isLoading = true;
             try {
@@ -165,7 +196,7 @@ const app = createApp({
                 // Entering edit mode
                 this.$nextTick(() => {
                     ClassicEditor
-                        .create(document.querySelector(`#editor-${comment.commentID}`))
+                        .create(document.querySelector(`#editor-${comment.commentID}`), this.getEditorConfig()) // Use shared config
                         .then(editor => {
                             this.inlineEditors[comment.commentID] = markRaw(editor);
                             editor.setData(comment.content);

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using DataAccess.Data;
+using DataAccess.Common;
 
 namespace Involver.Views.Shared.Components.CommentSection
 {
@@ -35,7 +36,8 @@ namespace Involver.Views.Shared.Components.CommentSection
             {
                 From = from,
                 FromID = fromID,
-                IsCommentOrderFixed = isCommentOrderFixed
+                IsCommentOrderFixed = isCommentOrderFixed,
+                MaxLength = Parameters.CommentLength
             };
 
             return View(model);
@@ -47,5 +49,6 @@ namespace Involver.Views.Shared.Components.CommentSection
         public string From { get; set; }
         public int FromID { get; set; }
         public bool IsCommentOrderFixed { get; set; }
+        public int MaxLength { get; set; }
     }
 }
