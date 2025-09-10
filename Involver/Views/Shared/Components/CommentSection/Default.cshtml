@@ -60,7 +60,7 @@
                 <div class="media-body">
                     <b>
                         <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
-                        <a :href="'#' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
+                        <a :href="'#comment-' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
                     </b>
                     <!-- Involver Info -->
                     <p v-if="comment.involverInfo"><small>{{ comment.involverInfo }}</small></p>

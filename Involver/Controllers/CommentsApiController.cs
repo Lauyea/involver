@@ -37,7 +37,7 @@ namespace Involver.Controllers
 
         // GET: api/Comments
         [HttpGet]
-        public async Task<IActionResult> GetComments([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest")
+        public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest")
         {
             IQueryable<Comment> commentsQuery = _context.Comments
                 .Include(c => c.Profile)
@@ -167,7 +167,7 @@ namespace Involver.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateComment([FromBody] CreateCommentDto createDto)
+        public async Task<IActionResult> CreateCommentAsync([FromBody] CreateCommentDto createDto)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null || user.Banned)
@@ -309,11 +309,11 @@ namespace Involver.Controllers
                 NewTotalPages = newTotalPages
             };
 
-            return CreatedAtAction(nameof(GetComments), new { from = createDto.From, fromID = createDto.FromID }, response);
+            return CreatedAtAction(nameof(GetCommentsAsync), new { from = createDto.From, fromID = createDto.FromID }, response);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateComment(int id, [FromBody] UpdateCommentDto updateDto)
+        public async Task<IActionResult> UpdateCommentAsync(int id, [FromBody] UpdateCommentDto updateDto)
         {
             var comment = await _context.Comments.FindAsync(id);
 
@@ -353,7 +353,7 @@ namespace Involver.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteComment(int id)
+        public async Task<IActionResult> DeleteCommentAsync(int id)
         {
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
@@ -374,7 +374,7 @@ namespace Involver.Controllers
         }
 
         [HttpPost("{id}/agree")]
-        public async Task<IActionResult> ToggleAgree(int id)
+        public async Task<IActionResult> ToggleAgreeAsync(int id)
         {
             var currentUserID = _userManager.GetUserId(User);
             if (currentUserID == null)
@@ -443,7 +443,7 @@ namespace Involver.Controllers
         }
 
         [HttpPost("{id}/block")]
-        public async Task<IActionResult> ToggleBlock(int id)
+        public async Task<IActionResult> ToggleBlockAsync(int id)
         {
             var comment = await _context.Comments.FindAsync(id);
             if (comment == null)
