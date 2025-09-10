@@ -72,9 +72,12 @@
                     <div v-if="comment.isEditing" class="mt-2">
                         <div class="editor-wrap">
                             <textarea :id="'editor-' + comment.commentID"></textarea>
+                            <div class="d-flex mb-3">
+                                <button @@click="submitEdit(comment)" class="btn btn-primary mt-2">儲存</button> &nbsp;
+                                <button @@click="toggleEdit(comment)" class="btn btn-secondary mt-2">取消</button>
+                                <div :id="'word-count-' + comment.commentID" class="ml-auto p-2"></div>
+                            </div>
                         </div>
-                        <button @@click="submitEdit(comment)" class="btn btn-sm btn-primary mt-2">儲存</button> &nbsp;
-                        <button @@click="toggleEdit(comment)" class="btn btn-sm btn-secondary mt-2">取消</button>
                     </div>
 
                     <!-- Dices -->
@@ -144,6 +147,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <textarea id="comment-editor"></textarea>
+                        <div id="comment-word-count" class="d-flex justify-content-start"></div>
                     </div>
                     <div class="alert alert-warning" role="alert">
                         <p><strong>可以直接在內容中使用Dice指令擲骰，ex. Dice05D10。最大99D99。</strong></p>

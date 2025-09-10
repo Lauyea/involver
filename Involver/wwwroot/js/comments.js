@@ -57,6 +57,11 @@ const app = createApp({
                     .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config
                     .then(editor => {
                         this.mainEditor = markRaw(editor);
+                        const wordCountPlugin = editor.plugins.get('WordCount');
+                        const wordCountWrapper = document.getElementById('comment-word-count');
+                        if (wordCountPlugin && wordCountWrapper) {
+                            wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                        }
                     })
                     .catch(error => {
                         console.error('Error creating main CKEditor instance:', error);
@@ -200,6 +205,11 @@ const app = createApp({
                         .then(editor => {
                             this.inlineEditors[comment.commentID] = markRaw(editor);
                             editor.setData(comment.content);
+                            const wordCountPlugin = editor.plugins.get('WordCount');
+                            const wordCountWrapper = document.getElementById(`word-count-${comment.commentID}`);
+                            if (wordCountPlugin && wordCountWrapper) {
+                                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                            }
                         })
                         .catch(error => {
                             console.error(`Error creating inline editor for comment ${comment.commentID}:`, error);
