@@ -10,7 +10,7 @@ namespace Involver.Models.ViewModels.Api
         public string ProfileID { get; set; }
         public string UserName { get; set; }
         public string UserImageUrl { get; set; }
-        public object Involves { get; set; }
+        public string InvolverInfo { get; set; }
         public List<object> Dices { get; set; }
         public List<object> Messages { get; set; }
         public int AgreesCount { get; set; }

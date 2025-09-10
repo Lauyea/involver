@@ -63,7 +63,9 @@ namespace Involver.Controllers
                     {
                         isCommentOrderFixed = novel.IsCommentOrderFixed;
                     }
-                    commentsQuery = commentsQuery.Where(c => c.NovelID == fromID);
+                    commentsQuery = commentsQuery
+                        .Include(c => c.Novel.Involvers)
+                        .Where(c => c.NovelID == fromID);
                     break;
                 case "episode":
                     var episode = await _context.Episodes.FindAsync(fromID);
@@ -71,7 +73,9 @@ namespace Involver.Controllers
                     {
                         isCommentOrderFixed = episode.IsCommentOrderFixed;
                     }
-                    commentsQuery = commentsQuery.Where(c => c.EpisodeID == fromID);
+                    commentsQuery = commentsQuery
+                        .Include(c => c.Episode.Novel.Involvers)
+                        .Where(c => c.EpisodeID == fromID);
                     break;
                 default:
                     return BadRequest("Invalid 'from' parameter.");
@@ -96,7 +100,7 @@ namespace Involver.Controllers
                     break;
             }
 
-            var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery, page, DataAccess.Common.Parameters.CommetPageSize);
+            var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery.AsNoTracking(), page, DataAccess.Common.Parameters.CommetPageSize);
 
             var currentUserID = _userManager.GetUserId(User);
 
@@ -109,6 +113,23 @@ namespace Involver.Controllers
                 var canDelete = (await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Delete)).Succeeded;
                 var canBlock = (await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Block)).Succeeded;
 
+                string involverInfoString = null;
+                Involving involverInfo = null;
+
+                if (comment.EpisodeID != null && comment.Episode?.Novel?.Involvers != null)
+                {
+                    involverInfo = comment.Episode.Novel.Involvers.FirstOrDefault(i => i.InvolverID == comment.ProfileID);
+                }
+                else if (comment.NovelID != null && comment.Novel?.Involvers != null)
+                {
+                    involverInfo = comment.Novel.Involvers.FirstOrDefault(i => i.InvolverID == comment.ProfileID);
+                }
+
+                if (involverInfo != null)
+                {
+                    involverInfoString = $"æœˆ Involve: {involverInfo.MonthlyValue} Inå¹£ | ç¸½ Involve: {involverInfo.TotalValue} Inå¹£";
+                }
+
                 commentDtos.Add(new CommentDto
                 {
                     CommentID = comment.CommentID,
@@ -119,7 +140,7 @@ namespace Involver.Controllers
                     UserImageUrl = !string.IsNullOrEmpty(comment.Profile.ImageUrl)
                         ? comment.Profile.ImageUrl
                         : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
-                    Involves = null, // Logic to be added
+                    InvolverInfo = involverInfoString,
                     Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
                     Messages = comment.Messages?.Select(m => new { m.Profile.UserName, m.Content }).ToList<object>() ?? new List<object>(),
                     AgreesCount = comment.Agrees.Count,
@@ -219,7 +240,7 @@ namespace Involver.Controllers
                     comment.Dices.Add(new Dice { Sides = 0, Value = 0 });
                 }
 
-                comment.Content += ($"<p>¦¹¬q¤å¦r¦@¥Î¤F {textDiceCount} ¦¸¤å¦rÂY»ë«ü¥O¡C</p>");
+                comment.Content += ($"<p>qr@Î¤F {textDiceCount} rYOC</p>");
             }
 
             _context.Comments.Add(comment);
@@ -253,7 +274,7 @@ namespace Involver.Controllers
                 UserImageUrl = !string.IsNullOrEmpty(commenterProfile.ImageUrl)
                     ? commenterProfile.ImageUrl
                     : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
-                Involves = null, // To be implemented
+                InvolverInfo = null, // To be implemented
                 Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
                 Messages = new List<object>(), // New comment has no messages
                 AgreesCount = 0,

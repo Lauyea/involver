@@ -62,7 +62,8 @@
                         <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
                         <a :href="'#' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
                     </b>
-                    <!-- Involver Info (To be implemented if needed) -->
+                    <!-- Involver Info -->
+                    <p v-if="comment.involverInfo"><small>{{ comment.involverInfo }}</small></p>
                     
                     <!-- Content -->
                     <div v-if="!comment.isEditing" class="ck-content mt-2" v-html="comment.content"></div>
