@@ -293,3 +293,20 @@ body {
 /* Layout styles
 -------------------------------------------------- */
 
+/* Comment animations
+-------------------------------------------------- */
+.new-comment-highlight {
+    animation: highlight-fade 3s ease-out;
+}
+
+@keyframes highlight-fade {
+    0% {
+        background-color: #fff8c4;
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+/* Comment animations
+-------------------------------------------------- */

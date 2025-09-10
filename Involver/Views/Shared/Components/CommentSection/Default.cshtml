@@ -46,7 +46,7 @@
 
     <div v-else>
         <!-- Comments List -->
-        <div v-for="comment in comments" :key="comment.commentID" :id="comment.commentID">
+        <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID">
             <!-- Blocked Comment View -->
             <div v-if="comment.isBlocked" class="border p-3 rounded shadow-sm my-3">
                 本評論已被封鎖。

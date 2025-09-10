@@ -264,6 +264,23 @@ namespace Involver.Controllers
                 await Involver.Helpers.AchievementHelper.RollDicesAsync(_context, user.Id);
             }
 
+            // Calculate the new total pages
+            IQueryable<Comment> commentsQuery = _context.Comments;
+            switch (createDto.From.ToLower())
+            {
+                case "article":
+                    commentsQuery = commentsQuery.Where(c => c.ArticleID == createDto.FromID);
+                    break;
+                case "novel":
+                    commentsQuery = commentsQuery.Where(c => c.NovelID == createDto.FromID);
+                    break;
+                case "episode":
+                    commentsQuery = commentsQuery.Where(c => c.EpisodeID == createDto.FromID);
+                    break;
+            }
+            var totalComments = await commentsQuery.CountAsync();
+            var newTotalPages = (int)Math.Ceiling(totalComments / (double)DataAccess.Common.Parameters.CommetPageSize);
+
             // Map to DTO to return
             var newCommentDto = new CommentDto
             {
@@ -286,7 +303,13 @@ namespace Involver.Controllers
                 IsBlocked = comment.Block
             };
 
-            return CreatedAtAction(nameof(GetComments), new { from = createDto.From, fromID = createDto.FromID }, newCommentDto);
+            var response = new
+            {
+                Comment = newCommentDto,
+                NewTotalPages = newTotalPages
+            };
+
+            return CreatedAtAction(nameof(GetComments), new { from = createDto.From, fromID = createDto.FromID }, response);
         }
 
         [HttpPut("{id}")]

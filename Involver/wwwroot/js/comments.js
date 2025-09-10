@@ -148,7 +148,30 @@ const app = createApp({
                     })
                 });
                 if (!response.ok) throw new Error('Failed to add comment');
-                await this.fetchComments(this.pagination.totalPages || 1);
+
+                const data = await response.json();
+                // Use the new total pages from the API response
+                await this.fetchComments(data.newTotalPages || 1);
+
+                // After the DOM updates, scroll to and highlight the new comment
+                this.$nextTick(() => {
+                    const newCommentId = data.comment.commentID;
+                    // The comment container must have an id like 'comment-123'
+                    const newCommentElement = document.getElementById(`comment-${newCommentId}`);
+
+                    if (newCommentElement) {
+                        // Scroll to the element
+                        newCommentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                        // Add highlight class
+                        newCommentElement.classList.add('new-comment-highlight');
+
+                        // Remove the class after 3 seconds (matching the CSS animation)
+                        setTimeout(() => {
+                            newCommentElement.classList.remove('new-comment-highlight');
+                        }, 3000);
+                    }
+                });
             } catch (error) {
                 console.error(error);
             }
