@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Involver.Helpers;
 
 namespace Involver.Controllers
 {
@@ -27,7 +28,7 @@ namespace Involver.Controllers
             UserManager<InvolverUser> userManager,
             IAuthorizationService authorizationService,
             INotificationSetter notificationSetter)
-        { 
+        {
             _context = context;
             _userManager = userManager;
             _authorizationService = authorizationService;
@@ -133,7 +134,7 @@ namespace Involver.Controllers
                 commentDtos.Add(new CommentDto
                 {
                     CommentID = comment.CommentID,
-                    Content = comment.Content,
+                    Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
                     UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
                     ProfileID = comment.ProfileID,
                     UserName = comment.Profile.UserName,
@@ -151,7 +152,7 @@ namespace Involver.Controllers
                     IsBlocked = comment.Block
                 });
             }
-            
+
             var paginationMetadata = new
             {
                 paginatedComments.TotalPages,
@@ -164,10 +165,10 @@ namespace Involver.Controllers
 
             return Ok(commentDtos);
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateComment([FromBody] CreateCommentDto createDto)
-        { 
+        {
             var user = await _userManager.GetUserAsync(User);
             if (user == null || user.Banned)
             {
@@ -267,7 +268,7 @@ namespace Involver.Controllers
             var newCommentDto = new CommentDto
             {
                 CommentID = comment.CommentID,
-                Content = comment.Content,
+                Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
                 UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
                 ProfileID = comment.ProfileID,
                 UserName = commenterProfile.UserName,
@@ -394,9 +395,9 @@ namespace Involver.Controllers
                             ownerProfile.Missions.BeAgreed = true;
                             ownerProfile.VirtualCoins += 5;
                         }
-                        
+
                         await _context.SaveChangesAsync(); // Save mission changes first
-                        
+
                         var toasts = await Involver.Helpers.AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
 
                         // Set notification
