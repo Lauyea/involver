@@ -72,7 +72,8 @@
                         <div class="editor-wrap">
                             <textarea :id="'editor-' + comment.commentID"></textarea>
                         </div>
-                        <button @@click="submitEdit(comment)" class="btn btn-sm btn-primary mt-2">送出</button>
+                        <button @@click="submitEdit(comment)" class="btn btn-sm btn-primary mt-2">儲存</button> &nbsp;
+                        <button @@click="toggleEdit(comment)" class="btn btn-sm btn-secondary mt-2">取消</button>
                     </div>
 
                     <!-- Dices -->
