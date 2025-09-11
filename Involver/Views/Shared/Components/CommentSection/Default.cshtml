@@ -92,8 +92,8 @@
 
                     <!-- Control Menu -->
                     <div id="control-menu">
-                        <!-- Messages (Placeholder) -->
-                        <a href="#" title="留言" @@click.prevent="alert('留言功能將在下一階段實作')">
+                        <!-- Messages Button -->
+                        <a href="#" title="留言" @@click.prevent="openMessageModal(comment)">
                             <i class="far fa-comments"></i> 留言 ({{ comment.messages.length }})
                         </a>
                         <!-- Agree Button -->
@@ -173,6 +173,76 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
                     <button type="button" class="btn btn-primary" @@click="submitComment">送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">訊息</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div v-if="isLoadingMessages" class="text-center">
+                        <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
+                    </div>
+                    <div v-else>
+                        <div id="messageList">
+                            <div v-for="message in messages" :key="message.messageID" class="media border p-3 shadow-sm rounded mb-3">
+                                <a :href="'/Identity/Profile/Index/' + message.profileId">
+                                    <img v-if="message.profile.imageUrl" :src="message.profile.imageUrl" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                                    <img v-else :src="'https://www.gravatar.com/avatar/' + message.profile.emailMd5 + '?d=retro'" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                                </a>
+                                <div class="media-body">
+                                    <b>
+                                        <a :href="'/Identity/Profile/Index/' + message.profileId">{{ message.profile.userName }}</a>
+                                        <small :title="message.updateTime">{{ message.updateTimeRelative }}</small>
+                                    </b>
+                                    <div v-if="!message.isEditing">
+                                        <div class="ck-content" v-html="message.content.replace(/\r\n/g, '<br />')"></div>
+                                        <p class="mt-2">
+                                            <button type="button" class="btn btn-light btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
+                                                <i class="far fa-thumbs-up"></i>
+                                                <span class="agree-count">{{ message.agrees.length }}</span>
+                                            </button>
+                                            <button v-if="message.canUpdate" type="button" class="btn btn-light btn-sm" @@click="toggleMessageEdit(message)">
+                                                <i class="far fa-edit"></i>
+                                            </button>
+                                            <button v-if="message.canDelete" type="button" class="btn btn-light btn-sm text-danger" @@click="deleteMessage(message)">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
+                                        </p>
+                                    </div>
+                                    <div v-else>
+                                        <div class="form-group">
+                                            <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary btn-sm" @@click="saveMessageEdit(message)">儲存</button>
+                                            <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <form @@submit.prevent="submitNewMessage">
+                            <div class="form-group">
+                                <label for="messageContent" class="control-label">新增訊息</label>
+                                <textarea v-model="newMessageContent" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">送出</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
                 </div>
             </div>
         </div>

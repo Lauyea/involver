@@ -16,7 +16,15 @@ const app = createApp({
                 rollTimes: 0,
                 diceSides: 0
             },
-            maxLength: 10000 // Add maxLength with a default value
+            maxLength: 10000, // Add maxLength with a default value
+            /** @type {Array<Object>} - The list of messages for the currently active comment. */
+            messages: [],
+            /** @type {Object|null} - The comment object whose messages are currently being viewed or added to. */
+            currentCommentForMessages: null,
+            /** @type {boolean} - Flag to indicate if messages are currently being loaded from the API. */
+            isLoadingMessages: false,
+            /** @type {string} - The content of the new message being typed in the modal form. */
+            newMessageContent: ''
         };
     },
     computed: {
@@ -94,7 +102,6 @@ const app = createApp({
                     onUpdate: stats => {
                         if (stats.characters > this.maxLength) {
                             console.warn(`Character limit exceeded: ${stats.characters}/${this.maxLength}`);
-                            // Here you might want to add UI feedback
                         }
                     }
                 }
@@ -174,6 +181,186 @@ const app = createApp({
                 });
             } catch (error) {
                 console.error(error);
+            }
+        },
+        /**
+         * Opens the message modal for a specific comment.
+         * @param {Object} comment - The comment object to show messages for.
+         */
+        async openMessageModal(comment) {
+            this.currentCommentForMessages = comment;
+            this.isLoadingMessages = true;
+            this.messages = [];
+            $('#messageModal').modal('show');
+            try {
+                const response = await fetch(`/api/MessagesApi/ByComment/${comment.commentID}`);
+                if (!response.ok) throw new Error('Failed to fetch messages');
+                const messagesData = await response.json();
+                // Add client-side state properties to each message
+                this.messages = messagesData.map(m => ({ ...m, isEditing: false, editableContent: '' }));
+            } catch (error) {
+                console.error(error);
+                alert('無法載入訊息');
+            } finally {
+                this.isLoadingMessages = false;
+            }
+        },
+        /**
+         * Submits the new message form.
+         */
+        async submitNewMessage() {
+            if (!this.newMessageContent.trim()) {
+                alert('訊息內容不能為空');
+                return;
+            }
+            try {
+                const response = await fetch('/api/MessagesApi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        commentId: this.currentCommentForMessages.commentID,
+                        content: this.newMessageContent
+                    })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert('請先登入或確認您有權限發言');
+                    return;
+                }
+                if (!response.ok) throw new Error('Failed to submit message');
+
+                const createdMessage = await response.json();
+                // Add client-side state to the new message
+                this.messages.push({ ...createdMessage, isEditing: false, editableContent: '' });
+                this.newMessageContent = '';
+                // Update the count on the comment object
+                this.currentCommentForMessages.messages.length++;
+            } catch (error) {
+                console.error(error);
+                alert('無法新增訊息');
+            }
+        },
+        /**
+         * Toggles the agree status for a message.
+         * @param {Object} message - The message object to agree/disagree with.
+         */
+        async toggleMessageAgree(message) {
+            // Optimistic update
+            const originalAgreed = message.isAgreedByCurrentUser;
+            const originalCount = message.agrees.length;
+
+            message.isAgreedByCurrentUser = !originalAgreed;
+            message.agrees.length += originalAgreed ? -1 : 1;
+
+            try {
+                const response = await fetch(`/api/MessagesApi/${message.messageID}/agree`, { method: 'POST' });
+                if (response.status === 401 || response.status === 403) {
+                    alert('請先登入');
+                    // Revert UI
+                    message.isAgreedByCurrentUser = originalAgreed;
+                    message.agrees.length = originalCount;
+                    return;
+                }
+                if (!response.ok) throw new Error('Failed to toggle agree');
+                const data = await response.json();
+                // Update count with server's response
+                message.agrees.length = data.agreesCount;
+            } catch (error) {
+                console.error(error);
+                // Revert UI on error
+                message.isAgreedByCurrentUser = originalAgreed;
+                message.agrees.length = originalCount;
+            }
+        },
+        /**
+         * Deletes a message after confirmation.
+         * @param {Object} message - The message object to delete.
+         */
+        async deleteMessage(message) {
+            if (!confirm('確定要刪除這則訊息嗎？')) return;
+
+            const originalMessages = [...this.messages];
+            const messageIndex = this.messages.findIndex(m => m.messageID === message.messageID);
+            if (messageIndex === -1) return; // Should not happen
+
+            // Optimistic update
+            this.messages.splice(messageIndex, 1);
+            this.currentCommentForMessages.messages.length--;
+
+            try {
+                const response = await fetch(`/api/MessagesApi/${message.messageID}`, { method: 'DELETE' });
+                if (response.status === 401 || response.status === 403) {
+                    alert('您沒有權限刪除此訊息');
+                    this.messages.splice(messageIndex, 0, message); // Re-add the message
+                    this.currentCommentForMessages.messages.length++;
+                    return;
+                }
+                if (!response.ok) throw new Error('Failed to delete message');
+            } catch (error) {
+                console.error(error);
+                alert('刪除失敗，請重試');
+                this.messages.splice(messageIndex, 0, message); // Re-add the message
+                this.currentCommentForMessages.messages.length++;
+            }
+        },
+        /**
+         * Toggles the editing state for a message.
+         * @param {Object} message - The message object to edit.
+         */
+        toggleMessageEdit(message) {
+            if (!message.isEditing) {
+                message.editableContent = message.content;
+            }
+            message.isEditing = !message.isEditing;
+        },
+        /**
+         * Cancels editing a message.
+         * @param {Object} message - The message object being edited.
+         */
+        cancelMessageEdit(message) {
+            message.isEditing = false;
+            message.editableContent = '';
+        },
+        /**
+         * Saves the edited message content.
+         * @param {Object} message - The message object to save.
+         */
+        async saveMessageEdit(message) {
+            if (!message.editableContent.trim()) {
+                alert('訊息內容不能為空');
+                return;
+            }
+
+            const originalContent = message.content;
+            message.content = message.editableContent; // Optimistic update
+
+            try {
+                const response = await fetch(`/api/MessagesApi/${message.messageID}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: message.editableContent })
+                });
+
+                if (response.status === 401 || response.status === 403) {
+                    alert('您沒有權限編輯此訊息');
+                    message.content = originalContent; // Revert
+                    return;
+                }
+
+                if (!response.ok) throw new Error('Failed to save message');
+
+                const updatedMessage = await response.json();
+                // Update local message with server response
+                const index = this.messages.findIndex(m => m.messageID === updatedMessage.messageID);
+                if (index !== -1) {
+                    this.messages[index] = { ...this.messages[index], ...updatedMessage, isEditing: false, editableContent: '' };
+                }
+            } catch (error) {
+                console.error(error);
+                alert('儲存失敗，請重試');
+                message.content = originalContent; // Revert
+            } finally {
+                message.isEditing = false;
             }
         },
         async toggleAgree(comment) {
