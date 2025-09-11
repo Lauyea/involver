@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Involver.Helpers;
+using Involver.Extensions;
 
 namespace Involver.Controllers
 {
@@ -251,9 +252,12 @@ namespace Involver.Controllers
             if (commenterProfile != null && commenterProfile.Missions.LeaveComment != true)
             {
                 commenterProfile.Missions.LeaveComment = true;
-                commenterProfile.VirtualCoins += 5;
+                commenterProfile.AwardCoins();
                 // TODO: Add a way to notify user of mission completion
             }
+
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            commenterProfile.Missions.CheckCompletion(commenterProfile);
 
             await _context.SaveChangesAsync();
 
@@ -416,8 +420,11 @@ namespace Involver.Controllers
                         if (ownerProfile.Missions.BeAgreed != true)
                         {
                             ownerProfile.Missions.BeAgreed = true;
-                            ownerProfile.VirtualCoins += 5;
+                            ownerProfile.AwardCoins();
                         }
+
+                        // 檢查是否完成所有任務，若完成會自動加獎勵幣
+                        ownerProfile.Missions.CheckCompletion(ownerProfile);
 
                         await _context.SaveChangesAsync(); // Save mission changes first
 

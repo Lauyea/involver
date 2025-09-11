@@ -1,12 +1,14 @@
-﻿using Involver.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
+using Involver.Authorization.Comment;
+using Involver.Common;
+using Involver.Extensions;
 using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Controllers
 {
@@ -89,37 +91,28 @@ namespace Involver.Controllers
         private async Task CheckMissions(Message message)
         {
             string userId = message.ProfileID;
-            Profile Commenter = await _context.Profiles
+            Profile commenter = await _context.Profiles
                 .Where(p => p.ProfileID == userId)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
-            if (Commenter.Missions.BeAgreed != true)
+            if (commenter.Missions.BeAgreed != true)
             {
-                Commenter.Missions.BeAgreed = true;
-                Commenter.VirtualCoins += 5;
+                commenter.Missions.BeAgreed = true;
+                commenter.AwardCoins();
             }
-            //Check other missions
-            Missions missions = Commenter.Missions;
-            if (missions.WatchArticle
-                && missions.Vote
-                && missions.LeaveComment
-                && missions.ViewAnnouncement
-                && missions.ShareCreation
-                && missions.BeAgreed)
-            {
-                Commenter.Missions.CompleteOtherMissions = true;
-            }
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            commenter.Missions.CheckCompletion(commenter);
 
             await _context.SaveChangesAsync();
 
-            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, Commenter.ProfileID);
+            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, commenter.ProfileID);
 
-            if (OwenrID != Commenter.ProfileID)
+            if (OwenrID != commenter.ProfileID)
             {
                 // Set notification
                 var url = $"{Request.Scheme}://{Request.Host}/Comments/Details?id={message.CommentID}";
 
-                await _notificationSetter.ForMessageBeAgreedAsync(message.Content, Commenter.ProfileID, url, toasts);
+                await _notificationSetter.ForMessageBeAgreedAsync(message.Content, commenter.ProfileID, url, toasts);
             }
         }
 
@@ -182,30 +175,21 @@ namespace Involver.Controllers
         private async Task CheckMissions(Comment comment)
         {
             string userId = comment.ProfileID;
-            Profile Commenter = await _context.Profiles
+            Profile commenter = await _context.Profiles
                 .Where(p => p.ProfileID == userId)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
-            if (Commenter.Missions.BeAgreed != true)
+            if (commenter.Missions.BeAgreed != true)
             {
-                Commenter.Missions.BeAgreed = true;
-                Commenter.VirtualCoins += 5;
+                commenter.Missions.BeAgreed = true;
+                commenter.AwardCoins();
             }
-            //Check other missions
-            Missions missions = Commenter.Missions;
-            if (missions.WatchArticle
-                && missions.Vote
-                && missions.LeaveComment
-                && missions.ViewAnnouncement
-                && missions.ShareCreation
-                && missions.BeAgreed)
-            {
-                Commenter.Missions.CompleteOtherMissions = true;
-            }
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            commenter.Missions.CheckCompletion(commenter);
 
             await _context.SaveChangesAsync();
 
-            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, Commenter.ProfileID);
+            var toasts = await Helpers.AchievementHelper.GetAgreeCountAsync(_context, commenter.ProfileID);
 
             var from = string.Empty;
             var fromId = string.Empty;
@@ -241,12 +225,12 @@ namespace Involver.Controllers
                 fromId = string.Empty;
             }
 
-            if (OwenrID != Commenter.ProfileID)
+            if (OwenrID != commenter.ProfileID)
             {
                 // Set notification
                 var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}";
 
-                await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, Commenter.ProfileID, url, toasts);
+                await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, commenter.ProfileID, url, toasts);
             }
         }
     }

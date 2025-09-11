@@ -1,19 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.ArticleModel;
+using Involver.Authorization.Article;
+using Involver.Authorization.Comment;
+using Involver.Common;
+using Involver.Extensions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.ArticleModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using DataAccess.Models;
-using Involver.Authorization.Article;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Involver.Common;
-using DataAccess.Common;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Involver.Pages.Articles
 {
@@ -188,20 +190,12 @@ namespace Involver.Pages.Articles
                 if (userProfile.Missions.WatchArticle != true)
                 {
                     userProfile.Missions.WatchArticle = true;
-                    userProfile.VirtualCoins += 5;
+                    userProfile.AwardCoins();
                     StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
                 }
-                //Check other missions
-                Missions missions = userProfile.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    userProfile.Missions.CompleteOtherMissions = true;
-                }
+
+                // 檢查是否完成所有任務，若完成會自動加獎勵幣
+                userProfile.Missions.CheckCompletion(userProfile);
             }
         }
 

@@ -1,5 +1,7 @@
-﻿using DataAccess.Data;
+using DataAccess.Data;
 using DataAccess.Models;
+using Involver.Authorization.Comment;
+using Involver.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -37,20 +39,12 @@ namespace Involver.Controllers
                 if (userProfile.Missions.ShareCreation != true)
                 {
                     userProfile.Missions.ShareCreation = true;
-                    userProfile.VirtualCoins += 5;
+                    userProfile.AwardCoins();
                     statusMessage = "每週任務：分享一次創作 已完成，獲得5 虛擬In幣。";
                 }
-                //Check other missions
-                Missions missions = userProfile.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    userProfile.Missions.CompleteOtherMissions = true;
-                }
+
+                // 檢查是否完成所有任務，若完成會自動加獎勵幣
+                userProfile.Missions.CheckCompletion(userProfile);
 
                 await _context.SaveChangesAsync();
             }
