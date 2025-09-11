@@ -171,7 +171,12 @@ namespace Involver.Controllers
         public async Task<IActionResult> CreateCommentAsync([FromBody] CreateCommentDto createDto)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null || user.Banned)
+
+            if (user == null)
+            {
+                return Challenge();
+            }
+            if (user.Banned)
             {
                 return Forbid();
             }
