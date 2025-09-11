@@ -1,80 +1,80 @@
-# Involver.tw �{���X����P�}�o���n
+# Involver.tw 程式碼風格與開發指南
 
-�ؼСG �T�O�{���X�M���B��Ū�B�@�P�A���ɹζ���@�Ĳv�A�çQ�� AI �٦�]�p Copilot�BGemini CLI�^�ǲ߻P���`�C
+目標： 確保程式碼清晰、易讀、一致，提升團隊協作效率，並利於 AI 夥伴（如 Copilot、Gemini CLI）學習與遵循。
 
-## 1. �ɮ׻P��Ƨ����c
+## 1. 檔案與資料夾結構
 
-  * �����ɮסG�C�ӭ������� `.cshtml` �M������ `.cshtml.cs` �ɮײզ��C
-  * �������աG�̾ڥ\��η~���޿�N������´�b `Pages` ��Ƨ��U���l��Ƨ����C
-      * �d�ҡG
+  * 頁面檔案：每個頁面應由 `.cshtml` 和對應的 `.cshtml.cs` 檔案組成。
+  * 頁面分組：依據功能或業務邏輯將頁面組織在 `Pages` 資料夾下的子資料夾中。
+      * 範例：
         ```
         /Pages
-        �u�w�w Articles
-        �x   �u�w�w Create.cshtml
-        �x   �u�w�w Create.cshtml.cs
-        �x   �u�w�w Index.cshtml
-        �x   �|�w�w Index.cshtml.cs
-        �|�w�w Novels
-             �u�w�w Create.cshtml
-             �u�w�w Create.cshtml.cs
-             �u�w�w Index.cshtml
-             �|�w�w Index.cshtml.cs
+        ├── Articles
+        │   ├── Create.cshtml
+        │   ├── Create.cshtml.cs
+        │   ├── Index.cshtml
+        │   └── Index.cshtml.cs
+        └── Novels
+             ├── Create.cshtml
+             ├── Create.cshtml.cs
+             ├── Index.cshtml
+             └── Index.cshtml.cs
         ```
-  * �b���޲z�G������������b `Areas/Identity` ��Ƨ����C
-  * �@�ε��ϡG�@�Ϊ������϶��]�p�����C�B�����^����m�b `Pages/Shared` ��Ƨ����C
-  * �@�Τ���G�@�Ϊ����Ϥ��� View Components ����m�b `Views/Shared` ��Ƨ����C
-  * �ҫ� (Models)�G
-      * �j���O�ҫ��G����b `Models` ��Ƨ����A�P�����ҫ� `PageModel` �Ϥ��}�ӡC
-      * ViewModels�G�i�H�إߤ@�� `Models/ViewModels` ��Ƨ��A�M���s�񬰯S�w View �ҳ]�p����Ƽҫ��C�o���U��Ϥ���Ʈw����ҫ��M�º鬰 UI ��ܪA�Ȫ��ҫ��C
+  * 帳號管理：相關頁面應放在 `Areas/Identity` 資料夾中。
+  * 共用視圖：共用的頁面區塊（如導覽列、頁尾）應放置在 `Pages/Shared` 資料夾中。
+  * 共用元件：共用的視圖元件 View Components 應放置在 `Views/Shared` 資料夾中。
+  * 模型 (Models)：
+      * 強型別模型：應放在 `Models` 資料夾中，與頁面模型 `PageModel` 區分開來。
+      * ViewModels：可以建立一個 `Models/ViewModels` 資料夾，專門存放為特定 View 所設計的資料模型。這有助於區分資料庫實體模型和純粹為 UI 顯示服務的模型。
 
-## 2. C# �{���X���� (����޿�)
+## 2. C# 程式碼風格 (後端邏輯)
 
-  * �֤߭�h�G��ƳB�z�u���b C# �����C�ɶq�N�Ҧ���ƪ��d�ߡB�z��B�ƧǡB�p�ⵥ�޿��b PageModel ���B�z�C�קK�b Razor �� JavaScript ������������~���޿�C
+  * 核心原則：資料處理優先在 C# 完成。盡量將所有資料的查詢、篩選、排序、計算等邏輯放在 PageModel 中處理。避免在 Razor 或 JavaScript 中執行複雜的業務邏輯。
 
-  * �R�W�G
+  * 命名：
 
-      * ���O�W�� (PageModel, Model)�G�ϥ� `PascalCase`�A�Ҧp `ArticleModel`�C
-      * ��k�W�١G�ϥ� `PascalCase`�A�Ҧp `OnGetAsync`�C
-      * �p���ܼơG�ϥ� `_` �}�Y�� `camelCase`�A�Ҧp `_context`�C
-      * �����ݩʡG�ϥ� `PascalCase`�A�Ҧp `public Article Article { get; set; }`�C
+      * 類別名稱 (PageModel, Model)：使用 `PascalCase`，例如 `ArticleModel`。
+      * 方法名稱：使用 `PascalCase`，例如 `OnGetAsync`。
+      * 私有變數：使用 `_` 開頭的 `camelCase`，例如 `_context`。
+      * 公有屬性：使用 `PascalCase`，例如 `public Article Article { get; set; }`。
 
-  * ��k�G
+  * 方法：
 
-      * `OnGet` �� `OnPost` ��k���O����²�A�D�n�Ω�B�z�������B�j�w�M���ɦV�C
-      * �Ҧ��D�P�B��k�����ӥH `Async` �����C
+      * `OnGet` 或 `OnPost` 方法應保持精簡，主要用於處理資料獲取、綁定和重導向。
+      * 所有非同步方法都應該以 `Async` 結尾。
 
-  * �ݩʡG
+  * 屬性：
 
-      * �ϥ� `[BindProperty]` �ݩʨӸj�w���洣�檺��ơC
-      * �ϥ� `[TempData]` �Ӧb���P�ШD���ǻ��{�ɸ�ơC
-      * ���קK�ϥ� `ViewData` �M `ViewBag`�A�u���ϥαj���O�ҫ��C
+      * 使用 `[BindProperty]` 屬性來綁定表單提交的資料。
+      * 使用 `[TempData]` 來在不同請求間傳遞臨時資料。
+      * 應避免使用 `ViewData` 和 `ViewBag`，優先使用強型別模型。
 
-  * ���ѡG�T�O�Ҧ��s���禡�B���O�B��k�H�� Model �ѼƳ����M���� XML ���ѡC
+  * 註解：確保所有新的函式、類別、方法以及 Model 參數都有清楚的 XML 註解。
 
-## 3. Razor �аO (�b `.cshtml` �ɮפ�)
+## 3. Razor 標記 (在 `.cshtml` 檔案中)
 
-  * �����ҫ��G�C�ӭ������������w�q�j���O�ҫ��G`@model involver.Pages.Articles.IndexModel`�C
-  * �{���X�϶��G�ϥ� `@` �Ÿ��ӼаO�{���X�C�ɶq�O�� Razor �ɮת�²��A�קK������ C# �޿�C
-  * HTML ��V�G�n�ϥ� `@Html.AntiXssRaw`�C
-  * ���Ҩ�U�� (Tag Helpers)�G�u���ϥμ��Ҩ�U���Ӵ��N�ǲΪ� HTML ���U��k�A�H�W�[�{���X���iŪ�ʡC
-      * �d�ҡG
+  * 頁面模型：每個頁面的頂部應定義強型別模型：`@model involver.Pages.Articles.IndexModel`。
+  * 程式碼區塊：使用 `@` 符號來標記程式碼。盡量保持 Razor 檔案的簡潔，避免複雜的 C# 邏輯。
+  * HTML 渲染：要使用 `@Html.AntiXssRaw`。
+  * 標籤協助器 (Tag Helpers)：優先使用標籤協助器來替代傳統的 HTML 輔助方法，以增加程式碼的可讀性。
+      * 範例：
         ```html
         <form method="post">
             <input asp-for="Article.Title" />
             <span asp-validation-for="Article.Title"></span>
-            <button type="submit">�e�X</button>
+            <button type="submit">送出</button>
         </form>
         ```
-  * �������� (Partial Views)�G��󭫽ƥX�{�� UI ����]�p�p���d���B�@��²���϶��^�A���إߦ��������ϨӴ������ΩʡC
-  * ���Ϥ��� (View Components)�G���ݭn����޿�B�z���B�i���ƨϥΪ� UI ����]�Ҧp�A�ݭn�q��Ʈw���o��ƪ�������B�ϥΪ̿��B�d���^�A���u���ϥ� View Component�C�o���U��N UI �����޿�P�������������A�����ҲդƻP�i���թʡC
+  * 部分視圖 (Partial Views)：對於重複出現的 UI 元件（如小說卡片、作者簡介區塊），應建立成部分視圖來提高重用性。
+  * 視圖元件 (View Components)：對於需要後端邏輯處理的、可重複使用的 UI 元件（例如，需要從資料庫取得資料的側邊欄、使用者選單、留言），應優先使用 View Component。這有助於將 UI 元件的邏輯與頁面本身分離，提高模組化與可測試性。
 
-## 4. ��Ʀs��
+## 4. 資料存取
 
-  * �D�P�B�ާ@�G�@�ߨϥ� `async/await` �f�t `CancellationToken`�C
-  * EF Core �d�ߡG
-      * ����Ū�ާ@�A�ϥ� `AsNoTracking()` �H���ɮį�C
-      * �d�߻y�y���������A���ɥiŪ�ʡC
-      * �d�ҡG
+  * 非同步操作：一律使用 `async/await` 搭配 `CancellationToken`。
+  * EF Core 查詢：
+      * 對於唯讀操作，使用 `AsNoTracking()` 以提升效能。
+      * 查詢語句應分行對齊，提升可讀性。
+      * 範例：
         ```csharp
         var items = await _context.Posts
             .Where(p => p.IsPublished)
@@ -82,91 +82,92 @@
             .AsNoTracking()
             .ToListAsync(cancellationToken);
         ```
-  * �}�o�Ҧ��G�ϥ� Code First ���覡�i��}�o�C
+  * 開發模式：使用 Code First 的方式進行開發。
 
-## 5. API �]�p
+## 5. API 設計
 
-  * RESTful ����GAPI ���I�����` RESTful �]�p��h�A�ϥ� `GET`, `POST`, `PUT`, `DELETE` �� HTTP ��k�ӹ����귽���ާ@�C
+  * RESTful 風格：API 端點應遵循 RESTful 設計原則，使用 `GET`, `POST`, `PUT`, `DELETE` 等 HTTP 方法來對應資源的操作。
+  * 長內容 String 應該用 `CustomHtmlSanitizer.SanitizeHtml` 消毒。
 
 -----
 
-## 6. �e�ݶ}�o�W�d
+## 6. 前端開發規範
 
-  * CSS�G
+  * CSS：
 
-      * �ϥ� BEM (Block, Element, Modifier) ���R�W�W�d�Ӳ�´ CSS ���O�C
-      * �ɶq�ϥ� CSS ���O�ӫD ID �ӿ�ܤ����A�H�Q��˦��мg�P���ΡC
+      * 使用 BEM (Block, Element, Modifier) 等命名規範來組織 CSS 類別。
+      * 盡量使用 CSS 類別而非 ID 來選擇元素，以利於樣式覆寫與重用。
 
-  * JavaScript (�q�γW�d)�G
+  * JavaScript (通用規範)：
 
-      * �y�k�G
-          * �ϥ� ES6+ �y�k (`let`, `const`, `class`, `arrow function`, `async/await`)�C
-          * �u���ϥ� `const`�A���D�ܼƻݭn�Q���s��Ȥ~�� `let`�C�Y�T�ϥ� `var`�C
-          * �u���ϥνb�Y�禡 `=>`�A�S�O�O�b�^�I��Ƥ��C
-          * �ϥμҪO�r���q (`` ` ``) �i��r������C
-          * �ϥ��Y��۵��B��l `===` / `!==`�C
-      * �榡�G
-          * �ϥ� 2 �ӪŮ� �i���Y�ơA���ϥ� Tab�C
-          * �C�泯�z�����������ϥΤ��� `;`�C
-          * �r��@�ߨϥγ�޸� `'`�C
-      * �R�W�G
-          * �ܼƻP�禡�G�ϥ� `camelCase` (�Ҧp: `novelCount`)�C
-          * ���O�P�غc�禡�G�ϥ� `PascalCase` (�Ҧp: `NovelService`)�C
-          * �`�ơG�ϥ� `UPPER_SNAKE_CASE` (�Ҧp: `MAX_LIMIT`)�C
-      * ���ѡG
-          * ���}����ƩM���O�ݨϥ� JSDoc �榡���ѡA������γ~�B�Ѽ� (`@param`) �M��^�� (`@returns`)�C
+      * 語法：
+          * 使用 ES6+ 語法 (`let`, `const`, `class`, `arrow function`, `async/await`)。
+          * 優先使用 `const`，除非變數需要被重新賦值才用 `let`。嚴禁使用 `var`。
+          * 優先使用箭頭函式 `=>`，特別是在回呼函數中。
+          * 使用模板字面量 (`` ` ``) 進行字串拼接。
+          * 使用嚴格相等運算子 `===` / `!==`。
+      * 格式：
+          * 使用 2 個空格 進行縮排，不使用 Tab。
+          * 每行陳述式結尾必須使用分號 `;`。
+          * 字串一律使用單引號 `'`。
+      * 命名：
+          * 變數與函式：使用 `camelCase` (例如: `novelCount`)。
+          * 類別與建構函式：使用 `PascalCase` (例如: `NovelService`)。
+          * 常數：使用 `UPPER_SNAKE_CASE` (例如: `MAX_LIMIT`)。
+      * 註解：
+          * 公開的函數和類別需使用 JSDoc 格式註解，說明其用途、參數 (`@param`) 和返回值 (`@returns`)。
             ```javascript
             /
-             * �ھڤp��ID���o�p���ԲӸ�T
-             * @param {string} novelId - �p�����ߤ@ID
-             * @returns {Promise<Object>} �]�t�p�����D�M���e������
+             * 根據小說ID取得小說詳細資訊
+             * @param {string} novelId - 小說的唯一ID
+             * @returns {Promise<Object>} 包含小說標題和內容的物件
              */
             async function fetchNovelDetails(novelId) {
               // ...
             }
             ```
-      * �ҲդơG
-          * �@�ߨϥ� ES module (`import`/`export`)�C
-      * ��m�G
-          * �����M�ݪ� JavaScript ����b���������A�H�קK���׭�����V�C
-		  * �\��@�Ϊ� JavaScript ���g�b `wwwroot\js\site.js` �̡C
+      * 模組化：
+          * 一律使用 ES module (`import`/`export`)。
+      * 位置：
+          * 頁面專屬的 JavaScript 應放在頁面底部，以避免阻擋頁面渲染。
+		  * 功能共用的 JavaScript 應寫在 `wwwroot\js\site.js` 裡。
 		  
-  * jQuery (�ϥΫ��n)�G
+  * jQuery (使用指南)：
 
-      * �u���ϥΡG���²�檺 DOM �ާ@�B�ƥ�B�z�B�H�� AJAX �ШD�A���u���ϥ� jQuery �ӳB�z�C
-      * �������ʡG�p�G�����ݭn���������A�޲z�Τj�q�����V��Ƹj�w�A�~���Ҽ{�ɤJ Vue.js�C
-      * �R�W�G�x�s jQuery �����ܼơA���H `$` �Ÿ��}�Y�A�Ҧp `const $modal = $('#myModal');`�C
-      * DOM Ready�G�Ҧ��� jQuery �{���X������b `$(function() { ... });` �϶����A�T�O�b DOM �������J��~����C
-      * �즡�I�s (Chaining)�G�ɥi��ϥ��즡�I�s�ӹ�P�@��������h�Ӿާ@�A�H�W�[�{���X��²��ʩM�iŪ�ʡC
+      * 優先使用：對於簡單的 DOM 操作、事件處理、以及 AJAX 請求，應優先使用 jQuery 來處理。
+      * 複雜互動：如果頁面需要複雜的狀態管理或大量的雙向資料綁定，才應考慮導入 Vue.js。
+      * 命名：儲存 jQuery 物件的變數，應以 `$` 符號開頭，例如 `const $modal = $('#myModal');`。
+      * DOM Ready：所有的 jQuery 程式碼都應放在 `$(function() { ... });` 區塊中，確保在 DOM 完全載入後才執行。
+      * 鏈式呼叫 (Chaining)：盡可能使用鏈式呼叫來對同一元素執行多個操作，以增加程式碼的簡潔性和可讀性。
         ```javascript
-        // ����
+        // 推薦
         $('#myElement')
             .addClass('active')
             .css('color', 'red')
             .show();
         ```
-      * ��ܾ� (Selectors)�G�ɶq�ϥΨ���B���Ī���ܾ��C�u���ϥ� ID ��ܾ� (`$('#myId')`)�A�䦸�O class ��ܾ� (`$('.myClass')`)�C�קK�ϥιL��Ţ�Ϊ����ҿ�ܾ��C
+      * 選擇器 (Selectors)：盡量使用具體且高效的選擇器。優先使用 ID 選擇器 (`$('#myId')`)，其次是 class 選擇器 (`$('.myClass')`)。避免使用過於籠統的標籤選擇器。
 
-  * Vue.js (���ӾɤJ�W�d - Options API ����)
-    * �ɮ׵��c�G
-  	  * �����ɮ�����m�b `Components` ��Ƨ����A�è̥\��έ����i������C
-  	  * �C�Ӥ��������@�� `.vue` ��@�ɮפ��� (Single File Component)�C
-    * �R�W�G
-  	  * �����ɦW�G�ϥ� `PascalCase` (�Ҧp: `NovelCard.vue`)�C
-  	  * ����b�ҪO���ϥΡG�ϥ� `<kebab-case>` (�Ҧp: `<novel-card>`)�C
-    * ���󵲺c (Options API)�G
-  	  * ���T�O�{���X���@�P�ʻP�iŪ�ʡA���󤺪��ﶵ (Options) �����`�H�U��ĳ���ǡC
-  	  * ��ĳ���ǡG
-  		1.  `name`: ����W�١A���P�ɦW�O���@�P�� `PascalCase`�A���U�󰣿��C
-  		2.  `components`: ���U������ҨϥΪ��l����C
-  		3.  `props`: �w�q�q�����󱵦����ݩʡC
-  		4.  `emits`: �n��������i�H�o�X���ۭq�ƥ�A�H�Q�󷾳q�C
-  		5.  `data`: �޲z���󪺤����T�������A�A�����O�@�Ө禡 (`function`)�C
-  		6.  `computed`: �p���ݩʡA�Ω�l�ͥX�s�����A�C
-  		7.  `watch`: ��ť���A�Ω��[�����ܤƨð�������ާ@�C
-  		8.  �ͩR�g���_�l (Lifecycle Hooks)�G���Ӱ��檺���ǱƦC (�Ҧp: `created`, `mounted`, `updated`, `unmounted`)�C
-  		9.  `methods`: ��k�A��m���󪺷~���޿�禡�C
-  	  * �d�ҡG
+  * Vue.js (未來導入規範 - Options API 風格)
+    * 檔案結構：
+  	  * 元件檔案應放置在 `Components` 資料夾中，並依功能或頁面進行分類。
+  	  * 每個元件應為一個 `.vue` 單一檔案元件 (Single File Component)。
+    * 命名：
+  	  * 元件檔名：使用 `PascalCase` (例如: `NovelCard.vue`)。
+  	  * 元件在模板中使用：使用 `<kebab-case>` (例如: `<novel-card>`)。
+    * 元件結構 (Options API)：
+  	  * 為確保程式碼的一致性與可讀性，元件內的選項 (Options) 應遵循以下建議順序。
+  	  * 建議順序：
+  		1.  `name`: 元件名稱，應與檔名保持一致的 `PascalCase`，有助於除錯。
+  		2.  `components`: 註冊此元件所使用的子元件。
+  		3.  `props`: 定義從父元件接收的屬性。
+  		4.  `emits`: 聲明此元件可以發出的自訂事件，以利於溝通。
+  		5.  `data`: 管理元件的內部響應式狀態，必須是一個函式 (`function`)。
+  		6.  `computed`: 計算屬性，用於衍生出新的狀態。
+  		7.  `watch`: 監聽器，用於觀察資料變化並執行相應操作。
+  		8.  生命週期鉤子 (Lifecycle Hooks)：按照執行的順序排列 (例如: `created`, `mounted`, `updated`, `unmounted`)。
+  		9.  `methods`: 方法，放置元件的業務邏輯函式。
+  	  * 範例：
   		```javascript
   		<script>
   		import AuthorTag from './AuthorTag.vue';
@@ -191,16 +192,16 @@
   		  },
   		  computed: {
   			displayTitle() {
-  			  return `�m${this.novel.title}�n`;
+  			  return `《${this.novel.title}》`;
   			},
   		  },
   		  watch: {
   			isFavorite(newValue) {
-  			  console.log(`�p�� ${this.novel.title} �����ê��A�ܧ�: ${newValue}`);
+  			  console.log(`小說 ${this.novel.title} 的收藏狀態變更為: ${newValue}`);
   			}
   		  },
   		  mounted() {
-  			// DOM ��������檺�ާ@
+  			// DOM 掛載後執行的操作
   			console.log('NovelCard component has been mounted.');
   		  },
   		  methods: {
@@ -214,13 +215,13 @@
   		};
   		</script>
   		```
-    * �}�o��h�G
-  	  * ��V�ƾڬy�G�Y����u `props` �V�U�ǻ� (`props` down)�A�ƥ�V�W�o�X (`events` up) ����h�C�l�����������ק������ǤJ�� `props`�C
-  	  * ����¾�d�G�O�����󪺳�@¾�d�A�קK�إ߹L���e�j�B����������C
-  	  * ���A�޲z�G����h�Ӥ���@�ɪ����A�A���Ҽ{�ϥ� Pinia �����������A�޲z�u��C
+    * 開發原則：
+  	  * 單向數據流：嚴格遵守 `props` 向下傳遞 (`props` down)，事件向上發出 (`events` up) 的原則。子元件不應直接修改父元件傳入的 `props`。
+  	  * 元件職責：保持元件的單一職責，避免建立過於龐大且複雜的元件。
+  	  * 狀態管理：對於跨多個元件共享的狀態，應考慮使用 Pinia 或類似的狀態管理工具。
 
-## 7. �ۮe�ʻP�̩ۨ�
+## 7. 相容性與相依性
 
-  * .NET �����G�H .Net 8 �W�漶�g C# �{���X�C
-  * Bootstrap �����Gv4.3.1�C
-  * �~���̩ۨʡG���D���沈�n�A�_�h�קK�ޤJ�s���~���̩ۨʡC�Y���ݭn�A�����b�ζ������X�Q�רû�����]�C
+  * .NET 版本：以 .Net 8 規格撰寫 C# 程式碼。
+  * Bootstrap 版本：v4.3.1。
+  * 外部相依性：除非絕對必要，否則避免引入新的外部相依性。若有需要，必須在團隊中提出討論並說明原因。
