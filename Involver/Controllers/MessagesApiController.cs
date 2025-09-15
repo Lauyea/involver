@@ -41,7 +41,7 @@ namespace Involver.Controllers
                 .Include(m => m.Profile)
                 .Include(m => m.Agrees)
                 .Where(m => m.CommentID == commentId)
-                .OrderBy(m => m.UpdateTime)
+                .OrderBy(m => m.MessageID)
                 .ToListAsync(); // Not AsNoTracking because we need to pass entities to authorization service
 
             var userIds = messages.Select(m => m.ProfileID).Distinct().ToList();

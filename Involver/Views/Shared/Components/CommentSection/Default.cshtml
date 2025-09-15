@@ -172,26 +172,26 @@
                     <div v-else>
                         <div id="messageList">
                             <div v-for="message in messages" :key="message.messageID" class="media border p-3 shadow-sm rounded mb-3">
-                                <a :href="'/Identity/Profile/Index/' + message.profileId">
+                                <a :href="'/Identity/Profile?id=' + message.profileID">
                                     <img v-if="message.profile.imageUrl" :src="message.profile.imageUrl" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
                                     <img v-else :src="'https://www.gravatar.com/avatar/' + message.profile.emailMd5 + '?d=retro'" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
                                 </a>
                                 <div class="media-body">
                                     <b>
-                                        <a :href="'/Identity/Profile/Index/' + message.profileId">{{ message.profile.userName }}</a>
+                                        <a :href="'/Identity/Profile?id=' + message.profileID">{{ message.profile.userName }}</a> &nbsp;
                                         <small :title="message.updateTime">{{ message.updateTimeRelative }}</small>
                                     </b>
                                     <div v-if="!message.isEditing">
                                         <div class="ck-content" v-html="message.content.replace(/\r\n/g, '<br />')"></div>
                                         <p class="mt-2">
-                                            <button type="button" class="btn btn-light btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
+                                            <button type="button" class="btn btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
                                                 <i class="far fa-thumbs-up"></i>
                                                 <span class="agree-count">{{ message.agrees.length }}</span>
                                             </button>
-                                            <button v-if="message.canUpdate" type="button" class="btn btn-light btn-sm" @@click="toggleMessageEdit(message)">
+                                            <button v-if="message.canUpdate" type="button" class="btn btn-sm" @@click="toggleMessageEdit(message)">
                                                 <i class="far fa-edit"></i>
                                             </button>
-                                            <button v-if="message.canDelete" type="button" class="btn btn-light btn-sm text-danger" @@click="deleteMessage(message)">
+                                            <button v-if="message.canDelete" type="button" class="btn btn-sm text-danger" @@click="deleteMessage(message)">
                                                 <i class="far fa-trash-alt"></i>
                                             </button>
                                         </p>
@@ -201,7 +201,7 @@
                                             <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
                                         </div>
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary btn-sm" @@click="saveMessageEdit(message)">儲存</button>
+                                            <button type="button" class="btn btn-primary btn-sm" @@click="saveMessageEdit(message)">儲存</button> &nbsp;
                                             <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
                                         </div>
                                     </div>
