@@ -1,4 +1,4 @@
-﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
 /* Card styles
@@ -309,4 +309,28 @@ body {
     }
 }
 /* Comment animations
+-------------------------------------------------- */
+
+/* Comment editor style
+-------------------------------------------------- */
+/* 讓 .media 的主內容區可以縮，不會被內容撐住 */
+.comment-section .media .media-body {
+    min-width: 0;
+    flex: 1 1 0; /* 確保可縮可長 */
+}
+
+.editor-wrap {
+    width: 100%;
+    min-width: 0; /* 關鍵：允許內部內容縮小 */
+}
+
+/* 讓 CKEditor 本體與內容不超出容器 */
+.media .media-body .ck-editor,
+.media .media-body .ck-editor__main,
+.media .media-body .ck-content {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+/* Comment editor style
 -------------------------------------------------- */

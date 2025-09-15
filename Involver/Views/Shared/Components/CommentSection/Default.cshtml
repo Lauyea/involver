@@ -1,24 +1,3 @@
-<style>
-    /* 讓 .media 的主內容區可以縮，不會被內容撐住 */
-    .media .media-body { 
-        min-width: 0; 
-        flex: 1 1 0; /* 確保可縮可長 */
-    }
-
-    .editor-wrap {
-        width: 100%;
-        min-width: 0; /* 關鍵：允許內部內容縮小 */
-    }
-
-    /* 讓 CKEditor 本體與內容不超出容器 */
-    .media .media-body .ck-editor,
-    .media .media-body .ck-editor__main,
-    .media .media-body .ck-content {
-        width: 100%;
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-</style>
 @model Involver.Views.Shared.Components.CommentSection.CommentSectionViewModel
 
 <div id="comment-app" 
@@ -46,7 +25,7 @@
 
     <div v-else>
         <!-- Comments List -->
-        <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID">
+        <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID" class="comment-section">
             <!-- Blocked Comment View -->
             <div v-if="comment.isBlocked" class="border p-3 rounded shadow-sm my-3">
                 本評論已被封鎖。
