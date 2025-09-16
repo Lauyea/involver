@@ -15,6 +15,7 @@ using Involver.Extensions;
 
 namespace Involver.Controllers
 {
+    [AllowAnonymous]
     [Route("api/comments")]
     [ApiController]
     public class CommentsApiController : ControllerBase
@@ -486,11 +487,11 @@ namespace Involver.Controllers
         // API Endpoints will be implemented here
         private string GetCommentSource(Comment comment)
         {
-            if (comment.ArticleID != null) return "Articles";
-            if (comment.NovelID != null) return "Novels";
-            if (comment.EpisodeID != null) return "Episodes";
-            if (comment.AnnouncementID != null) return "Announcements";
-            if (comment.FeedbackID != null) return "Feedbacks";
+            if (comment.ArticleID != null) return Parameters.Articles;
+            if (comment.NovelID != null) return Parameters.Novels;
+            if (comment.EpisodeID != null) return Parameters.Episodes;
+            if (comment.AnnouncementID != null) return Parameters.Announcements;
+            if (comment.FeedbackID != null) return Parameters.Feedbacks;
             return string.Empty;
         }
 

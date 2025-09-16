@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers
 {
+    [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
     public class MessagesApiController : ControllerBase
