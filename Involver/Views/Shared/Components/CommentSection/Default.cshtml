@@ -24,15 +24,26 @@
     </div>
 
     <div v-else>
-        <!-- Comments List -->
+        <!-- Comment Loop -->
         <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID" class="comment-section">
-            <!-- Blocked Comment View -->
-            <div v-if="comment.isBlocked" class="border p-3 rounded shadow-sm my-3">
-                本評論已被封鎖。
-                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="btn btn-sm btn-warning ml-2">解除封鎖</button>
+            
+            <!-- Blocked Comment Header (only shown if blocked) -->
+            <div v-if="comment.isBlocked" class="p-2 border rounded-top">
+                <span class="text-muted small">
+                    <i class="fas fa-eye-slash"></i> 本評論已被封鎖。
+                </span>
+                <button @@click="comment.isBlockedContentVisible = !comment.isBlockedContentVisible" class="btn btn-sm btn-outline-secondary ml-2 py-0 px-1">
+                    {{ comment.isBlockedContentVisible ? '隱藏' : '顯示' }}
+                </button>
+                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="btn btn-sm btn-warning ml-2 py-0 px-1">
+                    解除封鎖
+                </button>
             </div>
-            <!-- Normal Comment View -->
-            <div v-else class="media border p-3 rounded shadow-sm my-3">
+
+            <!-- The Actual Comment Body -->
+            <div v-show="!comment.isBlocked || comment.isBlockedContentVisible"
+                 class="media border p-3 rounded shadow-sm"
+                 :class="{ 'border-warning': comment.isBlocked, 'mt-0 rounded-top-0': comment.isBlocked, 'my-3': !comment.isBlocked }">
                 <a :href="'/Identity/Profile?id=' + comment.profileID">
                     <!-- Responsive Avatar -->
                     <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle d-none d-sm-block" style="width:60px;">

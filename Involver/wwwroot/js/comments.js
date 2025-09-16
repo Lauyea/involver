@@ -122,7 +122,7 @@ const app = createApp({
                 };
 
                 const data = await response.json();
-                this.comments = data.map(c => ({ ...c, isEditing: false }));
+                this.comments = data.map(c => ({ ...c, isEditing: false, isBlockedContentVisible: false }));
             } catch (error) {
                 console.error(error);
             } finally {
