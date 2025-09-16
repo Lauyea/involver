@@ -34,7 +34,9 @@
             <!-- Normal Comment View -->
             <div v-else class="media border p-3 rounded shadow-sm my-3">
                 <a :href="'/Identity/Profile?id=' + comment.profileID">
-                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                    <!-- Responsive Avatar -->
+                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle d-none d-sm-block" style="width:60px;">
+                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-2 mt-3 rounded-circle d-block d-sm-none" style="width:50px;">
                 </a>
                 <div class="media-body">
                     <b>
@@ -42,7 +44,7 @@
                         <a :href="'#comment-' + comment.commentID"><small :title="comment.fullUpdateTime">{{ comment.updateTime }}</small></a>
                     </b>
                     <!-- Involver Info -->
-                    <p v-if="comment.involverInfo"><small>{{ comment.involverInfo }}</small></p>
+                    <p v-if="comment.involverInfo" class="small text-muted mb-2"><small>{{ comment.involverInfo }}</small></p>
                     
                     <!-- Content -->
                     <div v-if="!comment.isEditing" class="ck-content mt-2" v-html="comment.content"></div>
@@ -60,7 +62,7 @@
                     </div>
 
                     <!-- Dices -->
-                    <div class="pt-3 pb-3">
+                    <div class="pt-3 pb-3" v-if="comment.dices && comment.dices.length > 0">
                         <template v-for="dice in comment.dices">
                             <i class="fas fa-dice-d20"></i> &nbsp;
                             <template v-if="dice.sides !== 0 && dice.value !== 0">
@@ -70,19 +72,19 @@
                     </div>
 
                     <!-- Control Menu -->
-                    <div id="control-menu">
+                    <div id="control-menu" class="d-flex flex-wrap align-items-center mt-2">
                         <!-- Messages Button -->
-                        <a href="#" title="留言" @@click.prevent="openMessageModal(comment)">
+                        <a href="#" title="留言" @@click.prevent="openMessageModal(comment)" class="text-secondary mr-3">
                             <i class="far fa-comments"></i> 留言 ({{ comment.messagesCount }})
                         </a>
                         <!-- Agree Button -->
-                        <button @@click="toggleAgree(comment)" class="btn" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
+                        <button @@click="toggleAgree(comment)" class="btn btn-sm" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
                             <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
                         </button>
                         <!-- Dropdown Menu -->
-                        <div class="dropdown d-inline-flex">
-                            <button type="button" class="btn btn-link text-dark" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
-                            <div class="dropdown-menu">
+                        <div class="dropdown d-inline-flex ml-auto">
+                            <button type="button" class="btn btn-link text-secondary" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="dropdown-menu dropdown-menu-right">
                                 <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleEdit(comment)" class="dropdown-item">
                                     <i class="far fa-edit"></i> {{ comment.isEditing ? '取消' : '編輯' }}
                                 </button>
