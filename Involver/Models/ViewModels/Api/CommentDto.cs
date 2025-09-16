@@ -12,7 +12,7 @@ namespace Involver.Models.ViewModels.Api
         public string UserImageUrl { get; set; }
         public string InvolverInfo { get; set; }
         public List<object> Dices { get; set; }
-        public List<object> Messages { get; set; }
+        public int MessagesCount { get; set; }
         public int AgreesCount { get; set; }
         public bool IsAgreedByCurrentUser { get; set; }
         public bool CanEdit { get; set; }

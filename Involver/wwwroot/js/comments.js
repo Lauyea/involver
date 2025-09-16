@@ -234,7 +234,7 @@ const app = createApp({
                 this.messages.push({ ...createdMessage, isEditing: false, editableContent: '' });
                 this.newMessageContent = '';
                 // Update the count on the comment object
-                this.currentCommentForMessages.messages.length++;
+                this.currentCommentForMessages.messagesCount++;
             } catch (error) {
                 console.error(error);
                 alert('無法新增訊息');
@@ -285,14 +285,14 @@ const app = createApp({
 
             // Optimistic update
             this.messages.splice(messageIndex, 1);
-            this.currentCommentForMessages.messages.length--;
+            this.currentCommentForMessages.messagesCount--;
 
             try {
                 const response = await fetch(`/api/MessagesApi/${message.messageID}`, { method: 'DELETE' });
                 if (response.status === 401 || response.status === 403) {
                     alert('您沒有權限刪除此訊息');
                     this.messages.splice(messageIndex, 0, message); // Re-add the message
-                    this.currentCommentForMessages.messages.length++;
+                    this.currentCommentForMessages.messagesCount++;
                     return;
                 }
                 if (!response.ok) throw new Error('Failed to delete message');
@@ -300,7 +300,7 @@ const app = createApp({
                 console.error(error);
                 alert('刪除失敗，請重試');
                 this.messages.splice(messageIndex, 0, message); // Re-add the message
-                this.currentCommentForMessages.messages.length++;
+                this.currentCommentForMessages.messagesCount++;
             }
         },
         /**

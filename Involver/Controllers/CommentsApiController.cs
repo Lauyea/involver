@@ -43,9 +43,7 @@ namespace Involver.Controllers
             IQueryable<Comment> commentsQuery = _context.Comments
                 .Include(c => c.Profile)
                 .Include(c => c.Agrees)
-                .Include(c => c.Dices)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(Parameters.MessagePageSize))
-                    .ThenInclude(m => m.Profile);
+                .Include(c => c.Dices);
 
             bool isCommentOrderFixed = false;
 
@@ -104,6 +102,13 @@ namespace Involver.Controllers
 
             var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery.AsNoTracking(), page, DataAccess.Common.Parameters.CommetPageSize);
 
+            var commentIds = paginatedComments.Select(c => c.CommentID).ToList();
+            var messageCounts = await _context.Messages
+                .Where(m => commentIds.Contains(m.CommentID))
+                .GroupBy(m => m.CommentID)
+                .Select(g => new { CommentId = g.Key, Count = g.Count() })
+                .ToDictionaryAsync(x => x.CommentId, x => x.Count);
+
             var currentUserID = _userManager.GetUserId(User);
 
             var commentDtos = new List<CommentDto>();
@@ -144,7 +149,7 @@ namespace Involver.Controllers
                         : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
                     InvolverInfo = involverInfoString,
                     Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
-                    Messages = comment.Messages?.Select(m => new { m.Profile.UserName, m.Content }).ToList<object>() ?? new List<object>(),
+                    MessagesCount = messageCounts.TryGetValue(comment.CommentID, out var count) ? count : 0,
                     AgreesCount = comment.Agrees.Count,
                     IsAgreedByCurrentUser = currentUserID != null && comment.Agrees.Any(a => a.ProfileID == currentUserID),
                     CanEdit = canEdit,
@@ -303,7 +308,7 @@ namespace Involver.Controllers
                     : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
                 InvolverInfo = null, // To be implemented
                 Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
-                Messages = new List<object>(), // New comment has no messages
+                MessagesCount = 0, // New comment has no messages
                 AgreesCount = 0,
                 IsAgreedByCurrentUser = false,
                 CanEdit = true, // User can always edit their own new comment
