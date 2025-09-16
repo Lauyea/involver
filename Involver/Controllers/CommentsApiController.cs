@@ -181,7 +181,7 @@ namespace Involver.Controllers
 
             if (user == null)
             {
-                return Challenge();
+                return Unauthorized();
             }
             if (user.Banned)
             {
