@@ -154,6 +154,10 @@ const app = createApp({
                         diceSides: (this.newCommentDice && this.newCommentDice.diceSides) || 0
                     })
                 });
+                if (response.status === 401) {
+                    alert('請先登入才能發表評論。');
+                    return;
+                }
                 if (!response.ok) throw new Error('Failed to add comment');
 
                 const data = await response.json();
@@ -371,6 +375,10 @@ const app = createApp({
 
             try {
                 const response = await fetch(`/api/comments/${comment.commentID}/agree`, { method: 'POST' });
+                if (response.status === 401) {
+                    alert('請先登入才能按讚。');
+                    throw new Error('Unauthorized');
+                }
                 if (!response.ok) throw new Error('Failed to toggle agree');
                 const data = await response.json();
                 comment.agreesCount = data.agreesCount;
@@ -386,6 +394,10 @@ const app = createApp({
             this.comments = this.comments.filter(c => c.commentID !== comment.commentID);
             try {
                 const response = await fetch(`/api/comments/${comment.commentID}`, { method: 'DELETE' });
+                if (response.status === 401) {
+                    alert('請先登入才能刪除評論。');
+                    throw new Error('Unauthorized');
+                }
                 if (!response.ok) throw new Error('Failed to delete comment');
             } catch (error) {
                 console.error(error);
@@ -397,6 +409,10 @@ const app = createApp({
             comment.isBlocked = !comment.isBlocked;
             try {
                 const response = await fetch(`/api/comments/${comment.commentID}/block`, { method: 'POST' });
+                if (response.status === 401 || response.status === 403) {
+                    alert('您沒有權限執行此操作。');
+                    throw new Error('Unauthorized');
+                }
                 if (!response.ok) throw new Error('Failed to toggle block');
                 const data = await response.json();
                 comment.isBlocked = data.isBlocked;
@@ -454,6 +470,10 @@ const app = createApp({
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: newContent })
                 });
+                if (response.status === 401) {
+                    alert('請先登入才能編輯評論。');
+                    throw new Error('Unauthorized');
+                }
                 if (!response.ok) throw new Error('Failed to save comment');
             } catch (error) {
                 console.error(error);
