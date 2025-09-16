@@ -39,7 +39,7 @@
                 <div class="media-body">
                     <b>
                         <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
-                        <a :href="'#comment-' + comment.commentID"><small :title="comment.updateTime">{{ comment.updateTime }}</small></a>
+                        <a :href="'#comment-' + comment.commentID"><small :title="comment.fullUpdateTime">{{ comment.updateTime }}</small></a>
                     </b>
                     <!-- Involver Info -->
                     <p v-if="comment.involverInfo"><small>{{ comment.involverInfo }}</small></p>
@@ -76,8 +76,8 @@
                             <i class="far fa-comments"></i> 留言 ({{ comment.messagesCount }})
                         </a>
                         <!-- Agree Button -->
-                        <button @@click="toggleAgree(comment)" class="btn">
-                            <i class="far fa-thumbs-up"></i> <span>{{ comment.agreesCount }}</span>
+                        <button @@click="toggleAgree(comment)" class="btn" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
+                            <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
                         </button>
                         <!-- Dropdown Menu -->
                         <div class="dropdown d-inline-flex">
@@ -125,28 +125,43 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="comment-editor">評論內容</label>
                         <textarea id="comment-editor"></textarea>
-                        <div id="comment-word-count" class="d-flex justify-content-start"></div>
+                        <div id="comment-word-count" class="d-flex justify-content-end text-muted small mt-1"></div>
                     </div>
-                    <div class="alert alert-warning" role="alert">
-                        <p><strong>可以直接在內容中使用Dice指令擲骰，ex. Dice05D10。最大99D99。</strong></p>
-                        <p v-if="from.toLowerCase() === 'episode'"><strong>或是選擇用下個方式擲骰</strong></p>
+
+                    <hr />
+
+                    <h5><i class="fas fa-dice"></i> 擲骰選項</h5>
+                    <p class="text-muted small">您可以透過文字指令或下方的介面進行擲骰。</p>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-keyboard"></i> 文字指令</h6>
+                                    <p class="small text-muted">在內容中輸入 <code>Dice(次數)D(面數)</code>，例如 <code>Dice5D10</code>。最大為 99D99。</p>
+                                </div>
+                                <div class="col-md-6" v-if="from.toLowerCase() === 'episode'">
+                                    <h6><i class="fas fa-mouse-pointer"></i> 介面擲骰</h6>
+                                    <div class="form-row align-items-center">
+                                        <div class="col-auto">
+                                            <label class="sr-only" for="rollTimes">次數</label>
+                                            <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control mb-2" id="rollTimes" placeholder="次數 (0-12)" min="0" max="12" title="最多12次">
+                                        </div>
+                                        <div class="col-auto">
+                                            <label class="sr-only" for="diceSides">面數</label>
+                                            <input type="number" v-model.number="newCommentDice.diceSides" class="form-control mb-2" id="diceSides" placeholder="面數 (0-999)" min="0" max="999" title="最多999面">
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted">在內容中使用 <code>DiceTotal</code> 來顯示擲骰總和。</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div v-if="from.toLowerCase() === 'episode'">
-                        <div class="form-group">
-                            擲
-                            <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control d-inline w-auto" title="最多12次" min="0" max="12">
-                            次
-                            <input type="number" v-model.number="newCommentDice.diceSides" class="form-control d-inline w-auto" title="最多999面" min="0" max="999">
-                            面骰
-                        </div>
-                        <div class="alert alert-warning" role="alert">
-                            <p><strong>此種方式骰子最多999面，擲骰最多12次，其一為0則不擲骰子</strong></p>
-                            <p><strong>內容可以用 DiceTotal 指令呈現加總後的骰子數值</strong></p>
-                        </div>
-                        <div class="alert alert-danger" role="alert">
-                            <p><strong>有擲骰的評論無法編輯</strong></p>
-                        </div>
+                    
+                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episode'">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>注意：</strong> 任何包含擲骰的評論送出後將無法編輯。
                     </div>
                 </div>
                 <div class="modal-footer">

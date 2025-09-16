@@ -142,6 +142,7 @@ namespace Involver.Controllers
                     CommentID = comment.CommentID,
                     Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
                     UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
+                    FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                     ProfileID = comment.ProfileID,
                     UserName = comment.Profile.UserName,
                     UserImageUrl = !string.IsNullOrEmpty(comment.Profile.ImageUrl)
@@ -301,6 +302,7 @@ namespace Involver.Controllers
                 CommentID = comment.CommentID,
                 Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
                 UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
+                FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                 ProfileID = comment.ProfileID,
                 UserName = commenterProfile.UserName,
                 UserImageUrl = !string.IsNullOrEmpty(commenterProfile.ImageUrl)
