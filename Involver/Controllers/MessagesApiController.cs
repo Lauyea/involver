@@ -59,7 +59,7 @@ namespace Involver.Controllers
                 {
                     message.MessageID,
                     message.ProfileID,
-                    message.Content,
+                    Content = CustomHtmlSanitizer.SanitizeHtml(message.Content),
                     message.UpdateTime,
                     UpdateTimeRelative = TimePeriodHelper.Get(message.UpdateTime),
                     Profile = new
@@ -353,7 +353,7 @@ namespace Involver.Controllers
             {
                 message.MessageID,
                 message.ProfileID,
-                message.Content,
+                Content = CustomHtmlSanitizer.SanitizeHtml(message.Content),
                 message.UpdateTime,
                 UpdateTimeRelative = TimePeriodHelper.Get(message.UpdateTime),
                 Profile = new

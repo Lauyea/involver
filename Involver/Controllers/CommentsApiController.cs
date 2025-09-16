@@ -140,7 +140,7 @@ namespace Involver.Controllers
                 commentDtos.Add(new CommentDto
                 {
                     CommentID = comment.CommentID,
-                    Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
+                    Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\r\n", "<br />")),
                     UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
                     FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                     ProfileID = comment.ProfileID,
@@ -300,7 +300,7 @@ namespace Involver.Controllers
             var newCommentDto = new CommentDto
             {
                 CommentID = comment.CommentID,
-                Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content),
+                Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\r\n", "<br />")),
                 UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
                 FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                 ProfileID = comment.ProfileID,

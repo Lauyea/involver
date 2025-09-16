@@ -199,7 +199,7 @@
                                         <small :title="message.updateTime">{{ message.updateTimeRelative }}</small>
                                     </b>
                                     <div v-if="!message.isEditing">
-                                        <div class="ck-content" v-html="message.content.replace(/\r\n/g, '<br />')"></div>
+                                        <div v-text="message.content" style="white-space: pre-wrap;"></div>
                                         <p class="mt-2">
                                             <button type="button" class="btn btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
                                                 <i class="far fa-thumbs-up"></i>
