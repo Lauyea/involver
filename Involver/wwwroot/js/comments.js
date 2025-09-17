@@ -161,6 +161,12 @@ const app = createApp({
                 if (!response.ok) throw new Error('Failed to add comment');
 
                 const data = await response.json();
+
+                // Show toasts
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
+
                 // Use the new total pages from the API response
                 await this.fetchComments(data.newTotalPages || 1);
 
@@ -486,7 +492,43 @@ const app = createApp({
         },
         changeSort() {
             this.fetchComments(1);
-        }
+        },
+        showToasts(toasts) {
+            const toastContainer = document.getElementById('toast-container');
+            if (!toastContainer) return;
+
+            toasts.forEach(toast => {
+                let badgeClass = '';
+                switch (toast.award) {
+                    case 1: badgeClass = 'bronze'; break;
+                    case 2: badgeClass = 'silver'; break;
+                    case 3: badgeClass = 'gold'; break;
+                }
+
+                const toastId = `toast-${Date.now()}-${Math.random()}`;
+                const toastHtml = `
+                    <div id="${toastId}" class="toast" data-autohide="false">
+                        <div class="toast-header">
+                            ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
+                            <strong class="mr-auto">${toast.header}</strong>
+                            <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="toast-body">
+                            ${toast.body}
+                        </div>
+                    </div>
+                `;
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                const toastElement = document.getElementById(toastId);
+                $(toastElement).toast('show');
+                // Remove the element from the DOM after it has been hidden
+                $(toastElement).on('hidden.bs.toast', function () {
+                    $(this).remove();
+                });
+            });
+        },
     }
 });
 

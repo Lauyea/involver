@@ -50,7 +50,7 @@ namespace Involver.Controllers
 
             switch (from.ToLower())
             {
-                case "article":
+                case "articles":
                     var article = await _context.Articles.FindAsync(fromID);
                     if (article != null)
                     {
@@ -58,7 +58,7 @@ namespace Involver.Controllers
                     }
                     commentsQuery = commentsQuery.Where(c => c.ArticleID == fromID);
                     break;
-                case "novel":
+                case "novels":
                     var novel = await _context.Novels.FindAsync(fromID);
                     if (novel != null)
                     {
@@ -68,7 +68,7 @@ namespace Involver.Controllers
                         .Include(c => c.Novel.Involvers)
                         .Where(c => c.NovelID == fromID);
                     break;
-                case "episode":
+                case "episodes":
                     var episode = await _context.Episodes.FindAsync(fromID);
                     if (episode != null)
                     {
@@ -203,13 +203,13 @@ namespace Involver.Controllers
 
             switch (createDto.From.ToLower())
             {
-                case "article":
+                case "articles":
                     comment.ArticleID = createDto.FromID;
                     break;
-                case "novel":
+                case "novels":
                     comment.NovelID = createDto.FromID;
                     break;
-                case "episode":
+                case "episodes":
                     comment.EpisodeID = createDto.FromID;
                     break;
                 default:
@@ -245,6 +245,18 @@ namespace Involver.Controllers
             int textDiceCount = Involver.Helpers.DiceHelper.ReplaceRollDiceString(ref contentWithDiceRolls);
             comment.Content = contentWithDiceRolls;
 
+            // 檢查並移除使用者自行輸入的骰子資訊標籤
+            string textToSanitize = comment.Content;
+
+            // 支援 class="dice-roll-info" 或 class='dice-roll-info'，
+            // 並允許有其他屬性
+            var diceRollInfoTagPattern = new System.Text.RegularExpressions.Regex(
+                @"<p[^>]*class\s*=\s*(""dice-roll-info""|'dice-roll-info')[^>]*>.*?<\/p>",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Singleline);
+
+            comment.Content = diceRollInfoTagPattern.Replace(textToSanitize, "");
+
+
             if (textDiceCount > 0)
             {
                 hasDices = true;
@@ -254,7 +266,7 @@ namespace Involver.Controllers
                     comment.Dices.Add(new Dice { Sides = 0, Value = 0 });
                 }
 
-                comment.Content += ($"<p>qr@ΤF {textDiceCount} rYOC</p>");
+                comment.Content += $"<p class='dice-roll-info' data-dicecount='{textDiceCount}'>🎲 此評論有擲骰 {textDiceCount} 次</p>";
             }
 
             _context.Comments.Add(comment);
@@ -273,24 +285,29 @@ namespace Involver.Controllers
 
             await _context.SaveChangesAsync();
 
-            // Achievement check
-            await Involver.Helpers.AchievementHelper.CommentCountAsync(_context, user.Id);
+            //Set notification
+            var url = $"{Request.Scheme}://{Request.Host}/{createDto.From}/Details/?id={createDto.FromID}#comment-{comment.CommentID}";
+            await _notificationSetter.ForCommentAsync(createDto.From, createDto.FromID, url, user.Id, comment.Content);
+
+            // Achievement check and get achievement toasts
+            var toasts = await Involver.Helpers.AchievementHelper.CommentCountAsync(_context, user.Id);
             if (hasDices)
             {
-                await Involver.Helpers.AchievementHelper.RollDicesAsync(_context, user.Id);
+                var diceToasts = await Involver.Helpers.AchievementHelper.RollDicesAsync(_context, user.Id);
+                toasts.AddRange(diceToasts);
             }
 
             // Calculate the new total pages
             IQueryable<Comment> commentsQuery = _context.Comments;
             switch (createDto.From.ToLower())
             {
-                case "article":
+                case "articles":
                     commentsQuery = commentsQuery.Where(c => c.ArticleID == createDto.FromID);
                     break;
-                case "novel":
+                case "novels":
                     commentsQuery = commentsQuery.Where(c => c.NovelID == createDto.FromID);
                     break;
-                case "episode":
+                case "episodes":
                     commentsQuery = commentsQuery.Where(c => c.EpisodeID == createDto.FromID);
                     break;
             }
@@ -301,7 +318,7 @@ namespace Involver.Controllers
             var newCommentDto = new CommentDto
             {
                 CommentID = comment.CommentID,
-                Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\r\n", "<br />")),
+                Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\n", "<br />")),
                 UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
                 FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                 ProfileID = comment.ProfileID,
@@ -323,7 +340,8 @@ namespace Involver.Controllers
             var response = new
             {
                 Comment = newCommentDto,
-                NewTotalPages = newTotalPages
+                NewTotalPages = newTotalPages,
+                Toasts = toasts
             };
 
             return CreatedAtAction(nameof(GetCommentsAsync), new { from = createDto.From, fromID = createDto.FromID }, response);
@@ -446,7 +464,7 @@ namespace Involver.Controllers
                         // Set notification
                         var from = GetCommentSource(comment);
                         var fromId = GetCommentSourceId(comment);
-                        var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#{comment.CommentID}";
+                        var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#comment-{comment.CommentID}";
                         await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, ownerProfile.ProfileID, url, toasts);
                     }
                 }

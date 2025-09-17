@@ -334,3 +334,17 @@ body {
 }
 /* Comment editor style
 -------------------------------------------------- */
+
+/* Dice string style
+-------------------------------------------------- */
+.dice-roll-info {
+    color: #444;
+    font-weight: bold;
+    background: #f9f9f9;
+    border-left: 4px solid #888;
+    padding: 4px 8px;
+    margin-top: 8px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    max-width:fit-content;
+}
