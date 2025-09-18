@@ -480,6 +480,10 @@ const app = createApp({
                     alert('請先登入才能編輯評論。');
                     throw new Error('Unauthorized');
                 }
+                if (response.status === 403) {
+                    alert('編輯失敗。');
+                    throw new Error('Forbid');
+                }
                 if (!response.ok) throw new Error('Failed to save comment');
 
                 const data = await response.json();
