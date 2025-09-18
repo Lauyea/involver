@@ -500,9 +500,9 @@ const app = createApp({
             toasts.forEach(toast => {
                 let badgeClass = '';
                 switch (toast.award) {
-                    case 1: badgeClass = 'bronze'; break;
-                    case 2: badgeClass = 'silver'; break;
-                    case 3: badgeClass = 'gold'; break;
+                    case 10: badgeClass = 'bronze'; break; // 設定於 DataAccess\Common\Parameters.cs 的 `BronzeBadgeAward`
+                    case 30: badgeClass = 'silver'; break;
+                    default: badgeClass = 'gold'; break;
                 }
 
                 const toastId = `toast-${Date.now()}-${Math.random()}`;
