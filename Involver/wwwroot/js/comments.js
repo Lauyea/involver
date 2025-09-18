@@ -481,6 +481,13 @@ const app = createApp({
                     throw new Error('Unauthorized');
                 }
                 if (!response.ok) throw new Error('Failed to save comment');
+
+                const data = await response.json();
+
+                // Show toasts for achievements
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
             } catch (error) {
                 console.error(error);
                 comment.content = originalContent;

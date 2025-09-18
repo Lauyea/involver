@@ -358,7 +358,7 @@ namespace Involver.Controllers
             }
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Update);
-            if (!isAuthorized.Succeeded)
+            if (!isAuthorized.Succeeded || comment.Block)
             {
                 return Forbid();
             }
@@ -384,7 +384,9 @@ namespace Involver.Controllers
                 }
             }
 
-            return NoContent();
+            var toasts = await AchievementHelper.FirstTimeEditAsync(_context, comment.ProfileID);
+
+            return Ok(new { Toasts = toasts });
         }
 
         [HttpDelete("{id}")]
