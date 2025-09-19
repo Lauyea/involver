@@ -35,7 +35,7 @@
                 <button @@click="comment.isBlockedContentVisible = !comment.isBlockedContentVisible" class="btn btn-sm btn-outline-secondary ml-2 py-0 px-1">
                     {{ comment.isBlockedContentVisible ? '隱藏' : '顯示' }}
                 </button>
-                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="btn btn-sm btn-warning ml-2 py-0 px-1">
+                <button v-if="comment.canBlock" @@click="updateCommentBlockAsync(comment)" class="btn btn-sm btn-warning ml-2 py-0 px-1">
                     解除封鎖
                 </button>
             </div>
@@ -65,8 +65,8 @@
                         <div class="editor-wrap">
                             <textarea :id="'editor-' + comment.commentID"></textarea>
                             <div class="d-flex mb-3">
-                                <button @@click="submitEdit(comment)" class="btn btn-primary mt-2">儲存</button> &nbsp;
-                                <button @@click="toggleEdit(comment)" class="btn btn-secondary mt-2">取消</button>
+                                <button @@click="updateCommentFromInlineEditorAsync(comment)" class="btn btn-primary mt-2">儲存</button> &nbsp;
+                                <button @@click="toggleCommentEdit(comment)" class="btn btn-secondary mt-2">取消</button>
                                 <div :id="'word-count-' + comment.commentID" class="ml-auto p-2"></div>
                             </div>
                         </div>
@@ -85,24 +85,24 @@
                     <!-- Control Menu -->
                     <div id="control-menu" class="d-flex flex-wrap align-items-center mt-2">
                         <!-- Messages Button -->
-                        <a href="#" title="留言" @@click.prevent="openMessageModal(comment)" class="text-secondary mr-3">
+                        <a href="#" title="留言" @@click.prevent="getMessagesAsync(comment)" class="text-secondary mr-3">
                             <i class="far fa-comments"></i> 留言 ({{ comment.messagesCount }})
                         </a>
                         <!-- Agree Button -->
-                        <button @@click="toggleAgree(comment)" class="btn btn-sm" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
+                        <button @@click="updateCommentAgreeAsync(comment)" class="btn btn-sm" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
                             <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
                         </button>
                         <!-- Dropdown Menu -->
                         <div class="dropdown d-inline-flex ml-auto">
                             <button type="button" class="btn btn-link text-secondary" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleEdit(comment)" class="dropdown-item">
+                                <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleCommentEdit(comment)" class="dropdown-item">
                                     <i class="far fa-edit"></i> {{ comment.isEditing ? '取消' : '編輯' }}
                                 </button>
-                                <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="dropdown-item">
+                                <button v-if="comment.canDelete" @@click="deleteCommentAsync(comment)" class="dropdown-item">
                                     <i class="far fa-trash-alt"></i> 刪除
                                 </button>
-                                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="dropdown-item">
+                                <button v-if="comment.canBlock" @@click="updateCommentBlockAsync(comment)" class="dropdown-item">
                                     <i class="fas fa-lock"></i> {{ comment.isBlocked ? '解除封鎖' : '封鎖' }}
                                 </button>
                             </div>
@@ -179,7 +179,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
-                    <button type="button" class="btn btn-primary" @@click="submitComment">送出</button>
+                    <button type="button" class="btn btn-primary" @@click="createCommentFromModalAsync()">送出</button>
                 </div>
             </div>
         </div>
@@ -212,14 +212,14 @@
                                     <div v-if="!message.isEditing">
                                         <div v-text="message.content" style="white-space: pre-wrap;"></div>
                                         <p class="mt-2">
-                                            <button type="button" class="btn btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
+                                            <button type="button" class="btn btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="updateMessageAgreeAsync(message)">
                                                 <i class="far fa-thumbs-up"></i>
                                                 <span class="agree-count">{{ message.agrees.length }}</span>
                                             </button>
                                             <button v-if="message.canUpdate" type="button" class="btn btn-sm" @@click="toggleMessageEdit(message)">
                                                 <i class="far fa-edit"></i>
                                             </button>
-                                            <button v-if="message.canDelete" type="button" class="btn btn-sm text-danger" @@click="deleteMessage(message)">
+                                            <button v-if="message.canDelete" type="button" class="btn btn-sm text-danger" @@click="deleteMessageAsync(message)">
                                                 <i class="far fa-trash-alt"></i>
                                             </button>
                                         </p>
@@ -229,7 +229,7 @@
                                             <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
                                         </div>
                                         <div class="form-group">
-                                            <button type="button" class="btn btn-primary btn-sm" @@click="saveMessageEdit(message)">儲存</button> &nbsp;
+                                            <button type="button" class="btn btn-primary btn-sm" @@click="updateMessageAsync(message)">儲存</button> &nbsp;
                                             <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
                                         </div>
                                     </div>
@@ -237,7 +237,7 @@
                             </div>
                         </div>
                         <hr />
-                        <form @@submit.prevent="submitNewMessage">
+                        <form @@submit.prevent="createNewMessageAsync">
                             <div class="form-group">
                                 <label for="messageContent" class="control-label">新增留言</label>
                                 <textarea v-model="newMessageContent" class="form-control" rows="3"></textarea>

@@ -57,7 +57,7 @@ const app = createApp({
         if (this.isOrderFixed) {
             this.sortBy = 'oldest';
         }
-        this.fetchComments(1);
+        this.getCommentsAsync(1);
 
         $('#commentModal').on('shown.bs.modal', () => {
             if (!this.mainEditor) {
@@ -80,6 +80,10 @@ const app = createApp({
         });
     },
     methods: {
+        /**
+         * Initializes the correct CKEditor configuration.
+         * @returns {Object} CKEditor configuration object.
+         */
         getEditorConfig() {
             return {
                 toolbar: {
@@ -107,10 +111,14 @@ const app = createApp({
                 }
             };
         },
-        async fetchComments(page = 1) {
+        /**
+         * Fetches comments from the server for a given page and sorting preference.
+         * @param {number} [page=1] - The page number to fetch.
+         */
+        async getCommentsAsync(page = 1) {
             this.isLoading = true;
             try {
-                const response = await fetch(`/api/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}`);
+                const response = await fetch(`/api/v1/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}`);
                 if (!response.ok) throw new Error('Failed to fetch comments');
 
                 const paginationHeader = JSON.parse(response.headers.get('X-Pagination'));
@@ -129,21 +137,31 @@ const app = createApp({
                 this.isLoading = false;
             }
         },
+        /**
+         * Shows the modal for creating a new comment.
+         */
         showNewCommentModal() {
             this.newCommentDice = { rollTimes: 0, diceSides: 0 };
             $('#commentModal').modal('show');
         },
-        async submitComment() {
+        /**
+         * Handles the submission from the main comment editor modal.
+         */
+        async createCommentFromModalAsync() {
             if (!this.mainEditor) return;
             const content = this.mainEditor.data.get();
             if (!content) return;
 
-            await this.addNewComment(content);
+            await this.createCommentAsync(content);
             $('#commentModal').modal('hide');
         },
-        async addNewComment(content) {
+        /**
+         * Creates a new comment and adds it to the list.
+         * @param {string} content - The HTML content of the comment.
+         */
+        async createCommentAsync(content) {
             try {
-                const response = await fetch('/api/comments', {
+                const response = await fetch('/api/v1/comments', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -168,7 +186,7 @@ const app = createApp({
                 }
 
                 // Use the new total pages from the API response
-                await this.fetchComments(data.newTotalPages || 1);
+                await this.getCommentsAsync(data.newTotalPages || 1);
 
                 // After the DOM updates, scroll to and highlight the new comment
                 this.$nextTick(() => {
@@ -194,16 +212,16 @@ const app = createApp({
             }
         },
         /**
-         * Opens the message modal for a specific comment.
+         * Opens the message modal for a specific comment and fetches its messages.
          * @param {Object} comment - The comment object to show messages for.
          */
-        async openMessageModal(comment) {
+        async getMessagesAsync(comment) {
             this.currentCommentForMessages = comment;
             this.isLoadingMessages = true;
             this.messages = [];
             $('#messageModal').modal('show');
             try {
-                const response = await fetch(`/api/MessagesApi/ByComment/${comment.commentID}`);
+                const response = await fetch(`/api/v1/messages/ByComment/${comment.commentID}`);
                 if (!response.ok) throw new Error('Failed to fetch messages');
                 const messagesData = await response.json();
                 // Add client-side state properties to each message
@@ -216,15 +234,15 @@ const app = createApp({
             }
         },
         /**
-         * Submits the new message form.
+         * Submits a new message for the current comment.
          */
-        async submitNewMessage() {
+        async createNewMessageAsync() {
             if (!this.newMessageContent.trim()) {
                 alert('訊息內容不能為空');
                 return;
             }
             try {
-                const response = await fetch('/api/MessagesApi', {
+                const response = await fetch('/api/v1/messages', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -254,7 +272,7 @@ const app = createApp({
          * Toggles the agree status for a message.
          * @param {Object} message - The message object to agree/disagree with.
          */
-        async toggleMessageAgree(message) {
+        async updateMessageAgreeAsync(message) {
             // Optimistic update
             const originalAgreed = message.isAgreedByCurrentUser;
             const originalCount = message.agrees.length;
@@ -263,7 +281,7 @@ const app = createApp({
             message.agrees.length += originalAgreed ? -1 : 1;
 
             try {
-                const response = await fetch(`/api/MessagesApi/${message.messageID}/agree`, { method: 'POST' });
+                const response = await fetch(`/api/v1/messages/${message.messageID}/agree`, { method: 'POST' });
                 if (response.status === 401 || response.status === 403) {
                     alert('請先登入');
                     // Revert UI
@@ -286,7 +304,7 @@ const app = createApp({
          * Deletes a message after confirmation.
          * @param {Object} message - The message object to delete.
          */
-        async deleteMessage(message) {
+        async deleteMessageAsync(message) {
             if (!confirm('確定要刪除這則訊息嗎？')) return;
 
             const originalMessages = [...this.messages];
@@ -298,7 +316,7 @@ const app = createApp({
             this.currentCommentForMessages.messagesCount--;
 
             try {
-                const response = await fetch(`/api/MessagesApi/${message.messageID}`, { method: 'DELETE' });
+                const response = await fetch(`/api/v1/messages/${message.messageID}`, { method: 'DELETE' });
                 if (response.status === 401 || response.status === 403) {
                     alert('您沒有權限刪除此訊息');
                     this.messages.splice(messageIndex, 0, message); // Re-add the message
@@ -335,7 +353,7 @@ const app = createApp({
          * Saves the edited message content.
          * @param {Object} message - The message object to save.
          */
-        async saveMessageEdit(message) {
+        async updateMessageAsync(message) {
             if (!message.editableContent.trim()) {
                 alert('訊息內容不能為空');
                 return;
@@ -345,7 +363,7 @@ const app = createApp({
             message.content = message.editableContent; // Optimistic update
 
             try {
-                const response = await fetch(`/api/MessagesApi/${message.messageID}`, {
+                const response = await fetch(`/api/v1/messages/${message.messageID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: message.editableContent })
@@ -373,14 +391,18 @@ const app = createApp({
                 message.isEditing = false;
             }
         },
-        async toggleAgree(comment) {
+        /**
+         * Toggles the agree status for a comment.
+         * @param {Object} comment - The comment object to agree/disagree with.
+         */
+        async updateCommentAgreeAsync(comment) {
             const originalAgreesCount = comment.agreesCount;
             const originalIsAgreed = comment.isAgreedByCurrentUser;
             comment.isAgreedByCurrentUser = !originalIsAgreed;
             comment.agreesCount += originalIsAgreed ? -1 : 1;
 
             try {
-                const response = await fetch(`/api/comments/${comment.commentID}/agree`, { method: 'POST' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}/agree`, { method: 'POST' });
                 if (response.status === 401) {
                     alert('請先登入才能按讚。');
                     throw new Error('Unauthorized');
@@ -394,12 +416,16 @@ const app = createApp({
                 comment.isAgreedByCurrentUser = originalIsAgreed;
             }
         },
-        async deleteComment(comment) {
+        /**
+         * Deletes a comment after confirmation.
+         * @param {Object} comment - The comment object to delete.
+         */
+        async deleteCommentAsync(comment) {
             if (!confirm('確定要刪除這則評論嗎？')) return;
             const originalComments = [...this.comments];
             this.comments = this.comments.filter(c => c.commentID !== comment.commentID);
             try {
-                const response = await fetch(`/api/comments/${comment.commentID}`, { method: 'DELETE' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}`, { method: 'DELETE' });
                 if (response.status === 401) {
                     alert('請先登入才能刪除評論。');
                     throw new Error('Unauthorized');
@@ -410,11 +436,15 @@ const app = createApp({
                 this.comments = originalComments;
             }
         },
-        async toggleBlock(comment) {
+        /**
+         * Toggles the blocked status of a comment.
+         * @param {Object} comment - The comment object to block/unblock.
+         */
+        async updateCommentBlockAsync(comment) {
             const originalIsBlocked = comment.isBlocked;
             comment.isBlocked = !comment.isBlocked;
             try {
-                const response = await fetch(`/api/comments/${comment.commentID}/block`, { method: 'POST' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}/block`, { method: 'POST' });
                 if (response.status === 401 || response.status === 403) {
                     alert('您沒有權限執行此操作。');
                     throw new Error('Unauthorized');
@@ -427,7 +457,11 @@ const app = createApp({
                 comment.isBlocked = originalIsBlocked;
             }
         },
-        toggleEdit(comment) {
+        /**
+         * Toggles the editing state for a comment.
+         * @param {Object} comment - The comment object to edit.
+         */
+        toggleCommentEdit(comment) {
             comment.isEditing = !comment.isEditing;
             if (comment.isEditing) {
                 // Entering edit mode
@@ -456,22 +490,31 @@ const app = createApp({
                 }
             }
         },
-        async submitEdit(comment) {
+        /**
+         * Handles the submission of an inline comment edit.
+         * @param {Object} comment - The comment being edited.
+         */
+        async updateCommentFromInlineEditorAsync(comment) {
             const editor = this.inlineEditors[comment.commentID];
             if (!editor) return;
 
             const newContent = editor.data.get();
-            await this.saveComment(comment, newContent);
+            await this.updateCommentAsync(comment, newContent);
 
             comment.isEditing = false;
             editor.destroy();
             delete this.inlineEditors[comment.commentID];
         },
-        async saveComment(comment, newContent) {
+        /**
+         * Saves the updated content of a comment to the server.
+         * @param {Object} comment - The comment object.
+         * @param {string} newContent - The new HTML content.
+         */
+        async updateCommentAsync(comment, newContent) {
             const originalContent = comment.content;
             comment.content = newContent;
             try {
-                const response = await fetch(`/api/comments/${comment.commentID}`, {
+                const response = await fetch(`/api/v1/comments/${comment.commentID}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: newContent })
@@ -497,13 +540,24 @@ const app = createApp({
                 comment.content = originalContent;
             }
         },
+        /**
+         * Changes the current page of comments.
+         * @param {number} page - The page number to navigate to.
+         */
         changePage(page) {
             if (page < 1 || page > this.pagination.totalPages) return;
-            this.fetchComments(page);
+            this.getCommentsAsync(page);
         },
+        /**
+         * Changes the sorting order and re-fetches the comments.
+         */
         changeSort() {
-            this.fetchComments(1);
+            this.getCommentsAsync(1);
         },
+        /**
+         * Displays global toast notifications.
+         * @param {Array<Object>} toasts - An array of toast objects to display.
+         */
         showToasts(toasts) {
             showGlobalToasts(toasts);
         },

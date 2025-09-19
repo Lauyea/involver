@@ -16,7 +16,7 @@ using Involver.Extensions;
 namespace Involver.Controllers
 {
     [AllowAnonymous]
-    [Route("api/comments")]
+    [Route("api/v1/comments")]
     [ApiController]
     public class CommentsApiController : ControllerBase
     {
@@ -363,7 +363,7 @@ namespace Involver.Controllers
                 return Forbid();
             }
 
-            comment.Content = updateDto.Content;
+            comment.Content = CustomHtmlSanitizer.SanitizeHtml(updateDto.Content);
             comment.UpdateTime = System.DateTime.Now;
 
             _context.Entry(comment).State = EntityState.Modified;
