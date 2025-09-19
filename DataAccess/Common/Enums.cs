@@ -37,13 +37,13 @@ namespace DataAccess.Common
     // Novel Enums
     public enum Type
     {
-        Fantasy, 
-        History, 
-        Love, 
-        Real, 
-        Modern, 
-        Science, 
-        Horror, 
+        Fantasy,
+        History,
+        Love,
+        Real,
+        Modern,
+        Science,
+        Horror,
         Detective
     }
 }

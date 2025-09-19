@@ -1,11 +1,14 @@
-using Involver.Common;
+using System.ComponentModel.DataAnnotations;
+using System.Web;
+
 using DataAccess.Data;
+
+using Involver.Common;
 using Involver.Services.ECPay;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Web;
 
 namespace Involver.Pages.Involvings
 {
@@ -34,7 +37,7 @@ namespace Involver.Pages.Involvings
 
         [BindProperty]
         [Display(Name = "數量")]
-        [Range(1,100, ErrorMessage = "大小只能介於0到100之間")]
+        [Range(1, 100, ErrorMessage = "大小只能介於0到100之間")]
         public int Quantity { get; set; }
         [BindProperty]
         public string UserID { get; set; }
@@ -50,7 +53,7 @@ namespace Involver.Pages.Involvings
 
             UserID = _userManager.GetUserId(User);
 
-            if(UserID == null)
+            if (UserID == null)
             {
                 return Challenge();
             }

@@ -8,7 +8,7 @@ namespace Involver.Controllers
     [ApiController]
     public class DarkModeController : ControllerBase
     {
-        string _sessionKey = "_DarkMode";
+        readonly string _sessionKey = "_DarkMode";
 
         /// <summary>
         /// Server-side Session

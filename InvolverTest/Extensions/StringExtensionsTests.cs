@@ -1,7 +1,10 @@
-﻿using Involver.Extensions;
+﻿using System;
+
+using Involver.Extensions;
+
 using NSubstitute;
+
 using NUnit.Framework;
-using System;
 
 namespace InvolverTest.Extensions
 {

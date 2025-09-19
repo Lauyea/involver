@@ -1,18 +1,20 @@
-﻿using DataAccess.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace Involver.Authorization.Voting
 {
     public class VotingIsOwnerAuthorizationHandler
         : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.NovelModel.Voting>
     {
-        UserManager<InvolverUser> _userManager;
+        readonly UserManager<InvolverUser> _userManager;
 
         public VotingIsOwnerAuthorizationHandler(UserManager<InvolverUser>
             userManager)

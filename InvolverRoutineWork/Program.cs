@@ -1,8 +1,10 @@
+using System;
+
 using DataAccess.Data;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()

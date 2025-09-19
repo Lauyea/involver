@@ -1,11 +1,12 @@
-﻿using DataAccess.Models.ArticleModel;
-using DataAccess.Models.NovelModel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Models.ArticleModel;
+using DataAccess.Models.NovelModel;
 
 namespace DataAccess.Models
 {

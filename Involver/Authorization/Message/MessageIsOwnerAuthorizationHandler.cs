@@ -1,18 +1,20 @@
-﻿using DataAccess.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace Involver.Authorization.Message
 {
     public class MessageIsOwnerAuthorizationHandler
         : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.Message>
     {
-        UserManager<InvolverUser> _userManager;
+        readonly UserManager<InvolverUser> _userManager;
 
         public MessageIsOwnerAuthorizationHandler(UserManager<InvolverUser>
             userManager)

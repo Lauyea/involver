@@ -14,7 +14,7 @@ namespace DataAccess.Models.NovelModel
         /// <summary>
         /// 面數
         /// </summary>
-        [Range(0,999)]
+        [Range(0, 999)]
         public int Sides { get; set; }
 
         /// <summary>

@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,9 +15,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Involver.Areas.Identity.Pages.Account
 {
@@ -62,7 +64,7 @@ namespace Involver.Areas.Identity.Pages.Account
 
             [Required]
             [StringLength(100, ErrorMessage = "{0} 至少要有 {2} 到 {1} 個字元長度", MinimumLength = 6)]
-            [DataType(DataType.Password, ErrorMessage ="必須包含英文大小寫與特殊符號以及數字")]
+            [DataType(DataType.Password, ErrorMessage = "必須包含英文大小寫與特殊符號以及數字")]
             [Display(Name = "密碼")]
             public string Password { get; set; }
 
@@ -88,7 +90,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 //設定每個用戶獨立郵件地址
                 _userManager.Options.User.RequireUniqueEmail = true;
                 DataAccess.Models.Profile profile = await _context.Profiles.Where(p => p.UserName == user.UserName).FirstOrDefaultAsync();
-                if(profile != null)
+                if (profile != null)
                 {
                     ModelState.AddModelError("Input.UserName", "已經有同樣的用戶名");
                     return Page();

@@ -1,10 +1,12 @@
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
+
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Extensions;
 using Involver.Services.NotificationSetterService;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +23,7 @@ namespace Involver.Controllers
         private readonly UserManager<InvolverUser> _userManager;
         private readonly INotificationSetter _notificationSetter;
 
-        public AgreeController(ApplicationDbContext context, 
+        public AgreeController(ApplicationDbContext context,
             UserManager<InvolverUser> userManager,
             INotificationSetter notificationSetter)
         {
@@ -199,22 +201,22 @@ namespace Involver.Controllers
                 from = Parameters.Articles;
                 fromId = comment.ArticleID.ToString();
             }
-            else if(comment.NovelID != null)
+            else if (comment.NovelID != null)
             {
                 from = Parameters.Novels;
                 fromId = comment.NovelID.ToString();
             }
-            else if(comment.EpisodeID != null)
+            else if (comment.EpisodeID != null)
             {
                 from = Parameters.Episodes;
                 fromId = comment.EpisodeID.ToString();
             }
-            else if(comment.AnnouncementID != null)
+            else if (comment.AnnouncementID != null)
             {
                 from = Parameters.Announcements;
                 fromId = comment.AnnouncementID.ToString();
             }
-            else if(comment.FeedbackID != null)
+            else if (comment.FeedbackID != null)
             {
                 from = Parameters.Feedbacks;
                 fromId = comment.FeedbackID.ToString();

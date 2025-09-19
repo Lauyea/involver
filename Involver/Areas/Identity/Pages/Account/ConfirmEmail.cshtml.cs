@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using DataAccess.Data;
+using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Models;
 
 namespace Involver.Areas.Identity.Pages.Account
 {
@@ -19,7 +21,7 @@ namespace Involver.Areas.Identity.Pages.Account
     public class ConfirmEmailModel : PageModel
     {
         private readonly UserManager<InvolverUser> _userManager;
-        private ApplicationDbContext Context;
+        private readonly ApplicationDbContext Context;
 
         public ConfirmEmailModel(UserManager<InvolverUser> userManager, ApplicationDbContext context)
         {
@@ -58,14 +60,14 @@ namespace Involver.Areas.Identity.Pages.Account
                 Professional = false,
                 Prime = false,
                 Banned = false,
-                Missions = new Missions() { ProfileID = user.Id},
+                Missions = new Missions() { ProfileID = user.Id },
                 Achievements = new List<Achievement>(),
                 CanChangeUserName = user.PasswordHash == null
             };
-            
+
             Context.Profiles.Add(profile);
             await Context.SaveChangesAsync();
-            
+
             return Page();
         }
     }

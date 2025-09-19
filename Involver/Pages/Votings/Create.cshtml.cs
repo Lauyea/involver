@@ -1,14 +1,16 @@
-﻿using Involver.Authorization.Novel;
-using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Pages.Votings
 {
@@ -89,7 +91,7 @@ namespace Involver.Pages.Votings
                 ErrorMessage = "限時投票必須要設定期限";
                 return Page();
             }
-            else if(Voting.Limit == LimitType.Number && Voting.NumberLimit == null)
+            else if (Voting.Limit == LimitType.Number && Voting.NumberLimit == null)
             {
                 ErrorMessage = "限量投票必須要設定人數上限";
                 return Page();
@@ -151,15 +153,15 @@ namespace Involver.Pages.Votings
                 NewVoting.TotalNumber = 0;
                 NewVoting.CreateTime = DateTime.Now;
                 NewVoting.EpisodeID = id;
-                if(NewVoting.Limit == LimitType.Time)
+                if (NewVoting.Limit == LimitType.Time)
                 {
                     NewVoting.DeadLine = Voting.DeadLine;
                 }
-                else if(NewVoting.Limit == LimitType.Number)
+                else if (NewVoting.Limit == LimitType.Number)
                 {
                     NewVoting.NumberLimit = Voting.NumberLimit;
                 }
-                else if(NewVoting.Limit == LimitType.Value)
+                else if (NewVoting.Limit == LimitType.Value)
                 {
                     NewVoting.CoinLimit = Voting.CoinLimit;
                 }

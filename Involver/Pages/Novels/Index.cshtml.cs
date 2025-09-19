@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
+
+using Involver.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.NovelModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Involver.Common;
+
 using Type = DataAccess.Common.Type;
-using DataAccess.Common;
 
 namespace Involver.Pages.Novels
 {
@@ -40,7 +44,7 @@ namespace Involver.Pages.Novels
             string searchType,
             string sortOrder,
             string currentFilter,
-            string searchString, 
+            string searchString,
             int? PageIndex)
         {
             CurrentSort = sortOrder;

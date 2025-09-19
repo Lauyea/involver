@@ -1,7 +1,9 @@
-﻿using Involver.Authorization.Comment;
-using Involver.Common;
-using DataAccess.Data;
+﻿using DataAccess.Data;
 using DataAccess.Models;
+
+using Involver.Authorization.Comment;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -68,7 +70,7 @@ namespace Involver.Pages.Comments
                 _context.Comments.Remove(Comment);
                 await _context.SaveChangesAsync();
             }
-            if(fromID != null)
+            if (fromID != null)
             {
                 return RedirectToPage("/" + from + "/Details", new { id = fromID });
             }

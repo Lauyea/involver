@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using DataAccess.Data;
 
 namespace Involver.Areas.Identity.Pages.Account.Manage
 {
     public class ResetAuthenticatorModel : PageModel
     {
-        UserManager<InvolverUser> _userManager;
+        readonly UserManager<InvolverUser> _userManager;
         private readonly SignInManager<InvolverUser> _signInManager;
-        ILogger<ResetAuthenticatorModel> _logger;
+        readonly ILogger<ResetAuthenticatorModel> _logger;
 
         public ResetAuthenticatorModel(
             UserManager<InvolverUser> userManager,

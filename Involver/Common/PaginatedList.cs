@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Common;
 
@@ -45,11 +46,11 @@ public class PaginatedList<T> : List<T>
         //    pageSize++;
         //}
         var areaTotalPages = (int)Math.Ceiling(count / (double)pageSize);
-        if(pageIndex > areaTotalPages)
+        if (pageIndex > areaTotalPages)
         {
             pageIndex = areaTotalPages;
         }
-        if(pageIndex == 0)
+        if (pageIndex == 0)
         {
             pageIndex = 1;
         }

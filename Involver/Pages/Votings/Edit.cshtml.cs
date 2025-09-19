@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+using DataAccess.Models.NovelModel;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.NovelModel;
 
 namespace Involver.Pages.Votings
 {
@@ -37,7 +39,7 @@ namespace Involver.Pages.Votings
             {
                 return NotFound();
             }
-           ViewData["EpisodeID"] = new SelectList(_context.Episodes, "EpisodeID", "EpisodeID");
+            ViewData["EpisodeID"] = new SelectList(_context.Episodes, "EpisodeID", "EpisodeID");
             return Page();
         }
 

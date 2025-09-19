@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Data;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using DataAccess.Data;
-using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Involver.Areas.Identity.Pages.Account.Manage
 {
@@ -16,11 +18,11 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<InvolverUser> _userManager;
         private readonly SignInManager<InvolverUser> _signInManager;
-        private ApplicationDbContext Context;
+        private readonly ApplicationDbContext Context;
 
         public IndexModel(
             UserManager<InvolverUser> userManager,
-            SignInManager<InvolverUser> signInManager, 
+            SignInManager<InvolverUser> signInManager,
             ApplicationDbContext context)
         {
             _userManager = userManager;
@@ -93,7 +95,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                 await LoadAsync(user);
                 return Page();
             }
-            
+
             var userName = await _userManager.GetUserNameAsync(user);
             if (Input.UserName != userName && Input.UserName != null)
             {

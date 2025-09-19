@@ -1,10 +1,12 @@
-﻿using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
+
+using Involver.Common;
+
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Helpers
 {
@@ -175,7 +177,7 @@ namespace Involver.Helpers
                 return toasts;
             }
 
-            foreach(var item in list)
+            foreach (var item in list)
             {
                 if (profile.Achievements.Where(a => a.Code == item.Header).FirstOrDefault() == null)
                 {
@@ -384,7 +386,7 @@ namespace Involver.Helpers
             if (result1 > 0)
             {
                 list.Add(
-                    new Toast 
+                    new Toast
                     {
                         Header = AchievementNames.FirstGrade
                     });
@@ -464,9 +466,9 @@ namespace Involver.Helpers
             if (voteCount > 0)
             {
                 list.Add(new Toast
-                    {
-                        Header = AchievementNames.Vote1
-                    });
+                {
+                    Header = AchievementNames.Vote1
+                });
             }
 
             if (voteCount > 29)

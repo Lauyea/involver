@@ -1,7 +1,9 @@
-using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -246,14 +248,14 @@ namespace Involver.Pages.Involvings
                 .Where(f => f.FollowerID == UserID)
                 .FirstOrDefaultAsync();
 
-            if(follow == null)
+            if (follow == null)
             {
                 StatusMessage = "Error: 無效操作";
                 return Page();
             }
             else
             {
-                if(!follow.NovelMonthlyInvolver)
+                if (!follow.NovelMonthlyInvolver)
                 {
                     StatusMessage = "Error: 您沒有每月Involve這部創作";
                     return Page();

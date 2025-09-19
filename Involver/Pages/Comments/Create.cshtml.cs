@@ -1,17 +1,20 @@
-using Involver.Authorization.Comment;
-using Involver.Common;
+using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 using DataAccess.Data;
-using Involver.Helpers;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Comment;
+using Involver.Common;
+using Involver.Extensions;
+using Involver.Helpers;
 using Involver.Services.NotificationSetterService;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using DataAccess.Common;
-using Involver.Extensions;
 
 namespace Involver.Pages.Comments
 {
@@ -45,7 +48,7 @@ namespace Involver.Pages.Comments
         [BindProperty]
         public Dice Dice { get; set; }
         [BindProperty]
-        [Range(0,12)]
+        [Range(0, 12)]
         public int RollTimes { get; set; }
         public string From { get; set; }
         public bool IsEpisodeOwner { get; set; } = false;
@@ -189,7 +192,7 @@ namespace Involver.Pages.Comments
             await _context.SaveChangesAsync();
 
             //Set notification
-            if(from != Parameters.Announcements)
+            if (from != Parameters.Announcements)
             {
                 var areaTotalPages = (int)Math.Ceiling(commentCount / (double)Parameters.CommetPageSize);
 

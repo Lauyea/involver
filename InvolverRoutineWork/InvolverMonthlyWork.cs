@@ -1,9 +1,11 @@
-﻿using DataAccess.Data;
+﻿using System.Threading.Tasks;
+
 using DataAccess.Data;
+using DataAccess.Data;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
 namespace InvolverMonthlyWork
 {

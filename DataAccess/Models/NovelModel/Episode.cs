@@ -1,7 +1,8 @@
-﻿using DataAccess.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 
 namespace DataAccess.Models.NovelModel
 {

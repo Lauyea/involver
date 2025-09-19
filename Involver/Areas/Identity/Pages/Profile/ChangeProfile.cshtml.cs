@@ -1,11 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
+using DataAccess.Data;
+
+using Involver.Common;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using DataAccess.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Involver.Common;
-using DataAccess.Common;
 
 namespace Involver.Areas.Identity.Pages.Profile
 {
@@ -35,7 +38,7 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         public async Task<IActionResult> OnPostAsync()
         {
-            if(Profile.Introduction.Length > Parameters.ProfileIntroLength)
+            if (Profile.Introduction.Length > Parameters.ProfileIntroLength)
             {
                 return Page();
             }

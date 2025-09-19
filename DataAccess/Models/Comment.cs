@@ -1,12 +1,13 @@
-﻿using DataAccess.Common;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+using DataAccess.Common;
 using DataAccess.Models.AnnouncementModel;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.FeedbackModel;
 using DataAccess.Models.NovelModel;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccess.Models
 {

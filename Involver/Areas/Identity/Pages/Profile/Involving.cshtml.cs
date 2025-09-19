@@ -1,6 +1,8 @@
-using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +34,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             Profile = await _context.Profiles
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            if(TimeSpan == "TotalTime")
+            if (TimeSpan == "TotalTime")
             {
                 Involvings = await _context.Involvings
                 .Include(i => i.Profile)

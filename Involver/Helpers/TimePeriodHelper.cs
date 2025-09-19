@@ -14,9 +14,9 @@
 
             string periodString;
 
-            if (hours > 24 -1)
+            if (hours > 24 - 1)
             {
-                if (days > 365 -1)
+                if (days > 365 - 1)
                 {
                     decimal years = days / 365;
 
@@ -27,7 +27,7 @@
                     return periodString;
                 }
 
-                if (days > 30 -1)
+                if (days > 30 - 1)
                 {
                     decimal months = days / 30;
 

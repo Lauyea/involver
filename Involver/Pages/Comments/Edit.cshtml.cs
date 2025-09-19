@@ -1,13 +1,15 @@
-﻿using Involver.Authorization.Comment;
-using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
-using Involver.Helpers;
 using DataAccess.Models;
+
+using Involver.Authorization.Comment;
+using Involver.Common;
+using Involver.Helpers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Pages.Comments
 {
@@ -62,7 +64,7 @@ namespace Involver.Pages.Comments
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id, string from, int? fromID)
         {
-            if(Comment.Content?.Length > Parameters.CommentLength)
+            if (Comment.Content?.Length > Parameters.CommentLength)
             {
                 return Page();
             }
@@ -101,11 +103,11 @@ namespace Involver.Pages.Comments
             }
 
             comment.UpdateTime = DateTime.Now;
-            if(from == Parameters.Feedbacks)
+            if (from == Parameters.Feedbacks)
             {
                 comment.FeedbackID = fromID;
             }
-            else if(from == Parameters.Announcements)
+            else if (from == Parameters.Announcements)
             {
                 comment.AnnouncementID = fromID;
             }

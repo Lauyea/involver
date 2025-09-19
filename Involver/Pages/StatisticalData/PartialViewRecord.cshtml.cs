@@ -1,11 +1,14 @@
+using System.Text.Json;
+
+using DataAccess.Common;
 using DataAccess.Data;
+
 using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using DataAccess.Common;
 
 namespace Involver.Pages.StatisticalData
 {

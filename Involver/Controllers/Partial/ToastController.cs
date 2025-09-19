@@ -1,5 +1,7 @@
-﻿using Involver.Common;
-using DataAccess.Data;
+﻿using DataAccess.Data;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 

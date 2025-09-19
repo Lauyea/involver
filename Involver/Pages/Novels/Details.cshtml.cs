@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.NovelModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using DataAccess.Models;
-using Involver.Authorization.Novel;
-using DataAccess.Common;
-using Involver.Common;
 
 namespace Involver.Pages.Novels
 {
@@ -57,7 +60,7 @@ namespace Involver.Pages.Novels
             }
 
             //Check authorization
-            var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) 
+            var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole)
                 || User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
 
             UserId = _userManager.GetUserId(User);
@@ -252,7 +255,7 @@ namespace Involver.Pages.Novels
                 .Where(c => c.NovelID == id)
                 .OrderByDescending(c => c.CommentID);
 
-            
+
             Comments = await PaginatedList<Comment>.CreateAsync(
                 comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }

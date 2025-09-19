@@ -1,9 +1,11 @@
-﻿using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.NovelModel;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DataAccess.Common;
 
 namespace Involver.Controllers.Partial
 {

@@ -1,7 +1,10 @@
-﻿using Involver.Helpers;
+﻿using System;
+
+using Involver.Helpers;
+
 using NSubstitute;
+
 using NUnit.Framework;
-using System;
 
 namespace InvolverTest.Helpers
 {
@@ -70,7 +73,7 @@ namespace InvolverTest.Helpers
             int count3 = 0;
 
             // Act
-            for(int i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++)
             {
                 string strToDice = "Dice01D03";// EX: "1D3: 2"
 
@@ -83,7 +86,7 @@ namespace InvolverTest.Helpers
                 {
                     count1++;
                 }
-                else if(lastNumber == '2')
+                else if (lastNumber == '2')
                 {
                     count2++;
                 }

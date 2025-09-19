@@ -1,6 +1,8 @@
-using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +29,7 @@ namespace Involver.Pages.Feed
 
         public async Task<IActionResult> OnGetAsync(string userId)
         {
-            if(userId == null)
+            if (userId == null)
             {
                 return Page();
             }
@@ -54,7 +56,7 @@ namespace Involver.Pages.Feed
         {
             var notifications = await _context.Notifications.Where(n => n.ProfileID == userId).ToListAsync();
 
-            foreach(var notification in notifications)
+            foreach (var notification in notifications)
             {
                 notification.IsRead = true;
             }

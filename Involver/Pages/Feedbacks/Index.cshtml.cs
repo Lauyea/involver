@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models.FeedbackModel;
+
+using Involver.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.FeedbackModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Involver.Common;
-using DataAccess.Common;
 
 namespace Involver.Pages.Feedbacks
 {
@@ -34,10 +37,10 @@ namespace Involver.Pages.Feedbacks
         public PaginatedList<Feedback> Feedbacks { get; set; }
 
         public async Task OnGetAsync(
-            string currentType, 
-            string searchType, 
-            string currentFilter, 
-            string searchString, 
+            string currentType,
+            string searchType,
+            string currentFilter,
+            string searchString,
             int? PageIndex)
         {
             if (searchString != null)
@@ -57,7 +60,7 @@ namespace Involver.Pages.Feedbacks
 
             if (!String.IsNullOrEmpty(searchString))
             {
-                if(searchType == "OwnerName")
+                if (searchType == "OwnerName")
                 {
                     feedbacks = feedbacks.Where(f => f.OwnerName.Contains(searchString));
                 }
@@ -82,7 +85,7 @@ namespace Involver.Pages.Feedbacks
                                             || f.OwnerID == currentUserId);
             }
 
-            
+
             Feedbacks = await PaginatedList<Feedback>.CreateAsync(
                 feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
 

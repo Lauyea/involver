@@ -1,19 +1,22 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AnnouncementModel;
+
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Extensions;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Involver.Pages.Announcements
 {
@@ -33,7 +36,7 @@ namespace Involver.Pages.Announcements
         public string CurrentFilter { get; set; }
 
         public async Task OnGetAsync(
-            string currentFilter, 
+            string currentFilter,
             string searchString,
             int? PageIndex)
         {

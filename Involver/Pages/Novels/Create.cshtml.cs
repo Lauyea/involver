@@ -1,17 +1,21 @@
-﻿using Involver.Authorization.Novel;
-using Involver.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 using DataAccess.Data;
-using Involver.Helpers;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+using Involver.Helpers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+
 using Type = DataAccess.Common.Type;
-using DataAccess.Common;
 
 namespace Involver.Pages.Novels
 {
@@ -28,7 +32,7 @@ namespace Involver.Pages.Novels
 
         public IActionResult OnGet()
         {
-        //ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
+            //ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
             return Page();
         }
 
@@ -138,11 +142,11 @@ namespace Involver.Pages.Novels
             //    {
             //        await FileUpload.FormFile.CopyToAsync(memoryStream);
             //    }
-                
+
             //    // Upload the file if less than 260 KB
             //    if (memoryStream.Length < 262144)
             //    {
-                    
+
             //    }
             //    else
             //    {

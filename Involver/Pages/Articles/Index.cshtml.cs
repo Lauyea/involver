@@ -2,15 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models.ArticleModel;
+
+using Involver.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.ArticleModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Involver.Common;
-using DataAccess.Common;
 
 namespace Involver.Pages.Articles
 {
@@ -57,7 +60,7 @@ namespace Involver.Pages.Articles
                 ArticleTag articleTag = await _context.ArticleTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
 
                 articles = articles
-                    .Where(a => a.Profile.UserName.Contains(searchString) 
+                    .Where(a => a.Profile.UserName.Contains(searchString)
                     || a.Title.Contains(searchString)
                     || a.ArticleTags.Contains(articleTag));
             }

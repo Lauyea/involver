@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.AnnouncementModel;
@@ -8,6 +9,7 @@ using DataAccess.Models.ArticleModel;
 using DataAccess.Models.FeedbackModel;
 using DataAccess.Models.NovelModel;
 using DataAccess.Models.StatisticalData;
+
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,13 +1,14 @@
 ﻿// CoverMaker.cs (已更新)
+using System;
+using System.IO;
+using System.Numerics;
+
 using SixLabors.Fonts;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Drawing;
 using SixLabors.ImageSharp.Drawing.Processing;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
-using System;
-using System.IO;
-using System.Numerics;
 
 public class CoverMaker
 {

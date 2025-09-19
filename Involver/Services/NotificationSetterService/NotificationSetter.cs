@@ -1,12 +1,14 @@
-﻿using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
-using Involver.Extensions;
 using DataAccess.Models;
+
+using Involver.Common;
+using Involver.Extensions;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Services.NotificationSetterService
 {
@@ -25,7 +27,7 @@ namespace Involver.Services.NotificationSetterService
             var comment = await _context.Comments.Where(c => c.CommentID == commentId).FirstOrDefaultAsync().ConfigureAwait(false);
 
             // check comment is existed
-            if(comment == null)
+            if (comment == null)
             {
                 return;
             }
@@ -221,7 +223,7 @@ namespace Involver.Services.NotificationSetterService
                 return;
             }
 
-            foreach(var toast in toasts)
+            foreach (var toast in toasts)
             {
                 string badgeColor = string.Empty;
 

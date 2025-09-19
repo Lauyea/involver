@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.AnnouncementModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+
 using Involver.Authorization.Announcement;
 using Involver.Common;
-using DataAccess.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Announcements
 {
@@ -52,7 +54,7 @@ namespace Involver.Pages.Announcements
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if(Announcement.Content?.Length > Parameters.ArticleLength)
+            if (Announcement.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }

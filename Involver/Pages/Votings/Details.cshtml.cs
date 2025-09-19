@@ -1,15 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Extensions;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
 
 namespace Involver.Pages.Votings
 {
@@ -66,10 +69,10 @@ namespace Involver.Pages.Votings
 
             UserId = _userManager.GetUserId(User);
 
-            foreach(var option in Voting.NormalOptions)
+            foreach (var option in Voting.NormalOptions)
             {
-                Voted = option.Votes.Any(v =>v.OwnerID == UserId); 
-                if(Voted == true)
+                Voted = option.Votes.Any(v => v.OwnerID == UserId);
+                if (Voted == true)
                 {
                     break;
                 }
@@ -121,7 +124,7 @@ namespace Involver.Pages.Votings
                     .Votes
                     .Where(v => v.OwnerID == UserId)
                     .FirstOrDefault();
-                if(ExistingVote != null)
+                if (ExistingVote != null)
                 {
                     break;
                 }
@@ -164,7 +167,7 @@ namespace Involver.Pages.Votings
                     await VoteOptionAsync(_context, NormalOption, Vote.Value);
                 }
 
-                if(ErrorMessage == "餘額不足")
+                if (ErrorMessage == "餘額不足")
                 {
                     return Page();
                 }
