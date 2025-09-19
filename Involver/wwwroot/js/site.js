@@ -1,7 +1,47 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your Javascript code.
+
+function showGlobalToasts(toasts) {
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        console.error('Toast container not found');
+        return;
+    }
+
+    toasts.forEach(toast => {
+        let badgeClass = '';
+        switch (toast.award) {
+            case 10: badgeClass = 'bronze'; break; // 設定於 DataAccess\Common\Parameters.cs 的 `BronzeBadgeAward`
+            case 30: badgeClass = 'silver'; break;
+            default: badgeClass = 'gold'; break;
+        }
+
+        const toastId = `toast-${Date.now()}-${Math.random()}`;
+        const toastHtml = `
+            <div id="${toastId}" class="toast" data-autohide="false">
+                <div class="toast-header">
+                    ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
+                    <strong class="mr-auto">${toast.header}</strong>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${toast.body}
+                </div>
+            </div>
+        `;
+        toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+        const toastElement = document.getElementById(toastId);
+        $(toastElement).toast('show');
+        // Remove the element from the DOM after it has been hidden
+        $(toastElement).on('hidden.bs.toast', function () {
+            $(this).remove();
+        });
+    });
+}
 
 //images add img-fluid class
 //$("img").addClass("img-fluid");
