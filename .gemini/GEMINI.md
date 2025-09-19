@@ -88,10 +88,36 @@
 
   * RESTful 風格：API 端點應遵循 RESTful 設計原則，使用 `GET`, `POST`, `PUT`, `DELETE` 等 HTTP 方法來對應資源的操作。
   * 長內容 String 應該用 `CustomHtmlSanitizer.SanitizeHtml` 消毒。
+  * 路由前綴：所有 API Controller 路由應以 `/api` 作為統一前綴，以區分前端頁面路由。
+  * 版本控制：在路由中加入版本號，例如 `/api/v1/...`，方便未來 API 的升級與管理。
+  * 資源命名：使用複數名詞來表示資源集合，例如 `/api/v1/articles`, `/api/v1/users`。
+  * HTTP 方法對應：
+    * **GET `/api/v1/articles`**：獲取所有文章。
+    * **GET `/api/v1/articles/{id}`**：獲取單篇文章。
+    * **POST `/api/v1/articles`**：新增文章。
+    * **PUT `/api/v1/articles/{id}`**：更新文章。
+    * **DELETE `/api/v1/articles/{id}`**：刪除文章。
+
+## 7. 單元測試
+
+1.  測試類別命名：
+    * 格式：`[待測類別名稱]Tests`
+    * 範例：`StringExtensions` 的測試類別應命名為 `StringExtensionsTests`。
+
+2.  測試方法命名：
+    * 格式：`[測試方法名稱]_[情境]_[預期結果]`
+    * 範例：
+        * 測試 `DiceHelper` 的 `Roll` 方法在有效輸入下的成功情境：`Roll_WithValidInput_ReturnsSuccess`
+        * 測試 `TimePeriodHelper` 的 `GetTimePeriod` 方法在輸入為 null 時的例外情境：`GetTimePeriod_WhenTimeIsNull_ThrowsArgumentNullException`
+
+3.  Mock Data 放置位置：
+    * 在 `InvolverTest` 專案下建立一個名為 `TestData` 的資料夾。
+    * 在此資料夾中，根據不同的測試類別，再建立對應的子資料夾，用於存放相關的 mock data 檔案。
+    * 範例：`InvolverTest/TestData/DiceHelperTests/valid-dice-rolls.json`
 
 -----
 
-## 6. 前端開發規範
+## 8. 前端開發規範
 
   * CSS：
 
@@ -122,7 +148,7 @@
              * @param {string} novelId - 小說的唯一ID
              * @returns {Promise<Object>} 包含小說標題和內容的物件
              */
-            async function fetchNovelDetails(novelId) {
+            async function fetchNovelDetailsAsync(novelId) {
               // ...
             }
             ```
@@ -131,6 +157,16 @@
       * 位置：
           * 頁面專屬的 JavaScript 應放在頁面底部，以避免阻擋頁面渲染。
 		  * 功能共用的 JavaScript 應寫在 `wwwroot\js\site.js` 裡。
+
+  * JS Function 命名：
+    *  非同步函式：所有非同步函式，特別是與 API 互動的函式，應以 `async` 關鍵字開頭，並在結尾加上 `Async` 後綴，以清楚表明其非同步特性。
+        * 範例：`async function getUserProfileAsync(userId) { ... }`
+
+    *  API 呼叫函式：
+        * **GET**：以 `get` 開頭，例如 `getUserProfile`。
+        * **POST**：以 `create` 或 `add` 開頭，例如 `createNewArticle`。
+        * **PUT/PATCH**：以 `update` 開頭，例如 `updateUserProfile`。
+        * **DELETE**：以 `delete` 或 `remove` 開頭，例如 `deleteComment`。
 		  
   * jQuery (使用指南)：
 
@@ -220,7 +256,7 @@
   	  * 元件職責：保持元件的單一職責，避免建立過於龐大且複雜的元件。
   	  * 狀態管理：對於跨多個元件共享的狀態，應考慮使用 Pinia 或類似的狀態管理工具。
 
-## 7. 相容性與相依性
+## 9. 相容性與相依性
 
   * .NET 版本：以 .Net 8 規格撰寫 C# 程式碼。
   * Bootstrap 版本：v4.3.1。
