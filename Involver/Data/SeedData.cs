@@ -1,4 +1,14 @@
-﻿using Involver.Authorization.Announcement;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.AchievementModel;
+using DataAccess.Models.StatisticalData;
+
+using Involver.Authorization.Announcement;
 using Involver.Authorization.Article;
 using Involver.Authorization.Comment;
 using Involver.Authorization.Feedback;
@@ -8,17 +18,10 @@ using Involver.Authorization.Payment;
 using Involver.Authorization.Profile;
 using Involver.Authorization.ProfitSharing;
 using Involver.Authorization.Voting;
-using DataAccess.Models.AchievementModel;
-using DataAccess.Models.StatisticalData;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DataAccess.Data;
-using DataAccess.Models;
 
 namespace Involver.Data
 {
@@ -101,7 +104,7 @@ namespace Involver.Data
                     Professional = false,
                     Prime = true,
                     Banned = false,
-                    Missions = new Missions() { ProfileID = id},
+                    Missions = new Missions() { ProfileID = id },
                     Achievements = new List<Achievement>()
                 };
                 context.Profiles.Add(profile);

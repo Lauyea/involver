@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
+
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+
 using Involver.Authorization.Message;
 using Involver.Common;
 using Involver.Services.NotificationSetterService;
-using DataAccess.Common;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Comments
 {
@@ -154,7 +157,7 @@ namespace Involver.Pages.Comments
                 .Where(m => m.CommentID == id)
                 .OrderBy(m => m.CommentID);
 
-            
+
             Messages = await PaginatedList<Message>.CreateAsync(
                 messages, pageIndex ?? 1, Parameters.MessagePageSize);
         }
@@ -171,7 +174,7 @@ namespace Involver.Pages.Comments
             }
 
             var user = await _userManager.GetUserAsync(User);
-            if(user == null)
+            if (user == null)
             {
                 return Challenge();
             }

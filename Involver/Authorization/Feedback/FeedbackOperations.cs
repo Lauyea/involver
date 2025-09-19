@@ -24,7 +24,7 @@ namespace Involver.Authorization.Feedback
         public static readonly string DeleteOperationName = "Delete";
         public static readonly string BlockOperationName = "Block";
 
-        public static readonly string FeedbackAdministratorsRole ="FeedbackAdministrators";
+        public static readonly string FeedbackAdministratorsRole = "FeedbackAdministrators";
         public static readonly string FeedbackManagersRole = "FeedbackManagers";
     }
 }

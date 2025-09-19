@@ -1,6 +1,7 @@
-﻿using DataAccess.Common;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+using DataAccess.Common;
 
 namespace DataAccess.Models.NovelModel
 {
@@ -35,11 +36,11 @@ namespace DataAccess.Models.NovelModel
         [Display(Name = "更新時間")]
         public DateTime UpdateTime { get; set; }
 
-        
+
         [Column(TypeName = "money")]
         public decimal TotalCoins { get; set; }
 
-        
+
         [Column(TypeName = "money")]
         public decimal MonthlyCoins { get; set; }
 

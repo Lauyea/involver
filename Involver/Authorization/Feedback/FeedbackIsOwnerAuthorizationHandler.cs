@@ -1,18 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
+
 using DataAccess.Data;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 
 namespace Involver.Authorization.Feedback
 {
     public class FeedbackIsOwnerAuthorizationHandler
         : AuthorizationHandler<OperationAuthorizationRequirement, DataAccess.Models.FeedbackModel.Feedback>
     {
-        UserManager<InvolverUser> _userManager;
+        readonly UserManager<InvolverUser> _userManager;
 
         public FeedbackIsOwnerAuthorizationHandler(UserManager<InvolverUser>
             userManager)

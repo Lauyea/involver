@@ -1,12 +1,16 @@
 using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
+
 using DataAccess.Data;
+
 using Involver.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
+
 using WebPWrecover.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,7 +50,7 @@ services.AddDbContext<ApplicationDbContext>(options =>
     // Use it when you need to analyze EF Core performance
     //options.EnableSensitiveDataLogging();
 });
-    
+
 services.AddDefaultIdentity<InvolverUser>(
     options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()

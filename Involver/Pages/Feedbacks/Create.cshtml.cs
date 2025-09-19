@@ -1,13 +1,15 @@
-﻿using Involver.Authorization.Feedback;
-using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.FeedbackModel;
+
+using Involver.Authorization.Feedback;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Pages.Feedbacks
 {
@@ -34,7 +36,7 @@ namespace Involver.Pages.Feedbacks
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if(Feedback.Content?.Length > Parameters.ArticleLength)
+            if (Feedback.Content?.Length > Parameters.ArticleLength)
             {
                 Page();
             }
@@ -60,8 +62,9 @@ namespace Involver.Pages.Feedbacks
                 return Forbid();
             }
 
-            Feedback emptyFeedback = 
-                new Feedback {
+            Feedback emptyFeedback =
+                new Feedback
+                {
                     Title = "temp title",
                     Content = "temp content"
                 };

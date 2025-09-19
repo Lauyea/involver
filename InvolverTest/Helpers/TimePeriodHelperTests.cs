@@ -1,6 +1,8 @@
-﻿using Involver.Helpers;
+﻿using System;
+
+using Involver.Helpers;
+
 using NUnit.Framework;
-using System;
 
 namespace InvolverTest.Helpers
 {

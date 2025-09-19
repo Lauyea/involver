@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Involver.Common;
+
 using DataAccess.Data;
 using DataAccess.Models;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +59,7 @@ namespace Involver.Pages
                                     .Include(p => p.Missions)
                                     .FirstOrDefaultAsync();
 
-            if(UserProfile == null)
+            if (UserProfile == null)
             {
                 return Page();
             }

@@ -1,21 +1,24 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
+
 using Involver.Authorization.Article;
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Extensions;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Involver.Pages.Articles
 {
@@ -212,7 +215,7 @@ namespace Involver.Pages.Articles
                 .Where(c => c.ArticleID == id)
                 .OrderBy(c => c.CommentID);
 
-            
+
             Comments = await PaginatedList<Comment>.CreateAsync(
                 comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }

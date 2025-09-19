@@ -1,5 +1,6 @@
-﻿using DataAccess.Common;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 
 namespace DataAccess.Models.AchievementModel
 {

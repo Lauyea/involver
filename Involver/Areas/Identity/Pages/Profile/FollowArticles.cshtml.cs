@@ -1,7 +1,9 @@
-using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -39,9 +41,9 @@ namespace Involver.Areas.Identity.Pages.Profile
                     .ThenInclude(p => p.Articles)
                 .Where(f => f.FollowerID == id)
                 .ToListAsync();
-            foreach(Follow follow in Follows)
+            foreach (Follow follow in Follows)
             {
-                if(follow.Profile != null)
+                if (follow.Profile != null)
                 {
                     foreach (Article article in follow.Profile.Articles)
                     {

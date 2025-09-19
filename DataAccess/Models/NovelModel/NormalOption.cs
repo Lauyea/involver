@@ -1,7 +1,8 @@
-﻿using DataAccess.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+
+using DataAccess.Common;
 
 namespace DataAccess.Models.NovelModel
 {
@@ -14,7 +15,7 @@ namespace DataAccess.Models.NovelModel
 
         public string? OwnerID { get; set; }
 
-        
+
         [Column(TypeName = "money")]
         public int TotalCoins { get; set; }
 

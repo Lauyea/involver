@@ -3,20 +3,23 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+
+using DataAccess.Data;
+using DataAccess.Models.AchievementModel;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using DataAccess.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Models.AchievementModel;
-using Involver.Common;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace Involver.Areas.Identity.Pages.Account
 {
@@ -28,7 +31,7 @@ namespace Involver.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly ApplicationDbContext Context;
 
-        public LoginModel(SignInManager<InvolverUser> signInManager, 
+        public LoginModel(SignInManager<InvolverUser> signInManager,
             ILogger<LoginModel> logger,
             UserManager<InvolverUser> userManager,
             ApplicationDbContext context)

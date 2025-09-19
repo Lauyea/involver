@@ -8,10 +8,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+
 using DataAccess.Data;
 using DataAccess.Models;
+
 using Involver.Pages;
 using Involver.Services.ECPay;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +48,7 @@ namespace Involver.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ContentResult> PostCheckOutFeedbackAsync([FromForm]Feedback feedback)
+        public async Task<ContentResult> PostCheckOutFeedbackAsync([FromForm] Feedback feedback)
         {
             List<string> enErrors = new List<string>();
             Hashtable htFeedback = null;
@@ -165,7 +168,7 @@ namespace Involver.Controllers
                     Profile profile = await _context.Profiles.Where(p => p.ProfileID == CustomField1).FirstOrDefaultAsync();
                     profile.RealCoins += decimal.Parse(szTradeAmt);
                 }
-                
+
             }
             // 回覆錯誤訊息。
             else

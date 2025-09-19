@@ -1,21 +1,24 @@
-using DataAccess.Common;
-using DataAccess.Data;
-using DataAccess.Models;
-using DataAccess.Models.NovelModel;
-using Involver.Authorization.Comment;
-using Involver.Authorization.Voting;
-using Involver.Common;
-using Involver.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Comment;
+using Involver.Authorization.Voting;
+using Involver.Common;
+using Involver.Extensions;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Episodes
 {
@@ -226,7 +229,7 @@ namespace Involver.Pages.Episodes
             Comment comment = await _context.Comments
                 .Where(c => c.CommentID == id)
                 .FirstOrDefaultAsync();
-            if(comment.Block == false)
+            if (comment.Block == false)
             {
                 comment.Block = true;
             }

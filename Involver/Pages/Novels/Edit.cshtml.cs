@@ -1,15 +1,19 @@
-﻿using Involver.Authorization.Novel;
-using Involver.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
+
 using Type = DataAccess.Common.Type;
-using DataAccess.Common;
 
 namespace Involver.Pages.Novels
 {

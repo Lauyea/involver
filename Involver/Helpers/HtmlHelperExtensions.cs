@@ -1,5 +1,7 @@
 ﻿using Ganss.Xss;
+
 using HtmlAgilityPack;
+
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -16,7 +18,7 @@ namespace Involver.Helpers
         /// <param name="helper"></param>
         /// <param name="html"></param>
         /// <returns></returns>
-        public static IHtmlContent AntiXssRaw(this IHtmlHelper helper, string html) 
+        public static IHtmlContent AntiXssRaw(this IHtmlHelper helper, string html)
         {
             var sanitizer = new HtmlSanitizer();
 
@@ -39,7 +41,7 @@ namespace Involver.Helpers
 
             IframeWhitelistBase.ForEach((baseUrl) =>
             {
-                if (e.Tag.TagName.ToLower().Equals("iframe") 
+                if (e.Tag.TagName.ToLower().Equals("iframe")
                 && e.Tag.GetAttribute("src").StartsWith(@"https://" + baseUrl))
                 {
                     e.Cancel = true;
@@ -58,7 +60,7 @@ namespace Involver.Helpers
             doc.LoadHtml(pHtml);
             var imgs = doc.DocumentNode.SelectNodes("//img");
 
-            if(imgs != null)
+            if (imgs != null)
             {
                 foreach (var item in imgs)
                 {

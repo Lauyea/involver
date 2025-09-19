@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using DataAccess.Data;
 using DataAccess.Common;
+using DataAccess.Data;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace Involver.Views.Shared.Components.CommentSection
 {

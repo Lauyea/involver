@@ -1,7 +1,9 @@
-using Involver.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +61,7 @@ namespace Involver.Pages.Involvings
             ArticleID = id;
             await LoadAsync(ArticleID);
 
-            if(UserID == null)
+            if (UserID == null)
             {
                 return Challenge();
             }

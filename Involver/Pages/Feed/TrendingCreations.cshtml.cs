@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
 using DataAccess.Data;
 using DataAccess.Models.NovelModel;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +19,7 @@ namespace Involver.Pages.Feed
     public class TrendingCreationsModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
-        private ApplicationDbContext Context;
+        private readonly ApplicationDbContext Context;
 
         public string UserProfileID;
 

@@ -1,15 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+
+using DataAccess.Common;
 using DataAccess.Data;
+using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
+
+using Involver.Authorization.Article;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Involver.Authorization.Article;
-using DataAccess.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Involver.Common;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
-using DataAccess.Common;
 
 namespace Involver.Pages.Articles
 {
@@ -48,7 +51,7 @@ namespace Involver.Pages.Articles
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            if(Article.Content?.Length > Parameters.ArticleLength)
+            if (Article.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }
@@ -82,15 +85,15 @@ namespace Involver.Pages.Articles
             #region 設定Tags
             var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
 
-            if(tagArr.Length > Parameters.TagSize)
+            if (tagArr.Length > Parameters.TagSize)
             {
                 ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
                 return Page();
             }
 
-            foreach(var tag in tagArr)
+            foreach (var tag in tagArr)
             {
-                if(tag.Length > Parameters.TagNameMaxLength)
+                if (tag.Length > Parameters.TagNameMaxLength)
                 {
                     ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
                     return Page();
@@ -99,7 +102,7 @@ namespace Involver.Pages.Articles
 
             List<ArticleTag> articleTags = new();
 
-            foreach(var tag in tagArr)
+            foreach (var tag in tagArr)
             {
                 var existingTag = await _context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
 

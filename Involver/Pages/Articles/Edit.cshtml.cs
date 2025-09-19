@@ -1,15 +1,18 @@
-﻿using Involver.Authorization.Article;
-using Involver.Common;
+﻿using System.ComponentModel.DataAnnotations;
+
+using DataAccess.Common;
 using DataAccess.Data;
-using Involver.Helpers;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
+
+using Involver.Authorization.Article;
+using Involver.Common;
+using Involver.Helpers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using DataAccess.Common;
 
 namespace Involver.Pages.Articles
 {
@@ -81,7 +84,7 @@ namespace Involver.Pages.Articles
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(int id)
         {
-            if(Article.Content?.Length > Parameters.ArticleLength)
+            if (Article.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }

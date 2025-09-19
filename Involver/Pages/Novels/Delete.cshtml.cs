@@ -1,9 +1,11 @@
-﻿using Involver.Authorization.Novel;
-using Involver.Common;
-using DataAccess.Data;
-using Involver.Helpers;
+﻿using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+using Involver.Helpers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

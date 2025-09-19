@@ -1,9 +1,11 @@
-﻿using Involver.Authorization.Feedback;
-using Involver.Common;
-using DataAccess.Data;
-using Involver.Helpers;
+﻿using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.FeedbackModel;
+
+using Involver.Authorization.Feedback;
+using Involver.Common;
+using Involver.Helpers;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -70,7 +72,7 @@ namespace Involver.Pages.Feedbacks
             {
                 return Forbid();
             }
-            
+
             if (Feedback != null)
             {
                 _context.Comments.RemoveRange(comments);

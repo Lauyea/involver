@@ -1,7 +1,4 @@
-﻿using Involver.Pages;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+
+using Involver.Pages;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Involver.Services.ECPay
 {
@@ -44,7 +46,7 @@ namespace Involver.Services.ECPay
             if (null == feedback) feedback = new Hashtable();
 
             NameValueCollection qscoll = new NameValueCollection();
-            if(request.Form != null)
+            if (request.Form != null)
             {
                 foreach (var key in request.Form.Keys)
                 {

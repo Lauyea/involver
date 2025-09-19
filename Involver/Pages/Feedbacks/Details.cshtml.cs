@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataAccess.Common;
+using DataAccess.Data;
+using DataAccess.Models;
+using DataAccess.Models.FeedbackModel;
+
+using Involver.Authorization.Feedback;
+using Involver.Common;
+using Involver.Services.NotificationSetterService;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Data;
-using DataAccess.Models.FeedbackModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Involver.Authorization.Feedback;
-using DataAccess.Models;
-using Involver.Common;
-using Involver.Services.NotificationSetterService;
-using DataAccess.Common;
 
 namespace Involver.Pages.Feedbacks
 {
@@ -32,7 +35,7 @@ namespace Involver.Pages.Feedbacks
             _notificationSetter = notificationSetter;
         }
 
-        
+
         public PaginatedList<Comment> Comments { get; set; }
         public Feedback Feedback { get; set; }
         public string UserID { get; set; }
@@ -95,7 +98,7 @@ namespace Involver.Pages.Feedbacks
                 .Where(c => c.FeedbackID == id)
                 .OrderBy(c => c.CommentID);
 
-            
+
             Comments = await PaginatedList<Comment>.CreateAsync(
                 comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }

@@ -1,6 +1,8 @@
-﻿using Involver.Common;
-using DataAccess.Data;
+﻿using DataAccess.Data;
 using DataAccess.Models;
+
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -36,7 +38,7 @@ namespace Involver.Areas.Identity.Pages.Profile
                 .Include(p => p.Follows)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
-            if(Profile != null)
+            if (Profile != null)
             {
                 Follow ExistingFollow = Profile.Follows
                 .Where(f => f.FollowerID == UserID)
@@ -60,7 +62,7 @@ namespace Involver.Areas.Identity.Pages.Profile
         public async Task<IActionResult> OnGetAsync(string id)
         {
             await LoadAsync(id);
-            if(Profile != null)
+            if (Profile != null)
             {
                 Profile.Views++;
                 await _context.SaveChangesAsync();
@@ -97,7 +99,7 @@ namespace Involver.Areas.Identity.Pages.Profile
                 StatusMessage = "You banned this user successfully.";
             }
             await _context.SaveChangesAsync();
-            
+
             return Page();
         }
     }

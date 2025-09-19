@@ -1,13 +1,15 @@
-﻿using Involver.Authorization.Novel;
-using Involver.Common;
+﻿using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+
+using Involver.Authorization.Novel;
+using Involver.Common;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
 
 namespace Involver.Pages.Episodes
 {
@@ -46,7 +48,7 @@ namespace Involver.Pages.Episodes
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync(string from, int fromID)
         {
-            if(Episode.Content?.Length > Parameters.ArticleLength)
+            if (Episode.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
             }
