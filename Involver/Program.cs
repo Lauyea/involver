@@ -59,7 +59,7 @@ services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 //services.AddRazorPages();
 services.AddMvc();
 
-//«Å§i AJAX POST ¨Ï¥Îªº Header ¦WºÙ
+//å®£å‘Š AJAX POST ä½¿ç”¨çš„ Header åç¨±
 services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
 
 services.AddControllers(config =>
@@ -99,9 +99,29 @@ services.ConfigureApplicationCookie(options =>
     options.Cookie.HttpOnly = true;
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
 
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.SlidingExpiration = true;
+
+    options.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect("/Identity/Account/Login");
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+        context.Response.Redirect("/Identity/Account/AccessDenied");
+        return Task.CompletedTask;
+    };
 });
 
 services.AddAuthentication()
@@ -162,9 +182,9 @@ app.UseAuthorization();
 app.UseSession();
 
 app.MapRazorPages();
-//¥[¤WMapDefaultControllerRoute()
+//åŠ ä¸ŠMapDefaultControllerRoute()
 app.MapDefaultControllerRoute();
-//¤ä´©³z¹LAttribute«ü©w¸ô¥Ñ
+//æ”¯æ´é€éAttributeæŒ‡å®šè·¯ç”±
 app.MapControllers();
 
 app.Run();

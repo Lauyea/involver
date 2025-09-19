@@ -1,0 +1,259 @@
+@model Involver.Views.Shared.Components.CommentSection.CommentSectionViewModel
+
+<div id="comment-app" 
+     data-from="@Model.From" 
+     data-from-id="@Model.FromID" 
+     data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()"
+     data-max-length="@Model.MaxLength">
+
+    <p id="CommentHead">
+        <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
+    </p>
+
+    <!-- Sorter -->
+    <div class="d-flex justify-content-end mb-3" v-if="!isOrderFixed">
+        <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+            <option value="oldest">最舊的</option>
+            <option value="newest">最新的</option>
+            <option value="most_agrees">最多讚</option>
+        </select>
+    </div>
+
+    <div v-if="isLoading" class="text-center my-5">
+        <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
+    </div>
+
+    <div v-else>
+        <!-- Comment Loop -->
+        <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID" class="comment-section">
+            
+            <!-- Blocked Comment Header (only shown if blocked) -->
+            <div v-if="comment.isBlocked" class="p-2 border rounded-top">
+                <span class="text-muted small">
+                    <i class="fas fa-eye-slash"></i> 本評論已被封鎖。
+                </span>
+                <button @@click="comment.isBlockedContentVisible = !comment.isBlockedContentVisible" class="btn btn-sm btn-outline-secondary ml-2 py-0 px-1">
+                    {{ comment.isBlockedContentVisible ? '隱藏' : '顯示' }}
+                </button>
+                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="btn btn-sm btn-warning ml-2 py-0 px-1">
+                    解除封鎖
+                </button>
+            </div>
+
+            <!-- The Actual Comment Body -->
+            <div v-show="!comment.isBlocked || comment.isBlockedContentVisible"
+                 class="media border p-3 rounded shadow-sm"
+                 :class="{ 'border-warning': comment.isBlocked, 'mt-0 rounded-top-0': comment.isBlocked, 'my-3': !comment.isBlocked }">
+                <a :href="'/Identity/Profile?id=' + comment.profileID">
+                    <!-- Responsive Avatar -->
+                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle d-none d-sm-block" style="width:60px;">
+                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-2 mt-3 rounded-circle d-block d-sm-none" style="width:50px;">
+                </a>
+                <div class="media-body">
+                    <b>
+                        <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
+                        <a :href="'#comment-' + comment.commentID"><small :title="comment.fullUpdateTime">{{ comment.updateTime }}</small></a>
+                    </b>
+                    <!-- Involver Info -->
+                    <p v-if="comment.involverInfo" class="small text-muted mb-2"><small>{{ comment.involverInfo }}</small></p>
+                    
+                    <!-- Content -->
+                    <div v-if="!comment.isEditing" class="ck-content mt-2" v-html="comment.content"></div>
+                    
+                    <!-- Editor -->
+                    <div v-if="comment.isEditing" class="mt-2">
+                        <div class="editor-wrap">
+                            <textarea :id="'editor-' + comment.commentID"></textarea>
+                            <div class="d-flex mb-3">
+                                <button @@click="submitEdit(comment)" class="btn btn-primary mt-2">儲存</button> &nbsp;
+                                <button @@click="toggleEdit(comment)" class="btn btn-secondary mt-2">取消</button>
+                                <div :id="'word-count-' + comment.commentID" class="ml-auto p-2"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dices -->
+                    <div class="pt-3 pb-3" v-if="comment.dices && comment.dices.length > 0">
+                        <template v-for="dice in comment.dices">
+                            <i class="fas fa-dice-d20"></i> &nbsp;
+                            <template v-if="dice.sides !== 0 && dice.value !== 0">
+                                {{ dice.value }} / {{ dice.sides }} &nbsp;
+                            </template>
+                        </template>
+                    </div>
+
+                    <!-- Control Menu -->
+                    <div id="control-menu" class="d-flex flex-wrap align-items-center mt-2">
+                        <!-- Messages Button -->
+                        <a href="#" title="留言" @@click.prevent="openMessageModal(comment)" class="text-secondary mr-3">
+                            <i class="far fa-comments"></i> 留言 ({{ comment.messagesCount }})
+                        </a>
+                        <!-- Agree Button -->
+                        <button @@click="toggleAgree(comment)" class="btn btn-sm" :class="{ 'text-primary': comment.isAgreedByCurrentUser }">
+                            <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="dropdown d-inline-flex ml-auto">
+                            <button type="button" class="btn btn-link text-secondary" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleEdit(comment)" class="dropdown-item">
+                                    <i class="far fa-edit"></i> {{ comment.isEditing ? '取消' : '編輯' }}
+                                </button>
+                                <button v-if="comment.canDelete" @@click="deleteComment(comment)" class="dropdown-item">
+                                    <i class="far fa-trash-alt"></i> 刪除
+                                </button>
+                                <button v-if="comment.canBlock" @@click="toggleBlock(comment)" class="dropdown-item">
+                                    <i class="fas fa-lock"></i> {{ comment.isBlocked ? '解除封鎖' : '封鎖' }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav v-if="pagination.totalPages > 1" style="background-image: none;">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: !pagination.hasPreviousPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage - 1)">前一頁</a>
+                </li>
+                <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === pagination.currentPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: !pagination.hasNextPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage + 1)">下一頁</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- New/Edit Comment Modal -->
+    <div class="modal fade" id="commentModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增評論</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="comment-editor">評論內容</label>
+                        <textarea id="comment-editor"></textarea>
+                        <div id="comment-word-count" class="d-flex justify-content-end text-muted small mt-1"></div>
+                    </div>
+
+                    <hr />
+
+                    <h5><i class="fas fa-dice"></i> 擲骰選項</h5>
+                    <p class="text-muted small">您可以透過文字指令或下方的介面進行擲骰。</p>
+
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-keyboard"></i> 文字指令</h6>
+                                    <p class="small text-muted">在內容中輸入 <code>Dice(次數)D(面數)</code>，例如 <code>Dice05D10</code>。最大為 99D99。</p>
+                                </div>
+                                <div class="col-md-6" v-if="from.toLowerCase() === 'episode'">
+                                    <h6><i class="fas fa-mouse-pointer"></i> 介面擲骰</h6>
+                                    <div class="form-row align-items-center">
+                                        <div class="col-auto">
+                                            <label class="text-muted small" for="rollTimes">次數</label>
+                                            <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control mb-2" id="rollTimes" placeholder="次數 (0-12)" min="0" max="12" title="最多12次">
+                                        </div>
+                                        <div class="col-auto">
+                                            <label class="text-muted small" for="diceSides">面數</label>
+                                            <input type="number" v-model.number="newCommentDice.diceSides" class="form-control mb-2" id="diceSides" placeholder="面數 (0-999)" min="0" max="999" title="最多999面">
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted">在內容中使用 <code>DiceTotal</code> 來顯示擲骰總和。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episode'">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>注意：</strong> 任何包含擲骰的評論送出後將無法編輯。
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-primary" @@click="submitComment">送出</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">留言</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <div v-if="isLoadingMessages" class="text-center">
+                        <div class="spinner-border" role="status"><span class="sr-only">Loading...</span></div>
+                    </div>
+                    <div v-else>
+                        <div id="messageList">
+                            <div v-for="message in messages" :key="message.messageID" class="media border p-3 shadow-sm rounded mb-3">
+                                <a :href="'/Identity/Profile?id=' + message.profileID">
+                                    <img v-if="message.profile.imageUrl" :src="message.profile.imageUrl" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                                    <img v-else :src="'https://www.gravatar.com/avatar/' + message.profile.emailMd5 + '?d=retro'" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                                </a>
+                                <div class="media-body">
+                                    <b>
+                                        <a :href="'/Identity/Profile?id=' + message.profileID">{{ message.profile.userName }}</a> &nbsp;
+                                        <small :title="message.updateTime">{{ message.updateTimeRelative }}</small>
+                                    </b>
+                                    <div v-if="!message.isEditing">
+                                        <div v-text="message.content" style="white-space: pre-wrap;"></div>
+                                        <p class="mt-2">
+                                            <button type="button" class="btn btn-sm" :class="{ 'text-primary': message.isAgreedByCurrentUser }" @@click="toggleMessageAgree(message)">
+                                                <i class="far fa-thumbs-up"></i>
+                                                <span class="agree-count">{{ message.agrees.length }}</span>
+                                            </button>
+                                            <button v-if="message.canUpdate" type="button" class="btn btn-sm" @@click="toggleMessageEdit(message)">
+                                                <i class="far fa-edit"></i>
+                                            </button>
+                                            <button v-if="message.canDelete" type="button" class="btn btn-sm text-danger" @@click="deleteMessage(message)">
+                                                <i class="far fa-trash-alt"></i>
+                                            </button>
+                                        </p>
+                                    </div>
+                                    <div v-else>
+                                        <div class="form-group">
+                                            <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <button type="button" class="btn btn-primary btn-sm" @@click="saveMessageEdit(message)">儲存</button> &nbsp;
+                                            <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <form @@submit.prevent="submitNewMessage">
+                            <div class="form-group">
+                                <label for="messageContent" class="control-label">新增留言</label>
+                                <textarea v-model="newMessageContent" class="form-control" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">送出</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/comments.js" type="module"></script>

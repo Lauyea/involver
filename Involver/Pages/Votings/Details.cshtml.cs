@@ -1,13 +1,15 @@
-﻿using Involver.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+using Involver.Authorization.Comment;
+using Involver.Common;
+using Involver.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
-using DataAccess.Common;
 
 namespace Involver.Pages.Votings
 {
@@ -337,26 +339,18 @@ namespace Involver.Pages.Votings
             await SetAchievements(Voter);
         }
 
-        private void CheckMissionVote(Profile Voter)
+        private void CheckMissionVote(Profile voter)
         {
             //Check mission:Vote
-            if (Voter.Missions.Vote != true)
+            if (voter.Missions.Vote != true)
             {
-                Voter.Missions.Vote = true;
-                Voter.VirtualCoins += 5;
+                voter.Missions.Vote = true;
+                voter.AwardCoins();
                 StatusMessage = "每週任務：投一次票 已完成，獲得5 虛擬In幣。";
             }
-            //Check other missions
-            Missions missions = Voter.Missions;
-            if (missions.WatchArticle
-                && missions.Vote
-                && missions.LeaveComment
-                && missions.ViewAnnouncement
-                && missions.ShareCreation
-                && missions.BeAgreed)
-            {
-                Voter.Missions.CompleteOtherMissions = true;
-            }
+
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            voter.Missions.CheckCompletion(voter);
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿namespace DataAccess.Common
+namespace DataAccess.Common
 {
     public static class Parameters
     {
         public const int EpisodePageSize = 10;
 
-        public const int CommetPageSize = 5;
+        public const int CommetPageSize = 10;
 
         public const int MessagePageSize = 5;
 
@@ -57,5 +57,7 @@
         public const int NovelIntroLength = 512;
 
         public const int UserNameLength = 50;
+
+        public const int MissionAwardCoins = 5;
     }
 }

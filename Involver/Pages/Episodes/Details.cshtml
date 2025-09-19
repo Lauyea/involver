@@ -1,4 +1,4 @@
-﻿@page
+@page
 @using DataAccess.Models.NovelModel;
 @using System.Text.Json
 @model Involver.Pages.Episodes.DetailsModel
@@ -135,7 +135,7 @@ NovelOperations.Delete)).Succeeded)
 </div>
 <p></p>
 <div>
-    <partial name="Comments/PartialComments" for="@Model.Comments" />
+    @await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID })
 </div>
 
 <div class="reading-actions">

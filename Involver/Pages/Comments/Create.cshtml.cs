@@ -1,4 +1,4 @@
-﻿using Involver.Authorization.Comment;
+using Involver.Authorization.Comment;
 using Involver.Common;
 using DataAccess.Data;
 using Involver.Helpers;
@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using DataAccess.Common;
+using Involver.Extensions;
 
 namespace Involver.Pages.Comments
 {
@@ -234,27 +235,19 @@ namespace Involver.Pages.Comments
         private async Task CheckMissionLeaveComment()
         {
             //Check mission:LeaveComment
-            Profile Commenter = await _context.Profiles
+            Profile commenter = await _context.Profiles
                 .Where(p => p.ProfileID == UserID)
                 .Include(p => p.Missions)
                 .FirstOrDefaultAsync();
-            if (Commenter.Missions.LeaveComment != true)
+            if (commenter.Missions.LeaveComment != true)
             {
-                Commenter.Missions.LeaveComment = true;
-                Commenter.VirtualCoins += 5;
+                commenter.Missions.LeaveComment = true;
+                commenter.AwardCoins();
                 //StatusMessage = "每週任務：留一則評論 已完成，獲得5 虛擬In幣。";
             }
-            //Check other missions
-            Missions missions = Commenter.Missions;
-            if (missions.WatchArticle
-                && missions.Vote
-                && missions.LeaveComment
-                && missions.ViewAnnouncement
-                && missions.ShareCreation
-                && missions.BeAgreed)
-            {
-                Commenter.Missions.CompleteOtherMissions = true;
-            }
+
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            commenter.Missions.CheckCompletion(commenter);
         }
 
         private async void DetermindEpisodeOwner(int? fromID)

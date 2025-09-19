@@ -1,9 +1,11 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+using Involver.Authorization.Comment;
 using Involver.Authorization.Voting;
 using Involver.Common;
+using Involver.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -176,20 +178,12 @@ namespace Involver.Pages.Episodes
                 if (userProfile.Missions.WatchArticle != true)
                 {
                     userProfile.Missions.WatchArticle = true;
-                    userProfile.VirtualCoins += 5;
+                    userProfile.AwardCoins();
                     StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
                 }
-                //Check other missions
-                Missions missions = userProfile.Missions;
-                if (missions.WatchArticle
-                    && missions.Vote
-                    && missions.LeaveComment
-                    && missions.ViewAnnouncement
-                    && missions.ShareCreation
-                    && missions.BeAgreed)
-                {
-                    userProfile.Missions.CompleteOtherMissions = true;
-                }
+
+                // 檢查是否完成所有任務，若完成會自動加獎勵幣
+                userProfile.Missions.CheckCompletion(userProfile);
             }
         }
 

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Novels.DetailsModel
 
 @{
@@ -247,7 +247,7 @@
 </div>
 
 <div class="mt-3">
-    <partial name="Comments/PartialComments" for="@Model.Comments" />
+    @await Component.InvokeAsync("CommentSection", new { from = Parameters.Novels, fromID = Model.Novel.NovelID })
 </div>
 
 
