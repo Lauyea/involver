@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Involver.Controllers
 {
     [AllowAnonymous]
-    [Route("api/[controller]")]
+    [Route("api/v1/messages")]
     [ApiController]
     public class MessagesApiController : ControllerBase
     {
@@ -35,7 +35,7 @@ namespace Involver.Controllers
         }
 
         // GET: api/MessagesApi/ByComment/5
-        [HttpGet("ByComment/{commentId}")]
+        [HttpGet("ByComment/{commentId}", Name = "GetMessages")]
         public async Task<ActionResult<IEnumerable<object>>> GetMessages(int commentId)
         {
             var messages = await _context.Messages
@@ -109,7 +109,7 @@ namespace Involver.Controllers
             {
                 ProfileID = _userManager.GetUserId(User),
                 CommentID = messageDto.CommentId,
-                Content = messageDto.Content,
+                Content = CustomHtmlSanitizer.SanitizeHtml(messageDto.Content),
                 UpdateTime = DateTime.Now
             };
 
@@ -151,7 +151,7 @@ namespace Involver.Controllers
                 CanDelete = true // Creator can always delete
             };
 
-            return CreatedAtAction(nameof(GetMessage), new { id = createdMessage.MessageID }, result);
+            return CreatedAtRoute(nameof(GetMessages), new { commentId = createdMessage.CommentID }, result);
         }
 
         // POST: api/MessagesApi/5/agree
@@ -293,7 +293,7 @@ namespace Involver.Controllers
                 return BadRequest("Content cannot be empty.");
             }
 
-            message.Content = messageUpdateDto.Content;
+            message.Content = CustomHtmlSanitizer.SanitizeHtml(messageUpdateDto.Content);
             message.UpdateTime = DateTime.Now;
 
             await _context.SaveChangesAsync();
@@ -324,52 +324,5 @@ namespace Involver.Controllers
             return result;
         }
 
-        // GET: api/MessagesApi/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetMessage(int id)
-        {
-            var message = await _context.Messages
-                .Include(m => m.Profile)
-                .Include(m => m.Agrees)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.MessageID == id);
-
-            if (message == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _userManager.FindByIdAsync(message.ProfileID);
-            if (user == null)
-            {
-                return NotFound(); // Should not happen
-            }
-
-            var currentUserId = _userManager.GetUserId(User);
-
-            var canUpdate = (await _authorizationService.AuthorizeAsync(User, message, MessageOperations.Update)).Succeeded;
-            var canDelete = (await _authorizationService.AuthorizeAsync(User, message, MessageOperations.Delete)).Succeeded;
-
-            var result = new
-            {
-                message.MessageID,
-                message.ProfileID,
-                Content = CustomHtmlSanitizer.SanitizeHtml(message.Content),
-                message.UpdateTime,
-                UpdateTimeRelative = TimePeriodHelper.Get(message.UpdateTime),
-                Profile = new
-                {
-                    message.Profile.UserName,
-                    message.Profile.ImageUrl,
-                    EmailMd5 = user.Email.ToMd5()
-                },
-                Agrees = message.Agrees.Select(a => new { a.AgreeID, a.ProfileID }).ToList(),
-                IsAgreedByCurrentUser = currentUserId != null && message.Agrees.Any(a => a.ProfileID == currentUserId),
-                CanUpdate = canUpdate,
-                CanDelete = canDelete
-            };
-
-            return result;
-        }
     }
 }
