@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -133,6 +133,50 @@ namespace DataAccess.Data
                 .HasMany(a => a.NovelTags)
                 .WithMany(t => t.Novels)
                 .UsingEntity(j => j.ToTable("NovelTaggings"));
+
+            // 為日期排序功能加上索引
+            modelBuilder.Entity<Novel>()
+                .HasIndex(n => n.UpdateTime);
+            modelBuilder.Entity<Agree>()
+                .HasIndex(a => a.UpdateTime);
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => a.UpdateTime);
+            modelBuilder.Entity<Follow>()
+                .HasIndex(f => f.UpdateTime);
+            modelBuilder.Entity<Comment>()
+                .HasIndex(c => c.UpdateTime);
+            modelBuilder.Entity<Message>()
+                .HasIndex(m => m.UpdateTime);
+
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => n.CreatedDate);
+
+            modelBuilder.Entity<ArticleViewer>()
+                .HasIndex(av => av.ViewDate);
+
+            modelBuilder.Entity<NovelViewer>()
+                .HasIndex(nv => nv.ViewDate);
+
+            modelBuilder.Entity<Profile>()
+                .HasIndex(p => p.EnrollmentDate);
+
+            // Novel 相關 Index
+            modelBuilder.Entity<Novel>()
+                .HasIndex(n => n.MonthlyCoins);
+
+            modelBuilder.Entity<Novel>()
+                .HasIndex(n => n.TotalCoins);
+
+            modelBuilder.Entity<Novel>()
+                .HasIndex(n => n.TotalViews);
+
+            // involving index
+            modelBuilder.Entity<Involving>()
+                .HasIndex(i => i.TotalValue);
+            modelBuilder.Entity<Involving>()
+                .HasIndex(i => i.MonthlyValue);
+            modelBuilder.Entity<Involving>()
+                .HasIndex(i => i.LastTime);
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
