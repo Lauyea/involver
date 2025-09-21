@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Descriptions.AboutInvolverModel
 @{
     ViewData["Title"] = "關於Involver";
@@ -51,7 +51,15 @@
             <a asp-area="" asp-page="/StatisticalData/Index">統計資料</a>
         </div>
         <p></p>
-        <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="bg-image container" /></a>
+        @* <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="bg-image container" /></a> *@
+        <div>
+            <a asp-page="/Novels/Index">
+                <video autoplay="" data-object-fit="cover" loop="" muted="" playsinline="" style="width: 100%; height: auto" class="bg-image container">
+                <source src="https://involverblob.blob.core.windows.net/video/Involver首頁形象影片.mp4" type="video/mp4">
+                </video>
+            </a>
+            
+        </div>
     </div>
 
 
