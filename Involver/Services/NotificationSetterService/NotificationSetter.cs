@@ -1,4 +1,4 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 
@@ -158,7 +158,7 @@ namespace Involver.Services.NotificationSetterService
                     userToBeNotifiy = article.ProfileID;
                     break;
                 case "Feedbacks":
-                    var feedback = await _context.Feedbacks.Where(f => f.FeedbackID == fromId).FirstOrDefaultAsync().ConfigureAwait(false);
+                    var feedback = await _context.Articles.Where(f => f.ArticleID == fromId && f.Type == ArticleType.Feedback).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     // check exist
                     if (feedback == null)
@@ -167,7 +167,7 @@ namespace Involver.Services.NotificationSetterService
                     }
 
                     // if commenter is user, than do not set the notification
-                    if (feedback.OwnerID == userId)
+                    if (feedback.ProfileID == userId)
                     {
                         return;
                     }
@@ -181,7 +181,7 @@ namespace Involver.Services.NotificationSetterService
 
                     title = $"有人在你的意見回饋《{feedback.Title}》留下評論：{comment}";
 
-                    userToBeNotifiy = feedback.OwnerID;
+                    userToBeNotifiy = feedback.ProfileID;
                     break;
                 default:
                     break;

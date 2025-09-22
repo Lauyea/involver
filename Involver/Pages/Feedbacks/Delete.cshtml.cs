@@ -1,8 +1,7 @@
-﻿using DataAccess.Data;
+using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
-using DataAccess.Models.FeedbackModel;
 
-using Involver.Authorization.Feedback;
+using Involver.Authorization.Article;
 using Involver.Common;
 using Involver.Helpers;
 
@@ -25,7 +24,7 @@ namespace Involver.Pages.Feedbacks
         }
 
         [BindProperty]
-        public Feedback Feedback { get; set; }
+        public Article Feedback { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -34,7 +33,7 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await _context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
+            Feedback = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Feedback == null)
             {
@@ -43,7 +42,7 @@ namespace Involver.Pages.Feedbacks
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Feedback,
-                                                 FeedbackOperations.Delete);
+                                                 ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -59,15 +58,15 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await _context.Feedbacks.Include(f => f.Comments).FirstOrDefaultAsync(f => f.FeedbackID == id);
+            Feedback = await _context.Articles.Include(f => f.Comments).FirstOrDefaultAsync(f => f.ArticleID == id);
 
             var comments = from c in _context.Comments
-                           where c.FeedbackID == id
+                           where c.ArticleID == id
                            select c;
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Feedback,
-                                                 FeedbackOperations.Delete);
+                                                 ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -76,11 +75,11 @@ namespace Involver.Pages.Feedbacks
             if (Feedback != null)
             {
                 _context.Comments.RemoveRange(comments);
-                _context.Feedbacks.Remove(Feedback);
+                _context.Articles.Remove(Feedback);
                 await _context.SaveChangesAsync();
             }
 
-            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Feedback.OwnerID);
+            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Feedback.ProfileID);
 
             Toasts.AddRange(toasts);
 

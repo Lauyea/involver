@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Feedbacks.EditModel
 
 @{
@@ -11,7 +11,7 @@
 <h4>回報與意見</h4>
 <hr />
 <div>
-    <a asp-page="./Details" asp-route-id="@Model.Feedback.FeedbackID"
+    <a asp-page="./Details" asp-route-id="@Model.Feedback.ArticleID"
        class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-up"></i> 回到文章</a>&nbsp&nbsp
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
 </div>
@@ -19,7 +19,7 @@
     <div class="col-md-12">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Feedback.FeedbackID" />
+            <input type="hidden" asp-for="Feedback.ArticleID" />
             <div class="form-group">
                 <label asp-for="Feedback.Title" class="control-label"></label>
                 <input asp-for="Feedback.Title" class="form-control" />

@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Announcements.IndexModel
 
 @{
@@ -8,8 +8,8 @@
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
 <span style="font-size:xx-large;">公告</span>
-@if (User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||
- User.IsInRole(Authorization.Announcement.Announcements.AnnouncementAdministratorsRole))
+@if (User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+ User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole))
 {
     <a asp-page="Create" class="btn btn-xs btn-outline-primary m-2 align-top">建立新文章</a>
 }
@@ -32,10 +32,10 @@
         {
             <tr>
                 <td>
-                    <a asp-page="./Details" asp-route-id="@item.AnnouncementID">@Html.DisplayFor(modelItem => item.Title)</a>
+                    <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
                 </td>
                 <td>
-                    <p><small>@Html.DisplayFor(modelItem => item.OwnerName)</small></p>
+                    <p><small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small></p>
                     <small title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                 </td>
                 <td>

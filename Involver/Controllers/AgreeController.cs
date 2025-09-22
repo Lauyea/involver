@@ -211,16 +211,6 @@ namespace Involver.Controllers
                 from = Parameters.Episodes;
                 fromId = comment.EpisodeID.ToString();
             }
-            else if (comment.AnnouncementID != null)
-            {
-                from = Parameters.Announcements;
-                fromId = comment.AnnouncementID.ToString();
-            }
-            else if (comment.FeedbackID != null)
-            {
-                from = Parameters.Feedbacks;
-                fromId = comment.FeedbackID.ToString();
-            }
             else
             {
                 from = string.Empty;

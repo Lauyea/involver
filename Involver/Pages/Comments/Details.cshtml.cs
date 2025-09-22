@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -51,28 +51,11 @@ namespace Involver.Pages.Comments
             }
 
             Comment = await _context.Comments
-                .Include(c => c.Announcement)
                 .Include(c => c.Article)
                 .Include(c => c.Episode)
-                .Include(c => c.Feedback)
                 .Include(c => c.Novel)
                 .Include(c => c.Dices)
                 .Include(c => c.Profile).FirstOrDefaultAsync(m => m.CommentID == id);
-
-            if (Comment.Announcement != null)
-            {
-                PreviousComment = await _context.Comments
-                .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
-                .Where(c => c.CommentID < id)
-                .OrderByDescending(c => c.CommentID)
-                .FirstOrDefaultAsync();
-
-                NextComment = await _context.Comments
-                    .Where(c => c.AnnouncementID == Comment.Announcement.AnnouncementID)
-                    .Where(c => c.CommentID > id)
-                    .OrderBy(c => c.CommentID)
-                    .FirstOrDefaultAsync();
-            }
 
             if (Comment.Article != null)
             {
@@ -99,21 +82,6 @@ namespace Involver.Pages.Comments
 
                 NextComment = await _context.Comments
                     .Where(c => c.EpisodeID == Comment.Episode.EpisodeID)
-                    .Where(c => c.CommentID > id)
-                    .OrderBy(c => c.CommentID)
-                    .FirstOrDefaultAsync();
-            }
-
-            if (Comment.Feedback != null)
-            {
-                PreviousComment = await _context.Comments
-                .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
-                .Where(c => c.CommentID < id)
-                .OrderByDescending(c => c.CommentID)
-                .FirstOrDefaultAsync();
-
-                NextComment = await _context.Comments
-                    .Where(c => c.FeedbackID == Comment.Feedback.FeedbackID)
                     .Where(c => c.CommentID > id)
                     .OrderBy(c => c.CommentID)
                     .FirstOrDefaultAsync();

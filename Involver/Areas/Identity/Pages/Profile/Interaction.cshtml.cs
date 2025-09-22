@@ -36,8 +36,6 @@ namespace Involver.Areas.Identity.Pages.Profile
                 .Include(c => c.Profile)
                 .Include(c => c.Novel)
                 .Include(c => c.Episode)
-                .Include(c => c.Announcement)
-                .Include(c => c.Feedback)
                 .Include(c => c.Article)
                 .Where(c => c.ProfileID == id)
                 .Where(c => c.Content != "")

@@ -1,9 +1,9 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using DataAccess.Models.FeedbackModel;
+using DataAccess.Models.ArticleModel;
 
-using Involver.Authorization.Feedback;
+using Involver.Authorization.Article;
 using Involver.Common;
 
 using Microsoft.AspNetCore.Authorization;
@@ -30,7 +30,7 @@ namespace Involver.Pages.Feedbacks
         }
 
         [BindProperty]
-        public Feedback Feedback { get; set; }
+        public Article Feedback { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -52,38 +52,38 @@ namespace Involver.Pages.Feedbacks
                 return Forbid();
             }
 
-            Feedback.OwnerID = _userManager.GetUserId(User);
+            Feedback.ProfileID = _userManager.GetUserId(User);
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Feedback,
-                                                        FeedbackOperations.Create);
+                                                        ArticleOperations.Create);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
 
-            Feedback emptyFeedback =
-                new Feedback
+            Article emptyFeedback =
+                new Article
                 {
                     Title = "temp title",
-                    Content = "temp content"
+                    Content = "temp content",
+                    ProfileID = Feedback.ProfileID
                 };
             try
             {
                 //Protect from overposting attacks
-                if (await TryUpdateModelAsync<Feedback>(
+                if (await TryUpdateModelAsync<Article>(
                     emptyFeedback,
                     "feedback",   // Prefix for form value.
                     f => f.Title, f => f.Content))
                 {
                     emptyFeedback.UpdateTime = DateTime.Now;
-                    var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
-                    emptyFeedback.OwnerID = Feedback.OwnerID;
-                    emptyFeedback.OwnerName = tempUser.UserName;
-                    _context.Feedbacks.Add(emptyFeedback);
+                    var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.ProfileID);
+                    emptyFeedback.ProfileID = Feedback.ProfileID;
+                    _context.Articles.Add(emptyFeedback);
                     await _context.SaveChangesAsync();
 
-                    var toasts = await Helpers.AchievementHelper.FeedbackCountAsync(_context, Feedback.OwnerID);
+                    var toasts = await Helpers.AchievementHelper.FeedbackCountAsync(_context, Feedback.ProfileID);
 
                     Toasts.AddRange(toasts);
 

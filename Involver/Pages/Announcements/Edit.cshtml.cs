@@ -1,8 +1,8 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
-using DataAccess.Models.AnnouncementModel;
+using DataAccess.Models.ArticleModel;
 
-using Involver.Authorization.Announcement;
+using Involver.Authorization.Article;
 using Involver.Common;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +23,7 @@ namespace Involver.Pages.Announcements
         }
 
         [BindProperty]
-        public Announcement Announcement { get; set; }
+        public Article Announcement { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -32,7 +32,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await _context.Announcements.FirstOrDefaultAsync(m => m.AnnouncementID == id);
+            Announcement = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Announcement == null)
             {
@@ -41,7 +41,7 @@ namespace Involver.Pages.Announcements
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Announcement,
-                                                  AnnouncementOperations.Update);
+                                                  ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -66,8 +66,8 @@ namespace Involver.Pages.Announcements
 
             // Fetch data from DB to get OwnerID.
             var announcement = await _context
-                .Announcements
-                .FirstOrDefaultAsync(f => f.AnnouncementID == id);
+                .Articles
+                .FirstOrDefaultAsync(f => f.ArticleID == id);
 
             if (announcement == null)
             {
@@ -76,14 +76,13 @@ namespace Involver.Pages.Announcements
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, announcement,
-                                                  AnnouncementOperations.Update);
+                                                  ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
 
-            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
-            announcement.OwnerName = tempUser.UserName;
+            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.ProfileID);
             announcement.UpdateTime = DateTime.Now;
             announcement.Content = Announcement.Content;
             announcement.Title = Announcement.Title;
@@ -94,7 +93,7 @@ namespace Involver.Pages.Announcements
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AnnouncementExists(Announcement.AnnouncementID))
+                if (!AnnouncementExists(Announcement.ArticleID))
                 {
                     return NotFound();
                 }
@@ -109,7 +108,7 @@ namespace Involver.Pages.Announcements
 
         private bool AnnouncementExists(int id)
         {
-            return _context.Announcements.Any(e => e.AnnouncementID == id);
+            return _context.Articles.Any(e => e.ArticleID == id);
         }
     }
 }

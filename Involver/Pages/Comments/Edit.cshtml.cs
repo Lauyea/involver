@@ -1,4 +1,4 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 
@@ -36,9 +36,7 @@ namespace Involver.Pages.Comments
             }
 
             Comment = await _context.Comments
-                .Include(c => c.Announcement)
                 .Include(c => c.Episode)
-                .Include(c => c.Feedback)
                 .Include(c => c.Novel)
                 .Include(c => c.Article)
                 .Include(c => c.Dices)
@@ -103,15 +101,7 @@ namespace Involver.Pages.Comments
             }
 
             comment.UpdateTime = DateTime.Now;
-            if (from == Parameters.Feedbacks)
-            {
-                comment.FeedbackID = fromID;
-            }
-            else if (from == Parameters.Announcements)
-            {
-                comment.AnnouncementID = fromID;
-            }
-            else if (from == Parameters.Articles)
+            if (from == Parameters.Articles)
             {
                 comment.ArticleID = fromID;
             }

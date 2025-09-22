@@ -88,9 +88,7 @@ namespace Involver.Pages.Comments
                 return Forbid();
             }
 
-            if (from != Parameters.Feedbacks &&
-                from != Parameters.Announcements &&
-                from != Parameters.Episodes &&
+            if (from != Parameters.Episodes &&
                 from != Parameters.Novels &&
                 from != Parameters.Articles)
             {
@@ -102,22 +100,7 @@ namespace Involver.Pages.Comments
 
             Comment.UpdateTime = DateTime.Now;
 
-            if (from == Parameters.Feedbacks)
-            {
-                Comment.FeedbackID = fromID;
-
-                var feedback = await _context.Feedbacks
-                    .Where(f => f.FeedbackID == fromID.Value)
-                    .Include(f => f.Comments)
-                    .FirstOrDefaultAsync().ConfigureAwait(false);
-
-                commentCount = feedback.Comments.Count;
-            }
-            else if (from == Parameters.Announcements)
-            {
-                Comment.AnnouncementID = fromID;
-            }
-            else if (from == Parameters.Articles)
+            if (from == Parameters.Articles)
             {
                 Comment.ArticleID = fromID;
 

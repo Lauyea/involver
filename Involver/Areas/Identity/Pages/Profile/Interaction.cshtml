@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Areas.Identity.Pages.Profile.InteractionModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -63,18 +63,6 @@
                             <a asp-page="/Episodes/Details"
                                asp-route-id="@comment.EpisodeID"
                                asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Episode.Title)</a>
-                        }
-                        else if (comment.AnnouncementID != null)
-                        {
-                            <a asp-page="/Announcements/Details"
-                               asp-route-id="@comment.AnnouncementID"
-                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Announcement.Title)</a>
-                        }
-                        else if (comment.FeedbackID != null)
-                        {
-                            <a asp-page="/Feedbacks/Details"
-                               asp-route-id="@comment.FeedbackID"
-                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Feedback.Title)</a>
                         }
                         else if (comment.ArticleID != null)
                         {

@@ -1,7 +1,5 @@
-﻿using Involver.Authorization.Announcement;
 using Involver.Authorization.Article;
 using Involver.Authorization.Comment;
-using Involver.Authorization.Feedback;
 using Involver.Authorization.Message;
 using Involver.Authorization.Novel;
 using Involver.Authorization.Payment;
@@ -18,16 +16,6 @@ namespace Involver.Services
     {
         public static void AddAuthorizationHandlers(IServiceCollection services)
         {
-            //Feedback Authorization Handlers
-            services.AddScoped<IAuthorizationHandler,
-                                  FeedbackIsOwnerAuthorizationHandler>();
-
-            services.AddSingleton<IAuthorizationHandler,
-                                  FeedbackAdministratorsAuthorizationHandler>();
-
-            services.AddSingleton<IAuthorizationHandler,
-                                  FeedbackManagerAuthorizationHandler>();
-
             //Comment Authorization Handlers
             services.AddScoped<IAuthorizationHandler,
                                   CommentIsOwnerAuthorizationHandler>();
@@ -37,16 +25,6 @@ namespace Involver.Services
 
             services.AddSingleton<IAuthorizationHandler,
                                   CommentManagerAuthorizationHandler>();
-
-            //Announcement Authorization Handlers
-            services.AddScoped<IAuthorizationHandler,
-                                  AnnouncementIsOwnerAuthorizationHandler>();
-
-            services.AddSingleton<IAuthorizationHandler,
-                                  AnnouncementAdministratorsAuthorizationHandler>();
-
-            services.AddSingleton<IAuthorizationHandler,
-                                  AnnouncementManagerAuthorizationHandler>();
 
             //Article Authorization Handlers
             services.AddScoped<IAuthorizationHandler,

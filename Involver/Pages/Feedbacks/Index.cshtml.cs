@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 using DataAccess.Common;
 using DataAccess.Data;
-using DataAccess.Models.FeedbackModel;
+using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Feedbacks
@@ -34,7 +27,7 @@ namespace Involver.Pages.Feedbacks
 
         public string CurrentFilter { get; set; }
 
-        public PaginatedList<Feedback> Feedbacks { get; set; }
+        public PaginatedList<Article> Feedbacks { get; set; }
 
         public async Task OnGetAsync(
             string currentType,
@@ -55,14 +48,14 @@ namespace Involver.Pages.Feedbacks
             CurrentFilter = searchString;
             CurrentType = searchType;
 
-            var feedbacks = from f in _context.Feedbacks
+            var feedbacks = from f in _context.Articles
                             select f;
 
             if (!String.IsNullOrEmpty(searchString))
             {
                 if (searchType == "OwnerName")
                 {
-                    feedbacks = feedbacks.Where(f => f.OwnerName.Contains(searchString));
+                    feedbacks = feedbacks.Where(f => f.Profile.UserName.Contains(searchString));
                 }
                 else
                 {
@@ -72,8 +65,8 @@ namespace Involver.Pages.Feedbacks
 
             feedbacks = feedbacks.OrderByDescending(f => f.UpdateTime);
 
-            var isAuthorized = User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackManagersRole) ||
-                           User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackAdministratorsRole);
+            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
 
             var currentUserId = _userManager.GetUserId(User);
 
@@ -82,11 +75,11 @@ namespace Involver.Pages.Feedbacks
             if (!isAuthorized)
             {
                 feedbacks = feedbacks.Where(f => f.Block == false
-                                            || f.OwnerID == currentUserId);
+                                            || f.ProfileID == currentUserId);
             }
 
 
-            Feedbacks = await PaginatedList<Feedback>.CreateAsync(
+            Feedbacks = await PaginatedList<Article>.CreateAsync(
                 feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
 
             if (!string.IsNullOrEmpty(ToastsJson))

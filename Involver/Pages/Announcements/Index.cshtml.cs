@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using DataAccess.Models.AnnouncementModel;
+using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Comment;
 using Involver.Common;
@@ -32,7 +32,7 @@ namespace Involver.Pages.Announcements
         }
 
 
-        public PaginatedList<Announcement> Announcements { get; set; }
+        public PaginatedList<Article> Announcements { get; set; }
         public string CurrentFilter { get; set; }
 
         public async Task OnGetAsync(
@@ -50,7 +50,7 @@ namespace Involver.Pages.Announcements
             }
             CurrentFilter = searchString;
 
-            var announcements = from a in _context.Announcements
+            var announcements = from a in _context.Articles
                                 select a;
 
             //Announcements = await Context.Announcements
@@ -60,7 +60,7 @@ namespace Involver.Pages.Announcements
             if (!String.IsNullOrEmpty(searchString))
             {
                 announcements = announcements
-                    .Where(a => a.OwnerName.Contains(searchString) || a.Title.Contains(searchString))
+                    .Where(a => a.Profile.UserName.Contains(searchString) || a.Title.Contains(searchString))
                     .OrderByDescending(a => a.UpdateTime);
             }
 
@@ -68,7 +68,7 @@ namespace Involver.Pages.Announcements
 
             await CheckMissionViewAnnouncement();
 
-            Announcements = await PaginatedList<Announcement>.CreateAsync(
+            Announcements = await PaginatedList<Article>.CreateAsync(
                 announcements.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
         }
 

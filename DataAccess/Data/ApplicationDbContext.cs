@@ -4,9 +4,7 @@ using System.Text;
 
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
-using DataAccess.Models.AnnouncementModel;
 using DataAccess.Models.ArticleModel;
-using DataAccess.Models.FeedbackModel;
 using DataAccess.Models.NovelModel;
 using DataAccess.Models.StatisticalData;
 
@@ -35,8 +33,6 @@ namespace DataAccess.Data
         public DbSet<Vote> Votes { get; set; }
         public DbSet<Follow> Follows { get; set; }
         public DbSet<Missions> Missions { get; set; }
-        public DbSet<Announcement> Announcements { get; set; }
-        public DbSet<Feedback> Feedbacks { get; set; }
         public DbSet<Article> Articles { get; set; }
         public DbSet<Dice> Dices { get; set; }
         public DbSet<Payment> Payments { get; set; }

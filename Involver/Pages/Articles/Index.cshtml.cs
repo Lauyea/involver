@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,8 +66,8 @@ namespace Involver.Pages.Articles
             }
 
 
-            var isAuthorized = User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackManagersRole) ||
-                           User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackAdministratorsRole);
+            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
 
             var currentUserId = _userManager.GetUserId(User);
 

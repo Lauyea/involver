@@ -1,7 +1,7 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using DataAccess.Models.AnnouncementModel;
+using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
 
@@ -25,8 +25,8 @@ namespace Involver.Pages.Announcements
 
         public IActionResult OnGet()
         {
-            var isAuthorized = User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||
-                           User.IsInRole(Authorization.Announcement.Announcements.AnnouncementAdministratorsRole);
+            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
 
             if (!isAuthorized)
             {
@@ -36,7 +36,7 @@ namespace Involver.Pages.Announcements
         }
 
         [BindProperty]
-        public Announcement Announcement { get; set; }
+        public Article Announcement { get; set; }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -52,10 +52,10 @@ namespace Involver.Pages.Announcements
                 return Page();
             }
 
-            Announcement.OwnerID = _userManager.GetUserId(User);
+            Announcement.ProfileID = _userManager.GetUserId(User);
 
-            var isAuthorized = User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||
-                           User.IsInRole(Authorization.Announcement.Announcements.AnnouncementAdministratorsRole);
+            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
 
             if (!isAuthorized)
             {
@@ -63,25 +63,25 @@ namespace Involver.Pages.Announcements
             }
 
 
-            Announcement emptyAnnouncement =
-                new Announcement
+            Article emptyAnnouncement =
+                new Article
                 {
                     Title = "temp title",
-                    Content = "temp content"
+                    Content = "temp content",
+                    ProfileID = Announcement.ProfileID
                 };
 
             //Protect from overposting attacks
-            if (await TryUpdateModelAsync<Announcement>(
+            if (await TryUpdateModelAsync<Article>(
                 emptyAnnouncement,
                 "announcement",   // Prefix for form value.
                 f => f.Title, f => f.Content))
             {
                 emptyAnnouncement.UpdateTime = DateTime.Now;
-                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.OwnerID);
-                emptyAnnouncement.OwnerID = Announcement.OwnerID;
-                emptyAnnouncement.OwnerName = tempUser.UserName;
-                emptyAnnouncement.Views = 0;
-                _context.Announcements.Add(emptyAnnouncement);
+                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.ProfileID);
+                emptyAnnouncement.ProfileID = Announcement.ProfileID;
+                emptyAnnouncement.TotalViews = 0;
+                _context.Articles.Add(emptyAnnouncement);
                 await _context.SaveChangesAsync();
 
                 return RedirectToPage("./Index");
