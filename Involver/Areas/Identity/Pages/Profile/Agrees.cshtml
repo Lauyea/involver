@@ -104,17 +104,18 @@
                             </a>
                         }
                     </div>
-                    <div class="col-md-3" title="@agree.Comment.UpdateTime">
-                        @if (agree.Comment != null)
-                        {
+                    @if (agree.Comment != null)
+                    {
+                        <div class="col-md-3" title="@agree.Comment.UpdateTime">
                             @TimePeriodHelper.Get(agree.Comment.UpdateTime)
-                        }
-                        else
-                        {
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3" title="@agree.Message.UpdateTime">
                             @TimePeriodHelper.Get(agree.Message.UpdateTime)
-                        }
-
-                    </div>
+                        </div>
+                    }
                 </div>
                 <hr />
             }
