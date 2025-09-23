@@ -69,4 +69,4 @@ User, Model.Announcement,
 
 <hr />
 
-<partial name="Comments/PartialComments" for="@Model.Comments" />
+@await Component.InvokeAsync("CommentSection", new { from = Parameters.Articles, fromID = Model.Announcement.ArticleID })
