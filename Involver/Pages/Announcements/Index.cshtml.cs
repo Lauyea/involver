@@ -51,6 +51,7 @@ namespace Involver.Pages.Announcements
             CurrentFilter = searchString;
 
             var announcements = from a in _context.Articles
+                                where a.Type == ArticleType.Announcement
                                 select a;
 
             //Announcements = await Context.Announcements

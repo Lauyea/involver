@@ -48,8 +48,9 @@ namespace Involver.Pages.Feedbacks
             CurrentFilter = searchString;
             CurrentType = searchType;
 
-            var feedbacks = from f in _context.Articles
-                            select f;
+            var feedbacks = _context.Articles
+                        .Include(f => f.Profile)
+                        .Where(f => f.Type == ArticleType.Feedback);
 
             if (!String.IsNullOrEmpty(searchString))
             {

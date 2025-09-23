@@ -58,11 +58,11 @@
                     <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
                     @if (item.Block == true)
                     {
-                        <span class="text-danger">Block</span>
+                        <span class="text-danger">Blocked</span>
                     }
                     @if (item.Accept == true)
                     {
-                        <span class="text-success">Accept</span>
+                        <span class="text-success">Accepted</span>
                     }
                 </td>
                 <td>

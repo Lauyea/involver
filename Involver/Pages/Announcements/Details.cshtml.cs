@@ -40,7 +40,8 @@ namespace Involver.Pages.Announcements
             }
 
             Announcement = await _context.Articles
-                .FirstOrDefaultAsync(m => m.ArticleID == id);
+                .Include(a => a.Profile)
+                .FirstOrDefaultAsync(a => a.ArticleID == id);
             await SetComments(id, pageIndex);
 
             if (Announcement == null)

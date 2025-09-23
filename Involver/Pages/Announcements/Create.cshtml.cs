@@ -68,7 +68,8 @@ namespace Involver.Pages.Announcements
                 {
                     Title = "temp title",
                     Content = "temp content",
-                    ProfileID = Announcement.ProfileID
+                    ProfileID = Announcement.ProfileID,
+                    Type = ArticleType.Announcement
                 };
 
             //Protect from overposting attacks

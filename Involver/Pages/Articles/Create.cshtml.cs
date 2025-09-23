@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 
 using DataAccess.Common;
@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Involver.Pages.Articles
 {
@@ -83,43 +84,47 @@ namespace Involver.Pages.Articles
             }
 
             #region 設定Tags
-            var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+            var tagArr = TagString?.Split(",").Select(t => t.Trim()).ToArray();
 
-            if (tagArr.Length > Parameters.TagSize)
+            if (tagArr?.Length > Parameters.TagSize)
             {
                 ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
                 return Page();
             }
 
-            foreach (var tag in tagArr)
+            List<ArticleTag> articleTags = [];
+
+            if (!tagArr.IsNullOrEmpty())
             {
-                if (tag.Length > Parameters.TagNameMaxLength)
+                foreach (var tag in tagArr)
                 {
-                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                    return Page();
-                }
-            }
-
-            List<ArticleTag> articleTags = new();
-
-            foreach (var tag in tagArr)
-            {
-                var existingTag = await _context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
-
-                if (existingTag != null)
-                {
-                    articleTags.Add(existingTag);
-                }
-                else
-                {
-                    ArticleTag newTag = new ArticleTag
+                    if (tag.Length > Parameters.TagNameMaxLength)
                     {
-                        Name = tag
-                    };
+                        ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                        return Page();
+                    }
+                }
 
-                    articleTags.Add(newTag);
+                foreach (var tag in tagArr)
+                {
+                    var existingTag = await _context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+                    if (existingTag != null)
+                    {
+                        articleTags.Add(existingTag);
+                    }
+                    else
+                    {
+                        ArticleTag newTag = new ArticleTag
+                        {
+                            Name = tag
+                        };
+
+                        articleTags.Add(newTag);
+                    }
                 }
             }
+            
             #endregion
 
             Article emptyArticle =

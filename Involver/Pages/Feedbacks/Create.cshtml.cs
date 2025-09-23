@@ -43,10 +43,19 @@ namespace Involver.Pages.Feedbacks
 
             if (!ModelState.IsValid)
             {
+                // 看 ModelState 錯誤內容
+                var errorList = ModelState
+                    .Where(ms => ms.Value.Errors.Any())
+                    .Select(ms => new {
+                        Field = ms.Key,
+                        Errors = ms.Value.Errors.Select(e => e.ErrorMessage).ToList()
+                    }).ToList();
+
                 return Page();
             }
 
             var user = await _userManager.GetUserAsync(User);
+
             if (user.Banned)
             {
                 return Forbid();
@@ -67,7 +76,8 @@ namespace Involver.Pages.Feedbacks
                 {
                     Title = "temp title",
                     Content = "temp content",
-                    ProfileID = Feedback.ProfileID
+                    ProfileID = Feedback.ProfileID,
+                    Type = ArticleType.Feedback
                 };
             try
             {
