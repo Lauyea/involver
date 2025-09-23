@@ -1,6 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
-using DataAccess.Data;
 using DataAccess.Data;
 
 using Microsoft.Azure.Functions.Worker;
