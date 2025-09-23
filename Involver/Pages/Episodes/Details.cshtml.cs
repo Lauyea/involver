@@ -216,30 +216,5 @@ namespace Involver.Pages.Episodes
             Comments = await PaginatedList<Comment>.CreateAsync(
                 comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
-
-        public async Task<IActionResult> OnPostBlockAsync(int id, int fromID, int pageIndex)
-        {
-            string OwenrID = _userManager.GetUserId(User);
-
-            if (OwenrID == null)
-            {
-                return Challenge();
-            }
-
-            Comment comment = await _context.Comments
-                .Where(c => c.CommentID == id)
-                .FirstOrDefaultAsync();
-            if (comment.Block == false)
-            {
-                comment.Block = true;
-            }
-            else
-            {
-                comment.Block = false;
-            }
-            await _context.SaveChangesAsync();
-
-            return RedirectToPage("./Details", "OnGet", new { id = fromID, pageIndex }, "CommentHead");
-        }
     }
 }
