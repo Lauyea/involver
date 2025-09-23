@@ -1,10 +1,10 @@
-﻿@page
+@page
 @model Involver.Pages.Feedbacks.DetailsModel
 
 @{
     ViewData["Title"] = "回報與意見";
     ViewData["From"] = Parameters.Feedbacks;
-    ViewData["FromId"] = Model.Feedback.FeedbackID;
+    ViewData["FromId"] = Model.Feedback.ArticleID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 <partial name="_Toasts" model="Model.Toasts" />
@@ -17,9 +17,9 @@
     <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
     @if ((await AuthorizationService.AuthorizeAsync(
  User, Model.Feedback,
- FeedbackOperations.Update)).Succeeded)
+        ArticleOperations.Update)).Succeeded)
     {
-        <a asp-page="./Edit" asp-route-id="@Model.Feedback.FeedbackID"
+        <a asp-page="./Edit" asp-route-id="@Model.Feedback.ArticleID"
            class="btn btn-xs btn-outline-info">
             <i class="far fa-edit"></i>
             編輯
@@ -27,9 +27,9 @@
     }
     @if ((await AuthorizationService.AuthorizeAsync(
 User, Model.Feedback,
-FeedbackOperations.Delete)).Succeeded)
+        ArticleOperations.Delete)).Succeeded)
     {
-        <a asp-page="./Delete" asp-route-id="@Model.Feedback.FeedbackID"
+        <a asp-page="./Delete" asp-route-id="@Model.Feedback.ArticleID"
            class="btn btn-xs btn-outline-info">
             <i class="far fa-trash-alt"></i>
             刪除
@@ -39,15 +39,15 @@ FeedbackOperations.Delete)).Succeeded)
 </div>
 <p></p>
 <div>
-    @if (!Model.Feedback.Accept)
+    @if (!(Model.Feedback.Accept ?? false))
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-           User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+            User, Model.Feedback, ArticleOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
                 <button type="submit"
                         asp-page-handler="accept"
-                        asp-route-id="@Model.Feedback.FeedbackID"
+                        asp-route-id="@Model.Feedback.ArticleID"
                         class="btn btn-xs btn-success">
                     Accept
                 </button>
@@ -57,10 +57,10 @@ FeedbackOperations.Delete)).Succeeded)
     @if (!Model.Feedback.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-      User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+      User, Model.Feedback, ArticleOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Feedback.FeedbackID" />
+                <input type="hidden" name="id" value="@Model.Feedback.ArticleID" />
                 <input type="hidden" name="block" value="@true " />
                 <button type="submit" class="btn btn-xs btn-danger">Block</button>
             </form>
@@ -70,10 +70,10 @@ FeedbackOperations.Delete)).Succeeded)
     @if (Model.Feedback.Block)
     {
         @if ((await AuthorizationService.AuthorizeAsync(
-      User, Model.Feedback, FeedbackOperations.Block)).Succeeded)
+      User, Model.Feedback, ArticleOperations.Block)).Succeeded)
         {
             <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Feedback.FeedbackID" />
+                <input type="hidden" name="id" value="@Model.Feedback.ArticleID" />
                 <input type="hidden" name="block" value="@false" />
                 <button type="submit" class="btn btn-xs btn-success">Unblock</button>
             </form>
@@ -86,13 +86,13 @@ FeedbackOperations.Delete)).Succeeded)
 <div>
     <dl class="row">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Feedback.OwnerName)
+            @Html.DisplayNameFor(model => model.Feedback.Profile.UserName)
         </dt>
         <dd class="col-sm-10">
             <a asp-area="Identity"
                asp-page="/Profile/Index"
-               asp-route-id="@Model.Feedback.OwnerID">
-                @Html.DisplayFor(model => model.Feedback.OwnerName)
+               asp-route-id="@Model.Feedback.ProfileID">
+                @Html.DisplayFor(model => model.Feedback.Profile.UserName)
             </a>
         </dd>
         <dt class="col-sm-2">
@@ -116,4 +116,4 @@ FeedbackOperations.Delete)).Succeeded)
 
 <hr />
 
-<partial name="Comments/PartialComments" for="@Model.Comments" />
+@await Component.InvokeAsync("CommentSection", new { from = Parameters.Articles, fromID = Model.Feedback.ArticleID })

@@ -1,4 +1,4 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
@@ -671,7 +671,7 @@ namespace Involver.Helpers
         /// <returns></returns>
         public static async Task<List<Toast>> FeedbackCountAsync(ApplicationDbContext context, string profileId)
         {
-            var feedbackCount = await context.Feedbacks.Where(n => n.OwnerID == profileId).CountAsync();
+            var feedbackCount = await context.Articles.Where(n => n.ProfileID == profileId && n.Type == ArticleType.Feedback).CountAsync();
 
             List<Toast> list = new();
 
@@ -769,7 +769,7 @@ namespace Involver.Helpers
         /// <returns></returns>
         public static async Task<List<Toast>> AcceptCountAsync(ApplicationDbContext context, string profileId)
         {
-            var feedbackCount = await context.Feedbacks.Where(n => n.OwnerID == profileId && n.Accept == true).CountAsync();
+            var feedbackCount = await context.Articles.Where(n => n.ProfileID == profileId && n.Accept == true).CountAsync();
 
             List<Toast> list = new();
 

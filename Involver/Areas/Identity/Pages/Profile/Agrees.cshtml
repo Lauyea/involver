@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Areas.Identity.Pages.Profile.AgreesModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -78,22 +78,6 @@
                                     @agree.Comment.Episode.Title
                                 </a>
                             }
-                            else if (agree.Comment.AnnouncementID != null)
-                            {
-                                <a asp-page="/Announcements/Details"
-                                   asp-route-id="@agree.Comment.AnnouncementID"
-                                   asp-route-pageIndex="1">
-                                    @agree.Comment.Announcement.Title
-                                </a>
-                            }
-                            else if (agree.Comment.FeedbackID != null)
-                            {
-                                <a asp-page="/Feedbacks/Details"
-                                   asp-route-id="@agree.Comment.FeedbackID"
-                                   asp-route-pageIndex="1">
-                                    @agree.Comment.Feedback.Title
-                                </a>
-                            }
                             else if (agree.Comment.ArticleID != null)
                             {
                                 <a asp-page="/Articles/Details"
@@ -120,17 +104,18 @@
                             </a>
                         }
                     </div>
-                    <div class="col-md-3" title="@agree.Comment.UpdateTime">
-                        @if (agree.Comment != null)
-                        {
+                    @if (agree.Comment != null)
+                    {
+                        <div class="col-md-3" title="@agree.Comment.UpdateTime">
                             @TimePeriodHelper.Get(agree.Comment.UpdateTime)
-                        }
-                        else
-                        {
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-md-3" title="@agree.Message.UpdateTime">
                             @TimePeriodHelper.Get(agree.Message.UpdateTime)
-                        }
-
-                    </div>
+                        </div>
+                    }
                 </div>
                 <hr />
             }

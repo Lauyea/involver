@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Feedbacks.IndexModel
 
 @{
@@ -42,7 +42,7 @@
                 @Html.DisplayNameFor(model => model.Feedbacks[0].Title)
             </th>
             <th style="width: 15%;">
-                @Html.DisplayNameFor(model => model.Feedbacks[0].OwnerName)
+                @Html.DisplayNameFor(model => model.Feedbacks[0].Profile.UserName)
             </th>
             <th style="width: 15%;">
                 @Html.DisplayNameFor(model => model.Feedbacks[0].UpdateTime)
@@ -55,21 +55,21 @@
         {
             <tr>
                 <td>
-                    <a asp-page="./Details" asp-route-id="@item.FeedbackID">@Html.DisplayFor(modelItem => item.Title)</a>
+                    <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
                     @if (item.Block == true)
                     {
-                        <span class="text-danger">Block</span>
+                        <span class="text-danger">Blocked</span>
                     }
                     @if (item.Accept == true)
                     {
-                        <span class="text-success">Accept</span>
+                        <span class="text-success">Accepted</span>
                     }
                 </td>
                 <td>
                     <a asp-area="Identity"
                    asp-page="/Profile/Index"
-                   asp-route-id="@item.OwnerID">
-                        @Html.DisplayFor(modelItem => item.OwnerName)
+                   asp-route-id="@item.ProfileID">
+                        @Html.DisplayFor(modelItem => item.Profile.UserName)
                     </a>
                 </td>
                 <td title="@item.UpdateTime">

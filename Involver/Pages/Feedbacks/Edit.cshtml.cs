@@ -1,8 +1,8 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
-using DataAccess.Models.FeedbackModel;
+using DataAccess.Models.ArticleModel;
 
-using Involver.Authorization.Feedback;
+using Involver.Authorization.Article;
 using Involver.Common;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +23,7 @@ namespace Involver.Pages.Feedbacks
         }
 
         [BindProperty]
-        public Feedback Feedback { get; set; }
+        public Article Feedback { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -32,7 +32,7 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await _context.Feedbacks.FirstOrDefaultAsync(m => m.FeedbackID == id);
+            Feedback = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Feedback == null)
             {
@@ -41,7 +41,7 @@ namespace Involver.Pages.Feedbacks
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                   User, Feedback,
-                                                  FeedbackOperations.Update);
+                                                  ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -66,8 +66,8 @@ namespace Involver.Pages.Feedbacks
 
             // Fetch data from DB to get OwnerID.
             var feedback = await _context
-                .Feedbacks
-                .FirstOrDefaultAsync(f => f.FeedbackID == id);
+                .Articles
+                .FirstOrDefaultAsync(f => f.ArticleID == id);
 
             if (feedback == null)
             {
@@ -76,14 +76,13 @@ namespace Involver.Pages.Feedbacks
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                      User, feedback,
-                                                     FeedbackOperations.Update);
+                                                     ArticleOperations.Update);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
 
-            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.OwnerID);
-            feedback.OwnerName = tempUser.UserName;
+            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Feedback.ProfileID);
             feedback.UpdateTime = DateTime.Now;
             feedback.Title = Feedback.Title;
             feedback.Content = Feedback.Content;
@@ -94,7 +93,7 @@ namespace Involver.Pages.Feedbacks
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!FeedbackExists(Feedback.FeedbackID))
+                if (!FeedbackExists(Feedback.ArticleID))
                 {
                     return NotFound();
                 }
@@ -104,7 +103,7 @@ namespace Involver.Pages.Feedbacks
                 }
             }
 
-            var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Feedback.OwnerID);
+            var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Feedback.ProfileID);
 
             Toasts.AddRange(toasts);
 
@@ -115,7 +114,7 @@ namespace Involver.Pages.Feedbacks
 
         private bool FeedbackExists(int id)
         {
-            return _context.Feedbacks.Any(e => e.FeedbackID == id);
+            return _context.Articles.Any(e => e.ArticleID == id);
         }
     }
 }

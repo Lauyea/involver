@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Articles.EditModel
 
 @{
@@ -55,8 +55,8 @@
                     至多 @Parameters.TagSize 個標籤，每個標籤不超過 @Parameters.TagNameMaxLength 個字。
                 </p>
             </div>
-            @if (User.IsInRole(Authorization.Announcement.Announcements.AnnouncementManagersRole) ||
-               User.IsInRole(Authorization.Announcement.Announcements.AnnouncementAdministratorsRole))
+            @if (User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                        User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole))
             {
                 <div class="form-group form-check">
                     <label class="form-check-label">

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -45,5 +45,13 @@ namespace DataAccess.Common
         Science,
         Horror,
         Detective
+    }
+
+    // 文章類型
+    public enum ArticleType
+    {
+        General,      // 一般文章
+        Announcement, // 公告
+        Feedback      // 意見回饋
     }
 }

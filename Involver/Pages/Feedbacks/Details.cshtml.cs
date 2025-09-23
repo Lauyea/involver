@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using DataAccess.Models.FeedbackModel;
+using DataAccess.Models.ArticleModel;
 
-using Involver.Authorization.Feedback;
+using Involver.Authorization.Article;
 using Involver.Common;
 using Involver.Services.NotificationSetterService;
 
@@ -37,7 +37,7 @@ namespace Involver.Pages.Feedbacks
 
 
         public PaginatedList<Comment> Comments { get; set; }
-        public Feedback Feedback { get; set; }
+        public Article Feedback { get; set; }
         public string UserID { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
@@ -47,10 +47,10 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await _context.Feedbacks
+            Feedback = await _context.Articles
                 //.Include(f => f.Comments)
                 //    .ThenInclude(f => f.Profile)
-                .FirstOrDefaultAsync(f => f.FeedbackID == id);
+                .FirstOrDefaultAsync(f => f.ArticleID == id);
 
             if (Feedback == null)
             {
@@ -61,13 +61,13 @@ namespace Involver.Pages.Feedbacks
 
             //Comments = Context.Comments.Where(c => c.FeedbackID == id).OrderByDescending(c => c.UpdateTime).ToList();
 
-            var isAuthorized = User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackManagersRole) ||
-                           User.IsInRole(Authorization.Feedback.Feedbacks.FeedbackAdministratorsRole);
+            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
 
             UserID = _userManager.GetUserId(User);
 
             if (!isAuthorized
-                && UserID != Feedback.OwnerID
+                && UserID != Feedback.ProfileID
                 && Feedback.Block)
             {
                 return Forbid();
@@ -95,7 +95,7 @@ namespace Involver.Pages.Feedbacks
                     .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
-                .Where(c => c.FeedbackID == id)
+                .Where(c => c.ArticleID == id)
                 .OrderBy(c => c.CommentID);
 
 
@@ -105,8 +105,8 @@ namespace Involver.Pages.Feedbacks
 
         public async Task<IActionResult> OnPostAsync(int id, bool block)
         {
-            var feedback = await _context.Feedbacks.FirstOrDefaultAsync(
-                                                      m => m.FeedbackID == id);
+            var feedback = await _context.Articles.FirstOrDefaultAsync(
+                                                      m => m.ArticleID == id);
 
             if (feedback == null)
             {
@@ -114,13 +114,13 @@ namespace Involver.Pages.Feedbacks
             }
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(User, feedback,
-                                        FeedbackOperations.Block);
+                                        ArticleOperations.Block);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
             feedback.Block = block;
-            _context.Feedbacks.Update(feedback);
+            _context.Articles.Update(feedback);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
@@ -128,10 +128,10 @@ namespace Involver.Pages.Feedbacks
 
         public async Task<IActionResult> OnPostAcceptAsync(int id)
         {
-            var feedback = await _context.Feedbacks
-                .FirstOrDefaultAsync(m => m.FeedbackID == id);
+            var feedback = await _context.Articles
+                .FirstOrDefaultAsync(m => m.ArticleID == id);
 
-            Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == feedback.OwnerID);
+            Profile profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == feedback.ProfileID);
 
             if (feedback == null)
             {
@@ -139,22 +139,22 @@ namespace Involver.Pages.Feedbacks
             }
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(User, feedback,
-                                        FeedbackOperations.Block);
+                                        ArticleOperations.Block);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
             }
             feedback.Accept = true;
-            _context.Feedbacks.Update(feedback);
+            _context.Articles.Update(feedback);
             profile.VirtualCoins += 50;//回報錯誤與採納意見獲得虛擬In幣50枚
             await _context.SaveChangesAsync();
 
-            var toasts = await Helpers.AchievementHelper.AcceptCountAsync(_context, feedback.OwnerID);
+            var toasts = await Helpers.AchievementHelper.AcceptCountAsync(_context, feedback.ProfileID);
 
             // Set notification
             var url = $"{Request.Scheme}://{Request.Host}/Feedbacks/Details?id={id}";
 
-            await _notificationSetter.ForFeedbackAcceptAsync(feedback.Title, feedback.OwnerID, url, toasts);
+            await _notificationSetter.ForFeedbackAcceptAsync(feedback.Title, feedback.ProfileID, url, toasts);
 
             return RedirectToPage("./Index");
         }

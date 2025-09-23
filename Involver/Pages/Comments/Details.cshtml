@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Comments.DetailModel
 
 @{
@@ -16,15 +16,6 @@
         回到文章
     </a>
 }
-else if (Model.Comment.Announcement != null)
-{
-    <a asp-page="../Announcements/Details"
-   asp-route-id="@Model.Comment.Announcement.AnnouncementID"
-   asp-fragment="CommentHead">
-        <i class="fas fa-chevron-left"></i>
-        回到公告
-    </a>
-}
 else if (Model.Comment.Episode != null)
 {
     <a asp-page="../Episodes/Details"
@@ -32,15 +23,6 @@ else if (Model.Comment.Episode != null)
    asp-fragment="CommentHead">
         <i class="fas fa-chevron-left"></i>
         回到章節
-    </a>
-}
-else if (Model.Comment.Feedback != null)
-{
-    <a asp-page="../Feedbacks/Details"
-   asp-route-id="@Model.Comment.Feedback.FeedbackID"
-   asp-fragment="CommentHead">
-        <i class="fas fa-chevron-left"></i>
-        回到意見與回覆
     </a>
 }
 else if (Model.Comment.Novel != null)

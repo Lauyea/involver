@@ -512,8 +512,6 @@ namespace Involver.Controllers
             if (comment.ArticleID != null) return Parameters.Articles;
             if (comment.NovelID != null) return Parameters.Novels;
             if (comment.EpisodeID != null) return Parameters.Episodes;
-            if (comment.AnnouncementID != null) return Parameters.Announcements;
-            if (comment.FeedbackID != null) return Parameters.Feedbacks;
             return string.Empty;
         }
 
@@ -522,8 +520,6 @@ namespace Involver.Controllers
             if (comment.ArticleID != null) return comment.ArticleID;
             if (comment.NovelID != null) return comment.NovelID;
             if (comment.EpisodeID != null) return comment.EpisodeID;
-            if (comment.AnnouncementID != null) return comment.AnnouncementID;
-            if (comment.FeedbackID != null) return comment.FeedbackID;
             return null;
         }
     }

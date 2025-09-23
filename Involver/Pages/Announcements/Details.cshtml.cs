@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-using DataAccess.Models.AnnouncementModel;
+using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
 
@@ -30,7 +30,7 @@ namespace Involver.Pages.Announcements
         }
 
         public PaginatedList<Comment> Comments { get; set; }
-        public Announcement Announcement { get; set; }
+        public Article Announcement { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
@@ -39,8 +39,9 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await _context.Announcements
-                .FirstOrDefaultAsync(m => m.AnnouncementID == id);
+            Announcement = await _context.Articles
+                .Include(a => a.Profile)
+                .FirstOrDefaultAsync(a => a.ArticleID == id);
             await SetComments(id, pageIndex);
 
             if (Announcement == null)
@@ -48,7 +49,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement.Views++;
+            Announcement.TotalViews++;
 
             try
             {
@@ -56,7 +57,7 @@ namespace Involver.Pages.Announcements
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AnnouncementExists(Announcement.AnnouncementID))
+                if (!AnnouncementExists(Announcement.ArticleID))
                 {
                     return NotFound();
                 }
@@ -90,7 +91,7 @@ namespace Involver.Pages.Announcements
                     .ThenInclude(c => c.Profile)
                 .Include(c => c.Profile)
                 .Include(c => c.Dices)
-                .Where(c => c.AnnouncementID == id)
+                .Where(c => c.ArticleID == id)
                 .OrderBy(c => c.CommentID);
 
             Comments = await PaginatedList<Comment>.CreateAsync(
@@ -99,7 +100,7 @@ namespace Involver.Pages.Announcements
 
         private bool AnnouncementExists(int id)
         {
-            return _context.Announcements.Any(e => e.AnnouncementID == id);
+            return _context.Articles.Any(e => e.ArticleID == id);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,10 +8,8 @@ using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.StatisticalData;
 
-using Involver.Authorization.Announcement;
 using Involver.Authorization.Article;
 using Involver.Authorization.Comment;
-using Involver.Authorization.Feedback;
 using Involver.Authorization.Message;
 using Involver.Authorization.Novel;
 using Involver.Authorization.Payment;
@@ -35,9 +33,7 @@ namespace Involver.Data
                 var UserName = "admin@involver.tw";
                 var adminID = await EnsureUser(serviceProvider, testUserPw, UserName);
                 await EnsureProfile(context, UserName, adminID);
-                await EnsureRole(serviceProvider, adminID, Feedbacks.FeedbackAdministratorsRole);
                 await EnsureRole(serviceProvider, adminID, Comments.CommentAdministratorsRole);
-                await EnsureRole(serviceProvider, adminID, Announcements.AnnouncementAdministratorsRole);
                 await EnsureRole(serviceProvider, adminID, Articles.ArticleAdministratorsRole);
                 await EnsureRole(serviceProvider, adminID, Novels.NovelAdministratorsRole);
                 await EnsureRole(serviceProvider, adminID, Messages.MessageAdministratorsRole);
@@ -50,9 +46,7 @@ namespace Involver.Data
                 // allowed user can create and edit contacts that they create
                 var managerID = await EnsureUser(serviceProvider, testUserPw, UserName);
                 await EnsureProfile(context, UserName, managerID);
-                await EnsureRole(serviceProvider, managerID, Feedbacks.FeedbackManagersRole);
                 await EnsureRole(serviceProvider, managerID, Comments.CommentManagersRole);
-                await EnsureRole(serviceProvider, managerID, Announcements.AnnouncementManagersRole);
                 await EnsureRole(serviceProvider, managerID, Articles.ArticleManagersRole);
                 await EnsureRole(serviceProvider, managerID, Novels.NovelManagersRole);
                 await EnsureRole(serviceProvider, managerID, Messages.MessageManagersRole);

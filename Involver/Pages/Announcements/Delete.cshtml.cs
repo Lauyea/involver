@@ -1,7 +1,7 @@
-﻿using DataAccess.Data;
-using DataAccess.Models.AnnouncementModel;
+using DataAccess.Data;
+using DataAccess.Models.ArticleModel;
 
-using Involver.Authorization.Announcement;
+using Involver.Authorization.Article;
 using Involver.Common;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +23,7 @@ namespace Involver.Pages.Announcements
         }
 
         [BindProperty]
-        public Announcement Announcement { get; set; }
+        public Article Announcement { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -32,7 +32,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await _context.Announcements.FirstOrDefaultAsync(a => a.AnnouncementID == id);
+            Announcement = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleID == id);
 
             if (Announcement == null)
             {
@@ -41,7 +41,7 @@ namespace Involver.Pages.Announcements
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Announcement,
-                                                 AnnouncementOperations.Delete);
+                                                 ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -57,11 +57,11 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await _context.Announcements.FindAsync(id);
+            Announcement = await _context.Articles.FindAsync(id);
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                  User, Announcement,
-                                                 AnnouncementOperations.Delete);
+                                                 ArticleOperations.Delete);
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
@@ -69,13 +69,13 @@ namespace Involver.Pages.Announcements
 
 
             var comments = from c in _context.Comments
-                           where c.AnnouncementID == id
+                           where c.ArticleID == id
                            select c;
 
             if (Announcement != null)
             {
                 _context.Comments.RemoveRange(comments);
-                _context.Announcements.Remove(Announcement);
+                _context.Articles.Remove(Announcement);
                 await _context.SaveChangesAsync();
             }
 

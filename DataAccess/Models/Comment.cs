@@ -1,12 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using DataAccess.Common;
-using DataAccess.Models.AnnouncementModel;
 using DataAccess.Models.ArticleModel;
-using DataAccess.Models.FeedbackModel;
 using DataAccess.Models.NovelModel;
 
 namespace DataAccess.Models
@@ -54,24 +52,6 @@ namespace DataAccess.Models
         /// Reference navigation to Episode
         /// </summary>
         public Episode? Episode { get; set; }
-
-        /// <summary>
-        /// FK to Announcement
-        /// </summary>
-        public int? AnnouncementID { get; set; }
-        /// <summary>
-        /// Reference navigation to Announcement
-        /// </summary>
-        public Announcement? Announcement { get; set; }
-
-        /// <summary>
-        /// FK to Feedback
-        /// </summary>
-        public int? FeedbackID { get; set; }
-        /// <summary>
-        /// Reference navigation to Feedback
-        /// </summary>
-        public Feedback? Feedback { get; set; }
 
         /// <summary>
         /// FK to Article

@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using DataAccess.Common;
@@ -87,6 +87,20 @@ namespace DataAccess.Models.ArticleModel
         /// 評論順序是否固定
         /// </summary>
         public bool IsCommentOrderFixed { get; set; } = false;
+
+        /// <summary>
+        /// 文章類型
+        /// </summary>
+        [Required]
+        public ArticleType Type { get; set; }
+
+        /// <summary>
+        /// 是否接受。會有In幣獎勵。
+        /// </summary>
+        /// <remarks>
+        /// 如果是 Feedback 才有的設定。
+        /// </remarks>
+        public bool? Accept { get; set; } // 新增的採納狀態，設為 nullable
 
         /// <summary>
         /// FK to Profile
