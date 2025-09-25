@@ -1,176 +1,126 @@
-﻿@page
+@page
 @model Involver.Pages.Articles.IndexModel
+@using Involver.Helpers
+@using Involver.Common
 
 @{
     ViewData["Title"] = "討論";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
+
 <partial name="_Toasts" model="Model.Toasts" />
 
-<span style="font-size:xx-large;">討論</span> <a asp-page="Create" class="btn btn-xs btn-outline-primary m-2 align-top">建立新文章</a>
-
-<form asp-page="./Index" method="get">
-    <div class="form-actions no-color row">
-        <p class="col-6">
-            <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" />
-        </p>
-        <p class="col-auto">
-            <input type="submit" value="搜尋" class="btn btn-primary" /> |
-            <a asp-page="./Index" class="btn btn-xs btn-outline-secondary">完整清單</a>
-        </p>
-        <p class="col-auto">
-            <a asp-page="./Tags" title="標籤雲">
-                <i class="fas fa-tags"></i>標籤雲
-            </a>
-        </p>
-    </div>
-</form>
-<p></p>
-<div class="row row-cols-1 row-cols-md-3">
-    @foreach (var item in Model.Articles)
-    {
-        <div class="col mb-4">
-            <div class="card">
-                <a asp-page="./Details" asp-route-id="@item.ArticleID">
-                    @if (!string.IsNullOrEmpty(item.ImageUrl))
-                    {
-                        <img src="@item.ImageUrl"
-                     asp-append-version="true"
-                             alt="讀取失敗"
-                             title="@item.Title"
-                             class="card-img-top">
-
-                    }
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0">討論</h1>
+            <div>
+                <a asp-page="./Tags" class="btn btn-info" title="標籤雲">
+                    <i class="fas fa-tags"></i> 標籤雲
                 </a>
-                <div class="card-body">
-                    <a asp-page="./Details" asp-route-id="@item.ArticleID">
-                        <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
-                    </a>
-                    @if (item.Block == true)
-                    {
-                        <span class="text-danger">Block</span>
-                    }
-                    @{
-                        string cardText = item.Content?.Length > Parameters.ContentLength ? item.Content.Substring(0, Parameters.ContentLength) + "..." : item.Content;
-                    }
-                    <p class="card-text">@Html.AntiXssRaw((cardText))</p>
-                    <p>
-                        <a asp-area="Identity"
-                       asp-page="/Profile/Index"
-                       asp-route-id="@item.ProfileID">
-                            <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
-                        </a>
-                        &nbsp;
-                        <small>評論數 @(item.Comments.Count())</small>
-                        <div style="width:100px; height:30px;"><canvas id="article-chart-@item.ArticleID"></canvas></div>
-                        &nbsp;
-                        <small>觀看數 <a href="#" class="view-chart-trigger" data-type="article" data-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.TotalViews)</a></small>
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
-                </div>
+                <a asp-page="Create" class="btn btn-primary">建立新文章</a>
             </div>
         </div>
-    }
-</div>
-
-@{
-    var prevDisabled = !Model.Articles.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.Articles.HasNextPage ? "disabled" : "";
-
-    string IsActive(int i)
-    {
-        string Active = "";
-        if (i == Model.Articles.PageIndex)
-        {
-            Active = "active";
-        }
-        return Active;
-    }
-
-    int StartPage = 1;
-    int EndPage = 1;
-
-    PageSizeHelper.Get(Model.Articles.PageIndex, Model.Articles.TotalPages, ref StartPage, ref EndPage);
-}
-
-<div class="row">
-    <div class="col-auto">
-        <nav>
-            <ul class="pagination">
-                <li class="page-item @prevDisabled">
-                    <a asp-page="./Index"
-                       asp-route-PageIndex="1"
-                       asp-route-currentFilter="@Model.CurrentFilter"
-                       class="page-link">
-                        首
-                    </a>
-                </li>
-                <li class="page-item @prevDisabled">
-                    <a asp-page="./Index"
-                       asp-route-PageIndex="@(Model.Articles.PageIndex-1)"
-                       asp-route-currentFilter="@Model.CurrentFilter"
-                       class="page-link">
-                        前
-                    </a>
-                </li>
-                @for (int i = StartPage; i < EndPage + 1; i++)
-                {
-                    <li class="page-item @IsActive(i)">
-                        <a asp-page="./Index"
-                       asp-route-PageIndex="@i"
-                       asp-route-currentFilter="@Model.CurrentFilter"
-                       class="page-link">
-                            @i
-                            @if (i == Model.Articles.PageIndex)
-                            {
-                                <span class="sr-only">(current)</span>
-                            }
-                        </a>
-                    </li>
-
-                }
-                <li class="page-item @nextDisabled">
-                    <a asp-page="./Index"
-                       asp-route-PageIndex="@(Model.Articles.PageIndex+1)"
-                       asp-route-currentFilter="@Model.CurrentFilter"
-                       class="page-link">
-                        後
-                    </a>
-                </li>
-                <li class="page-item @nextDisabled">
-                    <a asp-page="./Index"
-                       asp-route-PageIndex="@(Model.Articles.TotalPages)"
-                       asp-route-currentFilter="@Model.CurrentFilter"
-                       class="page-link">
-                        末
-                    </a>
-                </li>
-            </ul>
-        </nav>
     </div>
-    <div class="col-auto">
-        <form class="form-inline"
-              asp-page="./Index"
-              method="get">
-            <div class="form-group">
-                <input type="text" name="currentFilter"
-                       value="@Model.CurrentFilter"
-                       class="form-control"
-                       style="width:0px;display:none" />
-            </div>
-            <div class="form-group">
-                <input type="number" name="pageIndex"
-                       value="@Model.Articles.PageIndex"
-                       class="form-control"
-                       style="max-width:100px;display:inline" />
-            </div>
-            &nbsp&nbsp
-            <div class="form-group">
-                <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+    <div class="card-body">
+        <form asp-page="./Index" method="get" class="mb-4">
+            <div class="input-group">
+                <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" placeholder="搜尋文章..." />
+                <div class="input-group-append">
+                    <input type="submit" value="搜尋" class="btn btn-primary" />
+                    <a asp-page="./Index" class="btn btn-secondary">完整清單</a>
+                </div>
             </div>
         </form>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+            @foreach (var item in Model.Articles)
+            {
+                <div class="col mb-4">
+                    <div class="card h-100 hover-effect">
+                        <a asp-page="./Details" asp-route-id="@item.ArticleID">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" asp-append-version="true" alt="@item.Title" title="@item.Title" class="card-img-top">
+                            }
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <a asp-page="./Details" asp-route-id="@item.ArticleID">
+                                <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
+                            </a>
+                            @{
+                                string cardText = item.Content?.Length > Parameters.ContentLength ? item.Content.Substring(0, Parameters.ContentLength) + "..." : item.Content;
+                            }
+                            <p class="card-text flex-grow-1">@Html.AntiXssRaw(cardText)</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">
+                                    <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
+                                </a>
+                                <div>
+                                    <small class="mr-2"><i class="far fa-comment"></i> @item.Comments.Count()</small>
+                                    <small><i class="far fa-eye"></i> 
+                                        <a href="#" class="view-chart-trigger" data-type="article" data-id="@item.ArticleID">
+                                            @Html.DisplayFor(modelItem => item.TotalViews)
+                                        </a>
+                                    </small>
+                                    <div style="width:100px; height:30px;"><canvas id="article-chart-@item.ArticleID"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <small class="text-muted" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="card-footer">
+        @if (Model.Articles.TotalPages > 1)
+        {
+            var prevDisabled = !Model.Articles.HasPreviousPage ? "disabled" : "";
+            var nextDisabled = !Model.Articles.HasNextPage ? "disabled" : "";
+
+            int startPage = 1;
+            int endPage = 1;
+
+            PageSizeHelper.Get(Model.Articles.PageIndex, Model.Articles.TotalPages, ref startPage, ref endPage);
+
+            <div class="d-flex justify-content-between align-items-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination mb-0">
+                        <li class="page-item @prevDisabled">
+                            <a asp-page="./Index" asp-route-PageIndex="1" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-left"></i></a>
+                        </li>
+                        <li class="page-item @prevDisabled">
+                            <a asp-page="./Index" asp-route-PageIndex="@(Model.Articles.PageIndex - 1)" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-left"></i></a>
+                        </li>
+                        @for (int i = startPage; i <= endPage; i++)
+                        {
+                            <li class="page-item @(i == Model.Articles.PageIndex ? "active" : "")">
+                                <a asp-page="./Index" asp-route-PageIndex="@i" asp-route-currentFilter="@Model.CurrentFilter" class="page-link">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @nextDisabled">
+                            <a asp-page="./Index" asp-route-PageIndex="@(Model.Articles.PageIndex + 1)" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-right"></i></a>
+                        </li>
+                        <li class="page-item @nextDisabled">
+                            <a asp-page="./Index" asp-route-PageIndex="@Model.Articles.TotalPages" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <form class="form-inline" asp-page="./Index" method="get">
+                    <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
+                    <div class="input-group">
+                        <input type="number" name="pageIndex" value="@Model.Articles.PageIndex" class="form-control" style="width: 75px;" />
+                        <div class="input-group-append">
+                            <input type="submit" value="跳轉" class="btn btn-outline-primary" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
     </div>
 </div>
 

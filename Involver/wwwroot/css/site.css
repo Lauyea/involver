@@ -35,6 +35,12 @@ for details on configuring this project to bundle and minify static web assets. 
     box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
 }
 
+.card-img-top {
+    height: 200px; /* 固定高度 */
+    object-fit: cover; /* 保持比例，裁切多餘部分 */
+    width: 100%; /* 填滿卡片寬度 */
+}
+
 /* Card styles
 -------------------------------------------------- */
 
