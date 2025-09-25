@@ -94,8 +94,6 @@ html {
 }
 
 body.bootstrap {
-    /* Margin bottom by footer height */
-    margin-bottom: 60px;
     background-color: var(--bg-color);
     color: var(--text-color);
 }
