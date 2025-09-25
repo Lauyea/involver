@@ -32,7 +32,7 @@ namespace Involver.Pages.Announcements
                 return NotFound();
             }
 
-            Announcement = await _context.Articles.FirstOrDefaultAsync(a => a.ArticleID == id);
+            Announcement = await _context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(a => a.ArticleID == id);
 
             if (Announcement == null)
             {
