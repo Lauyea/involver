@@ -1,237 +1,144 @@
 @page
 @model Involver.Pages.Articles.DetailsModel
+@using Involver.Authorization
+@using Involver.Common
+@using Microsoft.AspNetCore.Authorization
+@using Involver.Helpers
+@inject IAuthorizationService AuthorizationService
 
-@{
+@{ 
     ViewData["Title"] = Model.Article.Title;
     ViewData["From"] = Parameters.Articles;
     ViewData["FromId"] = Model.Article.ArticleID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    ViewData["ReturnRightFunction"] = false;
 }
+
 <partial name="_Toasts" model="Model.Toasts" />
-
-@section Styles{
-    <style>
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            opacity: 1;
-        }
-
-            .tooltip .tooltiptext {
-                visibility: hidden;
-                min-width: 140px;
-                background-color: #555;
-                color: #fff;
-                text-align: center;
-                border-radius: 6px;
-                padding: 5px;
-                position: absolute;
-                z-index: 1;
-                bottom: 150%;
-                left: 50%;
-                margin-left: -75px;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-
-                .tooltip .tooltiptext::after {
-                    content: "";
-                    position: absolute;
-                    top: 100%;
-                    left: 50%;
-                    margin-left: -5px;
-                    border-width: 5px;
-                    border-style: solid;
-                    border-color: #555 transparent transparent transparent;
-                }
-
-            .tooltip:hover .tooltiptext {
-                visibility: visible;
-                opacity: 1;
-            }
-    </style>
-}
-
 <partial name="_StatusMessage" model="Model.StatusMessage" />
-<h1>@Html.DisplayFor(model => model.Article.Title)</h1>
 
-<h4>討論</h4>
-<hr />
-
-<div class="btn-group">
-    <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Article,
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0 text-break">@Html.DisplayFor(model => model.Article.Title)</h1>
+            <div class="btn-toolbar">
+                <div class="btn-group mr-2">
+                    <a asp-page="./Index" class="btn btn-sm btn-outline-secondary" title="回到清單"><i class="fas fa-list"></i></a>
+                </div>
+                <div class="btn-group">
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Model.Article,
 ArticleOperations.Update)).Succeeded)
-    {
-        <a asp-page="./Edit" asp-route-id="@Model.Article.ArticleID"
-           class="btn btn-xs btn-outline-info">
-            <i class="far fa-edit"></i>
-            編輯
-        </a>
-    }
-    @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Article,
+                    {
+                        <a asp-page="./Edit" asp-route-id="@Model.Article.ArticleID" class="btn btn-sm btn-outline-primary" title="編輯"><i class="fas fa-edit"></i></a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Model.Article,
 ArticleOperations.Delete)).Succeeded)
-    {
-        <a asp-page="./Delete" asp-route-id="@Model.Article.ArticleID"
-           class="btn btn-xs btn-outline-info">
-            <i class="far fa-trash-alt"></i>
-            刪除
-        </a>
-    }
-    <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-    @if (!Model.Article.Block)
-    {
-        @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Article, ArticleOperations.Block)).Succeeded)
-        {
-            <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Article.ArticleID" />
-                <input type="hidden" name="block" value="@true " />
-                <button type="submit" class="btn btn-xs btn-danger">Block</button>
-            </form>
-        }
-    }
+                    {
+                        <a asp-page="./Delete" asp-route-id="@Model.Article.ArticleID" class="btn btn-sm btn-outline-danger" title="刪除"><i class="fas fa-trash-alt"></i></a>
+                    }
+                    @if ((await AuthorizationService.AuthorizeAsync(User, Model.Article,
+ArticleOperations.Block)).Succeeded)
+                    {
+                        <form method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@Model.Article.ArticleID" />
+                            @if (Model.Article.Block)
+                            {
+                                <input type="hidden" name="block" value="false" />
+                                <button type="submit" class="btn btn-sm btn-success" title="Unblock"><i class="fas fa-check-circle"></i></button>
+                            }
+                            else
+                            {
+                                <input type="hidden" name="block" value="true" />
+                                <button type="submit" class="btn btn-sm btn-warning" title="Block"><i class="fas fa-ban"></i></button>
+                            }
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="text-muted mb-3">
+            <small>
+                作者：
+                <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.Article.ProfileID">
+                    @Model.Article.Profile.UserName
+                </a>
+            </small>
+            <small class="ml-3">
+                發布於：<span title="@Model.Article.UpdateTime">@TimePeriodHelper.Get(Model.Article.UpdateTime)</span>
+            </small>
+        </div>
 
-    @if (Model.Article.Block)
-    {
-        @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Article, ArticleOperations.Block)).Succeeded)
-        {
-            <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Article.ArticleID" />
-                <input type="hidden" name="block" value="@false" />
-                <button type="submit" class="btn btn-xs btn-success">Unblock</button>
-            </form>
-        }
-    }
-</div>
+        <article class="ck-content mb-4">
+            @if (Model.Article.Content != null)
+            {
+                @Html.AntiXssRaw(Model.Article.Content.Replace("\r\n", "<br />"))
+            }
+        </article>
 
-<p></p>
-
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">
-            作者名稱
-        </dt>
-        <dd class="col-sm-10">
-            <a asp-area="Identity"
-               asp-page="/Profile/Index"
-               asp-route-id="@Model.Article.ProfileID">
-                @Html.DisplayFor(model => model.Article.Profile.UserName)
-            </a>
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Article.UpdateTime)
-        </dt>
-        <dd class="col-sm-10" title="@Model.Article.UpdateTime">
-            @TimePeriodHelper.Get(Model.Article.UpdateTime)
-        </dd>
-        <dt class="col-sm-2">
-            月In幣
-        </dt>
-        <dd class="col-sm-10">
-            <div class="row">
-                <p class="col-auto">
-                    @Html.DisplayFor(model => model.Article.MonthlyCoins)
-                </p>
-                <p class="col-auto">
-                    <a class="btn btn-xs btn-outline-danger"
-                       asp-page="/Involvings/InvolveArticle"
-                       asp-route-id="@Model.Article.ArticleID">
-                        <i class="fas fa-coins"></i> Involve
-                    </a>
-                </p>
-                <div class="dropdown col-auto">
-                    <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
+        <div>
+            @foreach (var tag in Model.Article.ArticleTags)
+            {
+                <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-info mr-1">@tag.Name</a>
+            }
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                <span class="mr-2">本月 InCoin: @Html.DisplayFor(model => model.Article.MonthlyCoins)</span>
+                <a class="btn btn-sm btn-danger mr-2" asp-page="/Involvings/InvolveArticle" asp-route-id="@Model.Article.ArticleID">
+                    <i class="fas fa-coins"></i> Involve
+                </a>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown">
                         Involvers <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-menu">
-                        <a class="btn btn-xs btn-outline-info dropdown-item"
-                           asp-page="/Involvings/ArticleInvolvers"
-                           asp-route-id="@Model.Article.ArticleID"
-                           title="Recent">最近</a>
-                        <a class="btn btn-xs btn-outline-info dropdown-item"
-                           asp-page="/Involvings/ArticleInvolvers"
-                           asp-route-id="@Model.Article.ArticleID"
-                           asp-route-TimeSpan="Monthly"
-                           title="Monthly">每月</a>
-                        <a class="btn btn-xs btn-outline-info dropdown-item"
-                           asp-page="/Involvings/ArticleInvolvers"
-                           asp-route-id="@Model.Article.ArticleID"
-                           asp-route-TimeSpan="TotalTime"
-                           title="TotalTime">總共</a>
+                        <a class="dropdown-item" asp-page="/Involvings/ArticleInvolvers" asp-route-id="@Model.Article.ArticleID">最近</a>
+                        <a class="dropdown-item" asp-page="/Involvings/ArticleInvolvers" asp-route-id="@Model.Article.ArticleID" asp-route-TimeSpan="Monthly">每月</a>
+                        <a class="dropdown-item" asp-page="/Involvings/ArticleInvolvers" asp-route-id="@Model.Article.ArticleID" asp-route-TimeSpan="TotalTime">總共</a>
                     </div>
                 </div>
             </div>
-        </dd>
-    </dl>
-</div>
-<hr />
-<article class="ck-content">
-    @if (Model.Article.Content != null)
-    {
-        @Html.AntiXssRaw(Model.Article.Content.Replace("\r\n", "<br />"))
-    }
-</article>
-<p>
-    @foreach(var tag in Model.Article.ArticleTags)
-    {
-        <a asp-page="./Index"
-            asp-route-currentFilter="@tag.Name"
-            class="badge badge-pill badge-info">
-            @tag.Name
-        </a>
-    }
-</p>
-@{
-    string ShareURL = "https://involver.tw/Articles/Details?id=" + Model.Article.ArticleID.ToString();
-}
 
-<!-- 複製連結到剪貼簿以分享 -->
-<input class="form-control" 
-       type="text" value="@ShareURL" 
-       id="myInput" style="width: auto; display: inline">
-<!-- 因為toggle-bootstrap會把tooltip的style蓋掉，所以必須在這裡再強制設定style一次 -->
-<div id="Share" class="tooltip" style="position: relative;display: inline-block;opacity: 1;">
-    <button class="btn btn-primary"
-            onclick="myFunction()"
-            onmouseover="outFunc()">
-        <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
-        分享連結
-    </button>
+            <div class="d-flex align-items-center">
+                @{ 
+                    string shareUrl = $"https://involver.tw/Articles/Details?id={Model.Article.ArticleID}";
+                }
+                <div class="input-group input-group-sm mr-2" style="max-width: 200px;">
+                    <input type="text" class="form-control" value="@shareUrl" id="shareLinkInput">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink()" title="複製連結"><i class="fas fa-copy"></i></button>
+                    </div>
+                </div>
+                <div class="fb-share-button" data-href="@shareUrl" data-layout="button_count"></div>
+            </div>
+        </div>
+    </div>
 </div>
-&nbsp;
-<!-- Your share button code -->
-<div class="fb-share-button"
-     data-href="@ShareURL"
-     data-layout="button_count">
-</div>
-<!-- Load Facebook SDK for JavaScript -->
-<div id="fb-root"></div>
-
-<hr />
 
 @await Component.InvokeAsync("CommentSection", new { from = Parameters.Articles, fromID = Model.Article.ArticleID })
 
+<div id="fb-root"></div>
+
 @section Scripts{
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
     <script>
-        function myFunction() {
-            var copyText = document.getElementById("myInput");
+        function copyShareLink() {
+            var copyText = document.getElementById("shareLinkInput");
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
-
-            var tooltip = document.getElementById("myTooltip");
-
-            Share();
-        }
-
-        function outFunc() {
-            var tooltip = document.getElementById("myTooltip");
-            tooltip.innerHTML = "複製";
+            // Optional: Add a tooltip or toast to show confirmation
+            alert("已複製連結！");
         }
     </script>
 }
