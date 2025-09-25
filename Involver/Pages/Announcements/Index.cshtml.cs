@@ -92,6 +92,8 @@ namespace Involver.Pages.Announcements
 
                 // 檢查是否完成所有任務，若完成會自動加獎勵幣
                 userProfile.Missions.CheckCompletion(userProfile);
+
+                await _context.SaveChangesAsync();
             }
         }
     }
