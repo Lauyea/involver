@@ -67,8 +67,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer text-right">
-                            <small class="text-muted" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    @foreach (var tag in item.ArticleTags)
+                                    {
+                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-info mr-1">@tag.Name</a>
+                                    }
+                                </div>
+
+                                <div class="d-flex align-items-center">
+                                    <small class="text-muted" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
