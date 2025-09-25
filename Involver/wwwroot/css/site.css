@@ -21,17 +21,17 @@ for details on configuring this project to bundle and minify static web assets. 
 
 /* Card styles
 -------------------------------------------------- */
-.card {
+.card.hover-effect {
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
     background-color: var(--card-bg-color);
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-}
+    .card.hover-effect:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    }
 
-.bootstrap-dark .card:hover {
+.bootstrap-dark .card.hover-effect:hover {
     box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
 }
 

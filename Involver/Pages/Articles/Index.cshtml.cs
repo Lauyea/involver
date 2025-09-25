@@ -50,6 +50,7 @@ namespace Involver.Pages.Articles
             var articles = _context.Articles
                 .Include(a => a.Comments)
                 .Include(a => a.Profile)
+                .Where(a => a.Type == ArticleType.General)
                 .AsQueryable();
             //var articles = from a in Context.Articles
             //               select a;
