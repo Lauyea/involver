@@ -1,10 +1,29 @@
 /* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+:root {
+    --bg-color: #fdfaf6; /* 柔和米白背景 */
+    --text-color: #4C4842; /* 暖灰色文字 */
+    --primary-accent: #D98236; /* 溫暖的橘色調 */
+    --primary-accent-hover: #BF712E; /* 滑鼠懸停時的深橘色 */
+    --card-bg-color: #fff; /* 卡片背景，保持白色以凸顯 */
+    --border-color: #e0dcd5; /* 柔和的邊框顏色 */
+}
+
+.bootstrap-dark {
+    --bg-color: #282420; /* 深灰褐色背景 */
+    --text-color: #d4cdc3; /* 淺米色文字 */
+    --primary-accent: #E89F59; /* 黑暗模式下稍亮的橘色 */
+    --primary-accent-hover: #D98236;
+    --card-bg-color: #3a352f; /* 稍亮的卡片背景 */
+    --border-color: #5a534a;
+}
+
 /* Card styles
 -------------------------------------------------- */
 .card {
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    background-color: var(--card-bg-color);
 }
 
 .card:hover {
@@ -13,7 +32,7 @@ for details on configuring this project to bundle and minify static web assets. 
 }
 
 .bootstrap-dark .card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.25);
+    box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
 }
 
 /* Card styles
@@ -27,19 +46,17 @@ a.navbar-brand {
 
 /* Provide sufficient contrast against white background */
 a {
-  color: #0366d6;
+  color: var(--primary-accent);
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+a:hover {
+    color: var(--primary-accent-hover);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+  background-color: var(--primary-accent);
+  border-color: var(--primary-accent-hover);
 }
 
 /* Sticky footer styles
@@ -54,10 +71,10 @@ html {
 }
 
 .border-top {
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid var(--border-color);
 }
 .border-bottom {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .box-shadow {
@@ -76,9 +93,11 @@ html {
   min-height: 100%;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+body.bootstrap {
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 .footer {
   position: absolute;
@@ -193,6 +212,30 @@ body {
 /* Layout styles
 -------------------------------------------------- */
 
+.btn-primary {
+    color: #212529; /* Dark text for better contrast on orange */
+    background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
+    border-color: #e07e00;
+    font-weight: bold;
+}
+
+.bootstrap-dark .btn-primary {
+    color: #212529; /* Dark text for better contrast on orange */
+    background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
+    border-color: #e07e00;
+    font-weight: bold;
+}
+
+.btn-primary:hover {
+    color: #000;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
+.bootstrap-dark .btn-primary:hover {
+    color: #000;
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+}
+
 .bootstrap .bg-light, .bootstrap .bg-themed, .bootstrap .navbar-themed{
     /*background: rgb(247 226 152) !important;*/
     background-image: linear-gradient(128deg,rgb(255 245 211), rgb(247 226 152));
@@ -220,11 +263,11 @@ body {
 }
 
 .bootstrap a, .bootstrap-dark a {
-    color: hwb(32deg 0% 8%);
+    color: var(--primary-accent);
 }
 
     .bootstrap a:hover, .bootstrap-dark a:hover {
-        color: hwb(32deg 0% 25%);
+        color: var(--primary-accent-hover);
     }
 
 /*.bootstrap .dropdown-menu, .bootstrap-dark .dropdown-menu {
@@ -260,11 +303,11 @@ body {
 }
 
 .bootstrap .page-link, .bootstrap-dark .page-link {
-    color: hwb(32deg 0% 8%);
+    color: var(--primary-accent);
 }
 
     .bootstrap .page-link:hover, .bootstrap-dark .page-link:hover {
-        color: hwb(32deg 0% 25%);
+        color: var(--primary-accent-hover);
     }
 
 .bootstrap .page-item.active .page-link, .bootstrap-dark .page-item.active .page-link {
@@ -277,10 +320,10 @@ body {
 }
 
 .bootstrap .btn-link, .bootstrap-dark .btn-link {
-    color: hwb(32deg 0% 8%);
+    color: var(--primary-accent);
 }
     .bootstrap .btn-link:hover, .bootstrap-dark .btn-link:hover {
-        color: hwb(32deg 0% 25%);
+        color: var(--primary-accent-hover);
     }
 
 .bootstrap-dark .navbar-dark .navbar-nav .nav-link:focus, .bootstrap-dark .navbar-dark .navbar-nav .nav-link:hover, .bootstrap-dark .navbar-themed .navbar-nav .nav-link:focus, .bootstrap-dark .navbar-themed .navbar-nav .nav-link:hover {
