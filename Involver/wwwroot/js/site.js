@@ -163,15 +163,17 @@ function FollowNovel(btn, id) {
         method: 'get',
         url: "/Follow/FollowNovel?id=" + id,
         error: function (xhr, status, err) {
-            alert(err)
+            alert(err);
         }
     }).done(function () {
-        $(btn).toggleClass('disabled  ');
-        if ($(btn).text() === "追蹤創作") {
-            $(btn).text("取消追蹤");
-        }
-        else {
-            $(btn).text("追蹤創作");
+        let $btn = $(btn);
+        // 切換狀態
+        if ($btn.hasClass("btn-primary")) {
+            $btn.removeClass("btn-primary").addClass("btn-secondary");
+            $btn.text("取消追蹤");
+        } else {
+            $btn.removeClass("btn-secondary").addClass("btn-primary");
+            $btn.text("追蹤創作");
         }
     });
 }

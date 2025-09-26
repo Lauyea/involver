@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -90,7 +90,8 @@ namespace Involver.Pages.Novels
 
             var recommendNovels = _context.Novels
                 .Where(n => n.Type == Novel.Type)
-                .Where(n => n.Block == false);
+                .Where(n => n.Block == false)
+                .Where(n => n.IsDeleted == false);
 
             // There is most 3 tags right now
             if (tagArr.Count() > 2)

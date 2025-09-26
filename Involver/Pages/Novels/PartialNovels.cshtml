@@ -1,11 +1,11 @@
-﻿@using DataAccess.Models.NovelModel;
+@using DataAccess.Models.NovelModel;
 @model List<Novel>
 
 <div>
     <div>
         @foreach (var item in Model)
         {
-            <div class="card" style="width: 18rem;">
+            <div class="card">
                 <a asp-page="./Details" asp-route-id="@item.NovelID">
                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                     {
