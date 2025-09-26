@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using DataAccess.Common;
@@ -38,10 +38,12 @@ namespace DataAccess.Models.NovelModel
 
 
         [Column(TypeName = "money")]
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public decimal TotalCoins { get; set; }
 
 
         [Column(TypeName = "money")]
+        [DisplayFormat(DataFormatString = "{0:N0}")]
         public decimal MonthlyCoins { get; set; }
 
         [Display(Name = "付費限定")]
