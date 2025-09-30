@@ -101,7 +101,7 @@
                                         <a asp-page="./Details" asp-route-id="@item.NovelID" class="fw-bold">@Html.DisplayFor(modelItem => item.Title)</a>
                                         @if (item.Block == true)
                                         {
-                                            <span class="text-danger ms-1">Block</span>
+                                            <small class="badge-danger badge-pill ms-1">Block</small>
                                         }
                                         <div>
                                             <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
@@ -147,7 +147,7 @@
                                     <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
                                     @if (item.Block == true)
                                     {
-                                        <span class="text-danger ms-1">Block</span>
+                                        <small class="badge-danger badge-pill ms-1">Block</small>
                                     }
                                 </h5>
                                 <p class="card-text flex-grow-1"></p>
