@@ -47,6 +47,10 @@
                         <div class="card-body d-flex flex-column">
                             <a asp-page="./Details" asp-route-id="@item.ArticleID">
                                 <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
+                                @if (item.Block == true)
+                                {
+                                    <small class="badge-danger badge-pill ms-1">Block</small>
+                                }
                             </a>
                             @{
                                 string cardText = item.Content?.Length > Parameters.ContentLength ? item.Content.Substring(0, Parameters.ContentLength) + "..." : item.Content;
