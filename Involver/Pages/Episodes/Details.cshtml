@@ -1,229 +1,157 @@
 @page
-@using DataAccess.Models.NovelModel;
-@using System.Text.Json
+@using DataAccess.Models.NovelModel
+@using Involver.Authorization
+@using Involver.Common
+@using Involver.Helpers
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
 @model Involver.Pages.Episodes.DetailsModel
 
-@{
+@{ 
     ViewData["Title"] = Model.Episode.Title;
     ViewData["From"] = Parameters.Episodes;
     ViewData["FromId"] = Model.Episode.EpisodeID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    ViewData["ReturnRightFunction"] = false;
 }
+
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
-<h1>@Html.DisplayFor(model => model.Episode.Title)</h1>
 
-<h4>章節</h4>
-<hr />
-
-<div class="btn-group row">
-    <a asp-page="../Novels/Details" asp-route-id="@Model.Novel.NovelID"
-       class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到目錄</a>
-    @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Novel,
-NovelOperations.Update)).Succeeded)
-    {
-        <a asp-page="./Edit" asp-route-id="@Model.Episode.EpisodeID"
-           class="btn btn-xs btn-outline-info">
-            <i class="far fa-edit"></i>
-            編輯
-        </a>
-    }
-    @if ((await AuthorizationService.AuthorizeAsync(
-User, Model.Novel,
-NovelOperations.Delete)).Succeeded)
-    {
-        <a asp-page="./Delete" asp-route-id="@Model.Episode.EpisodeID"
-           class="btn btn-xs btn-outline-info">
-            <i class="far fa-trash-alt"></i>
-            刪除
-        </a>
-    }
-    <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-    <a href="#Voting" class="btn btn-xs btn-outline-info"><i class="fas fa-vote-yea"></i>投票</a>
-</div>
-<p></p>
-<div class="reading-actions">
+<nav aria-label="Episode navigation" class="d-flex justify-content-between align-items-center mb-3" style="background:none;">
     @if (Model.PreviousEpisode != null)
     {
-        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID"><i class="fas fa-arrow-left"></i>上一章</a>
+        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> 上一章</a>
     }
     else
     {
-        <a><i class="fas fa-arrow-left"></i>上一章</a>
+        <a class="btn btn-outline-secondary disabled" href="#"><i class="fas fa-arrow-left"></i> 上一章</a>
     }
-    &nbsp&nbsp
+    @* <a asp-page="../Novels/Details" asp-route-id="@Model.Novel.NovelID" asp-fragment="EpisodesHead" class="btn btn-primary"><i class="fas fa-list-ol"></i> 回到目錄</a> *@
     @if (Model.NextEpisode != null)
     {
-        <a asp-page="./Details" class="btn btn-xs btn-outline-warning" asp-route-id="@Model.NextEpisode.EpisodeID">下一章<i class="fas fa-arrow-right"></i></a>
+        <a asp-page="./Details" asp-route-id="@Model.NextEpisode.EpisodeID" class="btn btn-outline-secondary">下一章 <i class="fas fa-arrow-right"></i></a>
     }
     else
     {
-        <a>下一章<i class="fas fa-arrow-right"></i></a>
+        <a class="btn btn-outline-secondary disabled" href="#">下一章 <i class="fas fa-arrow-right"></i></a>
     }
+</nav>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="mb-0 text-break">@Html.DisplayFor(model => model.Episode.Title)</h1>
+            <div class="d-flex justify-content-end flex-wrap">
+                <a asp-page="../Novels/Details" asp-route-id="@Model.Novel.NovelID" asp-fragment="EpisodesHead" class="btn btn-sm btn-outline-secondary m-1" title="回到目錄">
+                    <i class="fas fa-list"></i>
+                </a>
+                <a href="#CommentHead" class="btn btn-sm btn-outline-info m-1" title="評論"><i class="fas fa-comment"></i></a>
+                @if (Model.CanCreateVoting || Model.Votings.Any())
+                {
+                    <a href="#Voting" class="btn btn-sm btn-outline-success m-1" title="投票"><i class="fas fa-vote-yea"></i></a>
+                }
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Update)).Succeeded)
+                {
+                    <a asp-page="./Edit" asp-route-id="@Model.Episode.EpisodeID" class="btn btn-sm btn-outline-primary m-1" title="編輯"><i class="fas fa-edit"></i></a>
+                }
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Delete)).Succeeded)
+                {
+                    <a asp-page="./Delete" asp-route-id="@Model.Episode.EpisodeID" class="btn btn-sm btn-outline-danger m-1" title="刪除"><i class="fas fa-trash-alt"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="text-muted mb-3">
+            <small>發布於：<span title="@Model.Episode.UpdateTime">@TimePeriodHelper.Get(Model.Episode.UpdateTime)</span></small>
+            <small class="ml-3">觀看數：@Html.DisplayFor(model => model.Episode.Views)</small>
+        </div>
+        <article class="ck-content">
+            @if (Model.Episode.Content != null)
+            {
+                @Html.AntiXssRaw(Model.Episode.Content.Replace("\r\n", "<br />"))
+            }
+        </article>
+    </div>
+    <div class="card-footer">
+        @{
+            string shareUrl = $"https://involver.tw/Episodes/Details?id={Model.Episode.EpisodeID}";
+        }
+        <div class="d-flex justify-content-end align-items-center">
+            <div class="input-group input-group-sm mr-2" style="max-width: 200px;">
+                <input type="text" class="form-control" value="@shareUrl" id="shareLinkInput">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink()" title="複製連結"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+            <div class="fb-share-button" data-href="@shareUrl" data-layout="button_count"></div>
+        </div>
+    </div>
 </div>
-<p></p>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Episode.UpdateTime)
-        </dt>
-        <dd class="col-sm-10" title="@Model.Episode.UpdateTime">
-            @TimePeriodHelper.Get(Model.Episode.UpdateTime)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Episode.Views)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Episode.Views)
-        </dd>
-    </dl>
-</div>
-
-<hr />
-
-<article class="ck-content">
-    @if (Model.Episode.Content != null)
+<nav aria-label="Episode navigation" class="d-flex justify-content-between align-items-center mb-4" style="background:none;">
+    @if (Model.PreviousEpisode != null)
     {
-        @Html.AntiXssRaw(Model.Episode.Content.Replace("\r\n", "<br />"))
+        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID" class="btn btn-outline-secondary"><i class="fas fa-arrow-left"></i> 上一章</a>
     }
-</article>
+    else
+    {
+        <a class="btn btn-outline-secondary disabled" href="#"><i class="fas fa-arrow-left"></i> 上一章</a>
+    }
+    @* <a asp-page="../Novels/Details" asp-route-id="@Model.Novel.NovelID" asp-fragment="EpisodesHead" class="btn btn-primary"><i class="fas fa-list-ol"></i> 回到目錄</a> *@
+    @if (Model.NextEpisode != null)
+    {
+        <a asp-page="./Details" asp-route-id="@Model.NextEpisode.EpisodeID" class="btn btn-outline-secondary">下一章 <i class="fas fa-arrow-right"></i></a>
+    }
+    else
+    {
+        <a class="btn btn-outline-secondary disabled" href="#">下一章 <i class="fas fa-arrow-right"></i></a>
+    }
+</nav>
 
-<p></p>
-
-@{
-    string ShareURL = "https://involver.tw/Episodes/Details?id=" + Model.Episode.EpisodeID.ToString();
+@if (Model.CanCreateVoting || Model.Votings.Any())
+{
+    <div class="card mb-4" id="Voting">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">投票</h5>
+                @if (Model.CanCreateVoting)
+                {
+                    <div>
+                        <a asp-page="/Descriptions/Voting" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-info-circle"></i> 投票說明</a>
+                        <a asp-page="../Votings/Create" asp-route-id="@Model.Episode.EpisodeID" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> 新增投票</a>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="card-body">
+            <partial name="Votings/PartialVotings" for="@Model.Votings" />
+        </div>
+    </div>
 }
-<!-- 複製連結到剪貼簿以分享 -->
-<input class="form-control"
-       type="text" value="@ShareURL"
-       id="myInput" style="width: auto; display: inline;">
-<!-- 因為toggle-bootstrap會把tooltip的style蓋掉，所以必須在這裡再強制設定style一次 -->
-<div id="Share" class="tooltip" style="position: relative;display: inline-block;opacity: 1;">
-    <button class="btn btn-primary"
-            onclick="myFunction()"
-            onmouseover="outFunc()">
-        <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
-        分享連結
-    </button>
-</div>
-&nbsp;
-<!-- Your share button code -->
-<div class="fb-share-button"
-     data-href="@ShareURL"
-     data-layout="button_count">
-</div>
-<!-- Load Facebook SDK for JavaScript -->
+
+@await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID })
+
 <div id="fb-root"></div>
 
-<hr />
-
-<div id="Voting">
-    @if (Model.CanCreateVoting)
-    {
-        <p>
-            <a asp-page="../Votings/Create"
-               asp-route-id="@Model.Episode.EpisodeID"
-               class="btn btn-xs btn-outline-info">新增投票</a>
-            <a asp-page="/Descriptions/Voting" target="_blank">投票說明</a>
-        </p>
-        <hr />
-    }
-    <partial name="Votings/PartialVotings" for="@Model.Votings" />
-</div>
-<p></p>
-<div>
-    @await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID })
-</div>
-
-<div class="reading-actions">
-    @if (Model.PreviousEpisode != null)
-    {
-        <a asp-page="./Details" asp-route-id="@Model.PreviousEpisode.EpisodeID"><i class="fas fa-arrow-left"></i>上一章</a>
-    }
-    else
-    {
-        <a><i class="fas fa-arrow-left"></i>上一章</a>
-    }
-    &nbsp&nbsp
-    @if (Model.NextEpisode != null)
-    {
-        <a asp-page="./Details" class="btn btn-xs btn-outline-warning" asp-route-id="@Model.NextEpisode.EpisodeID">下一章<i class="fas fa-arrow-right"></i></a>
-    }
-    else
-    {
-        <a>下一章<i class="fas fa-arrow-right"></i></a>
-    }
-</div>
-
-@section Styles{
-    <style>
-        .reading-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Share function's CSS */
-        .tooltip {
-            position: relative;
-            display: inline-block;
-            opacity: 1;
-        }
-
-            .tooltip .tooltiptext {
-                visibility: hidden;
-                width: 140px;
-                background-color: #555;
-                color: #fff;
-                text-align: center;
-                border-radius: 6px;
-                padding: 5px;
-                position: absolute;
-                z-index: 1;
-                bottom: 150%;
-                left: 50%;
-                margin-left: -75px;
-                opacity: 0;
-                transition: opacity 0.3s;
-            }
-
-                .tooltip .tooltiptext::after {
-                    content: "";
-                    position: absolute;
-                    top: 100%;
-                    left: 50%;
-                    margin-left: -5px;
-                    border-width: 5px;
-                    border-style: solid;
-                    border-color: #555 transparent transparent transparent;
-                }
-
-            .tooltip:hover .tooltiptext {
-                visibility: visible;
-                opacity: 1;
-            }
-    </style>
-}
-
 @section Scripts{
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
     <script>
-        function myFunction() {
-            var copyText = document.getElementById("myInput");
+        function copyShareLink() {
+            var copyText = document.getElementById("shareLinkInput");
             copyText.select();
             copyText.setSelectionRange(0, 99999);
             document.execCommand("copy");
-
-            var tooltip = document.getElementById("myTooltip");
-
-            Share();
-        }
-
-        function outFunc() {
-            var tooltip = document.getElementById("myTooltip");
-            tooltip.innerHTML = "複製";
+            // Optional: Add a tooltip or toast to show confirmation
+            alert("已複製連結！");
         }
     </script>
 }

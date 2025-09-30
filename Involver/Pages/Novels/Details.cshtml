@@ -1,276 +1,194 @@
-@page
+@page "{id}"
 @model Involver.Pages.Novels.DetailsModel
 
-@{
+@{ 
     ViewData["Title"] = Model.Novel.Title;
     ViewData["From"] = Parameters.Novels;
     ViewData["FromId"] = Model.Novel.NovelID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
+
 <partial name="_Toasts" model="Model.Toasts" />
-<h1>@Html.DisplayFor(model => model.Novel.Title)</h1>
-<h4>
-    創作
-    @if (Model.UserId != null)
-    {
-        <span class="d-inline mt-3">
-            @if (Model.Followed)
-            {
-                <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-                class="btn btn-xs btn-primary disabled">取消追蹤</button>
-            }
-            else
-            {
-                <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)"
-                class="btn btn-xs btn-primary">追蹤創作</button>
-            }
-        </span>
-    }
-</h4>
 
-<hr />
-
-<div class="btn-group">
-    <a asp-page="./Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-    @if ((await AuthorizationService.AuthorizeAsync(
-    User, Model.Novel,
-    NovelOperations.Update)).Succeeded)
-    {
-        <a asp-page="./Edit" asp-route-id="@Model.Novel.NovelID"
-       class="btn btn-xs btn-outline-info">
-            <i class="far fa-edit"></i>
-            編輯
-        </a>
-    }
-    @if ((await AuthorizationService.AuthorizeAsync(
-    User, Model.Novel,
-    NovelOperations.Delete)).Succeeded)
-    {
-        <a asp-page="./Delete" asp-route-id="@Model.Novel.NovelID"
-       class="btn btn-xs btn-outline-info">
-            <i class="far fa-trash-alt"></i>
-            刪除
-        </a>
-    }
-    <a href="#CommentHead" class="btn btn-xs btn-outline-info"><i class="far fa-comment"></i>評論</a>
-</div>
-<div>
-    @if (!Model.Novel.Block)
-    {
-        @if ((await AuthorizationService.AuthorizeAsync(
-       User, Model.Novel, NovelOperations.Block)).Succeeded)
-        {
-            <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Novel.NovelID" />
-                <input type="hidden" name="block" value="@true " />
-                <button type="submit" class="btn btn-xs btn-danger">Block</button>
-            </form>
-        }
-    }
-    else
-    {
-        @if ((await AuthorizationService.AuthorizeAsync(
-       User, Model.Novel, NovelOperations.Block)).Succeeded)
-        {
-            <form style="display:inline;" method="post">
-                <input type="hidden" name="id" value="@Model.Novel.NovelID" />
-                <input type="hidden" name="block" value="@false" />
-                <button type="submit" class="btn btn-xs btn-success">Unblock</button>
-            </form>
-        }
-    }
-</div>
-<p></p>
 <div class="row">
-    <div class="col-md-8">
-        <div class="mb-3">
-            @if (!string.IsNullOrEmpty(Model.Novel.ImageUrl))
-            {
-                <img src="@Model.Novel.ImageUrl"
+    <div class="col-lg-9">
+        @if (!string.IsNullOrEmpty(Model.Novel.ImageUrl))
+        {
+            <img src="@Model.Novel.ImageUrl"
                  asp-append-version="true"
                  alt="讀取失敗"
                  title="@Model.Novel.Title"
-                 style="width: 100%; max-height: 400px;border-radius:.5rem;">
-                <p></p>
-            }
-            else
-            {
-                <img src="https://picsum.photos/600/300?grayscale&random=@Model.Novel.NovelID"
+                 style="width: 100%; max-height: auto;border-radius:.5rem;">
+            <p></p>
+        }
+        else
+        {
+            <img src="https://picsum.photos/600/300?grayscale&random=@Model.Novel.NovelID"
                  alt="讀取失敗"
                  title="主題圖片"
                  style="width: 100%; height: auto;border-radius:.5rem;" />
-                <p></p>
-            }
-            <div class="card mx-auto" style="margin-top:-4rem;width:90%;border-radius: 0.75rem;">
-                <dl class="card-body row">
-                    <dt class="col-sm-2">
-                        作者
-                    </dt>
-                    <dd class="col-sm-10">
-                        <a asp-area="Identity"
-                           asp-page="/Profile/Index"
-                           asp-route-id="@Model.Novel.ProfileID">
-                            @Html.DisplayFor(model => model.Writer.UserName)
-                        </a>
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Novel.Introduction)
-                    </dt>
-                    <dd class="col-sm-10 ck-content text-muted">
-                        @Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))
-                    </dd>
-                    <dt class="col-sm-2">
-                        更新
-                    </dt>
-                    <dd class="col-sm-10 text-muted" title="@Model.Novel.UpdateTime">
-                        @TimePeriodHelper.Get(Model.Novel.UpdateTime)
-                    </dd>
-                    <dt class="col-sm-2">
-                        月In幣
-                    </dt>
-                    <dd class="col-sm-10 text-muted">
-                        <div class="row">
-                            <div class="col-auto">
-                                @Html.DisplayFor(model => model.Novel.MonthlyCoins)
-                            </div>
-                            <div class="col-auto">
-                                <a class="btn btn-xs btn-outline-danger"
-                                   asp-page="/Involvings/InvolveNovel"
-                                   asp-route-id="@Model.Novel.NovelID">
-                                    <i class="fas fa-coins"></i> Involve
-                                </a>
+            <p></p>
+        }
+        <div class="card mb-4 mx-auto" style="margin-top:-4rem;width:90%;border-radius: 0.75rem;">
+            <div class="row no-gutters">
+                <div class="col-md-12">
+                    <div class="card-body d-flex flex-column h-100">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <h2 class="card-title text-break flex-grow-1">@Model.Novel.Title</h2>
+                            <div class="d-flex justify-content-end flex-wrap">
+                                <a asp-page="./Index" class="btn btn-sm btn-outline-secondary m-1" title="回到清單"><i class="fas fa-list"></i></a>
+                                <a href="#CommentHead" class="btn btn-sm btn-outline-info m-1" title="評論"><i class="fas fa-comment"></i></a>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Update)).Succeeded)
+                                {
+                                    <a asp-page="./Edit" asp-route-id="@Model.Novel.NovelID" class="btn btn-sm btn-outline-primary m-1" title="編輯"><i class="fas fa-edit"></i></a>
+                                }
+                                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Delete)).Succeeded)
+                                {
+                                    <a asp-page="./Delete" asp-route-id="@Model.Novel.NovelID" class="btn btn-sm btn-outline-danger m-1" title="刪除"><i class="fas fa-trash-alt"></i></a>
+                                }
                             </div>
                         </div>
-                    </dd>
-                    <dt class="col-sm-2">
-                        總In幣
-                    </dt>
-                    <dd class="col-sm-10 text-muted">
-                        <div class="row">
-                            <div class="col-auto">
-                                @Html.DisplayFor(model => model.Novel.TotalCoins)
+
+                        <p class="text-muted">
+                            作者：<a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.Novel.ProfileID">@Model.Writer.UserName</a>
+                        </p>
+
+                        <p class="card-text ck-content">@Html.AntiXssRaw(Model.Novel.Introduction.Replace("\r\n", "<br />"))</p>
+
+                        <div class="mt-auto">
+                            <div class="mb-2">
+                                @foreach (var tag in Model.Novel.NovelTags)
+                                {
+                                    <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-info mr-1">@tag.Name</a>
+                                }
                             </div>
-                            <div class="dropdown col-auto">
-                                <button type="button" class="btn btn-xs btn-outline-info" data-toggle="dropdown">
-                                    Involvers <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a class="btn btn-xs btn-outline-info dropdown-item"
-                                       asp-page="/Involvings/Involvers"
-                                       asp-route-id="@Model.Novel.NovelID"
-                                       title="Recent">最近</a>
-                                    <a class="btn btn-xs btn-outline-info dropdown-item"
-                                       asp-page="/Involvings/Involvers"
-                                       asp-route-id="@Model.Novel.NovelID"
-                                       asp-route-TimeSpan="Monthly"
-                                       title="Monthly">每月</a>
-                                    <a class="btn btn-xs btn-outline-info dropdown-item"
-                                       asp-page="/Involvings/Involvers"
-                                       asp-route-id="@Model.Novel.NovelID"
-                                       asp-route-TimeSpan="TotalTime"
-                                       title="TotalTime">總共</a>
+
+                            <div class="d-flex justify-content-between align-items-center mb-2 text-muted">
+                                <small>更新於：@TimePeriodHelper.Get(Model.Novel.UpdateTime)</small>
+                                <div>
+                                    @if (Model.Novel.PrimeRead)
+                                    {
+                                        <span class="badge bg-warning text-dark" title="只有付費會員才能閱讀最新章節">
+                                            <i class="fas fa-crown"></i> 付費限定
+                                        </span>
+                                    }
+                                    @if (Model.Novel.End)
+                                    {
+                                        <span class="badge bg-success text-light">
+                                            <i class="fas fa-flag-checkered"></i> 完結
+                                        </span>
+                                    }
+                                    @if (Model.Novel.Block)
+                                    {
+                                        <span class="badge bg-danger text-light" title="封鎖的創作會在列表上隱藏，但可以分享連結用作私人房間。如要解封請提出申請">
+                                            <i class="fas fa-lock"></i> 封鎖/ 隱藏
+                                        </span>
+                                    }
+                                </div>
+
+                            </div>
+
+                            <div class="d-flex justify-content-around text-center border-top border-bottom py-2 mb-3">
+                                <div>
+                                    <div class="font-weight-bold">
+                                        <a href="#" class="view-chart-trigger" data-type="novel" data-id="@Model.Novel.NovelID">@Html.DisplayFor(model => model.Novel.TotalViews)</a>
+                                    </div>
+                                    <small class="text-muted">觀看數</small>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">
+                                        <a asp-page="/Follows/Followers" asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count()</a>
+                                    </div>
+                                    <small class="text-muted">追蹤數</small>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">@Html.DisplayFor(model => model.Novel.TotalCoins)</div>
+                                    <small class="text-muted">總 InCoin</small>
+                                </div>
+                                <div>
+                                    <div class="font-weight-bold">@Html.DisplayFor(model => model.Novel.MonthlyCoins)</div>
+                                    <small class="text-muted">本月 InCoin</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end align-items-center">
+                                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Block)).Succeeded)
+                                {
+                                    <form style="display:inline;" method="post">
+                                        <input type="hidden" name="id" value="@Model.Novel.NovelID" />
+                                        <input type="hidden" name="block" value="@(Model.Novel.Block ? "false" : "true")" />
+                                        <button type="submit" class="btn btn-sm @(Model.Novel.Block ? "btn-success" : "btn-danger") mr-2">@(Model.Novel.Block ? "Unblock" : "Block")</button>
+                                    </form>
+                                }
+                                @if (Model.UserId != null)
+                                {
+                                    <button type="button" onclick="FollowNovel(this, @Model.Novel.NovelID)" class="btn btn-sm @(Model.Followed ? "btn-secondary" : "btn-primary") mr-2">
+                                        @(Model.Followed ? "取消追蹤" : "追蹤創作")
+                                    </button>
+                                }
+                                <a class="btn btn-sm btn-danger mr-2" asp-page="/Involvings/InvolveNovel" asp-route-id="@Model.Novel.NovelID"><i class="fas fa-coins"></i> Involve</a>
+                                <div class="dropdown">
+                                    <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown">Involvers</button>
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <a class="dropdown-item" asp-page="/Involvings/Involvers" asp-route-id="@Model.Novel.NovelID">最近</a>
+                                        <a class="dropdown-item" asp-page="/Involvings/Involvers" asp-route-id="@Model.Novel.NovelID" asp-route-TimeSpan="Monthly">每月</a>
+                                        <a class="dropdown-item" asp-page="/Involvings/Involvers" asp-route-id="@Model.Novel.NovelID" asp-route-TimeSpan="TotalTime">總共</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </dd>
-                    <dt class="col-sm-2" title="只有會員可以觀看最新章節">
-                        @Html.DisplayNameFor(model => model.Novel.PrimeRead)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.Novel.PrimeRead)
-                    </dd>
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Novel.End)
-                    </dt>
-                    <dd class="col-sm-10">
-                        @Html.DisplayFor(model => model.Novel.End)
-                    </dd>
-                    @if (Model.Novel.Block)
-                    {
-                        <dt class="col-sm-2" title="列表是否看得見這個創作，如果要解封請提出申請">
-                            @Html.DisplayNameFor(model => model.Novel.Block)
-                        </dt>
-                        <dd class="col-sm-10">
-                            @Html.DisplayFor(model => model.Novel.Block)
-                        </dd>
-                    }
-                    <dt class="col-sm-2">
-                        @Html.DisplayNameFor(model => model.Novel.TotalViews)
-                    </dt>
-                    <dd class="col-sm-10 text-muted">
-                        <a href="#" class="view-chart-trigger" data-type="novel" data-id="@Model.Novel.NovelID">@Html.DisplayFor(model => model.Novel.TotalViews)</a>
-                    </dd>
-                    <dt class="col-sm-2">
-                        追蹤數
-                    </dt>
-                    <dd class="col-sm-10">
-                        <a asp-page="/Follows/Followers"
-                           asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count() 位追蹤者</a>
-                    </dd>
-                    <dt class="col-sm-2">
-                        標籤
-                    </dt>
-                    <dd class="col-sm-10">
-                        @foreach (var tag in Model.Novel.NovelTags)
-                        {
-                            <a asp-page="./Index"
-                           asp-route-currentFilter="@tag.Name"
-                           class="badge badge-pill badge-info">
-                                @tag.Name
-                            </a>
-                        }
-                    </dd>
-                </dl>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div>
-            <p id="EpisodeHead">
-                @if ((await AuthorizationService.AuthorizeAsync(
-                User, Model.Novel,
-                NovelOperations.Update)).Succeeded)
+        <div class="card mb-4" id="EpisodesHead">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">章節列表</h5>
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Update)).Succeeded)
                 {
-                    <a asp-page="../Episodes/Create" asp-route-from="@Parameters.Novels" asp-route-fromID="@Model.Novel.NovelID"
-                   class="btn btn-xs btn-outline-primary">新章節</a>
+                    <a asp-page="../Episodes/Create" asp-route-id="@Model.Novel.NovelID" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> 新增章節</a>
                 }
-            </p>
-            <p></p>
-            <div id="partialEpisodes"></div>
-            <ul id="partialEpisodesPagination" class="pagination"></ul>
+            </div>
+            <div class="card-body" id="partialEpisodes">
+                <!-- Episodes will be loaded here by AJAX -->
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+                <ul id="partialEpisodesPagination" class="pagination"></ul>
+            </div>
         </div>
-        <hr />
+
+        <div class="card">
+             <div class="card-header"><h5 class="mb-0">評論</h5></div>
+             <div class="card-body">
+                @await Component.InvokeAsync("CommentSection", new { from = Parameters.Novels, fromID = Model.Novel.NovelID })
+             </div>
+        </div>
     </div>
-    <div class="col-md-1"></div>
-    <div class="col-md-3">
-        <partial name="./PartialNovels" for="@Model.RecommendNovels" />
+    <div class="col-lg-3">
+        <div class="card">
+            <div class="card-header"><h5 class="mb-0">推薦創作</h5></div>
+            <div class="card-body">
+                <partial name="./PartialNovels" for="@Model.RecommendNovels" />
+            </div>
+        </div>
     </div>
 </div>
-
-<div class="mt-3">
-    @await Component.InvokeAsync("CommentSection", new { from = Parameters.Novels, fromID = Model.Novel.NovelID })
-</div>
-
-
 
 @section Scripts{
     <script>
-        $('#partialEpisodesPagination').twbsPagination({
-            totalPages: @Model.Episodes.TotalPages,
-            visiblePages: @Parameters.EpisodePageSize,
-            first: "首",
-            prev: "前",
-            next: "後",
-            last: "末",
-            onPageClick: function (event, page) {
-                $.ajax({
-                    type: 'GET',
-                    url: '@Url.Action("Get", "PartialEpisodes")',
-                    data: { novelId: @Model.Novel.NovelID, pageIndex: page },
-                    success: function (result) {
-                        $('#partialEpisodes').html(result);
-                    }
-                });
-            }
+        $(function() {
+            $('#partialEpisodesPagination').twbsPagination({
+                totalPages: @Model.Episodes.TotalPages,
+                visiblePages: @Parameters.EpisodePageSize,
+                first: '<<',
+                prev: '<',
+                next: '>',
+                last: '>>',
+                onPageClick: function (event, page) {
+                    $('#partialEpisodes').load('@Url.Action("Get", "PartialEpisodes")?novelId=@Model.Novel.NovelID&pageIndex=' + page);
+                }
+            });
         });
     </script>
 }

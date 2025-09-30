@@ -1,4 +1,4 @@
-﻿using DataAccess.Data;
+using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
@@ -33,7 +33,7 @@ namespace Involver.Pages.Articles
                 return NotFound();
             }
 
-            Article = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+            Article = await _context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Article == null)
             {

@@ -50,9 +50,9 @@ namespace Involver.Pages.Announcements
             }
             CurrentFilter = searchString;
 
-            var announcements = from a in _context.Articles
-                                where a.Type == ArticleType.Announcement
-                                select a;
+            var announcements = _context.Articles
+                .Include(a => a.Profile)
+                .Where(a => a.Type == ArticleType.Announcement);
 
             //Announcements = await Context.Announcements
             //    .OrderBy(a => a.UpdateTime)
@@ -92,6 +92,8 @@ namespace Involver.Pages.Announcements
 
                 // 檢查是否完成所有任務，若完成會自動加獎勵幣
                 userProfile.Missions.CheckCompletion(userProfile);
+
+                await _context.SaveChangesAsync();
             }
         }
     }

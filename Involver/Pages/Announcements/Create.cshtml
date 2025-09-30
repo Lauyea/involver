@@ -7,48 +7,39 @@
     string UserID = userManager.GetUserId(User);
 }
 
-<h1>公告</h1>
-
-<h4>創建</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Announcement.Title" class="control-label"></label>
-                <input asp-for="Announcement.Title" class="form-control" />
-                <span asp-validation-for="Announcement.Title" class="text-danger"></span>
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="mb-0">建立公告</h1>
             </div>
-            <div class="form-group">
-                <label asp-for="Announcement.Content" class="control-label"></label>
-                <textarea asp-for="Announcement.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
-                <div id="word-count"></div>
-                <span asp-validation-for="Announcement.Content" class="text-danger"></span>
+            <div class="card-body">
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <div class="form-group">
+                        <label asp-for="Announcement.Title" class="control-label"></label>
+                        <input asp-for="Announcement.Title" class="form-control" />
+                        <span asp-validation-for="Announcement.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Announcement.Content" class="control-label"></label>
+                        <textarea asp-for="Announcement.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                        <div id="word-count" class="text-right text-muted"></div>
+                        <span asp-validation-for="Announcement.Content" class="text-danger"></span>
+                    </div>
+                    <input type="hidden" value="@UserID" asp-for="Announcement.ProfileID" />
+                    <div class="form-group d-flex justify-content-end">
+                        <a asp-page="Index" class="btn btn-secondary mr-2">返回清單</a>
+                        <input type="submit" value="建立" class="btn btn-primary" />
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label class="control-label">
-                    <input class="form-check-input"
-                           style="display:none"
-                           value="@UserID"
-                           asp-for="Announcement.ProfileID" />
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="創建" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-page="Index">返回清單</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script>
-    </script>
     @{
         ViewData["EditorId"] = "editor";
         ViewData["WordCountDivId"] = "word-count";

@@ -1,84 +1,84 @@
-﻿@page
+@page
 @model Involver.Pages.Articles.CreateModel
+@using Microsoft.AspNetCore.Identity
+@using Involver.Common
+
+@inject UserManager<InvolverUser> userManager
+@inject IConfiguration Configuration
 
 @{
-    ViewData["Title"] = "新增";
+    ViewData["Title"] = "建立文章";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
 }
+
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
-<h1>新增</h1>
 
-<h4>討論</h4>
-<hr />
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="mb-0">建立文章</h1>
+                    <a asp-page="Index" class="btn btn-sm btn-outline-secondary"><i class="fas fa-list"></i> 回到清單</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="form">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    @if (Model.ErrorMessage != null)
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+                    <input type="hidden" value="@UserID" asp-for="Article.ProfileID" />
 
-<div>
-    <a asp-page="Index" class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到清單</a>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <form method="post" id="form">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            @if (Model.ErrorMessage != null)
-            {
-                <div class="text-danger">@Model.ErrorMessage</div>
-            }
-            <div class="form-group">
-                <label asp-for="Article.Title" class="control-label"></label>
-                <input asp-for="Article.Title" class="form-control" />
-                <span asp-validation-for="Article.Title" class="text-danger"></span>
+                    <div class="form-group">
+                        <label asp-for="Article.Title" class="control-label"></label>
+                        <input asp-for="Article.Title" class="form-control" />
+                        <span asp-validation-for="Article.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Article.Content" class="control-label"></label>
+                        <textarea asp-for="Article.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
+                        <div id="word-count" class="text-right text-muted"></div>
+                        <span asp-validation-for="Article.Content" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Article.ImageUrl" class="control-label"></label>
+                        <input asp-for="Article.ImageUrl" class="form-control" />
+                        <span asp-validation-for="Article.ImageUrl" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TagString" class="control-label"></label>
+                        <input asp-for="TagString" class="form-control" />
+                        <span asp-validation-for="TagString" class="text-danger"></span>
+                        <small class="form-text text-muted">
+                            請用半形逗號 (,) 分隔每個標籤，例如：標籤1,標籤2,標籤3。<br />
+                            最多 @Parameters.TagSize 個標籤，每個標籤長度不超過 @Parameters.TagNameMaxLength 個字。
+                        </small>
+                    </div>
+                    <div class="form-group d-flex justify-content-end">
+                        <a asp-page="Index" class="btn btn-secondary mr-2">取消</a>
+                        <button class="g-recaptcha btn btn-primary"
+                                data-sitekey="@Configuration["reCAPTCHA-SiteKey"]"
+                                data-callback='onSubmit'
+                                data-action='submit'
+                                type="submit">建立</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Article.Content" class="control-label"></label>
-                <textarea asp-for="Article.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
-                <div id="word-count"></div>
-                <span asp-validation-for="Article.Content" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Article.ImageUrl" class="control-label"></label>
-                <input asp-for="Article.ImageUrl" class="form-control" />
-                <span asp-validation-for="Article.ImageUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TagString" class="control-label"></label>
-                <input asp-for="TagString" class="form-control" />
-                <span asp-validation-for="TagString" class="text-danger"></span>
-            </div>
-            <div class="alert alert-info" role="alert">
-                <p>
-                    Ex. 標籤1,標籤2,標籤3。
-                </p>
-                <p>
-                    至多 @Parameters.TagSize 個標籤，每個標籤不超過 @Parameters.TagNameMaxLength 個字。
-                </p>
-            </div>
-            <div class="form-group">
-                <label class="control-label">
-                    <input class="form-check-input"
-                           style="display:none"
-                           value="@UserID"
-                           asp-for="Article.ProfileID" />
-                </label>
-            </div>
-            <div class="form-group">
-                <input class="g-recaptcha btn btn-primary" 
-                        data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" 
-                        data-callback='onSubmit' 
-                        data-action='submit'
-                        type="submit" value="建立" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://www.google.com/recaptcha/api.js"></script>
     <script>
         function onSubmit(token) {
-         document.getElementById("form").submit();
-       }
+            document.getElementById("form").submit();
+        }
     </script>
     @{
         ViewData["EditorId"] = "editor";

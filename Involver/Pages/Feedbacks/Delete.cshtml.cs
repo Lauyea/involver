@@ -33,7 +33,7 @@ namespace Involver.Pages.Feedbacks
                 return NotFound();
             }
 
-            Feedback = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+            Feedback = await _context.Articles.Include(f=> f.Profile).FirstOrDefaultAsync(m => m.ArticleID == id);
 
             if (Feedback == null)
             {

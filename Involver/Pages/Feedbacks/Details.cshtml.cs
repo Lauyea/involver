@@ -36,7 +36,6 @@ namespace Involver.Pages.Feedbacks
         }
 
 
-        public PaginatedList<Comment> Comments { get; set; }
         public Article Feedback { get; set; }
         public string UserID { get; set; }
 
@@ -48,16 +47,13 @@ namespace Involver.Pages.Feedbacks
             }
 
             Feedback = await _context.Articles
-                //.Include(f => f.Comments)
-                //    .ThenInclude(f => f.Profile)
+                .Include(f => f.Profile)
                 .FirstOrDefaultAsync(f => f.ArticleID == id);
 
             if (Feedback == null)
             {
                 return NotFound();
             }
-
-            await SetComments(id, pageIndex);
 
             //Comments = Context.Comments.Where(c => c.FeedbackID == id).OrderByDescending(c => c.UpdateTime).ToList();
 
@@ -83,24 +79,6 @@ namespace Involver.Pages.Feedbacks
             Toasts.AddRange(toasts);
 
             return Page();
-        }
-
-        private async Task SetComments(int? id, int? pageIndex)
-        {
-            IQueryable<Comment> comments = from c in _context.Comments
-                                           select c;
-            comments = comments
-                .Include(c => c.Agrees)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
-                    .ThenInclude(c => c.Profile)
-                .Include(c => c.Profile)
-                .Include(c => c.Dices)
-                .Where(c => c.ArticleID == id)
-                .OrderBy(c => c.CommentID);
-
-
-            Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         public async Task<IActionResult> OnPostAsync(int id, bool block)
