@@ -1,52 +1,60 @@
-﻿@page
+@page "{id}"
 @model Involver.Pages.Episodes.CreateModel
+@using Involver.Common
+@inject IConfiguration Configuration
 
 @{
-    ViewData["Title"] = "新章節";
+    ViewData["Title"] = "新增章節";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<h1>建立</h1>
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="mb-0">新增章節</h1>
+                    <a asp-page="/Novels/Details" asp-route-id="@Model.Novel.NovelID" class="btn btn-sm btn-outline-secondary"><i class="fas fa-book"></i> 回到小說</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="form">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    <input type="hidden" asp-for="Novel.NovelID" />
 
-<h4>章節</h4>
-<hr />
-<div class="row">
-    <div class="col-md-12">
-        <form method="post" id="form">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Episode.Title" class="control-label"></label>
-                <input asp-for="Episode.Title" class="form-control" />
-                <span asp-validation-for="Episode.Title" class="text-danger"></span>
+                    <div class="form-group">
+                        <label asp-for="Episode.Title" class="control-label"></label>
+                        <input asp-for="Episode.Title" class="form-control" />
+                        <span asp-validation-for="Episode.Title" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Episode.Content" class="control-label"></label>
+                        <textarea asp-for="Episode.Content" id="editor" class="form-control" rows="14" placeholder="在這裡寫些東西..."></textarea>
+                        <div id="word-count" class="text-right text-muted"></div>
+                        <span asp-validation-for="Episode.Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-flex justify-content-end">
+                        <a asp-page="/Novels/Details" asp-route-id="@Model.Novel.NovelID" class="btn btn-secondary mr-2">取消</a>
+                        <button class="g-recaptcha btn btn-primary"
+                                data-sitekey="@Configuration["reCAPTCHA-SiteKey"]"
+                                data-callback='onSubmit'
+                                data-action='submit'
+                                type="submit">建立</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="Episode.Content" class="control-label"></label>
-                <textarea asp-for="Episode.Content" id="editor" class="form-control" rows="14" placeholder="在這裡寫些東西..."></textarea>
-                <div id="word-count"></div>
-                <span asp-validation-for="Episode.Content" class="text-danger"></span>
-            </div>
-            @*<div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Episode.HasVoting" /> 可以投票
-                </label>
-            </div>*@
-            <div class="form-group">
-                <input class="g-recaptcha btn btn-primary" 
-                        data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" 
-                        data-callback='onSubmit' 
-                        data-action='submit'
-                        type="submit" value="建立" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://www.google.com/recaptcha/api.js"></script>
     <script>
         function onSubmit(token) {
-         document.getElementById("form").submit();
-       }
+            document.getElementById("form").submit();
+        }
     </script>
     @{
         ViewData["EditorId"] = "editor";

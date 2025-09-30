@@ -1,4 +1,4 @@
-﻿using DataAccess.Common;
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
@@ -23,9 +23,9 @@ namespace Involver.Pages.Episodes
         {
         }
 
-        public async Task<IActionResult> OnGetAsync(string from, int? fromID)
+        public async Task<IActionResult> OnGetAsync(int? id)
         {
-            Novel = _context.Novels.Where(n => n.NovelID == fromID).SingleOrDefault();
+            Novel = _context.Novels.Where(n => n.NovelID == id).SingleOrDefault();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,
@@ -46,8 +46,10 @@ namespace Involver.Pages.Episodes
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync(string from, int fromID)
+        public async Task<IActionResult> OnPostAsync(int id)
         {
+            Novel = await _context.Novels.Where(n => n.NovelID == id).FirstOrDefaultAsync();
+
             if (Episode.Content?.Length > Parameters.ArticleLength)
             {
                 return Page();
@@ -58,11 +60,9 @@ namespace Involver.Pages.Episodes
                 return Page();
             }
 
-            await SetOtherEpisodesNotLast(fromID);
+            await SetOtherEpisodesNotLast(id);
 
             Episode.OwnerID = _userManager.GetUserId(User);
-
-            Novel = await _context.Novels.Where(n => n.NovelID == fromID).FirstOrDefaultAsync();
 
             var isAuthorized = await _authorizationService.AuthorizeAsync(
                                                         User, Novel,
@@ -70,12 +70,6 @@ namespace Involver.Pages.Episodes
             if (!isAuthorized.Succeeded)
             {
                 return Forbid();
-            }
-
-            if (from != Parameters.Novels)
-            {
-                ErrorMessage = "沒有指定的評論頁面";
-                return Page();
             }
 
             Episode emptyEpisode = new Episode
@@ -91,10 +85,7 @@ namespace Involver.Pages.Episodes
                 e => e.Title, e => e.Content))
             {
                 emptyEpisode.UpdateTime = DateTime.Now;
-                if (from == Parameters.Novels)
-                {
-                    emptyEpisode.NovelID = fromID;
-                }
+                emptyEpisode.NovelID = id;
                 var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == emptyEpisode.OwnerID);
                 emptyEpisode.OwnerID = Episode.OwnerID;
                 emptyEpisode.IsLast = true;
@@ -104,16 +95,13 @@ namespace Involver.Pages.Episodes
                 Novel.UpdateTime = DateTime.Now;
                 await _context.SaveChangesAsync();
 
-                if (from != null)
-                {
-                    var toasts = await Helpers.AchievementHelper.EpisodeCountAsync(_context, Novel.ProfileID);
+                var toasts = await Helpers.AchievementHelper.EpisodeCountAsync(_context, Novel.ProfileID);
 
-                    Toasts.AddRange(toasts);
+                Toasts.AddRange(toasts);
 
-                    ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
 
-                    return RedirectToPage("/" + from + "/Details", "OnGet", new { id = fromID }, "EpisodeHead");
-                }
+                return RedirectToPage("/Novels/Details", "OnGet", new { id = id }, "EpisodeHead");
             }
             return Page();
         }
