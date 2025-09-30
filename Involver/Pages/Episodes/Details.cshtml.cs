@@ -41,8 +41,6 @@ namespace Involver.Pages.Episodes
 
         public Novel Novel { get; set; }
 
-        public PaginatedList<Comment> Comments { get; set; }
-
         public List<Voting> Votings { get; set; }
 
         public string UserID { get; set; }
@@ -67,8 +65,6 @@ namespace Involver.Pages.Episodes
             {
                 return NotFound();
             }
-
-            await SetComments(id, pageIndex);
 
             PreviousEpisode = await _context.Episodes
                 .Where(e => e.NovelID == Novel.NovelID)
@@ -193,28 +189,6 @@ namespace Involver.Pages.Episodes
         private bool EpisodeExists(int id)
         {
             return _context.Episodes.Any(e => e.EpisodeID == id);
-        }
-
-        private async Task SetComments(int? id, int? pageIndex)
-        {
-            IQueryable<Comment> comments = from c in _context.Comments
-                                           select c;
-
-            comments = comments
-                .Include(c => c.Agrees)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
-                    .ThenInclude(c => c.Profile)
-                .Include(c => c.Profile)
-                .Include(c => c.Dices)
-                .Include(c => c.Episode)
-                    .ThenInclude(e => e.Novel)
-                        .ThenInclude(n => n.Involvers)
-                .Where(c => c.EpisodeID == id)
-                .OrderBy(c => c.CommentID);
-
-
-            Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
     }
 }

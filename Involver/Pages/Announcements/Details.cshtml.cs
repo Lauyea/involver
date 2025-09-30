@@ -29,7 +29,6 @@ namespace Involver.Pages.Announcements
         {
         }
 
-        public PaginatedList<Comment> Comments { get; set; }
         public Article Announcement { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
@@ -42,7 +41,6 @@ namespace Involver.Pages.Announcements
             Announcement = await _context.Articles
                 .Include(a => a.Profile)
                 .FirstOrDefaultAsync(a => a.ArticleID == id);
-            await SetComments(id, pageIndex);
 
             if (Announcement == null)
             {
@@ -79,23 +77,6 @@ namespace Involver.Pages.Announcements
             Toasts.AddRange(toasts);
 
             return Page();
-        }
-
-        private async Task SetComments(int? id, int? pageIndex)
-        {
-            IQueryable<Comment> comments = from c in _context.Comments
-                                           select c;
-            comments = comments
-                .Include(c => c.Agrees)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
-                    .ThenInclude(c => c.Profile)
-                .Include(c => c.Profile)
-                .Include(c => c.Dices)
-                .Where(c => c.ArticleID == id)
-                .OrderBy(c => c.CommentID);
-
-            Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         private bool AnnouncementExists(int id)

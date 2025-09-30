@@ -32,7 +32,6 @@ namespace Involver.Pages.Novels
 
         public Novel Novel { get; set; }
         public Profile Writer { get; set; }
-        public PaginatedList<Comment> Comments { get; set; }
         public PaginatedList<Episode> Episodes { get; set; }
         public List<Novel> RecommendNovels { get; set; }
         public bool Followed { get; set; } = false;
@@ -73,8 +72,6 @@ namespace Involver.Pages.Novels
             }
 
             Writer = Novel.Profile;
-
-            await SetComments(id, pageIndex);
 
             IQueryable<Episode> episodes = from e in _context.Episodes
                                            select e;
@@ -239,26 +236,6 @@ namespace Involver.Pages.Novels
 
             Novel.TotalViews++;
             Novel.DailyView++;
-        }
-
-        private async Task SetComments(int? id, int? pageIndex)
-        {
-            IQueryable<Comment> comments = from c in _context.Comments
-                                           select c;
-            comments = comments
-                .Include(c => c.Agrees)
-                .Include(c => c.Messages.OrderByDescending(m => m.UpdateTime).Take(5))
-                    .ThenInclude(c => c.Profile)
-                .Include(c => c.Profile)
-                .Include(c => c.Dices)
-                .Include(c => c.Novel)
-                    .ThenInclude(n => n.Involvers)
-                .Where(c => c.NovelID == id)
-                .OrderByDescending(c => c.CommentID);
-
-
-            Comments = await PaginatedList<Comment>.CreateAsync(
-                comments, pageIndex ?? 1, Parameters.CommetPageSize);
         }
 
         private bool NovelExists(int id)
