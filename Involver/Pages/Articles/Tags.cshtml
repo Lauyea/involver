@@ -1,19 +1,9 @@
-﻿@page
+@page
 @model Involver.Pages.Articles.TagsModel
 @{
-    ViewData["Title"] = "熱門文章標籤";
+    ViewData["Title"] = "文章標籤";
 }
-<h1 class="text-center">熱門文章標籤</h1>
-<div class="row">
-    @foreach (var tag in Model.ArticleTags)
-    {
-        <div class="col-auto my-1">
-            <a asp-page="./Index"
-               asp-route-currentFilter="@tag.Name"
-               class="badge badge-pill badge-info">
-                @tag.Name
-            </a>
-            @*@tag.Articles.Count*@
-        </div>
-    }
-</div>
+
+<h1>@ViewData["Title"]</h1>
+
+@await Component.InvokeAsync("TagCloud", new { tagType = "Article" })
