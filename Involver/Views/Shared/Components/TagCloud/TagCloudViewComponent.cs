@@ -27,10 +27,8 @@ namespace Involver.Views.Shared.Components.TagCloud
                         TagName = tag.Name,
                         Count = tag.Articles!.Count()
                     })
-                    .OrderByDescending(t => t.Count)
                     .AsNoTracking()
                     .ToListAsync();
-
             }
             else if (tagType == "Novel")
             {
@@ -40,10 +38,8 @@ namespace Involver.Views.Shared.Components.TagCloud
                         TagName = tag.Name,
                         Count = tag.Novels!.Count()
                     })
-                    .OrderByDescending(t => t.Count)
                     .AsNoTracking()
                     .ToListAsync();
-
             }
             else
             {
@@ -53,7 +49,8 @@ namespace Involver.Views.Shared.Components.TagCloud
             // 計算權重，用於決定字體大小
             if (tags.Any())
             {
-                double maxCount = tags.First().Count;
+                double maxCount = tags.Max(t => t.Count);
+
                 foreach (var tag in tags)
                 {
                     // 分成 5 個等級
