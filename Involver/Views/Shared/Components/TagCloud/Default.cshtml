@@ -1,0 +1,10 @@
+@model IEnumerable<Involver.Models.ViewModels.TagCloudItemViewModel>
+
+<div class="tag-cloud-container d-flex flex-wrap justify-content-center align-items-center p-3">
+    @foreach (var tag in Model)
+    {
+        <a href="#" class="tag-item tag-size-@tag.Size m-2">
+            @tag.TagName <span class="tag-count">(@tag.Count)</span>
+        </a>
+    }
+</div>

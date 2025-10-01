@@ -1,35 +1,11 @@
-using DataAccess.Data;
-using DataAccess.Models.ArticleModel;
-
-using Involver.Common;
-
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Articles
 {
-    [AllowAnonymous]
-    public class TagsModel : DI_BasePageModel
+    public class TagsModel : PageModel
     {
-        public TagsModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        public void OnGet()
         {
-        }
-
-        public List<ArticleTag> ArticleTags { get; set; }
-
-        public async Task OnGetAsync()
-        {
-            ArticleTags = await _context.ArticleTags
-                //.Include(t => t.Articles)
-                .OrderByDescending(t => t.Articles.Count)
-                .ToListAsync();
         }
     }
 }

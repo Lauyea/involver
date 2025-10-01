@@ -399,3 +399,44 @@ body.bootstrap {
     font-size: 0.95em;
     max-width:fit-content;
 }
+
+/* Tag Cloud Styles
+-------------------------------------------------- */
+.bootstrap.tag-cloud-container {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.bootstrap.tag-item {
+    text-decoration: none;
+    border-color: var(--border-color);
+    color: var(--primary-accent);
+    transition: all 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+}
+
+    .bootstrap.tag-item:hover {
+        transform: scale(1.1);
+        background-color: var(--primary-accent);
+        color: var(--bg-color);
+        border-color: var(--primary-accent-hover);
+    }
+
+.bootstrap.tag-count {
+    font-size: 0.8em;
+    color: #6c757d;
+}
+
+.bootstrap.tag-item:hover .tag-count {
+    color: var(--bg-color);
+}
+
+.tag-size-1 { font-size: 0.8rem; }
+.tag-size-2 { font-size: 1.0rem; font-weight: 500; }
+.tag-size-3 { font-size: 1.3rem; font-weight: 600; }
+.tag-size-4 { font-size: 1.6rem; font-weight: 700; }
+.tag-size-5 { font-size: 2.0rem; font-weight: 800; }
