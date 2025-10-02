@@ -10,6 +10,7 @@ using DataAccess.Models.NovelModel;
 
 using Involver.Authorization.Novel;
 using Involver.Common;
+using Involver.Helpers;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -264,6 +265,12 @@ namespace Involver.Pages.Novels
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");
+        }
+
+        public IActionResult OnGetEpisodes(int novelId, int pageIndex)
+        {
+            int pageSize = Parameters.EpisodePageSize;
+            return ViewComponent("EpisodeList", new { novelId, pageIndex, pageSize });
         }
     }
 }

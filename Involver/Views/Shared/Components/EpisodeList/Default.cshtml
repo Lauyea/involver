@@ -1,0 +1,13 @@
+@using Involver.Common
+@model PaginatedList<DataAccess.Models.NovelModel.Episode>
+
+@foreach (var item in Model)
+{
+    <a href="/Episodes/Details?id=@item.EpisodeID" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <div>
+            <h6 class="mb-1">@Html.DisplayFor(modelItem => item.Title)</h6>
+            <small class="text-muted">更新時間：@item.UpdateTime.ToString("yyyy-MM-dd HH:mm")</small>
+        </div>
+        <small class="text-secondary"><i class="far fa-eye"></i> @item.Views</small>
+    </a>
+}
