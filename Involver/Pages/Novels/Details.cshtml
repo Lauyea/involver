@@ -150,11 +150,14 @@
                     <a asp-page="../Episodes/Create" asp-route-id="@Model.Novel.NovelID" class="btn btn-sm btn-primary"><i class="fas fa-plus"></i> 新增章節</a>
                 }
             </div>
-            <div class="card-body" id="partialEpisodes">
-                <!-- Episodes will be loaded here by AJAX -->
+            @* 這是章節列表的容器，第一頁的內容會由伺服器直接渲染在這裡 *@
+            <div id="episodeListContainer" class="list-group list-group-flush">
+                @await Component.InvokeAsync("EpisodeList", new { novelId = Model.Novel.NovelID, pageIndex = 1, pageSize = Parameters.PageSize })
             </div>
+
             <div class="card-footer d-flex justify-content-center">
-                <ul id="partialEpisodesPagination" class="pagination"></ul>
+                @* Container for the pagination controls *@
+                <ul id="episodesPagination" class="pagination"></ul>
             </div>
         </div>
 
@@ -177,16 +180,27 @@
 
 @section Scripts{
     <script>
-        $(function() {
-            $('#partialEpisodesPagination').twbsPagination({
+        $(function () {
+            // Don't render pagination if there's only one page or less
+            if (@Model.Episodes.TotalPages <= 1) {
+                return;
+            }
+
+            $('#episodesPagination').twbsPagination({
                 totalPages: @Model.Episodes.TotalPages,
-                visiblePages: @Parameters.EpisodePageSize,
+                visiblePages: 5, // A sensible default
+                startPage: 1,
                 first: '<<',
                 prev: '<',
                 next: '>',
                 last: '>>',
                 onPageClick: function (event, page) {
-                    $('#partialEpisodes').load('@Url.Action("Get", "PartialEpisodes")?novelId=@Model.Novel.NovelID&pageIndex=' + page);
+                    // The AJAX call, now with the corrected URL by using a relative query string
+                    $.get(`?handler=Episodes&novelId=@Model.Novel.NovelID&pageIndex=${page}`, function (data) {
+                        $('#episodeListContainer').html(data); // Use .html() to replace content
+                    }).fail(function() {
+                        alert('章節載入失敗，請稍後再試。');
+                    });
                 }
             });
         });
