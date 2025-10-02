@@ -1,0 +1,21 @@
+@model IEnumerable<Involver.Areas.Identity.Pages.Profile.AgreesModel.AgreeViewModel>
+
+@foreach (var agree in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            @Html.AntiXssRaw(agree.Content)
+        </div>
+        <div class="col-md-4">
+            <a asp-page="@agree.PageName"
+               asp-route-id="@agree.RouteId"
+               asp-fragment="@agree.Fragment">
+                @agree.DestinationTitle
+            </a>
+        </div>
+        <div class="col-md-3" title="@agree.UpdateTime">
+            @Involver.Helpers.TimePeriodHelper.Get(agree.UpdateTime)
+        </div>
+    </div>
+    <hr />
+}

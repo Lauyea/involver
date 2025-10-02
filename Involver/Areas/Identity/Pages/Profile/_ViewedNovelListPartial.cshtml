@@ -1,0 +1,20 @@
+@model IEnumerable<Involver.Areas.Identity.Pages.Profile.ViewesModel.ViewedNovelViewModel>
+
+@foreach (var novel in Model)
+{
+    <div class="row">
+        <div class="col-md-4">
+            <a asp-page="/Novels/Details"
+               asp-route-id="@novel.NovelID">
+                @Html.AntiXssRaw(novel.Title)
+            </a>
+        </div>
+        <div class="col-md-5">
+            @Html.AntiXssRaw(novel.Introduction)
+        </div>
+        <div class="col-md-3" title="@novel.ViewDate">
+            @Involver.Helpers.TimePeriodHelper.Get(novel.ViewDate)
+        </div>
+    </div>
+    <hr />
+}

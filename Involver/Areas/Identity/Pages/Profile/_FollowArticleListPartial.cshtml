@@ -1,0 +1,20 @@
+@model IEnumerable<DataAccess.Models.ArticleModel.Article>
+
+@foreach (Article article in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            <a asp-page="/Articles/Details"
+               asp-route-id="@article.ArticleID">
+                @Html.DisplayFor(modelItem => article.Title)
+            </a>
+        </div>
+        <div class="col-md-4">
+            @Html.DisplayFor(modelItem => article.Profile.UserName)
+        </div>
+        <div class="col-md-3" title="@article.UpdateTime">
+            @Involver.Helpers.TimePeriodHelper.Get(article.UpdateTime)
+        </div>
+    </div>
+    <hr />
+}

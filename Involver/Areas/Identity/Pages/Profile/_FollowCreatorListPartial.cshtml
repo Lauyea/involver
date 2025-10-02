@@ -1,0 +1,28 @@
+@model IEnumerable<Involver.Areas.Identity.Pages.Profile.FollowCreatorsModel.FollowedCreatorViewModel>
+
+@foreach (var creator in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            <a asp-page="./Index"
+               asp-route-id="@creator.ProfileID">
+                <img src="@creator.ImageUrl"
+                     alt="Profile Image"
+                     title="@creator.UserName"
+                     style="width: 25%; height: auto; display:inline; border-radius:10%">
+                @creator.UserName
+            </a>
+            @if (creator.IsMonthlyInvolver)
+            {
+                <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
+            }
+        </div>
+        <div class="col-md-4">
+            @creator.Introduction
+        </div>
+        <div class="col-md-3" title="@creator.FollowTime">
+            @Involver.Helpers.TimePeriodHelper.Get(creator.FollowTime)
+        </div>
+    </div>
+    <hr />
+}

@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.MessagesModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -29,43 +29,20 @@
            class="btn btn-xs btn-outline-info">通知</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Messages != null)
-        {
-            @foreach (Message message in Model.Messages)
-            {
-                <div class="row">
-                    <div class="col-md-5">
-                        @if (message.Content.Length < Parameters.ContentLength)
-                        {
-                            @Html.AntiXssRaw(message.Content);
-                        }
-                        else
-                        {
-                            @Html.AntiXssRaw(message.Content.Substring(0, Parameters.ContentLength)+"...");
-                        }
-                    </div>
-                    <div class="col-md-4">
-                        <a asp-page="/Comments/Details"
-                           asp-route-id="@message.CommentID"
-                           asp-route-pageIndex="1">
-                            @if (message.Comment.Content.StripHTML().Length < Parameters.SmallContentLength)
-                            {
-                                @Html.AntiXssRaw(message.Comment.Content.StripHTML());
-                            }
-                            else
-                            {
-                                @Html.AntiXssRaw(message.Comment.Content.StripHTML().Substring(0, Parameters.SmallContentLength)+"...");
-                            }
-                        </a>
-                    </div>
-                    <div class="col-md-3" title="@message.UpdateTime">
-                        @TimePeriodHelper.Get(message.UpdateTime)
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="messages-container">
+        <partial name="_MessageListPartial" model="Model.Messages" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#messages-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

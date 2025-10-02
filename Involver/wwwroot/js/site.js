@@ -214,3 +214,56 @@ $(document).on('hidden.bs.modal', '#viewRecordModal', function () {
     $(this).remove();
 });
 /*觀看紀錄 Modal 操作*/
+
+/**
+ * 設定無限滾動
+ * @param {string} containerSelector - 內容容器的選擇器，例如 '#articles-container'
+ * @param {string} loadingSelector - 加載指示器的選擇器，例如 '#loading'
+ * @param {string} handlerName - Razor Page 中用於加載更多的處理器名稱，例如 'LoadMore'
+ * @param {object} additionalParams - 附加到 AJAX 請求的額外參數
+ */
+function setupInfiniteScroll(containerSelector, loadingSelector, handlerName, additionalParams = {}) {
+    let page = 1;
+    let isLoading = false;
+    let noMoreData = false;
+
+    $(window).scroll(function () {
+        if (noMoreData || isLoading) {
+            return;
+        }
+
+        // 檢查是否滾動到接近底部
+        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
+            isLoading = true;
+            $(loadingSelector).show();
+            page++;
+
+            let requestData = {
+                handler: handlerName,
+                pageIndex: page,
+                ...additionalParams
+            };
+
+            $.ajax({
+                url: window.location.pathname, // REMOVED: + window.location.search
+                type: 'GET',
+                data: requestData,
+                success: function (data) {
+                    if (data.trim().length > 0) {
+                        $(containerSelector).append(data);
+                        isLoading = false;
+                    } else {
+                        noMoreData = true; // 沒有更多資料了
+                    }
+                    $(loadingSelector).hide();
+                },
+                error: function () {
+                    // 處理錯誤
+                    isLoading = false;
+                    $(loadingSelector).hide();
+                    console.error('Error loading more content.');
+                }
+            });
+        }
+    });
+}

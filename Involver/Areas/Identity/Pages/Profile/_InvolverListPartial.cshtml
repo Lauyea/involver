@@ -1,0 +1,36 @@
+@model Involver.Areas.Identity.Pages.Profile.InvolversModel.InvolverPageViewModel
+
+@foreach (var involver in Model.Involvers)
+{
+    <div class="row">
+        <div class="col-md-5">
+            <a asp-page="./Index"
+               asp-route-id="@involver.ProfileID">
+                <img src="@involver.ImageUrl"
+                     alt="Image"
+                     title="@involver.UserName"
+                     style="width: 25%; height: auto; display:inline; border-radius:10%">
+                @involver.UserName
+            </a>
+        </div>
+        <div class="col-md-2">
+            @if (Model.TimeSpan == "TotalTime")
+            {
+                @involver.TotalValue
+            }
+            else if (Model.TimeSpan == "Monthly")
+            {
+                @involver.MonthlyValue
+            }
+            else
+            {
+                @involver.RecentValue
+            }
+            In幣
+        </div>
+        <div class="col-md-3" title="@involver.LastTime">
+            @Involver.Helpers.TimePeriodHelper.Get(involver.LastTime)
+        </div>
+    </div>
+    <hr />
+}

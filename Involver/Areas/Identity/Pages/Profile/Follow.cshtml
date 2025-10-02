@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.FollowModel
 @{
     ViewData["Title"] = "追蹤";
@@ -29,39 +29,20 @@
            class="btn btn-xs btn-outline-info">追蹤者</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Follows != null)
-        {
-            @foreach (Follow follow in Model.Follows)
-            {
-                @if(follow.Novel == null)
-                {
-                    continue;
-                }
-                <div class="row">
-                    <div class="col-md-5">
-                        <a asp-page="/Episodes/Details" 
-                           asp-route-id="@follow.Novel.Episodes.LastOrDefault().EpisodeID">
-                        @Html.DisplayFor(modelItem => follow.Novel.Episodes.LastOrDefault().Title)</a>
-                    </div>
-                    <div class="col-md-4">
-                        <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@Html.DisplayFor(modelItem => follow.Novel.Title)</a>
-                        @if (follow.NovelMonthlyInvolver)
-                        {
-                            <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
-                        }
-                    </div>
-                    <div class="col-md-3">
-                        <p>
-                            <a asp-page="./Index"
-                               asp-route-id="@follow.Novel.Profile.ProfileID">
-                            <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small></a>
-                        </p>
-                        <small title="@follow.Novel.UpdateTime">@TimePeriodHelper.Get(follow.Novel.UpdateTime)</small>
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="follow-container">
+        <partial name="_FollowListPartial" model="Model.Follows" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#follow-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

@@ -1,8 +1,7 @@
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-
 using Involver.Common;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,45 +13,59 @@ namespace Involver.Areas.Identity.Pages.Profile
     public class NotificationsModel : DI_BasePageModel
     {
         public NotificationsModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+            ApplicationDbContext context,
+            IAuthorizationService authorizationService,
+            UserManager<InvolverUser> userManager)
+            : base(context, authorizationService, userManager)
         {
         }
 
         public DataAccess.Models.Profile Profile { get; set; }
-
-        public string UserID { get; set; }
         public List<Notification> Notifications { get; set; }
-
-        private async Task LoadAsync(string id)
-        {
-            UserID = _userManager.GetUserId(User);
-
-            Profile = await _context.Profiles
-                .Where(p => p.ProfileID == id)
-                .FirstOrDefaultAsync();
-
-            Notifications = await _context.Notifications
-                .Where(n => n.ProfileID == UserID)
-                .OrderByDescending(n => n.CreatedDate)
-                //.Take(100) // TODO 暫時先不取一定數量，因為routine work 會把一個月前的刪掉
-                .ToListAsync().ConfigureAwait(false);
-        }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
-            await LoadAsync(id);
+            Profile = await _context.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ProfileID == id);
 
-            if (Profile != null)
-            {
-                return Page();
-            }
-            else
+            if (Profile == null)
             {
                 return NotFound();
             }
+
+            var userId = _userManager.GetUserId(User);
+            if (id != userId)
+            {
+                // Users can only see their own notifications
+                return Forbid();
+            }
+
+            Notifications = await _context.Notifications
+                .Where(n => n.ProfileID == id)
+                .OrderByDescending(n => n.CreatedDate)
+                .Take(Parameters.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (id != userId)
+            {
+                return Forbid();
+            }
+
+            var notifications = await _context.Notifications
+                .Where(n => n.ProfileID == id)
+                .OrderByDescending(n => n.CreatedDate)
+                .Skip((pageIndex - 1) * Parameters.PageSize)
+                .Take(Parameters.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Partial("_NotificationListPartial", notifications);
         }
     }
 }

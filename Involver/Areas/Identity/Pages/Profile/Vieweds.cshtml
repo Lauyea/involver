@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.ViewesModel
 @{
     ViewData["Title"] = "觀看紀錄";
@@ -21,36 +21,20 @@
            class="btn btn-xs btn-outline-info">文章</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Novels != null)
-        {
-            @foreach (var novel in Model.Novels)
-            {
-                <div class="row">
-                    <div class="col-md-4">
-                        <a asp-page="/Novels/Details"
-                           asp-route-id="@novel.NovelID"
-                           asp-route-pageIndex="1">
-                            @Html.AntiXssRaw(novel.Title)
-                        </a>
-                    </div>
-                    <div class="col-md-5">
-                        @if (novel.Introduction.Length < Parameters.ContentLength)
-                        {
-                            @Html.AntiXssRaw(novel.Introduction);
-                        }
-                        else
-                        {
-                            @Html.AntiXssRaw(novel.Introduction.Substring(0, Parameters.ContentLength)+"...");
-                        }
-                    </div>
-                    <div class="col-md-3" title="@novel.NovelViewers.FirstOrDefault()?.ViewDate">
-                        @TimePeriodHelper.Get(novel.NovelViewers.FirstOrDefault()?.ViewDate ?? new DateTime())
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="vieweds-container">
+        <partial name="_ViewedNovelListPartial" model="Model.Novels" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#vieweds-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

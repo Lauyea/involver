@@ -1,8 +1,7 @@
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-
 using Involver.Common;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,47 +13,54 @@ namespace Involver.Areas.Identity.Pages.Profile
     public class InteractionModel : DI_BasePageModel
     {
         public InteractionModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+            ApplicationDbContext context,
+            IAuthorizationService authorizationService,
+            UserManager<InvolverUser> userManager)
+            : base(context, authorizationService, userManager)
         {
         }
 
         public DataAccess.Models.Profile Profile { get; set; }
+        public List<Comment> Comments { get; set; }
 
-        public string UserID { get; set; }
-        public ICollection<Comment> Comments { get; set; }
-
-        private async Task LoadAsync(string id)
+        public async Task<IActionResult> OnGetAsync(string id)
         {
-            UserID = _userManager.GetUserId(User);
-            Profile = await _context.Profiles
-                .Where(p => p.ProfileID == id)
-                .FirstOrDefaultAsync();
+            Profile = await _context.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ProfileID == id);
+
+            if (Profile == null)
+            {
+                return NotFound();
+            }
+
             Comments = await _context.Comments
-                .Include(c => c.Profile)
                 .Include(c => c.Novel)
                 .Include(c => c.Episode)
                 .Include(c => c.Article)
                 .Where(c => c.ProfileID == id)
                 .Where(c => c.Content != "")
                 .OrderByDescending(c => c.UpdateTime)
-                .Take(100)
+                .Take(Parameters.PageSize)
+                .AsNoTracking()
                 .ToListAsync();
+
+            return Page();
         }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
         {
-            await LoadAsync(id);
-            if (Profile != null)
-            {
-                return Page();
-            }
-            else
-            {
-                return NotFound();
-            }
+            var comments = await _context.Comments
+                .Include(c => c.Novel)
+                .Include(c => c.Episode)
+                .Include(c => c.Article)
+                .Where(c => c.ProfileID == id)
+                .Where(c => c.Content != "")
+                .OrderByDescending(c => c.UpdateTime)
+                .Skip((pageIndex - 1) * Parameters.PageSize)
+                .Take(Parameters.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Partial("_InteractionListPartial", comments);
         }
     }
 }

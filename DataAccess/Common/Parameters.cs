@@ -6,6 +6,8 @@ namespace DataAccess.Common
 
         public const int CommetPageSize = 10;
 
+        public const int PageSize = 10;
+
         public const int MessagePageSize = 5;
 
         public const int ArticlePageSize = 9;

@@ -1,0 +1,36 @@
+@using DataAccess.Common
+@model IEnumerable<DataAccess.Models.Message>
+
+@foreach (Message message in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            @if (message.Content.Length < Parameters.ContentLength)
+            {
+                @Html.AntiXssRaw(message.Content)
+            }
+            else
+            {
+                @Html.AntiXssRaw(message.Content.Substring(0, Parameters.ContentLength) + "...")
+            }
+        </div>
+        <div class="col-md-4">
+            <a asp-page="/Comments/Details"
+               asp-route-id="@message.CommentID"
+               asp-route-pageIndex="1">
+                @if (message.Comment.Content.StripHTML().Length < Parameters.SmallContentLength)
+                {
+                    @Html.AntiXssRaw(message.Comment.Content.StripHTML())
+                }
+                else
+                {
+                    @Html.AntiXssRaw(message.Comment.Content.StripHTML().Substring(0, Parameters.SmallContentLength) + "...")
+                }
+            </a>
+        </div>
+        <div class="col-md-3" title="@message.UpdateTime">
+            @Involver.Helpers.TimePeriodHelper.Get(message.UpdateTime)
+        </div>
+    </div>
+    <hr />
+}

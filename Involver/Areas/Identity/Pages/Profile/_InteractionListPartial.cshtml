@@ -1,0 +1,42 @@
+@using DataAccess.Common
+@model IEnumerable<DataAccess.Models.Comment>
+
+@foreach (Comment comment in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            @if (comment.Content.StripHTML().Length < Parameters.ContentLength)
+            {
+                @Html.AntiXssRaw(comment.Content.StripHTML())
+            }
+            else
+            {
+                @Html.AntiXssRaw(comment.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...")
+            }
+        </div>
+        <div class="col-md-4">
+            @if (comment.NovelID != null)
+            {
+                <a asp-page="/Novels/Details"
+                   asp-route-id="@comment.NovelID"
+                   asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Novel.Title)</a>
+            }
+            else if (comment.EpisodeID != null)
+            {
+                <a asp-page="/Episodes/Details"
+                   asp-route-id="@comment.EpisodeID"
+                   asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Episode.Title)</a>
+            }
+            else if (comment.ArticleID != null)
+            {
+                <a asp-page="/Articles/Details"
+                   asp-route-id="@comment.ArticleID"
+                   asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Article.Title)</a>
+            }
+        </div>
+        <div class="col-md-3" title="@comment.UpdateTime">
+            @Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime)
+        </div>
+    </div>
+    <hr />
+}

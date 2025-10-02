@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.NotificationsModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -29,23 +29,20 @@
            class="btn btn-xs btn-info disabled">通知</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Notifications.Count > 0)
-        {
-            foreach(var item in Model.Notifications)
-            {
-                <div class="row">
-                    <div class="col-md-9">
-                        <a class="nav-link" href="@item.Url">
-                            @Html.AntiXssRaw(item.Title)
-                        </a>
-                    </div>
-                    <div class="col-md-3" title="@item.CreatedDate">
-                        @TimePeriodHelper.Get(item.CreatedDate)
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="notifications-container">
+        <partial name="_NotificationListPartial" model="Model.Notifications" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#notifications-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

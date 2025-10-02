@@ -1,8 +1,9 @@
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
-
 using Involver.Common;
-
+using Involver.Extensions;
+using Involver.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -14,67 +15,113 @@ namespace Involver.Areas.Identity.Pages.Profile
     public class InvolversModel : DI_BasePageModel
     {
         public InvolversModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+            ApplicationDbContext context,
+            IAuthorizationService authorizationService,
+            UserManager<InvolverUser> userManager)
+            : base(context, authorizationService, userManager)
         {
+        }
+
+        public class InvolverViewModel
+        {
+            public string ProfileID { get; set; }
+            public string UserName { get; set; }
+            public string ImageUrl { get; set; }
+            public int RecentValue { get; set; }
+            public int MonthlyValue { get; set; }
+            public int TotalValue { get; set; }
+            public DateTime LastTime { get; set; }
+        }
+
+        public class InvolverPageViewModel
+        {
+            public List<InvolverViewModel> Involvers { get; set; }
+            public string TimeSpan { get; set; }
         }
 
         public DataAccess.Models.Profile Profile { get; set; }
+        public InvolverPageViewModel PageViewModel { get; set; }
 
-        public string UserID { get; set; }
-
-        public string TimeSpan { get; set; }
-        public ICollection<Involving> Involvers { get; set; }
-
-        private async Task LoadAsync(string id)
+        private async Task<List<InvolverViewModel>> GetInvolvers(string id, string timeSpan, int page = 1)
         {
-            UserID = _userManager.GetUserId(User);
-            Profile = await _context.Profiles
-                .Where(p => p.ProfileID == id)
-                .FirstOrDefaultAsync();
-            if (TimeSpan == "TotalTime")
-            {
-                Involvers = await _context.Involvings
+            IQueryable<Involving> query = _context.Involvings
                 .Include(i => i.Involver)
-                .Where(i => i.ProfileID == id)
-                .OrderByDescending(i => i.TotalValue)
-                .Take(100)
-                .ToListAsync();
+                .Where(i => i.ProfileID == id);
+
+            if (timeSpan == "TotalTime")
+            {
+                query = query.OrderByDescending(i => i.TotalValue);
             }
-            else if (TimeSpan == "Monthly")
+            else if (timeSpan == "Monthly")
             {
-                Involvers = await _context.Involvings
-                .Include(i => i.Involver)
-                .Where(i => i.ProfileID == id)
-                .OrderByDescending(i => i.MonthlyValue)
-                .Take(100)
-                .ToListAsync();
+                query = query.OrderByDescending(i => i.MonthlyValue);
             }
             else
             {
-                Involvers = await _context.Involvings
-                .Include(i => i.Involver)
-                .Where(i => i.ProfileID == id)
-                .OrderByDescending(i => i.LastTime)
-                .Take(100)
-                .ToListAsync();
+                query = query.OrderByDescending(i => i.LastTime);
             }
+
+            var involvers = await query
+                .Skip((page - 1) * Parameters.PageSize)
+                .Take(Parameters.PageSize)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var involverViewModels = new List<InvolverViewModel>();
+            foreach (var involving in involvers)
+            {
+                if (involving.Involver == null) continue;
+
+                var vm = new InvolverViewModel
+                {
+                    ProfileID = involving.InvolverID,
+                    UserName = involving.Involver.UserName,
+                    RecentValue = involving.Value,
+                    MonthlyValue = involving.MonthlyValue,
+                    TotalValue = involving.TotalValue,
+                    LastTime = involving.LastTime,
+                    ImageUrl = involving.Involver.ImageUrl
+                };
+
+                if (string.IsNullOrEmpty(vm.ImageUrl))
+                {
+                    var user = await _userManager.FindByIdAsync(involving.InvolverID);
+                    if (user != null) vm.ImageUrl = "https://www.gravatar.com/avatar/" + user.Email.ToMd5() + "?d=retro";
+                }
+
+                involverViewModels.Add(vm);
+            }
+
+            return involverViewModels;
         }
 
-        public async Task<IActionResult> OnGetAsync(string id, string TimeSpan)
+        public async Task<IActionResult> OnGetAsync(string id, string timeSpan)
         {
-            this.TimeSpan = TimeSpan;
-            await LoadAsync(id);
-            if (Profile != null)
-            {
-                return Page();
-            }
-            else
+            Profile = await _context.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ProfileID == id);
+            if (Profile == null)
             {
                 return NotFound();
             }
+
+            var involvers = await GetInvolvers(id, timeSpan);
+            PageViewModel = new InvolverPageViewModel
+            {
+                Involvers = involvers,
+                TimeSpan = timeSpan
+            };
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetLoadMoreAsync(string id, string timeSpan, int pageIndex)
+        {
+            var involvers = await GetInvolvers(id, timeSpan, pageIndex);
+            var pageViewModel = new InvolverPageViewModel
+            {
+                Involvers = involvers,
+                TimeSpan = timeSpan
+            };
+            return Partial("_InvolverListPartial", pageViewModel);
         }
     }
 }

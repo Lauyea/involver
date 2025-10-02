@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.InvolversModel
 @{
     ViewData["Title"] = "Involvers";
@@ -10,16 +10,16 @@
     }
 
     string TitleSub = "";
-    string RecentBtnStyle;
-    string MonthlyBtnStyle;
-    string TotalTimeBtnStyle;
+    string RecentBtnStyle, MonthlyBtnStyle, TotalTimeBtnStyle;
     RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
-    if (Model.TimeSpan == "TotalTime")
+    var timeSpan = Model.PageViewModel.TimeSpan;
+
+    if (timeSpan == "TotalTime")
     {
         TitleSub = "總共（按程度排序）";
         TotalTimeBtnStyle = "btn-info disabled";
     }
-    else if (Model.TimeSpan == "Monthly")
+    else if (timeSpan == "Monthly")
     {
         TitleSub = "每月（按程度排序）";
         MonthlyBtnStyle = "btn-info disabled";
@@ -78,55 +78,21 @@
     </div>
     <hr />
     <p></p>
-    <div>
-        @if (Model.Involvers != null)
-        {
-            @foreach (Involving involving in Model.Involvers)
-            {
-                <div class="row">
-                    <div class="col-md-5">
-                        <a asp-page="./Index"
-                           asp-route-id="@involving.InvolverID">
-                            @if (!string.IsNullOrEmpty(involving.Involver.ImageUrl))
-                            {
-                                <img src="@involving.Involver.ImageUrl"
-                                     asp-append-version="true"
-                                     alt="讀取失敗"
-                                     title="@involving.Involver.UserName"
-                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            else
-                            {
-                                var user = await userManager.FindByIdAsync(involving.Involver.ProfileID);
-                                <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
-                                     alt="讀取失敗"
-                                     title="@involving.Involver.UserName"
-                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            @Html.DisplayFor(modelItem => involving.Involver.UserName)
-                        </a>
-                    </div>
-                    <div class="col-md-2">
-                        @if (Model.TimeSpan == "TotalTime")
-                        {
-                            @involving.TotalValue
-                        }
-                        else if (Model.TimeSpan == "Monthly")
-                        {
-                            @involving.MonthlyValue
-                        }
-                        else
-                        {
-                            @involving.Value
-                        }
-                         In幣
-                    </div>
-                    <div class="col-md-3" title="@involving.LastTime">
-                        @TimePeriodHelper.Get(involving.LastTime)
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="involvers-container">
+        <partial name="_InvolverListPartial" model="Model.PageViewModel" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            var timeSpan = "@Model.PageViewModel.TimeSpan";
+            setupInfiniteScroll('#involvers-container', '#loading', 'LoadMore', { id: profileId, timeSpan: timeSpan });
+        });
+    </script>
+}
