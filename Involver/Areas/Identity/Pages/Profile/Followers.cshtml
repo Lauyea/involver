@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.FollowersModel
 @{
     ViewData["Title"] = "追蹤";
@@ -29,52 +29,20 @@
            class="btn btn-xs btn-info disabled">追蹤者</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Follows != null)
-        {
-            @foreach (Follow follow in Model.Follows)
-            {
-                @if (follow.Follower == null)
-                {
-                    continue;
-                }
-                <div class="row">
-                    <div class="col-md-5">
-                        <a asp-page="./Index"
-                           asp-route-id="@follow.FollowerID">
-                            @if (!string.IsNullOrEmpty(follow.Follower.ImageUrl))
-                            {
-                                <img src="@follow.Follower.ImageUrl"
-                                     asp-append-version="true"
-                                     alt="讀取失敗"
-                                     title="@follow.Follower.UserName"
-                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            else
-                            {
-                                var user = await userManager.FindByIdAsync(follow.FollowerID);
-                                <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
-                                     alt="讀取失敗"
-                                     title="@follow.Follower.UserName"
-                                     style="width: 25%; height: auto; display:inline; border-radius:10%">
-                            }
-                            @Html.DisplayFor(modelItem => follow.Follower.UserName)
-                        </a>
-                        @if (follow.ProfileMonthlyInvolver)
-                        {
-                            <div class="btn btn-xs btn-outline-danger disabled">Involver</div>
-                        }
-                    </div>
-                    <div class="col-md-4">
-                        @Html.DisplayFor(modelItem => follow.Follower.Introduction)
-                    </div>
-                    <div class="col-md-3" title="@follow.UpdateTime">
-                        @TimePeriodHelper.Get(follow.UpdateTime)
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="followers-container">
+        <partial name="_FollowerListPartial" model="Model.Followers" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#followers-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

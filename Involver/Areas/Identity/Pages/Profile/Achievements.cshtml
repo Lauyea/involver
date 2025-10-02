@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Areas.Identity.Pages.Profile.AchievementsModel
 @{
     ViewData["Title"] = "成就";
@@ -11,24 +11,55 @@
 }
 
 <div class="row">
-    @foreach(var item in Model.Achievements)
+    @foreach (var item in Model.Achievements.OrderByDescending(a => a.ProfileAchievements.FirstOrDefault().AchieveDate))
     {
-        string badgeColor = "";
-        if (item.Rank == 1)
+        string borderColorClass = "";
+        string titleColorClass = "";
+        switch (item.Rank)
         {
-            badgeColor = "bronze";
+            case 1:
+                borderColorClass = "border-bronze";
+                titleColorClass = "bronze";
+                break;
+            case 2:
+                borderColorClass = "border-silver";
+                titleColorClass = "silver";
+                break;
+            case 3:
+                borderColorClass = "border-gold";
+                titleColorClass = "gold";
+                break;
+            default:
+                borderColorClass = "border-light";
+                break;
         }
-        else if (item.Rank == 2)
-        {
-            badgeColor = "silver";
-        }
-        else
-        {
-            badgeColor = "gold";
-        }
-        <span class="col-auto" title="@item.Content">
-            <span class="badge badge-pill @badgeColor text-dark">@item.Title</span>
-            <small class="text-muted">@item.ProfileAchievements.FirstOrDefault()?.AchieveDate</small>
-        </span>
+
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 @borderColorClass shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title badge badge-pill @titleColorClass text-dark">@item.Title</h5>
+                    <p class="card-text">@item.Content</p>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <small class="text-muted">達成於: @item.ProfileAchievements.FirstOrDefault()?.AchieveDate.ToString("yyyy-MM-dd")</small>
+                </div>
+            </div>
+        </div>
     }
 </div>
+
+@section Styles {
+    <style>
+        .bootstrap .border-gold, .bootstrap-dark .border-gold {
+            border: 2px solid #ffd700;
+        }
+
+        .bootstrap .border-silver, .bootstrap-dark .border-silver {
+            border: 2px solid #c0c0c0;
+        }
+
+        .bootstrap .border-bronze, .bootstrap-dark .border-bronze {
+            border: 2px solid #cd7f32; /* Bronze color */
+        }
+    </style>
+}

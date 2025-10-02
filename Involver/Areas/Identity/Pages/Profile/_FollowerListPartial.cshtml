@@ -1,0 +1,24 @@
+@model IEnumerable<Involver.Areas.Identity.Pages.Profile.FollowersModel.FollowerViewModel>
+
+@foreach (var follower in Model)
+{
+    <div class="row">
+        <div class="col-md-5">
+            <a asp-page="./Index"
+               asp-route-id="@follower.ProfileID">
+                <img src="@follower.ImageUrl"
+                     alt="Profile Image"
+                     title="@follower.UserName"
+                     style="width: 25%; height: auto; display:inline; border-radius:10%">
+                @follower.UserName
+            </a>
+        </div>
+        <div class="col-md-4">
+            @follower.Introduction
+        </div>
+        <div class="col-md-3" title="@follower.FollowTime">
+            @Involver.Helpers.TimePeriodHelper.Get(follower.FollowTime)
+        </div>
+    </div>
+    <hr />
+}

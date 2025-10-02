@@ -1,4 +1,4 @@
-﻿@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.CreationsModel
 @{
     ViewData["Title"] = "創作";
@@ -12,33 +12,21 @@
 
 <div class="row">
     <div class="col-md-12">
-        @if (Model.Novels != null)
-        {
-            foreach (var novel in Model.Novels)
-            {
-                <div class="row">
-                    <div class="col-md-6">
-                        <a asp-page="/Novels/Details" asp-route-id="@novel.NovelID">@Html.DisplayFor(modelItem => novel.Title)</a>
-                    </div>
-                    <div class="col-md-3">
-                        <p>
-                            <small>總計 @Html.DisplayFor(modelItem => novel.TotalCoins)</small>
-                        </p>
-                        <small>月計 @Html.DisplayFor(modelItem => novel.MonthlyCoins)</small>
-                    </div>
-                    <div class="col-md-3" title="@novel.UpdateTime">
-                        <p>
-                            <small>@TimePeriodHelper.Get(novel.UpdateTime)</small>
-                        </p>
-                        <small>觀看數： @Html.DisplayFor(modelItem => novel.TotalViews)</small>
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+        <div id="creations-container">
+            <partial name="_NovelListPartial" model="Model.Novels" />
+        </div>
+        <div id="loading" style="display: none;" class="text-center">
+            <p>正在加載更多...</p>
+        </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#creations-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
 }

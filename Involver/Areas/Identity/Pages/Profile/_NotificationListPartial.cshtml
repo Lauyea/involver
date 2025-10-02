@@ -1,0 +1,16 @@
+@model IEnumerable<DataAccess.Models.Notification>
+
+@foreach(var item in Model)
+{
+    <div class="row">
+        <div class="col-md-9">
+            <a class="nav-link" href="@item.Url">
+                @Html.AntiXssRaw(item.Title)
+            </a>
+        </div>
+        <div class="col-md-3" title="@item.CreatedDate">
+            @Involver.Helpers.TimePeriodHelper.Get(item.CreatedDate)
+        </div>
+    </div>
+    <hr />
+}

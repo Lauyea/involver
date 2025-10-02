@@ -9,53 +9,122 @@
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 }
-<dl class="row">
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.WatchArticle)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.WatchArticle)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.Vote)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.Vote)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.LeaveComment)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.LeaveComment)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.ViewAnnouncement)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.ViewAnnouncement)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.ShareCreation)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.ShareCreation)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.BeAgreed)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.BeAgreed)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.CompleteOtherMissions)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.CompleteOtherMissions)
-    </dd>
-    <dt class="col-sm-4">
-        @Html.DisplayNameFor(model => model.Missions.DailyLogin)
-    </dt>
-    <dd class="col-sm-8">
-        @Html.DisplayFor(model => model.Missions.DailyLogin)
-    </dd>
-</dl>
+<div class="card">
+    <div class="card-header">
+        每週任務
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.WatchArticle)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.WatchArticle)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.Vote)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.Vote)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.LeaveComment)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.LeaveComment)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.ViewAnnouncement)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.ViewAnnouncement)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.ShareCreation)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.ShareCreation)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.BeAgreed)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.BeAgreed)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                @if (Model.Missions.DailyLogin)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                @Html.DisplayNameFor(model => model.Missions.DailyLogin)
+            </div>
+            <span class="badge badge-primary badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center list-group-item-warning">
+            <div>
+                @if (Model.Missions.CompleteOtherMissions)
+                {
+                    <i class="fas fa-check-circle text-success mr-2"></i>
+                }
+                else
+                {
+                    <i class="far fa-circle text-muted mr-2"></i>
+                }
+                <strong>@Html.DisplayNameFor(model => model.Missions.CompleteOtherMissions)</strong>
+            </div>
+            <span class="badge badge-success badge-pill">+@DataAccess.Common.Parameters.MissionAwardCoins InCoin</span>
+        </li>
+    </ul>
+</div>

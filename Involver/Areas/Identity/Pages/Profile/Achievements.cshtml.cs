@@ -36,6 +36,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
             Profile = await _context.Profiles
                 .Include(p => p.Achievements)
+                    .ThenInclude(a => a.ProfileAchievements)
                 .Where(p => p.ProfileID == id)
                 .FirstOrDefaultAsync();
             Achievements = Profile.Achievements.ToList();
@@ -43,7 +44,7 @@ namespace Involver.Areas.Identity.Pages.Profile
 
         public async Task<IActionResult> OnGetAsync(string id)
         {
-            //TODO ¥i¯à°Ñ¦Òsteamªº¦¨´NÅã¥Ü¤è¦¡
+            //TODO å¯èƒ½åƒè€ƒsteamçš„æˆå°±é¡¯ç¤ºæ–¹å¼
             await LoadAsync(id);
             if (Profile != null)
             {

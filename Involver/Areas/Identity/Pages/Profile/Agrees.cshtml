@@ -1,4 +1,4 @@
-@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.AgreesModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -29,98 +29,20 @@
            class="btn btn-xs btn-outline-info">通知</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Agrees != null)
-        {
-            @foreach (Agree agree in Model.Agrees)
-            {
-                <div class="row">
-                    <div class="col-md-5">
-                        @if (agree.Comment != null)
-                        {
-                            @if (agree.Comment.Content.StripHTML().Length < Parameters.ContentLength)
-                            {
-                                @Html.AntiXssRaw(agree.Comment.Content.StripHTML());
-                            }
-                            else
-                            {
-                                @Html.AntiXssRaw(agree.Comment.Content.StripHTML().Substring(0, Parameters.ContentLength)+"...");
-                            }
-                        }
-                        else
-                        {
-                            @if (agree.Message.Content.Length < Parameters.ContentLength)
-                            {
-                                @Html.AntiXssRaw(agree.Message.Content);
-                            }
-                            else
-                            {
-                                @Html.AntiXssRaw(agree.Message.Content.Substring(0, Parameters.ContentLength)+"...");
-                            }
-                        }
-                    </div>
-                    <div class="col-md-4">
-                        @if (agree.Comment != null)
-                        {
-                            @if (agree.Comment.NovelID != null)
-                            {
-                                <a asp-page="/Novels/Details"
-                                   asp-route-id="@agree.Comment.NovelID"
-                                   asp-route-pageIndex="1">
-                                    @agree.Comment.Novel.Title
-                                </a>
-                            }
-                            else if (agree.Comment.EpisodeID != null)
-                            {
-                                <a asp-page="/Episodes/Details"
-                                   asp-route-id="@agree.Comment.EpisodeID"
-                                   asp-route-pageIndex="1">
-                                    @agree.Comment.Episode.Title
-                                </a>
-                            }
-                            else if (agree.Comment.ArticleID != null)
-                            {
-                                <a asp-page="/Articles/Details"
-                                   asp-route-id="@agree.Comment.ArticleID"
-                                   asp-route-pageIndex="1">
-                                    @agree.Comment.Article.Title
-                                </a>
-                            }
-
-                        }
-                        else
-                        {
-                            <a asp-page="/Comments/Details"
-                               asp-route-id="@agree.Message.CommentID"
-                               asp-route-pageIndex="1">
-                                @if (agree.Message.Comment.Content.Length < Parameters.SmallContentLength)
-                                {
-                                    @agree.Message.Comment.Content;
-                                }
-                                else
-                                {
-                                    @(agree.Message.Comment.Content.Substring(0, Parameters.SmallContentLength)+"...");
-                                }
-                            </a>
-                        }
-                    </div>
-                    @if (agree.Comment != null)
-                    {
-                        <div class="col-md-3" title="@agree.Comment.UpdateTime">
-                            @TimePeriodHelper.Get(agree.Comment.UpdateTime)
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="col-md-3" title="@agree.Message.UpdateTime">
-                            @TimePeriodHelper.Get(agree.Message.UpdateTime)
-                        </div>
-                    }
-                </div>
-                <hr />
-            }
-        }
+    <div id="agrees-container">
+        <partial name="_AgreeListPartial" model="Model.Agrees" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
 
-
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#agrees-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}

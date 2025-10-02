@@ -1,4 +1,4 @@
-@page
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.InteractionModel
 @{
     ViewData["Title"] = "互動紀錄";
@@ -8,7 +8,6 @@
     {
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
-    //DateTime Date2020 = new DateTime(2020, 1, 1, 0, 0, 0);
 }
 
 <div>
@@ -30,53 +29,20 @@
            class="btn btn-xs btn-outline-info">通知</a>
     </div>
     <p></p>
-    <div>
-        @if (Model.Comments != null)
-        {
-            @foreach (Comment comment in Model.Comments)
-            {
-                //if(comment.UpdateTime.CompareTo(Date2020) == -1)
-                //{
-                //    continue;
-                //}
-                <div class="row">
-                    <div class="col-md-5">
-                        @if (comment.Content.StripHTML().Length < Parameters.ContentLength)
-                        {
-                            @Html.AntiXssRaw(comment.Content.StripHTML());
-                        }
-                        else
-                        {
-                            @Html.AntiXssRaw(comment.Content.StripHTML().Substring(0, Parameters.ContentLength)+"...")
-                            ;
-                        }
-                    </div>
-                    <div class="col-md-4">
-                        @if (comment.NovelID != null)
-                        {
-                            <a asp-page="/Novels/Details"
-                               asp-route-id="@comment.NovelID"
-                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Novel.Title)</a>
-                        }
-                        else if (comment.EpisodeID != null)
-                        {
-                            <a asp-page="/Episodes/Details"
-                               asp-route-id="@comment.EpisodeID"
-                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Episode.Title)</a>
-                        }
-                        else if (comment.ArticleID != null)
-                        {
-                            <a asp-page="/Articles/Details"
-                               asp-route-id="@comment.ArticleID"
-                               asp-fragment="CommentHead">@Html.DisplayFor(modelItem => comment.Article.Title)</a>
-                        }
-                    </div>
-                    <div class="col-md-3" title="@comment.UpdateTime">
-                        @TimePeriodHelper.Get(comment.UpdateTime)
-                    </div>
-                </div>
-                <hr />
-            }
-        }
+    <div id="interaction-container">
+        <partial name="_InteractionListPartial" model="Model.Comments" />
+    </div>
+    <div id="loading" style="display: none;" class="text-center">
+        <p>正在加載更多...</p>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(function () {
+            var profileId = "@Model.Profile.ProfileID";
+            setupInfiniteScroll('#interaction-container', '#loading', 'LoadMore', { id: profileId });
+        });
+    </script>
+}
