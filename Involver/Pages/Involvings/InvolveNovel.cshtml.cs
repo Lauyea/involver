@@ -95,10 +95,10 @@ namespace Involver.Pages.Involvings
 
             if (Involver.RealCoins < Involving.Value)
             {
-                ModelState.AddModelError(Involving.Value.ToString(), "±b¤á¾lÃB¤£¨¬");
+                ModelState.AddModelError(Involving.Value.ToString(), "å¸³æˆ¶é¤˜é¡ä¸è¶³");
                 return Page();
             }
-            Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//³Ð§@ª½±µÃÙ§U¡A§@ªÌ±o50%¤À¼í
+            Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//å‰µä½œç›´æŽ¥è´ŠåŠ©ï¼Œä½œè€…å¾—50%åˆ†æ½¤
             Involver.RealCoins -= Involving.Value;
             Involver.UsedCoins += Involving.Value;
 
@@ -131,7 +131,7 @@ namespace Involver.Pages.Involvings
                 _context.Involvings.Add(newInvolving);
             }
             await _context.SaveChangesAsync();
-            StatusMessage = "Involve¦¨¥\¡AÁ`¦@" + Involving.Value + " In¹ô¡A·PÁÂ¥H¹êÅé¦æ°Ê¹ªÀy³Ð§@";
+            StatusMessage = "InvolveæˆåŠŸï¼Œç¸½å…±" + Involving.Value + " Inå¹£ï¼Œæ„Ÿè¬ä»¥å¯¦é«”è¡Œå‹•é¼“å‹µå‰µä½œ";
 
             var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
 
@@ -172,7 +172,7 @@ namespace Involver.Pages.Involvings
             {
                 if (existingFollow.NovelMonthlyInvolver)
                 {
-                    StatusMessage = "¤w¸gInvolve¹L¤F¡A¦p­nÄ~ÄòInvolve¡A¥i¥H¨Ï¥Îª½±µInvolveªº¥\¯à";
+                    StatusMessage = "å·²ç¶“InvolveéŽäº†ï¼Œå¦‚è¦ç¹¼çºŒInvolveï¼Œå¯ä»¥ä½¿ç”¨ç›´æŽ¥Involveçš„åŠŸèƒ½";
                     return Page();
                 }
                 existingFollow.NovelMonthlyInvolver = true;
@@ -185,10 +185,10 @@ namespace Involver.Pages.Involvings
 
             if (Involver.RealCoins < InvolveValue)
             {
-                StatusMessage = "Error: ±b¤á¾lÃB¤£¨¬";
+                StatusMessage = "Error: å¸³æˆ¶é¤˜é¡ä¸è¶³";
                 return Page();
             }
-            Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//³Ð§@¨C¤ëInvolve¡A§@ªÌ±o60%¤À¼í
+            Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//å‰µä½œæ¯æœˆInvolveï¼Œä½œè€…å¾—60%åˆ†æ½¤
             Involver.RealCoins -= InvolveValue;
             Involver.UsedCoins += InvolveValue;
 
@@ -223,7 +223,7 @@ namespace Involver.Pages.Involvings
 
             await _context.SaveChangesAsync();
 
-            StatusMessage = "¨C¤ëInvolve¦¨¥\¡A·PÁÂ¥H¹êÅé¦æ°Ê¹ªÀy³Ð§@";
+            StatusMessage = "æ¯æœˆInvolveæˆåŠŸï¼Œæ„Ÿè¬ä»¥å¯¦é«”è¡Œå‹•é¼“å‹µå‰µä½œ";
 
             var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
 
@@ -250,20 +250,20 @@ namespace Involver.Pages.Involvings
 
             if (follow == null)
             {
-                StatusMessage = "Error: µL®Ä¾Þ§@";
+                StatusMessage = "Error: ç„¡æ•ˆæ“ä½œ";
                 return Page();
             }
             else
             {
                 if (!follow.NovelMonthlyInvolver)
                 {
-                    StatusMessage = "Error: ±z¨S¦³¨C¤ëInvolve³o³¡³Ð§@";
+                    StatusMessage = "Error: æ‚¨æ²’æœ‰æ¯æœˆInvolveé€™éƒ¨å‰µä½œ";
                     return Page();
                 }
                 follow.NovelMonthlyInvolver = false;
             }
             await _context.SaveChangesAsync();
-            StatusMessage = "UnInvolve¦¨¥\";
+            StatusMessage = "UnInvolveæˆåŠŸ";
             return Page();
         }
     }
