@@ -227,43 +227,54 @@ function setupInfiniteScroll(containerSelector, loadingSelector, handlerName, ad
     let isLoading = false;
     let noMoreData = false;
 
-    $(window).scroll(function () {
+    function loadMoreIfNeeded() {
         if (noMoreData || isLoading) {
             return;
         }
 
-        // 檢查是否滾動到接近底部
-        if ($(window).scrollTop() + $(window).height() >= $(document).height() - 200) {
+        // 判斷是否滾到接近底部，或是頁面高度不足以出現滾動條
+        const nearBottom = $(window).scrollTop() + $(window).height() >= $(document).height() - 200;
+        const notScrollable = $(document).height() <= $(window).height() + 200;
+
+        if (nearBottom || notScrollable) {
             isLoading = true;
             $(loadingSelector).show();
             page++;
 
-            let requestData = {
+            const requestData = {
                 handler: handlerName,
                 pageIndex: page,
                 ...additionalParams
             };
 
             $.ajax({
-                url: window.location.pathname, // REMOVED: + window.location.search
+                url: window.location.pathname,
                 type: 'GET',
                 data: requestData,
                 success: function (data) {
                     if (data.trim().length > 0) {
                         $(containerSelector).append(data);
                         isLoading = false;
+                        $(loadingSelector).hide();
+                        // 再次檢查是否需要載入更多
+                        loadMoreIfNeeded();
                     } else {
-                        noMoreData = true; // 沒有更多資料了
+                        noMoreData = true;
+                        $(loadingSelector).hide();
                     }
-                    $(loadingSelector).hide();
                 },
                 error: function () {
-                    // 處理錯誤
                     isLoading = false;
                     $(loadingSelector).hide();
                     console.error('Error loading more content.');
                 }
             });
         }
-    });
+    }
+
+    // 綁定滾動事件
+    $(window).scroll(loadMoreIfNeeded);
+
+    // 初始化時先檢查一次（避免畫面太短不觸發）
+    loadMoreIfNeeded();
 }
