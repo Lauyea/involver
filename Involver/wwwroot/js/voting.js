@@ -90,8 +90,19 @@ const app = createApp({
                     $('#createVotingModal').modal('hide');
                     this.fetchVotingsAsync();
                 } else {
-                    const errorData = await response.json();
-                    alert(`Error: ${JSON.stringify(errorData)}`);
+                    const errorText = await response.text();
+                    try {
+                        const errorData = JSON.parse(errorText);
+                        // Handle validation errors from ModelState
+                        let errorMessage = "Please correct the following errors:\n";
+                        for (const key in errorData.errors) {
+                            errorMessage += `- ${errorData.errors[key].join('\n- ')}\n`;
+                        }
+                        alert(errorMessage);
+                    } catch (e) {
+                        // Handle simple string errors
+                        alert(`Error: ${errorText}`);
+                    }
                 }
             } catch (err) {
                 this.error = err.message;

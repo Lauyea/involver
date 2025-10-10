@@ -74,6 +74,38 @@ namespace Involver.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Validation for LimitType
+            // TODO: 要再改成回傳中文。Parameter要集中控制。
+            switch ((LimitType)votingVM.Limit)
+            {
+                case LimitType.Time:
+                    if (votingVM.DeadLine <= DateTime.Now)
+                    {
+                        return BadRequest("Deadline must be in the future.");
+                    }
+                    votingVM.NumberLimit = null;
+                    votingVM.CoinLimit = null;
+                    break;
+                case LimitType.Number:
+                    if (votingVM.NumberLimit == null || votingVM.NumberLimit < 10)
+                    {
+                        return BadRequest("Number limit must be 10 or greater.");
+                    }
+                    votingVM.DeadLine = DateTime.MaxValue; // No time limit
+                    votingVM.CoinLimit = null;
+                    break;
+                case LimitType.Value:
+                    if (votingVM.CoinLimit == null || votingVM.CoinLimit <= 0)
+                    {
+                        return BadRequest("Coin limit must be greater than 0.");
+                    }
+                    votingVM.DeadLine = DateTime.MaxValue; // No time limit
+                    votingVM.NumberLimit = null;
+                    break;
+                default:
+                    return BadRequest("Invalid limit type.");
+            }
+
             var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == _userManager.GetUserId(User));
 
             if (profile == null)
