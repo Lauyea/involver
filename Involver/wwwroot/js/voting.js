@@ -21,12 +21,14 @@ const app = createApp({
                     { content: '' }
                 ]
             },
-            episodeId: null
+            episodeId: null,
+            isProfessional: false
         };
     },
     mounted() {
         const el = document.getElementById('voting-app');
         this.episodeId = parseInt(el.dataset.episodeId, 10);
+        this.isProfessional = el.dataset.isProfessional === 'true';
         this.fetchVotingsAsync();
     },
     methods: {
@@ -107,6 +109,9 @@ const app = createApp({
             }
         },
         showCreateVotingModal() {
+            if (!this.isProfessional) {
+                this.newVoting.policy = 0; // Force policy to Equality for non-pro users
+            }
             $('#createVotingModal').modal('show');
         },
         async fetchVotingsAsync() {

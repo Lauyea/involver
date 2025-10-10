@@ -1,8 +1,10 @@
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.NovelModel;
 
 using Involver.Models.ViewModels;
 using Involver.Services.NotificationSetterService;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -77,6 +79,12 @@ namespace Involver.Controllers
             if (profile == null)
             {
                 return Unauthorized();
+            }
+
+            // Server-side check to enforce policy for non-professional users
+            if (!profile.Professional)
+            {
+                votingVM.Policy = PolicyType.Equality;
             }
 
             var voting = new Voting

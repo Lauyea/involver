@@ -1,6 +1,6 @@
 @model Involver.Views.Shared.Components.Voting.VotingViewModel
 
-<div id="voting-app" data-episode-id="@Model.EpisodeId">
+<div id="voting-app" data-episode-id="@Model.EpisodeId" data-is-professional="@Model.IsProfessional.ToString().ToLower()">
     <div class="card mb-4">
         <div class="card-header">
             <div class="d-flex justify-content-between align-items-center">
@@ -85,7 +85,7 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group col-md-6">
+                            <div class="form-group col-md-6" v-show="isProfessional">
                                 <label class="control-label">策略</label>
                                 <select v-model.number="newVoting.policy" class="form-control">
                                     <option value="0">平等</option>
