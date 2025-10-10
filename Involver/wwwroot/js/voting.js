@@ -74,6 +74,20 @@ const app = createApp({
             }
         },
         async createVotingAsync() {
+            const validOptions = this.newVoting.options.filter(opt => opt.content.trim() !== '');
+
+            if (validOptions.length < 2) {
+                alert('At least two voting options are required.');
+                return;
+            }
+
+            for (const opt of validOptions) {
+                if (opt.content.trim().length < 2) {
+                    alert('Option content must be at least 2 characters long.');
+                    return;
+                }
+            }
+
             const payload = {
                 episodeId: this.episodeId,
                 ...this.newVoting

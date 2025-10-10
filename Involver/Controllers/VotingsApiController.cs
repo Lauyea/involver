@@ -134,17 +134,26 @@ namespace Involver.Controllers
                 End = false
             };
 
-            foreach (var optionVM in votingVM.Options)
+            var validOptions = votingVM.Options.Where(o => !string.IsNullOrWhiteSpace(o.Content)).ToList();
+
+            if (validOptions.Count < 2)
             {
-                if (!string.IsNullOrWhiteSpace(optionVM.Content))
+                return BadRequest("At least two options are required.");
+            }
+
+            foreach (var optionVM in validOptions)
+            {
+                if (optionVM.Content.Length < 2)
                 {
-                    var option = new NormalOption
-                    {
-                        Content = optionVM.Content,
-                        Voting = voting
-                    };
-                    _context.NormalOptions.Add(option);
+                    return BadRequest("Option content must be at least 2 characters long.");
                 }
+
+                var option = new NormalOption
+                {
+                    Content = optionVM.Content,
+                    Voting = voting
+                };
+                _context.NormalOptions.Add(option);
             }
 
             _context.Votings.Add(voting);
