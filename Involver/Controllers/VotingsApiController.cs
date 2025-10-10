@@ -118,8 +118,31 @@ namespace Involver.Controllers
             _context.Votings.Add(voting);
             await _context.SaveChangesAsync();
 
+            var result = new
+            {
+                voting.VotingID,
+                voting.Title,
+                voting.Policy,
+                voting.Limit,
+                voting.Threshold,
+                voting.NumberLimit,
+                voting.CoinLimit,
+                voting.DeadLine,
+                voting.End,
+                TotalCoins = 0,
+                TotalNumber = 0,
+                Options = voting.NormalOptions.Select(o => new
+                {
+                    o.NormalOptionID,
+                    o.Content,
+                    TotalCoins = 0,
+                    VotesCount = 0
+                }),
+                Voted = false
+            };
+
             // Return the created voting with a 201 status code
-            return CreatedAtAction(nameof(GetByEpisodeId), new { episodeId = voting.EpisodeID }, voting);
+            return CreatedAtAction(nameof(GetByEpisodeId), new { episodeId = voting.EpisodeID }, result);
         }
 
         [HttpGet("ByEpisode/{episodeId}")]
