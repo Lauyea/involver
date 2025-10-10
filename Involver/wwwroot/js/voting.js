@@ -93,6 +93,10 @@ const app = createApp({
                 ...this.newVoting
             };
 
+            if (payload.deadLine === '') {
+                payload.deadLine = null;
+            }
+
             try {
                 const response = await fetch('/api/v1/votings', {
                     method: 'POST',
