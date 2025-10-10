@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers
 {
+    [AllowAnonymous]
     [Route("api/v1/votings")]
     [ApiController]
     public class VotingsApiController : ControllerBase
@@ -43,7 +44,7 @@ namespace Involver.Controllers
 
             if (profile == null || voting == null)
             {
-                return NotFound();
+                return BadRequest("請登入後再投票。");
             }
 
             bool alreadyVoted = voting.NormalOptions.Any(o => o.Votes.Any(v => v.OwnerID == userId));
