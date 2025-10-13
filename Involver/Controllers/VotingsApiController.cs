@@ -226,7 +226,7 @@ namespace Involver.Controllers
                 case LimitType.Time:
                     if (votingVM.DeadLine <= DateTime.Now)
                     {
-                        return BadRequest("Deadline must be in the future.");
+                        return BadRequest("截止日期必須在未來。");
                     }
                     votingVM.NumberLimit = null;
                     votingVM.CoinLimit = null;
@@ -234,7 +234,7 @@ namespace Involver.Controllers
                 case LimitType.Number:
                     if (votingVM.NumberLimit == null || votingVM.NumberLimit < 10)
                     {
-                        return BadRequest("Number limit must be 10 or greater.");
+                        return BadRequest("數量限制必須為 10 或更大。");
                     }
                     votingVM.DeadLine = DateTime.MaxValue; // No time limit
                     votingVM.CoinLimit = null;
@@ -242,7 +242,7 @@ namespace Involver.Controllers
                 case LimitType.Value:
                     if (votingVM.CoinLimit == null || votingVM.CoinLimit <= 0)
                     {
-                        return BadRequest("Coin limit must be greater than 0.");
+                        return BadRequest("In幣限額必須大於 0。");
                     }
                     votingVM.DeadLine = DateTime.MaxValue; // No time limit
                     votingVM.NumberLimit = null;
@@ -283,14 +283,14 @@ namespace Involver.Controllers
 
             if (validOptions.Count < 2)
             {
-                return BadRequest("At least two options are required.");
+                return BadRequest("至少需要兩個選項。");
             }
 
             foreach (var optionVM in validOptions)
             {
                 if (optionVM.Content.Length < 2)
                 {
-                    return BadRequest("Option content must be at least 2 characters long.");
+                    return BadRequest("選項內容必須至少包含 2 個字元。");
                 }
 
                 var option = new NormalOption
