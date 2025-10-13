@@ -258,6 +258,8 @@ namespace Involver.Pages.Votings
             }
             option.TotalCoins += value;
 
+            Voting.TotalNumber++;
+
             await Context.SaveChangesAsync();
 
             await SetAchievements(Voter);
@@ -337,6 +339,9 @@ namespace Involver.Pages.Votings
                 Context.Involvings.Add(newInvolving);
             }
             option.TotalCoins += value;
+
+            Voting.TotalNumber++;
+
             await Context.SaveChangesAsync();
 
             await SetAchievements(Voter);
