@@ -56,9 +56,14 @@ namespace Involver.Controllers
             var vote = new Vote
             {
                 OwnerID = userId,
-                NormalOptionID = voteVM.OptionId,
-                Value = voting.Threshold // Simplified for now
+                NormalOptionID = voteVM.OptionId
             };
+
+            // 如果是平等模式，票價固定
+            if (voting.Policy == PolicyType.Equality)
+            {
+                vote.Value = voting.Threshold;
+            }
 
             _context.Votes.Add(vote);
             await _context.SaveChangesAsync();
