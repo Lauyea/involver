@@ -171,7 +171,7 @@ namespace Involver.Controllers
                 var creator = await _context.Profiles.FindAsync(novel.ProfileID);
                 if (creator != null)
                 {
-                    decimal shareRatio = (voting.Policy == PolicyType.Liberty) ? 0.6m : 0.7m; // TODO: 要集中控制
+                    decimal shareRatio = (voting.Policy == PolicyType.Liberty) ? Parameters.LibertyShareRatio : Parameters.EqualityShareRatio;
                     creator.MonthlyCoins += (decimal)voteValue * shareRatio;
                 }
             }
@@ -220,8 +220,7 @@ namespace Involver.Controllers
             }
 
             // Validation for LimitType
-            // TODO: 要再改成回傳中文。Parameter要集中控制。
-            switch ((LimitType)votingVM.Limit)
+            switch (votingVM.Limit)
             {
                 case LimitType.Time:
                     if (votingVM.DeadLine <= DateTime.Now)
@@ -232,19 +231,19 @@ namespace Involver.Controllers
                     votingVM.CoinLimit = null;
                     break;
                 case LimitType.Number:
-                    if (votingVM.NumberLimit == null || votingVM.NumberLimit < 10)
+                    if (votingVM.NumberLimit == null || votingVM.NumberLimit < Parameters.VotingNumberLimitMin)
                     {
-                        return BadRequest("數量限制必須為 10 或更大。");
+                        return BadRequest($"數量限制必須為 {Parameters.VotingNumberLimitMin} 或更大。");
                     }
-                    votingVM.DeadLine = DateTime.MaxValue; // No time limit
+                    votingVM.DeadLine = null; // No time limit
                     votingVM.CoinLimit = null;
                     break;
                 case LimitType.Value:
-                    if (votingVM.CoinLimit == null || votingVM.CoinLimit <= 0)
+                    if (votingVM.CoinLimit == null || votingVM.CoinLimit <= Parameters.VotingCoinLimitMin)
                     {
-                        return BadRequest("In幣限額必須大於 0。");
+                        return BadRequest($"In幣限額必須大於 {Parameters.VotingCoinLimitMin}。");
                     }
-                    votingVM.DeadLine = DateTime.MaxValue; // No time limit
+                    votingVM.DeadLine = null; // No time limit
                     votingVM.NumberLimit = null;
                     break;
                 default:
