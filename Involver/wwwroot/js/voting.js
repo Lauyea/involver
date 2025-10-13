@@ -146,6 +146,10 @@ const app = createApp({
                 if (response.ok) {
                     $('#createVotingModal').modal('hide');
                     this.fetchVotingsAsync();
+                }
+                if (response.status === 401) {
+                    alert('請先登入，才能建立投票。');
+                    window.location.href = '/Identity/Account/Login';
                 } else {
                     const errorText = await response.text();
                     try {
