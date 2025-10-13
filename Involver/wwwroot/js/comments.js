@@ -544,10 +544,17 @@ const app = createApp({
          * Changes the current page of comments.
          * @param {number} page - The page number to navigate to.
          */
-        changePage(page) {
+        async changePage(page) {
             if (page < 1 || page > this.pagination.totalPages) return;
-            this.getCommentsAsync(page);
+            await this.getCommentsAsync(page);
+
+            this.$nextTick(() => {
+                const el = document.getElementById('CommentHead');
+                if (!el) return;
+                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
         },
+
         /**
          * Changes the sorting order and re-fetches the comments.
          */

@@ -1,0 +1,234 @@
+@model Involver.Views.Shared.Components.Voting.VotingViewModel
+
+<div id="voting-app" data-episode-id="@Model.EpisodeId" data-is-professional="@Model.IsProfessional.ToString().ToLower()">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">投票</h5>
+                <div>
+                    <a href="/Descriptions/Voting" target="_blank" class="btn btn-sm btn-outline-info"><i class="fas fa-info-circle"></i> 投票說明</a>
+                    @if (Model.CanCreateVoting)
+                    {
+                        <button @@click="showCreateVotingModal" class="btn btn-sm btn-primary ml-2"><i class="fas fa-plus"></i> 新增投票</button>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div v-if="isLoading" class="text-center">
+                <div class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            <div v-else-if="error">
+                <div class="alert alert-danger">{{ error }}</div>
+            </div>
+            <div v-else-if="votings.length === 0" class="text-center text-muted">
+                <p>目前沒有進行中的投票。</p>
+            </div>
+            <div v-else>
+                <div v-for="voting in votings" :key="voting.votingID" class="card mb-4 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-truncate" :title="voting.title">{{ voting.title }}</h5>
+                        <span v-if="voting.policy === 0" class="badge badge-pill badge-success" title="這個投票的每張票價值有限">平等</span>
+                        <span v-else-if="voting.policy === 1" class="badge badge-pill badge-warning" title="這個投票的每張票價值無限">自由</span>
+                    </div>
+                    <div class="card-body">
+                        <form v-if="!voting.voted && !voting.end" @@submit.prevent="castVoteAsync(voting.votingID)">
+                            <div v-for="option in voting.options" :key="option.normalOptionID" class="mb-3 position-relative">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-truncate" :title="option.content">{{ option.content }}</span>
+                                </div>
+
+                                <div class="progress" style="height: 32px; position: relative;">
+                                    <div class="progress-bar bg-secondary"
+                                         role="progressbar"
+                                         style="width: 100%; opacity: 0.2;"></div>
+
+                                    <input type="radio"
+                                           :name="'voting-' + voting.votingID"
+                                           :id="'option-' + option.normalOptionID"
+                                           :value="option.normalOptionID"
+                                           v-model.number="selectedOptions[voting.votingID]"
+                                           class="form-check-input"
+                                           style="
+                                        position: absolute;
+                                        right: 8px;
+                                        top: 40%;
+                                        transform: translateY(-60%);
+                                    " />
+
+                                    <label :for="'option-' + option.normalOptionID"
+                                           class="form-check-label mb-0 pl-4"
+                                           style="
+                                        position: absolute;
+                                        left: 40px;
+                                        top: 50%;
+                                        transform: translateY(-50%);
+                                        width: calc(100% - 40px);
+                                        cursor: pointer;
+                                    ">
+                                        {{ option.content }}
+                                    </label>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div v-else>
+                            <div v-for="option in voting.options" :key="option.normalOptionID" class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="text-truncate" :title="option.content">{{ option.content }}</span>
+                                    <span class="font-weight-bold">
+                                        {{ getDisplayText(voting, option) }} ({{ getPercent(voting, option) }}%)
+                                    </span>
+                                </div>
+                                <div class="progress" style="height: 32px;">
+                                    <div class="progress-bar"
+                                         role="progressbar"
+                                         style="background-color: #e66532;"
+                                         :style="{ width: getPercent(voting, option) + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="!voting.voted && !voting.end && voting.threshold > 0" class="mt-3">
+                            <hr />
+                            <div class="d-flex justify-content-between">
+                                <div class="alert alert-warning mr-2" role="alert" v-if="voteSettings[voting.votingID] && voteSettings[voting.votingID].isVirtual">
+                                    <p class="mb-0"><strong>使用虛擬In幣，則作者無法收益，只能增加作品的人氣。</strong></p>
+                                    <a href="https://involver.tw/Involvings/StoredValue" target="_blank">想支持作者嗎？點此購買實體In幣！</a>
+                                </div>
+                                <div class="ml-auto" style="margin-bottom: 1.6rem;min-width: 100px;">
+                                    <div>
+                                        <input v-if="voting.policy === 1" type="number" class="form-control" v-model.number="voteSettings[voting.votingID].value" :min="voting.threshold">
+                                        <p v-else class="form-control-static">票價：{{ voting.threshold }}</p>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" :name="'currency-' + voting.votingID" :id="'virtual-' + voting.votingID" :value="true" v-if="voteSettings[voting.votingID]" v-model="voteSettings[voting.votingID].isVirtual">
+                                        <label class="form-check-label" :for="'virtual-' + voting.votingID">虛擬In幣</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" :name="'currency-' + voting.votingID" :id="'real-' + voting.votingID" :value="false" v-if="voteSettings[voting.votingID]" v-model="voteSettings[voting.votingID].isVirtual">
+                                        <label class="form-check-label" :for="'real-' + voting.votingID">實體In幣</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white text-muted">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="small">
+                                <div v-if="voting.end" class="text-danger">
+                                    <i class="far fa-clock mr-1"></i>
+                                    <strong>投票已截止</strong>
+                                </div>
+                                <div v-else>
+                                    <span v-if="voting.limit === 0 && voting.deadLine" title="這個投票有限制時間">
+                                        <i class="far fa-clock mr-1"></i>
+                                        <strong :id="'CountDownID' + voting.votingID">計算中...</strong>
+                                    </span>
+                                    <span v-else-if="voting.limit === 1" title="這個投票有限制投票人數上限">
+                                        <i class="fas fa-users mr-1"></i>
+                                        {{ voting.totalNumber }} / {{ voting.numberLimit }}
+                                    </span>
+                                    <span v-else-if="voting.limit === 2" title="這個投票有限制總Coins上限">
+                                        <i class="fas fa-coins mr-1"></i>
+                                        {{ voting.totalCoins }} / {{ voting.coinLimit }}
+                                    </span>
+                                </div>
+                            </div>
+                            <button v-if="!voting.voted && !voting.end" @@click="castVoteAsync(voting.votingID)" :disabled="!selectedOptions[voting.votingID]" class="btn btn-sm btn-primary">
+                                <i class="fas fa-vote-yea"></i> 投票
+                            </button>
+                            <span v-else class="badge badge-secondary">{{ voting.end ? '投票已結束' : '您已投票' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Voting Modal -->
+    <div class="modal fade" id="createVotingModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">新增投票</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form @@submit.prevent="createVotingAsync">
+                        <div class="form-group">
+                            <label class="control-label">標題</label>
+                            <textarea v-model="newVoting.title" class="form-control" rows="1" placeholder="在這裡寫些東西..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6" v-show="isProfessional">
+                                <label class="control-label">策略</label>
+                                <select v-model.number="newVoting.policy" class="form-control">
+                                    <option value="0">平等</option>
+                                    <option value="1">自由</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label class="control-label">限制</label>
+                                <select v-model.number="newVoting.limit" class="form-control">
+                                    <option value="0">限時</option>
+                                    <option value="1">限量</option>
+                                    <option value="2">限值</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">票價</label>
+                            <input v-model.number="newVoting.threshold" type="number" class="form-control" />
+                        </div>
+
+                        <div class="alert alert-warning mt-3" role="alert">
+                            <strong>票價設定為零，則等於所有人都可投票</strong>
+                        </div>
+
+                        <div v-if="newVoting.limit === 0" class="form-group">
+                            <label class="control-label">期限</label>
+                            <input v-model="newVoting.deadLine" type="datetime-local" class="form-control" />
+                        </div>
+                        <div v-if="newVoting.limit === 1" class="form-group">
+                            <label class="control-label">人數上限</label>
+                            <input v-model.number="newVoting.numberLimit" type="number" class="form-control" />
+                        </div>
+                        <div v-if="newVoting.limit === 2" class="form-group">
+                            <label class="control-label">總InCoins上限</label>
+                            <input v-model.number="newVoting.coinLimit" type="number" class="form-control" />
+                        </div>
+
+                        <hr />
+
+                        <h6>選項</h6>
+                        <div v-for="(option, index) in newVoting.options" :key="index" class="form-group">
+                            <label class="control-label">選項 {{ index + 1 }}</label>
+                            <input v-model="option.content" class="form-control" placeholder="選項內容..." />
+                        </div>
+
+                        <div class="d-flex justify-content-start">
+                            <button type="button" @@click="addOption" v-show="newVoting.options.length < 5" class="btn btn-sm btn-outline-secondary mr-2">增加選項</button>
+                            <button type="button" type-button @@click="removeOption" v-show="newVoting.options.length > 2" class="btn btn-sm btn-outline-danger">減少選項</button>
+                        </div>
+
+                        <div class="alert alert-warning mt-3" role="alert">
+                            <strong>一旦建立就無法編輯與刪除，請小心警慎地確認資料是否正確</strong>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" @@click="createVotingAsync" class="btn btn-primary">建立</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/voting.js" type="module"></script>

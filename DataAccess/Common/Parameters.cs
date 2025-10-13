@@ -61,5 +61,25 @@ namespace DataAccess.Common
         public const int UserNameLength = 50;
 
         public const int MissionAwardCoins = 5;
+
+        /// <summary>
+        /// 平等模式，作者得70%分潤
+        /// </summary>
+        public const decimal EqualityShareRatio = 0.7m;
+
+        /// <summary>
+        /// 自由模式，作者得60%分潤
+        /// </summary>
+        public const decimal LibertyShareRatio = 0.6m;
+
+        /// <summary>
+        /// 最小的投票限量人數
+        /// </summary>
+        public const int VotingNumberLimitMin = 5;
+
+        /// <summary>
+        /// 最小的投票限值
+        /// </summary>
+        public const int VotingCoinLimitMin = 0;
     }
 }
