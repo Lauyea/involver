@@ -7,6 +7,7 @@ const app = createApp({
             isLoading: true,
             error: null,
             selectedOptions: {},
+            voteSettings: {},
             newVoting: {
                 title: '',
                 policy: 0,
@@ -31,10 +32,18 @@ const app = createApp({
         this.isProfessional = el.dataset.isProfessional === 'true';
         this.fetchVotingsAsync();
     },
-        watch: {
+    watch: {
         votings(newVotings) {
             this.$nextTick(() => {
                 newVotings.forEach(voting => {
+                    // Initialize vote settings for each new voting
+                    if (!this.voteSettings[voting.votingID]) {
+                        this.voteSettings[voting.votingID] = {
+                            isVirtual: true, // Default to virtual
+                            value: voting.threshold // Default to minimum price
+                        };
+                    }
+
                     if (voting.limit === 0 && voting.deadLine && !voting.end) {
                         this.countDown(voting.deadLine, `CountDownID${voting.votingID}`);
                     }
@@ -90,26 +99,45 @@ const app = createApp({
         async castVoteAsync(votingId) {
             const optionId = this.selectedOptions[votingId];
             if (!optionId) {
-                alert('Please select an option.');
+                alert('請選擇一個選項');
                 return;
             }
+
+            const voting = this.votings.find(v => v.votingID === votingId);
+            const settings = this.voteSettings[votingId];
+
+            let value = voting.policy === 0 ? voting.threshold : settings.value;
+
+            if (value < voting.threshold) {
+                alert(`票價至少需要 ${voting.threshold} In幣。`);
+                return;
+            }
+
+            const payload = {
+                votingId: votingId,
+                optionId: optionId,
+                value: value,
+                isVirtual: settings.isVirtual
+            };
 
             try {
                 const response = await fetch('/api/v1/votings/cast', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ votingId, optionId }),
+                    body: JSON.stringify(payload),
                 });
 
                 if (response.ok) {
+                    alert('投票成功！');
                     this.fetchVotingsAsync();
                 } else {
                     const errorData = await response.text();
-                    alert(`Error: ${errorData}`);
+                    alert(`投票失敗: ${errorData}`);
                 }
             } catch (err) {
                 this.error = err.message;
                 console.error(err);
+                alert(`發生錯誤: ${err.message}`);
             }
         },
         async createVotingAsync() {
@@ -192,7 +220,18 @@ const app = createApp({
             try {
                 const response = await fetch(`/api/v1/votings/ByEpisode/${this.episodeId}`);
                 if (response.ok) {
-                    this.votings = await response.json();
+                    const data = await response.json();
+                    this.votings = data;
+
+                    // 同步建立 voteSettings，避免 undefined
+                    data.forEach(voting => {
+                        if (!this.voteSettings[voting.votingID]) {
+                            this.voteSettings[voting.votingID] = {
+                                isVirtual: true,
+                                value: voting.threshold
+                            };
+                        }
+                    });
                 } else if (response.status === 404) {
                     this.votings = [];
                 } else {

@@ -1,10 +1,9 @@
 using DataAccess.Common;
 using DataAccess.Data;
+using DataAccess.Models;
 using DataAccess.Models.NovelModel;
-
 using Involver.Models.ViewModels;
 using Involver.Services.NotificationSetterService;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +11,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers
 {
+    public class CastVoteApiViewModel
+    {
+        public int VotingId { get; set; }
+        public int OptionId { get; set; }
+        public int Value { get; set; }
+        public bool IsVirtual { get; set; }
+    }
+
     [AllowAnonymous]
     [Route("api/v1/votings")]
     [ApiController]
@@ -36,37 +43,155 @@ namespace Involver.Controllers
 
         [HttpPost("cast")]
         [Authorize]
-        public async Task<IActionResult> CastVote(CastVoteViewModel voteVM)
-        { 
+        public async Task<IActionResult> CastVote(CastVoteApiViewModel voteVM)
+        {
             var userId = _userManager.GetUserId(User);
-            var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == userId);
-            var voting = await _context.Votings.Include(v => v.NormalOptions).ThenInclude(o => o.Votes).FirstOrDefaultAsync(v => v.VotingID == voteVM.VotingId);
-
-            if (profile == null || voting == null)
+            if (userId == null)
             {
-                return BadRequest("請登入後再投票。");
+                return Unauthorized("請登入後再投票。");
+            }
+
+            var voter = await _context.Profiles
+                .Include(p => p.Missions)
+                .FirstOrDefaultAsync(p => p.ProfileID == userId);
+
+            var voting = await _context.Votings
+                .Include(v => v.NormalOptions)
+                    .ThenInclude(o => o.Votes)
+                .FirstOrDefaultAsync(v => v.VotingID == voteVM.VotingId);
+
+            if (voter == null || voting == null)
+            {
+                return NotFound("找不到投票或使用者資料。");
+            }
+
+            if (voting.End)
+            {
+                return BadRequest("投票已經結束了。");
             }
 
             bool alreadyVoted = voting.NormalOptions.Any(o => o.Votes.Any(v => v.OwnerID == userId));
-            if (alreadyVoted || voting.End)
+            if (alreadyVoted)
             {
-                return BadRequest("You have already voted or the voting has ended.");
+                return BadRequest("您已經投過票了。");
             }
 
-            var vote = new Vote
+            var option = await _context.NormalOptions.FindAsync(voteVM.OptionId);
+            if (option == null || option.VotingID != voteVM.VotingId)
             {
-                OwnerID = userId,
-                NormalOptionID = voteVM.OptionId
-            };
+                return NotFound("找不到投票選項。");
+            }
 
-            // 如果是平等模式，票價固定
+            int voteValue = voteVM.Value;
+
             if (voting.Policy == PolicyType.Equality)
             {
-                vote.Value = voting.Threshold;
+                voteValue = voting.Threshold;
             }
 
-            _context.Votes.Add(vote);
+            if (voteValue < voting.Threshold)
+            {
+                return BadRequest($"票價至少需要 {voting.Threshold} In幣。");
+            }
+
+            // Check balance
+            if (voteVM.IsVirtual)
+            {
+                if (voter.VirtualCoins < voteValue)
+                {
+                    return BadRequest("虛擬In幣餘額不足。");
+                }
+            }
+            else
+            {
+                if (voter.RealCoins < voteValue)
+                {
+                    return BadRequest("實體In幣餘額不足。");
+                }
+            }
+
+            // Create Vote
+            var newVote = new Vote
+            {
+                OwnerID = userId,
+                NormalOptionID = voteVM.OptionId,
+                Value = voteValue,
+                //IsVirtual = voteVM.IsVirtual
+            };
+            _context.Votes.Add(newVote);
+
+            // Deduct coins
+            if (voteVM.IsVirtual)
+            {
+                voter.VirtualCoins -= voteValue;
+            }
+            else
+            {
+                voter.RealCoins -= voteValue;
+            }
+            voter.UsedCoins += voteValue;
+            // TODO: Mission check logic could be refactored into a service
+            // CheckMissionVote(voter);
+
+            // Update totals
+            voting.TotalCoins += voteValue;
+            voting.TotalNumber++;
+            option.TotalCoins += voteValue;
+
+            var episode = await _context.Episodes.FindAsync(voting.EpisodeID);
+            if (episode == null)
+            {
+                return NotFound("找不到章節資料。");
+            }
+
+            var novel = await _context.Novels.FindAsync(episode.NovelID);
+            if (novel == null)
+            {
+                return NotFound("找不到小說資料。");
+            }
+
+            novel.MonthlyCoins += voteValue;
+            novel.TotalCoins += voteValue;
+
+            // Update creator's earnings if using real coins
+            if (!voteVM.IsVirtual)
+            {
+                var creator = await _context.Profiles.FindAsync(novel.ProfileID);
+                if (creator != null)
+                {
+                    decimal shareRatio = (voting.Policy == PolicyType.Liberty) ? 0.6m : 0.7m; // TODO: 要集中控制
+                    creator.MonthlyCoins += (decimal)voteValue * shareRatio;
+                }
+            }
+
+            // Update Involving
+            var involving = await _context.Involvings
+                .FirstOrDefaultAsync(i => i.NovelID == novel.NovelID && i.InvolverID == userId);
+            if (involving != null)
+            {
+                involving.Value = voteValue;
+                involving.MonthlyValue += voteValue;
+                involving.TotalValue += voteValue;
+                involving.LastTime = DateTime.Now;
+            }
+            else
+            {
+                var newInvolving = new Involving
+                {
+                    Value = voteValue,
+                    MonthlyValue = voteValue,
+                    TotalValue = voteValue,
+                    LastTime = DateTime.Now,
+                    InvolverID = userId,
+                    NovelID = novel.NovelID
+                };
+                _context.Involvings.Add(newInvolving);
+            }
+
             await _context.SaveChangesAsync();
+
+            // TODO: Achievement logic could be refactored into a service
+            // await SetAchievements(Voter);
 
             return Ok();
         }
