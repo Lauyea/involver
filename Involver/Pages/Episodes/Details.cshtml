@@ -112,7 +112,7 @@
 
 @if (Model.CanCreateVoting || Model.Votings.Any())
 {
-    @await Component.InvokeAsync("Voting", new { episodeId = Model.Episode.EpisodeID })
+    @await Component.InvokeAsync("Voting", new { episodeId = Model.Episode.EpisodeID, canCreateVoting = Model.CanCreateVoting })
 }
 
 @await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID })

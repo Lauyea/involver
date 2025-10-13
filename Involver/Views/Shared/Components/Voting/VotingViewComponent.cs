@@ -18,11 +18,12 @@ namespace Involver.Views.Shared.Components.Voting
             _userManager = userManager;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int episodeId)
+        public async Task<IViewComponentResult> InvokeAsync(int episodeId, bool canCreateVoting)
         {
             var votingViewModel = new VotingViewModel
             {
                 EpisodeId = episodeId,
+                CanCreateVoting = canCreateVoting,
                 IsProfessional = false // Default to false
             };
 
@@ -44,5 +45,6 @@ namespace Involver.Views.Shared.Components.Voting
     {
         public int EpisodeId { get; set; }
         public bool IsProfessional { get; set; }
+        public bool CanCreateVoting { get; set; }
     }
 }
