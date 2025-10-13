@@ -128,8 +128,19 @@ const app = createApp({
                 });
 
                 if (response.ok) {
-                    alert('投票成功！');
-                    this.fetchVotingsAsync();
+                    const result = await response.json();
+
+                    // Show achievement toasts
+                    if (result.toasts && result.toasts.length > 0) {
+                        showGlobalToasts(result.toasts);
+                    }
+
+                    // Show mission completion message
+                    if (result.missionMessage) {
+                        alert(result.missionMessage);
+                    }
+
+                    this.fetchVotingsAsync(); // Refresh UI
                 } else {
                     const errorData = await response.text();
                     alert(`投票失敗: ${errorData}`);

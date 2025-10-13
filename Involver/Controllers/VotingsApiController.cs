@@ -2,6 +2,8 @@ using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+using Involver.Extensions;
+using Involver.Helpers;
 using Involver.Models.ViewModels;
 using Involver.Services.NotificationSetterService;
 using Microsoft.AspNetCore.Authorization;
@@ -130,8 +132,18 @@ namespace Involver.Controllers
                 voter.RealCoins -= voteValue;
             }
             voter.UsedCoins += voteValue;
-            // TODO: Mission check logic could be refactored into a service
-            // CheckMissionVote(voter);
+
+            // Mission check
+            var missionMessage = string.Empty;
+            if (voter.Missions.Vote != true)
+            {
+                voter.Missions.Vote = true;
+                voter.AwardCoins();
+                missionMessage = "每週任務：投一次票 已完成，獲得5 虛擬In幣。";
+            }
+
+            // 檢查是否完成所有任務，若完成會自動加獎勵幣
+            voter.Missions.CheckCompletion(voter);
 
             // Update totals
             voting.TotalCoins += voteValue;
@@ -190,10 +202,12 @@ namespace Involver.Controllers
 
             await _context.SaveChangesAsync();
 
-            // TODO: Achievement logic could be refactored into a service
-            // await SetAchievements(Voter);
+            // Achievement check
+            var toasts = await AchievementHelper.VoteCountAsync(_context, userId);
+            var usedCoinsToasts = await AchievementHelper.UseCoinsCountAsync(_context, userId, voter.UsedCoins);
+            toasts.AddRange(usedCoinsToasts);
 
-            return Ok();
+            return Ok(new { Toasts = toasts, MissionMessage = missionMessage });
         }
 
         [HttpPost]
