@@ -31,7 +31,46 @@ const app = createApp({
         this.isProfessional = el.dataset.isProfessional === 'true';
         this.fetchVotingsAsync();
     },
+        watch: {
+        votings(newVotings) {
+            this.$nextTick(() => {
+                newVotings.forEach(voting => {
+                    if (voting.limit === 0 && voting.deadLine && !voting.end) {
+                        this.countDown(voting.deadLine, `CountDownID${voting.votingID}`);
+                    }
+                });
+            });
+        }
+    },
     methods: {
+        countDown(countDownTime, id) {
+            var countDownDate = new Date(countDownTime).getTime();
+
+            var x = setInterval(() => {
+                var now = new Date().getTime();
+                var distance = countDownDate - now;
+
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                var element = document.getElementById(id);
+                if (element) {
+                    if (distance < 0) {
+                        clearInterval(x);
+                        element.innerHTML = "投票已截止";
+                        // Optionally, find the voting and set end = true
+                        const voting = this.votings.find(v => `CountDownID${v.votingID}` === id);
+                        if(voting) {
+                            voting.end = true;
+                        }
+                    } else {
+                        element.innerHTML = `剩餘: ${days}天 ${hours}時 ${minutes}分 ${seconds}秒 `;
+                    }
+                }
+            }, 1000);
+        },
         getDisplayText(voting, option) {
             return voting.policy === 1 ? `${option.totalCoins} In幣` : `${option.votesCount} 票`;
         },

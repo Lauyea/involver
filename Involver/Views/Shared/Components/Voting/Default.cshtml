@@ -96,7 +96,24 @@
                     <div class="card-footer bg-white text-muted">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="small">
-                                <!-- Countdown/Limit display will go here -->
+                                <div v-if="voting.end" class="text-danger">
+                                    <i class="far fa-clock"></i>
+                                    <strong>投票已截止</strong>
+                                </div>
+                                <div v-else>
+                                    <span v-if="voting.limit === 0 && voting.deadLine" title="這個投票有限制時間">
+                                        <i class="far fa-clock mr-1"></i>
+                                        <strong :id="'CountDownID' + voting.votingID">計算中...</strong>
+                                    </span>
+                                    <span v-else-if="voting.limit === 1" title="這個投票有限制投票人數上限">
+                                        <i class="fas fa-users mr-1"></i>
+                                        {{ voting.totalNumber }} / {{ voting.numberLimit }}
+                                    </span>
+                                    <span v-else-if="voting.limit === 2" title="這個投票有限制總Coins上限">
+                                        <i class="fas fa-coins mr-1"></i>
+                                        {{ voting.totalCoins }} / {{ voting.coinLimit }}
+                                    </span>
+                                </div>
                             </div>
                             <button v-if="!voting.voted && !voting.end" @@click="castVoteAsync(voting.votingID)" :disabled="!selectedOptions[voting.votingID]" class="btn btn-sm btn-primary">
                                 <i class="fas fa-vote-yea"></i> 投票
