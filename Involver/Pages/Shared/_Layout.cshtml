@@ -143,6 +143,7 @@
     </div>
     <div class="container mb-5 pb-3">
         <partial name="_CookieConsentPartial" />
+        @await Component.InvokeAsync("Breadcrumb")
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

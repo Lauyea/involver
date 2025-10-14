@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Descriptions.AboutInvolverModel
 @{
     ViewData["Title"] = "關於Involver";
@@ -7,21 +7,26 @@
 
 @section Styles{
     <style>
+        .about-wrapper {
+            position: relative; /* Establishes a positioning context */
+            height: 80vh;       /* Give it height to contain the centered elements */
+        }
+
         .bg-image {
             /* Add the blur effect */
             filter: blur(8px);
             -webkit-filter: blur(8px);
             height: 80%;
+            width: 100%; /* Make it fill the wrapper */
             /* Center and scale the image nicely */
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
-
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: -2;
+            z-index: 1; /* Keep image in the back */
             padding: 20px;
         }
 
@@ -36,7 +41,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: -1;
+            z-index: 2; /* Bring text to the front */
             width: 80%;
             padding: 20px;
             text-align: center;
@@ -44,6 +49,7 @@
     </style>
 }
 
+<div class="about-wrapper">
     <div class="text-center">
         <div class="bg-text">
             <h1 class="display-5">讓人人都能參與<text style="color:orange">創作</text>、支持<text style="color:orange">創作</text></h1>
@@ -53,5 +59,6 @@
         <p></p>
         <a asp-page="/Novels/Index"><img src="~/images/DSC_0180Resize.JPG" alt="index-image" class="bg-image container" /></a>
     </div>
+</div>
 
 
