@@ -15,6 +15,7 @@ namespace Involver.Views.Shared.Components.Breadcrumb
         {
             { "Novels", "創作" },
             { "Articles", "討論" },
+            { "Episodes", "章節" },
             { "Announcements", "公告" },
             { "Feedbacks", "回報與意見" },
             { "Functions", "工具" },
@@ -27,7 +28,8 @@ namespace Involver.Views.Shared.Components.Breadcrumb
             { "Explanation", "說明" },
             { "Index", "列表" },
             { "Create", "新增" },
-            { "Edit", "編輯" }
+            { "Edit", "編輯" },
+            { "Details", "詳細" }
         };
 
         public BreadcrumbViewComponent(ApplicationDbContext context)
@@ -58,38 +60,49 @@ namespace Involver.Views.Shared.Components.Breadcrumb
                 string text = _pathTranslations.TryGetValue(segment, out var translated) ? translated : segment;
                 string url = currentUrl + segment + "/";
 
-                // Check for dynamic segments (Details/Edit pages)
-                if (i + 1 < path.Length && (segment.Equals("Novels", System.StringComparison.OrdinalIgnoreCase) || segment.Equals("Articles", System.StringComparison.OrdinalIgnoreCase)))
-                {
-                    var action = path[i + 1];
-                    if (action.Equals("Details", System.StringComparison.OrdinalIgnoreCase) || action.Equals("Edit", System.StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (i + 2 < path.Length)
-                        {
-                            var id = path[i + 2];
-                            string title = null;
+                var action = (i + 1 < path.Length) ? path[i + 1] : null;
+                bool isDetailsPage = action?.Equals("Details", System.StringComparison.OrdinalIgnoreCase) ?? false;
 
-                            if (segment.Equals("Novels", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(id, out int novelId))
-                            {
-                                var novel = await _context.Novels.AsNoTracking().FirstOrDefaultAsync(n => n.NovelID == novelId);
-                                title = novel?.Title;
-                            }
-                            else if (segment.Equals("Articles", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(id, out int articleId))
+                if (isDetailsPage)
+                {
+                    string title = null;
+                    // Case 1: ID in path (e.g., /Novels/Details/10)
+                    if (segment.Equals("Novels", System.StringComparison.OrdinalIgnoreCase) && i + 2 < path.Length)
+                    {
+                        var id = path[i + 2];
+                        if (int.TryParse(id, out int novelId))
+                        {
+                            var novel = await _context.Novels.AsNoTracking().FirstOrDefaultAsync(n => n.NovelID == novelId);
+                            title = novel?.Title;
+                            if (title != null) i += 2; // Skip action and id
+                        }
+                    }
+                    // Case 2: ID in query string (e.g., /Articles/Details?id=56)
+                    else
+                    {
+                        string idFromQuery = HttpContext.Request.Query["id"];
+                        if (!string.IsNullOrEmpty(idFromQuery))
+                        {
+                            if (segment.Equals("Articles", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int articleId))
                             {
                                 var article = await _context.Articles.AsNoTracking().FirstOrDefaultAsync(a => a.ArticleID == articleId);
                                 title = article?.Title;
                             }
-
-                            if (title != null)
+                            else if (segment.Equals("Episodes", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int episodeId))
                             {
-                                // Add the parent (e.g., "創作")
-                                breadcrumbs.Add(new BreadcrumbItemViewModel { Text = text, Url = url });
-                                // Add the dynamic title
-                                breadcrumbs.Add(new BreadcrumbItemViewModel { Text = title, Url = null, IsActive = true });
-                                i += 2; // Skip action and id segments
-                                continue;
+                                var episode = await _context.Episodes.AsNoTracking().FirstOrDefaultAsync(e => e.EpisodeID == episodeId);
+                                title = episode?.Title;
                             }
+
+                            if(title != null) i += 1; // Skip action
                         }
+                    }
+
+                    if (title != null)
+                    {
+                        breadcrumbs.Add(new BreadcrumbItemViewModel { Text = text, Url = url });
+                        breadcrumbs.Add(new BreadcrumbItemViewModel { Text = title, Url = null, IsActive = true });
+                        continue;
                     }
                 }
 
@@ -97,14 +110,10 @@ namespace Involver.Views.Shared.Components.Breadcrumb
                 currentUrl = url;
             }
 
-            if (breadcrumbs.Any())
+            if (breadcrumbs.Any() && !breadcrumbs.Last().IsActive)
             {
-                var last = breadcrumbs.Last();
-                if (!last.IsActive)
-                {
-                    last.IsActive = true;
-                    last.Url = null;
-                }
+                breadcrumbs.Last().IsActive = true;
+                breadcrumbs.Last().Url = null;
             }
 
             return View(breadcrumbs);
