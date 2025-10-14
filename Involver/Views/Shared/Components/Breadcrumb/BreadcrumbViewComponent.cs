@@ -57,6 +57,31 @@ namespace Involver.Views.Shared.Components.Breadcrumb
                 var segment = path[i];
                 if (string.IsNullOrEmpty(segment)) continue;
 
+                // Special handling for Episode pages to show Novel path
+                if (segment.Equals("Episodes", System.StringComparison.OrdinalIgnoreCase) 
+                    && i + 1 < path.Length && path[i+1].Equals("Details", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    string idFromQuery = HttpContext.Request.Query["id"];
+                    if (int.TryParse(idFromQuery, out int episodeId))
+                    {
+                        var episode = await _context.Episodes.AsNoTracking()
+                            .Include(e => e.Novel)
+                            .FirstOrDefaultAsync(e => e.EpisodeID == episodeId);
+
+                        if (episode != null && episode.Novel != null)
+                        {
+                            // 1. Add "創作"
+                            breadcrumbs.Add(new BreadcrumbItemViewModel { Text = _pathTranslations["Novels"], Url = "/Novels/" });
+                            // 2. Add Novel Title (linking to Novel Details)
+                            breadcrumbs.Add(new BreadcrumbItemViewModel { Text = episode.Novel.Title, Url = $"/Novels/Details/{episode.NovelID}" });
+                            // 3. Add Episode Title (active)
+                            breadcrumbs.Add(new BreadcrumbItemViewModel { Text = episode.Title, Url = null, IsActive = true });
+                            i += 2; // Skip 'Episodes' and 'Details' segments
+                            continue;
+                        }
+                    }
+                }
+
                 string text = _pathTranslations.TryGetValue(segment, out var translated) ? translated : segment;
                 string url = currentUrl + segment + "/";
 
@@ -81,19 +106,10 @@ namespace Involver.Views.Shared.Components.Breadcrumb
                     else
                     {
                         string idFromQuery = HttpContext.Request.Query["id"];
-                        if (!string.IsNullOrEmpty(idFromQuery))
+                        if (!string.IsNullOrEmpty(idFromQuery) && segment.Equals("Articles", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int articleId))
                         {
-                            if (segment.Equals("Articles", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int articleId))
-                            {
-                                var article = await _context.Articles.AsNoTracking().FirstOrDefaultAsync(a => a.ArticleID == articleId);
-                                title = article?.Title;
-                            }
-                            else if (segment.Equals("Episodes", System.StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int episodeId))
-                            {
-                                var episode = await _context.Episodes.AsNoTracking().FirstOrDefaultAsync(e => e.EpisodeID == episodeId);
-                                title = episode?.Title;
-                            }
-
+                            var article = await _context.Articles.AsNoTracking().FirstOrDefaultAsync(a => a.ArticleID == articleId);
+                            title = article?.Title;
                             if(title != null) i += 1; // Skip action
                         }
                     }
