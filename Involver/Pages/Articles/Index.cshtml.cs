@@ -29,14 +29,21 @@ namespace Involver.Pages.Articles
         }
 
         public PaginatedList<Article> Articles { get; set; }
-
+        public string DateSort { get; set; }
+        public string ViewSort { get; set; }
         public string CurrentFilter { get; set; }
+        public string CurrentSort { get; set; }
 
         public async Task OnGetAsync(
+            string sortOrder,
             string currentFilter,
             string searchString,
             int? PageIndex)
         {
+            CurrentSort = sortOrder;
+            DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
+            ViewSort = sortOrder == "View_desc" ? "View" : "View_desc";
+
             if (searchString != null)
             {
                 PageIndex = 1;
@@ -54,8 +61,6 @@ namespace Involver.Pages.Articles
                 .Where(a => a.Type == ArticleType.General)
                 .AsQueryable();
 
-            articles = articles.OrderByDescending(a => a.ArticleID);
-
             if (!String.IsNullOrEmpty(searchString))
             {
                 ArticleTag articleTag = await _context.ArticleTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
@@ -64,6 +69,22 @@ namespace Involver.Pages.Articles
                     .Where(a => a.Profile.UserName.Contains(searchString)
                     || a.Title.Contains(searchString)
                     || a.ArticleTags.Contains(articleTag));
+            }
+
+            switch (sortOrder)
+            {
+                case "Date":
+                    articles = articles.OrderBy(s => s.UpdateTime);
+                    break;
+                case "View_desc":
+                    articles = articles.OrderByDescending(s => s.TotalViews);
+                    break;
+                case "View":
+                    articles = articles.OrderBy(s => s.TotalViews);
+                    break;
+                default:
+                    articles = articles.OrderByDescending(s => s.UpdateTime);
+                    break;
             }
 
 
