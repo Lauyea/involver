@@ -1,0 +1,21 @@
+@using Involver.Models.ViewModels
+@model List<BreadcrumbItemViewModel>
+
+@if (Model != null && Model.Count > 1)
+{
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            @foreach (var item in Model)
+            {
+                if (item.IsActive)
+                {
+                    <li class="breadcrumb-item active" aria-current="page" style="background-image:none;">@item.Text</li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item"><a href="@item.Url">@item.Text</a></li>
+                }
+            }
+        </ol>
+    </nav>
+}
