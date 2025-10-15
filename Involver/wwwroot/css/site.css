@@ -222,17 +222,17 @@ body.bootstrap {
 -------------------------------------------------- */
 
 .bootstrap .btn-primary, .bootstrap-dark .btn-primary {
-    color: #212529; /* Dark text for better contrast on orange */
-    background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
-    border-color: #e07e00;
-    font-weight: bold;
+    color: #fff;
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent);
+    font-weight: 500;
 }
 
     .bootstrap .btn-primary:hover, .bootstrap-dark .btn-primary:hover {
-        color: #000;
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-        background-color: #CC7000;
-        border-color: #A35A00;
+        color: #fff;
+        background-color: var(--primary-accent-hover);
+        border-color: var(--primary-accent-hover);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
 .bootstrap .bg-light, .bootstrap .bg-themed, .bootstrap .navbar-themed{
