@@ -35,6 +35,10 @@ body.bootstrap, body.bootstrap-dark {
     box-shadow: 0 2px 4px rgba(255,255,255,.2);
 }
 
+.container nav {
+    border-radius: .5rem;
+}
+
 /* Card styles
 -------------------------------------------------- */
 .card.hover-effect {
