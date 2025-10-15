@@ -92,11 +92,11 @@
   * 版本控制：在路由中加入版本號，例如 `/api/v1/...`，方便未來 API 的升級與管理。
   * 資源命名：使用複數名詞來表示資源集合，例如 `/api/v1/articles`, `/api/v1/users`。
   * HTTP 方法對應：
-    * **GET `/api/v1/articles`**：獲取所有文章。
-    * **GET `/api/v1/articles/{id}`**：獲取單篇文章。
-    * **POST `/api/v1/articles`**：新增文章。
-    * **PUT `/api/v1/articles/{id}`**：更新文章。
-    * **DELETE `/api/v1/articles/{id}`**：刪除文章。
+    * GET `/api/v1/articles`：獲取所有文章。
+    * GET `/api/v1/articles/{id}`：獲取單篇文章。
+    * POST `/api/v1/articles`：新增文章。
+    * PUT `/api/v1/articles/{id}`：更新文章。
+    * DELETE `/api/v1/articles/{id}`：刪除文章。
 
 ## 7. 單元測試
 
@@ -125,16 +125,16 @@
       * 盡量使用 CSS 類別而非 ID 來選擇元素，以利於樣式覆寫與重用。
       * 屬性排序：為了提升可讀性，將每個區塊內的 CSS 屬性依照字母順序排列。
       * 結構：
-          1.  **根變數 (Root Variables)**：定義了淺色與深色模式下的主題色彩。
-          2.  **基礎與全域樣式 (Base & Global Styles)**：設定 `html`、`body` 的基本樣式。
-          3.  **佈局 (Layout)**：包含頁尾、背景圖片等區塊。
-          4.  **導覽列 (Navbar)**：所有與 Navbar 相關的樣式。
-          5.  **卡片 (Cards)**：卡片的背景、圖片與互動效果。
-          6.  **按鈕 (Buttons)**：主要按鈕、社群媒體按鈕及連結按鈕的樣式。
-          7.  **元件 (Components)**：對 Bootstrap 元件的樣式覆寫，如分頁、下拉選單、提示等。
-          8.  **自訂功能樣式 (Custom Feature Styles)**：針對特定功能的樣式，如留言區、擲骰、標籤雲等。
-          9.  **通用類別 (Utility Classes)**：功能性的輔助類別，如邊框、陰影、漸層背景等。
-          10. **動畫 (Animations)**：Keyframes 動畫定義。
+          1.  根變數 (Root Variables)：定義了淺色與深色模式下的主題色彩。
+          2.  基礎與全域樣式 (Base & Global Styles)：設定 `html`、`body` 的基本樣式。
+          3.  佈局 (Layout)：包含頁尾、背景圖片等區塊。
+          4.  導覽列 (Navbar)：所有與 Navbar 相關的樣式。
+          5.  卡片 (Cards)：卡片的背景、圖片與互動效果。
+          6.  按鈕 (Buttons)：主要按鈕、社群媒體按鈕及連結按鈕的樣式。
+          7.  元件 (Components)：對 Bootstrap 元件的樣式覆寫，如分頁、下拉選單、提示等。
+          8.  自訂功能樣式 (Custom Feature Styles)：針對特定功能的樣式，如留言區、擲骰、標籤雲等。
+          9.  通用類別 (Utility Classes)：功能性的輔助類別，如邊框、陰影、漸層背景等。
+          10. 動畫 (Animations)：Keyframes 動畫定義。
 
   * JavaScript (通用規範)：
 
@@ -175,10 +175,10 @@
         * 範例：`async function getUserProfileAsync(userId) { ... }`
 
     *  API 呼叫函式：
-        * **GET**：以 `get` 開頭，例如 `getUserProfile`。
-        * **POST**：以 `create` 或 `add` 開頭，例如 `createNewArticle`。
-        * **PUT/PATCH**：以 `update` 開頭，例如 `updateUserProfile`。
-        * **DELETE**：以 `delete` 或 `remove` 開頭，例如 `deleteComment`。
+        * GET：以 `get` 開頭，例如 `getUserProfile`。
+        * POST：以 `create` 或 `add` 開頭，例如 `createNewArticle`。
+        * PUT/PATCH：以 `update` 開頭，例如 `updateUserProfile`。
+        * DELETE：以 `delete` 或 `remove` 開頭，例如 `deleteComment`。
 		  
   * jQuery (使用指南)：
 
