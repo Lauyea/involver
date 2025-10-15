@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Involver.Pages.Feed
 {
     [AllowAnonymous]
+    [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "userId" })]
     public class NotificationsModel : DI_BasePageModel
     {
         public NotificationsModel(
@@ -48,7 +49,7 @@ namespace Involver.Pages.Feed
         }
 
         /// <summary>
-        /// ³]©w³qª¾¤wÅª
+        /// è¨­å®šé€šçŸ¥å·²è®€
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>

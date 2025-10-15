@@ -63,6 +63,8 @@ services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 //services.AddRazorPages();
 services.AddMvc();
 
+services.AddResponseCaching();
+
 //宣告 AJAX POST 使用的 Header 名稱
 services.AddAntiforgery(o => o.HeaderName = "X-CSRF-TOKEN");
 
@@ -179,6 +181,8 @@ app.UseStaticFiles();
 app.UseCookiePolicy();
 
 app.UseRouting();
+
+app.UseResponseCaching();
 
 app.UseAuthentication();
 app.UseAuthorization();
