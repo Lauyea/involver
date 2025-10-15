@@ -13,7 +13,7 @@
     }
     else
     {
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
             crossorigin="anonymous"></script>
     } *@
     <meta charset="utf-8" />
@@ -44,10 +44,6 @@
 
     @RenderSection("Styles", required: false)
     <style>
-        * {
-            font-family: 'Microsoft JhengHei';
-        }
-
         .video-container {
             position: relative;
             width: 100%;
@@ -75,24 +71,24 @@
             width: 50px;
             height: 50px;
             color: #fff;
-            background: #33b5e5;
-            background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
+            background-color: var(--primary-accent); /* 使用 CSS 變數 */
             line-height: 50px;
             border-radius: 50%;
             transition: all 0.5s;
             text-align: center;
-            box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
+            box-shadow: 0 2px 10px 0 rgba(0,0,0,0.15);
         }
 
-            #gotop :hover {
-                background: transparent;
+            #gotop:hover {
+                background-color: var(--primary-accent-hover); /* 使用 CSS 變數 */
+                transform: translateY(-3px);
             }
     </style>
 </head>
 
 @{
-    string theme = Context.Request.Cookies["_DarkMode"] == "On" ? "bootstrap-dark" : "bootstrap";
-    string returnRightFunction = ViewData["ReturnRightFunction"] != null ? "false" : "true";
+            string theme = Context.Request.Cookies["_DarkMode"] == "On" ? "bootstrap-dark" : "bootstrap";
+            string returnRightFunction = ViewData["ReturnRightFunction"] != null ? "false" : "true";
 }
 
 <body class="@theme" id="layout-body" oncontextmenu="return @returnRightFunction" onselectstart="return @returnRightFunction">
@@ -101,10 +97,10 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    <header id="TopHead">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom navbar-themed box-shadow mb-3">
+    <header id="TopHead" class="sticky-top">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light navbar-themed mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico"> Involver</a>
+                <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico" style="height:36px; margin-right: 5px;"> Involver</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -136,28 +132,26 @@
         </nav>
     </header>
     <div id="modal"></div>
-    <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 30px; right: 30px;min-width: 300px;z-index: 99;">
+    <div aria-live="polite" aria-atomic="true" style="position: fixed; top: 30px; right: 30px; min-width: 300px; z-index: 99;">
         <div id="toast-container" style="position: absolute; top: 0; right: 0;">
-            <!-- Toasts will be appended here -->
         </div>
     </div>
-    <div class="container mb-5 pb-3">
-        <partial name="_CookieConsentPartial" />
-        @await Component.InvokeAsync("Breadcrumb")
+    <div class="container mb-5 pb-5">
         <main role="main" class="pb-3">
+            <partial name="_CookieConsentPartial" />
+            @await Component.InvokeAsync("Breadcrumb")
             @RenderBody()
         </main>
     </div>
     <footer class="border-top footer text-muted">
-        <div class="container-fluid" style="text-align:center">
-            &copy; 2020 - Involver &nbsp;
-            <a asp-area="" asp-page="/Descriptions/Privacy">隱私政策</a>
-            -
-            <a asp-area="" asp-page="/Descriptions/Terms">服務條款</a>
-            -
-            <a asp-area="" asp-page="/Descriptions/Content">內容政策</a>
-            -
-            <a asp-area="" asp-page="/Descriptions/Explanation">說明</a>
+        <div class="container-fluid text-center">
+            <div class="d-flex justify-content-center align-items-center flex-wrap">
+                <span class="mx-2">&copy; 2020 - Involver</span>
+                <a class="mx-2" asp-area="" asp-page="/Descriptions/Privacy">隱私政策</a>
+                <a class="mx-2" asp-area="" asp-page="/Descriptions/Terms">服務條款</a>
+                <a class="mx-2" asp-area="" asp-page="/Descriptions/Content">內容政策</a>
+                <a class="mx-2" asp-area="" asp-page="/Descriptions/Explanation">說明</a>
+            </div>
         </div>
     </footer>
 
@@ -169,19 +163,29 @@
     <script src="https://www.google.com/recaptcha/api.js"></script>
 
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('.toast').toast('show');
-            $('#loading').hide();
-        });
-
         $(function() {
-            /* 按下GoTop按鈕時的事件 */
-            $('#gotop').click(function() {
-                $('html,body').animate({ scrollTop: 0 }, 'fast');   /* 返回到最頂上 */
-                return false;
+            $('#loading').hide();
+            $('.toast').toast('show');
+
+            // --- 新增：啟用 Bootstrap Tooltips ---
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // --- 新增：導覽列滾動效果 ---
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('#TopHead nav').addClass('navbar-scrolled');
+                } else {
+                    $('#TopHead nav').removeClass('navbar-scrolled');
+                }
             });
 
-            /* 偵測卷軸滑動時，往下滑超過400px就讓GoTop按鈕出現 */
+            /* 按下GoTop按鈕時的事件 - 優化為平滑滾動 */
+            $('#gotop').click(function(e) {
+                e.preventDefault();
+                $('html,body').animate({ scrollTop: 0 }, 600); /* 600毫秒滾動到頂部 */
+            });
+
+            /* 偵測卷軸滑動時，讓GoTop按鈕出現 */
             $(window).scroll(function() {
                 if ($(this).scrollTop() > 400) {
                     $('#gotop').fadeIn();
@@ -191,7 +195,6 @@
             });
         });
     </script>
-    <!-- 記得要把按鈕放到網頁上, 否則它不會出現 -->
     <a href="#" id="gotop">
         <i class="fa fa-angle-up"></i>
     </a>
