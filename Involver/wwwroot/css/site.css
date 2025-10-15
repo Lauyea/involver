@@ -338,7 +338,7 @@ html {
 }
 
 .bootstrap .tooltip, .bootstrap-dark .tooltip{
-    z-index:1;
+    z-index:1030;
 }
 
 .bootstrap .btn-link, .bootstrap-dark .btn-link {
