@@ -69,7 +69,7 @@
         $(document).ready(function() {
             $.ajax({
                 type: 'GET',
-                url: '@Url.Action("Notifications", "Feed")',
+                url: '@Url.Page("/Feed/Notifications")',
                 data: { userId: '@UserManager.GetUserId(User)' },
                 success: function(result) {
                     $('#notification').html(result);
