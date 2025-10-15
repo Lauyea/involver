@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using DataAccess.Data;
 @inject SignInManager<InvolverUser> SignInManager
 @inject UserManager<InvolverUser> UserManager
@@ -19,47 +19,36 @@
         string themeIcon = Context.Request.Cookies["_DarkMode"] == "On" ? "fa-sun" : "fa-moon";
     }
     <li class="nav-item">
-        <a class="nav-link"
-        onclick="SetDarkMode()" title="切換模式"><i class="fa-solid @themeIcon" id="theme-icon"></i></a>
+        <a class="nav-link" onclick="SetDarkMode()" data-toggle="tooltip" data-placement="bottom" title="切換模式">
+            <i class="fa-solid @themeIcon" id="theme-icon"></i>
+        </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link"
-           href="https://github.com/Lauyea/involver" title="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a class="nav-link" href="https://github.com/Lauyea/involver" target="_blank" data-toggle="tooltip" data-placement="bottom" title="GitHub 原始碼">
+            <i class="fa-brands fa-github"></i>
+        </a>
     </li>
     <li class="nav-item dropdown">
         <div class="dropdown" id="notification"></div>
     </li>
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <div class="dropdown">
-                <button type="button" class="nav-link btn btn-link" data-toggle="dropdown">
-                    @UserManager.GetUserName(User)
-                </button>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <span class="dropdown-item">
-                        <a class="btn btn-link"
-                       asp-area="Identity"
-                       asp-page="/Profile/Index"
-                       asp-route-id="@UserManager.GetUserId(User)"
-                       title="Profile">個人檔案</a>
-                    </span>
-                    <span class="dropdown-item">
-                        <a class="btn btn-link"
-                       asp-area="Identity"
-                       asp-page="/Account/Manage/Index"
-                       title="Manage">帳號管理</a>
-                    </span>
-                    <span class="dropdown-item">
-                        <a class="btn btn-link" asp-page="/Involvings/StoredValue">儲值</a>
-                    </span>
-                    <form class="form-inline dropdown-item"
-                      asp-area="Identity"
-                      asp-page="/Account/Logout"
-                      asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
-                        <button type="submit" class="btn btn-link">登出</button>
-                    </form>
-                </div>
+        <li class="nav-item dropdown">
+            <button type="button" class="nav-link btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @UserManager.GetUserName(User)
+            </button>
+            <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@UserManager.GetUserId(User)">
+                    個人檔案
+                </a>
+                <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                    帳號管理
+                </a>
+                <a class="dropdown-item" asp-page="/Involvings/StoredValue">儲值</a>
+                <div class="dropdown-divider"></div>
+                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                    <button type="submit" class="dropdown-item text-danger">登出</button>
+                </form>
             </div>
         </li>
     }
@@ -86,6 +75,6 @@
                     $('#notification').html(result);
                 }
             });
-	    });
+        });
     </script>
 }

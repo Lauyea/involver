@@ -19,6 +19,22 @@ for details on configuring this project to bundle and minify static web assets. 
     --border-color: #5a534a;
 }
 
+body.bootstrap, body.bootstrap-dark {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 導覽列 (Navbar)
+-------------------------------------------------- */
+.navbar-scrolled {
+    box-shadow: 0 2px 4px rgba(0,0,0,.05);
+}
+
+.bootstrap-dark .navbar-scrolled {
+    box-shadow: 0 2px 4px rgba(255,255,255,.2);
+}
+
 /* Card styles
 -------------------------------------------------- */
 .card.hover-effect {
@@ -30,6 +46,11 @@ for details on configuring this project to bundle and minify static web assets. 
         transform: translateY(-5px);
         box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
     }
+
+.bootstrap .card-body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
 
 .bootstrap-dark .card.hover-effect:hover {
     box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
@@ -52,7 +73,8 @@ a.navbar-brand {
 
 /* Provide sufficient contrast against white background */
 a {
-  color: var(--primary-accent);
+    color: var(--primary-accent);
+    transition: color 0.2s ease-in-out;
 }
 
 a:hover {
@@ -99,10 +121,6 @@ html {
   min-height: 100%;
 }
 
-body.bootstrap {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-}
 .footer {
   position: absolute;
   bottom: 0;
@@ -226,6 +244,7 @@ body.bootstrap {
     background-color: var(--primary-accent);
     border-color: var(--primary-accent);
     font-weight: 500;
+    transition: all 0.3s ease;
 }
 
     .bootstrap .btn-primary:hover, .bootstrap-dark .btn-primary:hover {
