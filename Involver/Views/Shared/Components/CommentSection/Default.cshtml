@@ -4,19 +4,27 @@
      data-from="@Model.From" 
      data-from-id="@Model.FromID" 
      data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()"
-     data-max-length="@Model.MaxLength">
+     data-max-length="@Model.MaxLength"
+     data-owner-id="@Model.OwnerId">
 
-    <p id="CommentHead">
+    <div id="CommentHead" class="d-flex justify-content-between align-items-center">
         <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
-    </p>
 
-    <!-- Sorter -->
-    <div class="d-flex justify-content-end mb-3" v-if="!isOrderFixed">
-        <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
-            <option value="oldest">最舊的</option>
-            <option value="newest">最新的</option>
-            <option value="most_agrees">最多讚</option>
-        </select>
+        <div v-if="ownerId" class="form-check ml-3">
+            <input class="form-check-input" type="checkbox" v-model="authorOnly" id="authorOnlyCheckbox">
+            <label class="form-check-label" for="authorOnlyCheckbox">
+                只看作者
+            </label>
+        </div>
+
+        <!-- Sorter -->
+        <div v-if="!isOrderFixed" class="ml-auto">
+            <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+                <option value="oldest">最舊的</option>
+                <option value="newest">最新的</option>
+                <option value="most_agrees">最多讚</option>
+            </select>
+        </div>
     </div>
 
     <div v-if="isLoading" class="text-center my-5">

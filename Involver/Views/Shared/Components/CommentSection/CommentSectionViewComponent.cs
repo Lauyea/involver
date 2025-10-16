@@ -14,20 +14,20 @@ namespace Involver.Views.Shared.Components.CommentSection
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string from, int fromID)
+        public async Task<IViewComponentResult> InvokeAsync(string from, int fromID, string ownerId = null)
         {
             bool isCommentOrderFixed = false;
             switch (from.ToLower())
             {
-                case "article":
+                case "articles":
                     var article = await _context.Articles.FindAsync(fromID);
                     if (article != null) isCommentOrderFixed = article.IsCommentOrderFixed;
                     break;
-                case "novel":
+                case "novels":
                     var novel = await _context.Novels.FindAsync(fromID);
                     if (novel != null) isCommentOrderFixed = novel.IsCommentOrderFixed;
                     break;
-                case "episode":
+                case "episodes":
                     var episode = await _context.Episodes.FindAsync(fromID);
                     if (episode != null) isCommentOrderFixed = episode.IsCommentOrderFixed;
                     break;
@@ -38,7 +38,8 @@ namespace Involver.Views.Shared.Components.CommentSection
                 From = from,
                 FromID = fromID,
                 IsCommentOrderFixed = isCommentOrderFixed,
-                MaxLength = Parameters.CommentLength
+                MaxLength = Parameters.CommentLength,
+                OwnerId = ownerId
             };
 
             return View(model);
@@ -51,5 +52,6 @@ namespace Involver.Views.Shared.Components.CommentSection
         public int FromID { get; set; }
         public bool IsCommentOrderFixed { get; set; }
         public int MaxLength { get; set; }
+        public string OwnerId { get; set; }
     }
 }
