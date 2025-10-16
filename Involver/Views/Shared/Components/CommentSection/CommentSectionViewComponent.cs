@@ -19,15 +19,15 @@ namespace Involver.Views.Shared.Components.CommentSection
             bool isCommentOrderFixed = false;
             switch (from.ToLower())
             {
-                case "article":
+                case "articles":
                     var article = await _context.Articles.FindAsync(fromID);
                     if (article != null) isCommentOrderFixed = article.IsCommentOrderFixed;
                     break;
-                case "novel":
+                case "novels":
                     var novel = await _context.Novels.FindAsync(fromID);
                     if (novel != null) isCommentOrderFixed = novel.IsCommentOrderFixed;
                     break;
-                case "episode":
+                case "episodes":
                     var episode = await _context.Episodes.FindAsync(fromID);
                     if (episode != null) isCommentOrderFixed = episode.IsCommentOrderFixed;
                     break;

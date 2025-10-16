@@ -6,17 +6,17 @@
      data-is-order-fixed="@Model.IsCommentOrderFixed.ToString().ToLower()"
      data-max-length="@Model.MaxLength">
 
-    <p id="CommentHead">
+    <div id="CommentHead" class="d-flex justify-content-between">
         <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
-    </p>
 
-    <!-- Sorter -->
-    <div class="d-flex justify-content-end mb-3" v-if="!isOrderFixed">
-        <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
-            <option value="oldest">最舊的</option>
-            <option value="newest">最新的</option>
-            <option value="most_agrees">最多讚</option>
-        </select>
+        <!-- Sorter -->
+        <div v-if="!isOrderFixed">
+            <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+                <option value="oldest">最舊的</option>
+                <option value="newest">最新的</option>
+                <option value="most_agrees">最多讚</option>
+            </select>
+        </div>
     </div>
 
     <div v-if="isLoading" class="text-center my-5">
