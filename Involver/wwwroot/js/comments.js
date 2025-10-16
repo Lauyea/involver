@@ -9,6 +9,8 @@ const app = createApp({
             sortBy: 'oldest',
             from: '',
             fromID: 0,
+            ownerId: null,
+            authorOnly: false,
             isOrderFixed: false,
             mainEditor: null, // For the modal
             inlineEditors: {}, // For inline editing, keyed by commentID
@@ -26,6 +28,13 @@ const app = createApp({
             /** @type {string} - The content of the new message being typed in the modal form. */
             newMessageContent: ''
         };
+    },
+    watch: {
+        authorOnly(newValue, oldValue) {
+            if (newValue !== oldValue) {
+                this.getCommentsAsync(1);
+            }
+        }
     },
     computed: {
         pages() {
@@ -51,6 +60,7 @@ const app = createApp({
         const el = document.getElementById('comment-app');
         this.from = el.dataset.from;
         this.fromID = parseInt(el.dataset.fromId, 10);
+        this.ownerId = el.dataset.ownerId;
         this.isOrderFixed = el.dataset.isOrderFixed === 'true';
         this.maxLength = parseInt(el.dataset.maxLength, 10) || 10000; // Read maxLength from data attribute
 
@@ -118,7 +128,8 @@ const app = createApp({
         async getCommentsAsync(page = 1) {
             this.isLoading = true;
             try {
-                const response = await fetch(`/api/v1/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}`);
+                const url = `/api/v1/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}&authorOnly=${this.authorOnly}&ownerId=${this.ownerId}`;
+                const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch comments');
 
                 const paginationHeader = JSON.parse(response.headers.get('X-Pagination'));

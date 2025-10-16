@@ -41,7 +41,7 @@ namespace Involver.Controllers
 
         // GET: api/Comments
         [HttpGet]
-        public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest")
+        public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest", [FromQuery] string ownerId = null, [FromQuery] bool authorOnly = false)
         {
             IQueryable<Comment> commentsQuery = _context.Comments
                 .Include(c => c.Profile)
@@ -82,6 +82,11 @@ namespace Involver.Controllers
                     break;
                 default:
                     return BadRequest("Invalid 'from' parameter.");
+            }
+
+            if (authorOnly && !string.IsNullOrEmpty(ownerId))
+            {
+                commentsQuery = commentsQuery.Where(c => c.ProfileID == ownerId);
             }
 
             if (isCommentOrderFixed)

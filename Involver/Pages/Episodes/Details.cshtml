@@ -115,7 +115,7 @@
     @await Component.InvokeAsync("Voting", new { episodeId = Model.Episode.EpisodeID, canCreateVoting = Model.CanCreateVoting })
 }
 
-@await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID })
+@await Component.InvokeAsync("CommentSection", new { from = Parameters.Episodes, fromID = Model.Episode.EpisodeID, ownerId = Model.Episode.OwnerID })
 
 <div id="fb-root"></div>
 
