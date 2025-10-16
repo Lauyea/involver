@@ -78,14 +78,23 @@
         @{
             string shareUrl = $"https://involver.tw/Episodes/Details?id={Model.Episode.EpisodeID}";
         }
-        <div class="d-flex justify-content-end align-items-center">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                @if ((await AuthorizationService.AuthorizeAsync(User, Model.Novel, NovelOperations.Update)).Succeeded)
+                {
+                    <button id="copyMarkdownBtn" class="btn btn-sm btn-outline-info m-1" title="複製 Markdown" data-episode-id="@Model.Episode.EpisodeID">
+                        <i class="fas fa-clipboard"></i> 複製 Markdown
+                    </button>
+                }
+            </div>
+            
             <div class="input-group input-group-sm mr-2" style="max-width: 200px;">
                 <input type="text" class="form-control" value="@shareUrl" id="shareLinkInput">
                 <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" onclick="copyShareLink()" title="複製連結"><i class="fas fa-copy"></i></button>
+                    <button class="btn btn-outline-secondary mr-2" type="button" onclick="copyShareLink()" title="複製連結"><i class="fas fa-copy"></i></button>
                 </div>
+                <div class="fb-share-button" data-href="@shareUrl" data-layout="button_count"></div>
             </div>
-            <div class="fb-share-button" data-href="@shareUrl" data-layout="button_count"></div>
         </div>
     </div>
 </div>
@@ -137,5 +146,38 @@
             // Optional: Add a tooltip or toast to show confirmation
             alert("已複製連結！");
         }
+
+        $(function () {
+            $('#copyMarkdownBtn').on('click', function () {
+                const $btn = $(this);
+                const episodeId = $btn.data('episode-id');
+                const originalHtml = $btn.html();
+
+                // Show loading state
+                $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                $btn.prop('disabled', true);
+
+                $.get(`?handler=Markdown&id=${episodeId}`)
+                    .done(function (data) {
+                        navigator.clipboard.writeText(data).then(() => {
+                            $btn.html('<i class="fas fa-check"></i> 已複製');
+                            setTimeout(() => {
+                                $btn.html(originalHtml);
+                                $btn.prop('disabled', false);
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('無法複製 Markdown: ', err);
+                            alert('複製失敗');
+                            $btn.html(originalHtml);
+                            $btn.prop('disabled', false);
+                        });
+                    })
+                    .fail(function () {
+                        alert('取得內容失敗');
+                        $btn.html(originalHtml);
+                        $btn.prop('disabled', false);
+                    });
+            });
+        });
     </script>
 }
