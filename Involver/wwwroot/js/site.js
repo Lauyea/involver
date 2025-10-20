@@ -122,23 +122,71 @@ function SetDarkMode() {
     });
 }
 
-function Share() {
-    $.ajax({
-        method: 'get',
-        url: "/Share/Get",
-        error: function (xhr, status, err) {
-            alert(err)
-        },
-        success: function (res) {
-            if (res === "") {
-                $("#myTooltip").html("複製成功");
+/**
+ * Handles copying a share link to the clipboard and tracking the share event.
+ * @param {HTMLElement} btn - The button element that was clicked.
+ */
+async function copyShareLinkAndTrackAsync(btn) {
+    const $btn = $(btn);
+    const contentType = $btn.data('type');
+    const contentId = $btn.data('id');
+    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    // Construct the URL based on content type
+    const shareUrl = `${baseUrl}/${contentType}s/Details/${contentId}`;
+
+    try {
+        await navigator.clipboard.writeText(shareUrl);
+
+        // Show tooltip
+        $btn.tooltip('show');
+        setTimeout(() => $btn.tooltip('hide'), 2000); // Hide after 2 seconds
+
+        // Get the anti-forgery token
+        const token = $('input[name="__RequestVerificationToken"]').val();
+
+        // Send tracking request to the API
+        await $.ajax({
+            url: '/api/shares',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            data: JSON.stringify({
+                contentId: contentId,
+                contentType: contentType
+            }),
+            error: function (xhr) {
+                if (xhr.status === 401) {
+                    // Silently fail if not logged in, or prompt to log in
+                    console.log('User not authenticated for tracking share.');
+                } else {
+                    console.error('Error tracking share event.');
+                }
             }
-            else {
-                $("#myTooltip").html(res);
-            }
-        }
-    });
+        });
+
+    } catch (err) {
+        console.error('Failed to copy: ', err);
+        // Optionally, provide feedback to the user that the copy failed
+    }
 }
+
+$(function () {
+    // Initialize tooltips for all copy buttons
+    $('.btn-copy-link').each(function () {
+        $(this).tooltip({
+            trigger: 'manual',
+            placement: 'bottom'
+        });
+    });
+
+    // Attach click handler
+    $(document).on('click', '.btn-copy-link', function (e) {
+        e.preventDefault();
+        copyShareLinkAndTrackAsync(this);
+    });
+});
 
 function FollowAuthor(btn, id) {
     $.ajax({

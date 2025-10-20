@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -19,6 +20,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+
+using ReverseMarkdown;
 
 namespace Involver.Pages.Episodes
 {
@@ -190,5 +193,82 @@ namespace Involver.Pages.Episodes
         {
             return _context.Episodes.Any(e => e.EpisodeID == id);
         }
+
+        public async Task<IActionResult> OnGetMarkdownAsync(int id)
+        {
+            var episode = await _context.Episodes.FindAsync(id);
+            if (episode == null)
+            {
+                return NotFound();
+            }
+
+            // Authorization check
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null || episode.OwnerID != currentUser.Id)
+            {
+                return Forbid();
+            }
+
+            // Fetch related data
+            var fullEpisode = await _context.Episodes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e.EpisodeID == id);
+
+            var comments = await _context.Comments
+                .AsNoTracking()
+                .Include(c => c.Profile)
+                .Where(c => c.EpisodeID == id && c.ProfileID == episode.OwnerID)
+                .OrderBy(c => c.CommentID)
+                .ToListAsync();
+
+            var commentIds = comments.Select(c => c.CommentID).ToList();
+
+            var messages = await _context.Messages
+                .AsNoTracking()
+                .Include(m => m.Profile)
+                .Where(m => commentIds.Contains(m.CommentID))
+                .OrderBy(m => m.UpdateTime)
+                .ToListAsync();
+
+            // Markdown builder
+            var converter = new Converter();
+            var sb = new StringBuilder();
+
+            sb.AppendLine($"# {fullEpisode.Title}");
+            sb.AppendLine(converter.Convert(fullEpisode.Content));
+            sb.AppendLine("\n---\n");
+
+            sb.AppendLine("## 評論與留言");
+
+            sb.AppendLine("");
+
+            // 巢狀輸出
+            foreach (var comment in comments)
+            {
+                sb.AppendLine($"### 評論");
+                sb.AppendLine(converter.Convert(comment.Content));
+                sb.AppendLine();
+
+                // 找出屬於此 comment 的 messages
+                var relatedMessages = messages
+                    .Where(m => m.CommentID == comment.CommentID)
+                    .OrderBy(m => m.UpdateTime)
+                    .ToList();
+
+                if (relatedMessages.Any())
+                {
+                    sb.AppendLine("#### 回覆");
+                    foreach (var message in relatedMessages)
+                    {
+                        sb.AppendLine($"{message.Profile.UserName}：{converter.Convert(message.Content)}");
+                    }
+                }
+
+                sb.AppendLine("\n---\n");
+            }
+
+            return Content(sb.ToString());
+        }
+
     }
 }
