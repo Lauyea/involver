@@ -13,6 +13,7 @@
     ViewData["From"] = Parameters.Episodes;
     ViewData["FromId"] = Model.Episode.EpisodeID;
     Layout = "~/Pages/Shared/_Layout.cshtml";
+    ViewData["ReturnRightFunction"] = false;
 }
 
 <partial name="_Toasts" model="Model.Toasts" />
@@ -88,11 +89,14 @@
                 }
             </div>
             
-            <div class="input-group input-group-sm mr-2" style="max-width: 200px;">
-                <input type="text" class="form-control" value="@shareUrl" id="shareLinkInput">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-secondary mr-2" type="button" onclick="copyShareLink()" title="複製連結"><i class="fas fa-copy"></i></button>
-                </div>
+            <div class="d-flex align-items-center">
+                <button class="btn btn-sm btn-outline-secondary btn-copy-link mr-2"
+                        data-type="Episode"
+                        data-id="@Model.Episode.EpisodeID"
+                        type="button"
+                        title="複製連結成功">
+                    <i class="fas fa-copy"></i> 分享
+                </button>
                 <div class="fb-share-button" data-href="@shareUrl" data-layout="button_count"></div>
             </div>
         </div>
@@ -138,15 +142,6 @@
     }(document, 'script', 'facebook-jssdk'));</script>
 
     <script>
-        function copyShareLink() {
-            var copyText = document.getElementById("shareLinkInput");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
-            // Optional: Add a tooltip or toast to show confirmation
-            alert("已複製連結！");
-        }
-
         $(function () {
             $('#copyMarkdownBtn').on('click', function () {
                 const $btn = $(this);
