@@ -101,7 +101,7 @@
                             <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
                         </button>
                         <!-- Dropdown Menu -->
-                        <div class="dropdown d-inline-flex ml-auto">
+                        <div v-if="comment.canEdit || comment.canBlock" class="dropdown d-inline-flex ml-auto">
                             <button type="button" class="btn btn-link text-secondary" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
                             <div class="dropdown-menu dropdown-menu-right">
                                 <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleCommentEdit(comment)" class="dropdown-item">
