@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="post">
+                <form enctype="multipart/form-data" method="post" id="form">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     @if (Model.ErrorMessage != null)
                     {
@@ -63,7 +63,7 @@
 
                     <div class="form-group d-flex justify-content-end">
                         <a asp-page="./Details" asp-route-id="@Model.Novel.NovelID" class="btn btn-secondary mr-2">取消</a>
-                        <input type="submit" value="儲存" class="btn btn-primary" />
+                        <input type="submit" value="儲存" class="btn btn-primary" onclick="onSubmit()" />
                     </div>
                 </form>
             </div>
@@ -72,5 +72,27 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function onSubmit(token) {
+            // 使用 HTML 5 Constraint Validation 做客戶端驗證
+            if (!form.checkValidity()) {
+
+                // 因為 CKEditor 會隱藏原來的 textarea 而無法 focus，會導致 reportValidity 失敗，需要先自行檢查 editor 是否為空
+                if (!window.editor.getData().trim()) {
+                    alert("內容不能為空。");
+                    grecaptcha.reset();
+                    return;
+                }
+
+                // 如果驗證失敗，呼叫 reportValidity()
+                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
+                form.reportValidity();
+
+                // 停止執行，不提交表單
+                return;
+            }
+
+            document.getElementById("form").submit();
+        }
+    </script>
 }

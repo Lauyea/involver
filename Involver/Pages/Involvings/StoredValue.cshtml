@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Involvings.StoredValueModel
 @{
     ViewData["Title"] = "儲值";
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="col-md-6">
-        <form method="post">
+        <form method="post" id="form">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <p>實體150 In幣 × </p>
             <div class="form-group">
@@ -59,7 +59,7 @@
                 </p>
             </div>
             <div class="form-group">
-                <input type="submit" value="綠界支付" class="btn btn-primary" formtarget="_blank" disabled />
+                <input type="submit" value="綠界支付" class="btn btn-primary" formtarget="_blank" disabled onclick="onSubmit()" />
             </div>
         </form>
         @*<p>
@@ -69,5 +69,27 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function onSubmit(token) {
+            // 使用 HTML 5 Constraint Validation 做客戶端驗證
+            if (!form.checkValidity()) {
+
+                // 因為 CKEditor 會隱藏原來的 textarea 而無法 focus，會導致 reportValidity 失敗，需要先自行檢查 editor 是否為空
+                if (!window.editor.getData().trim()) {
+                    alert("內容不能為空。");
+                    grecaptcha.reset();
+                    return;
+                }
+
+                // 如果驗證失敗，呼叫 reportValidity()
+                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
+                form.reportValidity();
+
+                // 停止執行，不提交表單
+                return;
+            }
+
+            document.getElementById("form").submit();
+        }
+    </script>
 }
