@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 
 using WebPWrecover.Services;
@@ -62,6 +63,9 @@ services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 //services.AddRazorPages();
 services.AddMvc();
+
+// 將預設的 IHtmlGenerator 替換為自訂的 HTML5 版本
+services.AddSingleton<IHtmlGenerator, Html5ValidationHtmlGenerator>();
 
 services.AddResponseCaching();
 
