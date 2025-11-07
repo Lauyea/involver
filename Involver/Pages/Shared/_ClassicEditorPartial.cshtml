@@ -84,14 +84,6 @@
             editor.model.document.on('change:data', () => {
                 editorTextarea.value = editor.getData();
             });
-
-            // 在 editor 初始化完成後綁定 submit，同步內容
-            var form = document.getElementById('form');
-            if (form) {
-                form.addEventListener('submit', function () {
-                    document.getElementById('@editorId').value = editor.getData();
-                });
-            }
         })
         .catch(error => {
             console.error('Oops, something went wrong!');
