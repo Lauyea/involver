@@ -1,4 +1,4 @@
-﻿@page "{id}"
+@page "{id}"
 @model Involver.Areas.Identity.Pages.Profile.ArticlesModel
 @{
     ViewData["Title"] = "文章";
@@ -22,7 +22,6 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
         $(function () {
             var profileId = "@Model.Profile.ProfileID";
