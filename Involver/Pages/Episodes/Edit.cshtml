@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" id="form">
+                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="EditEpisode">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     <input type="hidden" asp-for="Episode.EpisodeID" />
                     <div class="form-group">
@@ -33,7 +33,7 @@
                     </div>
                     <div class="form-group d-flex justify-content-end">
                         <a asp-page="./Details" asp-route-id="@Model.Episode.EpisodeID" class="btn btn-secondary mr-2">取消</a>
-                        <input type="submit" value="儲存" class="btn btn-primary" onclick="onSubmit()" />
+                        <input type="submit" value="儲存" class="btn btn-primary" />
                     </div>
                 </form>
             </div>
@@ -43,27 +43,6 @@
 
 @section Scripts {
     <script>
-        function onSubmit(token) {
-            // 使用 HTML 5 Constraint Validation 做客戶端驗證
-            if (!form.checkValidity()) {
-
-                // 因為 CKEditor 會隱藏原來的 textarea 而無法 focus，會導致 reportValidity 失敗，需要先自行檢查 editor 是否為空
-                if (!window.editor.getData().trim()) {
-                    alert("內容不能為空。");
-                    grecaptcha.reset();
-                    return;
-                }
-
-                // 如果驗證失敗，呼叫 reportValidity()
-                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
-                form.reportValidity();
-
-                // 停止執行，不提交表單
-                return;
-            }
-
-            document.getElementById("form").submit();
-        }
     </script>
     @{
         ViewData["EditorId"] = "editor";

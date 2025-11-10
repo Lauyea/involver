@@ -17,7 +17,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="post" id="form">
+                <form enctype="multipart/form-data" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="CreateNovel">
                     <div class="alert alert-danger" role="alert">
                         <strong>注意！</strong> 使用被版權保護的二次創作不能獲得收益，平台不負任何侵權責任。
                     </div>
@@ -71,11 +71,7 @@
 
                     <div class="form-group d-flex justify-content-end">
                         <a asp-page="Index" class="btn btn-secondary mr-2">取消</a>
-                        <button class="g-recaptcha btn btn-primary"
-                                data-sitekey="@Configuration["reCAPTCHA-SiteKey"]"
-                                data-callback='onSubmit'
-                                data-action='submit'
-                                type="submit">建立</button>
+                        <button class="btn btn-primary" type="submit">建立</button>
                     </div>
                 </form>
             </div>
@@ -84,21 +80,6 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js"></script>
     <script>
-        function onSubmit(token) {
-            // 使用 HTML 5 Constraint Validation 做客戶端驗證
-            if (!form.checkValidity()) {
-                // 如果驗證失敗，呼叫 reportValidity()
-                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
-                form.reportValidity();
-
-                // 停止執行，不提交表單
-                grecaptcha.reset(); // 重設 reCAPTCHA，以便下次點擊
-                return;
-            }
-
-            document.getElementById("form").submit();
-        }
     </script>
 }

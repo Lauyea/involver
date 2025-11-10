@@ -18,7 +18,7 @@
 <p></p>
 <div class="row">
     <div class="col-md-4">
-        <form method="post" id="form">
+        <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label class="control-label">In幣</label>
@@ -35,7 +35,7 @@
                 </label>
             </div>
             <p></p>
-            <input type="submit" value="Involve" class="btn btn-outline-danger" onclick="onSubmit()" />
+            <input type="submit" value="Involve" class="btn btn-outline-danger" />
         </form>
     </div>
     <div class="col-md-4">
@@ -52,18 +52,5 @@
 
 @section Scripts {
     <script>
-        function onSubmit(token) {
-            // 使用 HTML 5 Constraint Validation 做客戶端驗證
-            if (!form.checkValidity()) {
-                // 如果驗證失敗，呼叫 reportValidity()
-                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
-                form.reportValidity();
-
-                // 停止執行，不提交表單
-                return;
-            }
-
-            document.getElementById("form").submit();
-        }
     </script>
 }

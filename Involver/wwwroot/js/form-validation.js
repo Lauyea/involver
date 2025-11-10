@@ -41,13 +41,21 @@ document.addEventListener("DOMContentLoaded", function () {
             // --- 3. 提交處理 ---
             // 此時，所有前端驗證都已通過
 
-            // 讀取按鈕的 'formAction' 屬性。
-            // 這會包含由 asp-page-handler 產生的正確 URL。
-            const buttonFormAction = button.formAction;
+            // 決定要提交到哪個 URL。
+            // 優先使用按鈕上的 'formaction' 屬性 (由 asp-page-handler 產生)。
+            // 如果按鈕上沒有，則使用 <form> 上的 'action' 屬性 (例如登出按鈕)。
+            let submissionUrl;
+            if (button.hasAttribute('formaction')) {
+                // button.formAction 會回傳由 formaction 屬性解析後的完整 URL
+                submissionUrl = button.formAction;
+            } else {
+                // form.action 會回傳由 form 的 action 屬性解析後的完整 URL
+                submissionUrl = form.action;
+            }
 
             if (!needsRecaptcha) {
-                // 將表單的 action 指向按鈕的 formaction
-                form.action = buttonFormAction;
+                // 將表單的 action 指向指定的 URL
+                form.action = submissionUrl;
 
                 // 如果是標準表單
                 form.submit(); // 直接提交
@@ -79,8 +87,8 @@ document.addEventListener("DOMContentLoaded", function () {
                             }
                             tokenInput.value = token;
 
-                            // 將表單的 action 指向按鈕的 formaction
-                            form.action = buttonFormAction;
+                            // 將表單的 action 指向指定的 URL
+                            form.action = submissionUrl;
                             
                             // 手動提交表單。因為是非同步去執行，需要等 reCAPTCHA 回應才能去 submit，
                             // submit 不能統一寫在 if 之後，只能在 function 裡面判斷完之後才能submit。

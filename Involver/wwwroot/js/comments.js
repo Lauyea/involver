@@ -161,7 +161,10 @@ const app = createApp({
         async createCommentFromModalAsync() {
             if (!this.mainEditor) return;
             const content = this.mainEditor.data.get();
-            if (!content) return;
+            if (!content) {
+                alert("內容不能為空。"); 
+                return;
+            }
 
             await this.createCommentAsync(content);
             $('#commentModal').modal('hide');

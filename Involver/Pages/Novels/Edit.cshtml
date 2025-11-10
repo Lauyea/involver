@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="post" id="form">
+                <form enctype="multipart/form-data" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="EditNovel">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     @if (Model.ErrorMessage != null)
                     {
@@ -63,7 +63,7 @@
 
                     <div class="form-group d-flex justify-content-end">
                         <a asp-page="./Details" asp-route-id="@Model.Novel.NovelID" class="btn btn-secondary mr-2">取消</a>
-                        <input type="submit" value="儲存" class="btn btn-primary" onclick="onSubmit()" />
+                        <input type="submit" value="儲存" class="btn btn-primary" />
                     </div>
                 </form>
             </div>
@@ -73,18 +73,5 @@
 
 @section Scripts {
     <script>
-        function onSubmit(token) {
-            // 使用 HTML 5 Constraint Validation 做客戶端驗證
-            if (!form.checkValidity()) {
-                // 如果驗證失敗，呼叫 reportValidity()
-                // 這會強制瀏覽器顯示原生的驗證錯誤泡泡
-                form.reportValidity();
-
-                // 停止執行，不提交表單
-                return;
-            }
-
-            document.getElementById("form").submit();
-        }
     </script>
 }
