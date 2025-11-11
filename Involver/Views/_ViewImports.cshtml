@@ -1,0 +1,23 @@
+@using Microsoft.AspNetCore.Identity
+@using Involver
+@using Involver.Common
+@using DataAccess.Data
+@namespace Involver.Views
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Involver
+@using Involver.Authorization.Comment
+@using Involver.Authorization.Article
+@using Involver.Authorization.Novel
+@using Involver.Authorization.Message
+@using Involver.Authorization.Voting
+@using Microsoft.AspNetCore.Authorization
+@using DataAccess.Models
+@using Involver.Helpers
+@inject IAuthorizationService AuthorizationService
+@inject UserManager<InvolverUser> userManager
+@using Involver.Extensions
+@using Microsoft.AspNetCore.Http
+@using System.Text.Json
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+@using DataAccess.Common
