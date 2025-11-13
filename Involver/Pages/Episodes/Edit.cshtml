@@ -42,8 +42,7 @@
 </div>
 
 @section Scripts {
-    <script>
-    </script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
     @{
         ViewData["EditorId"] = "editor";
         ViewData["WordCountDivId"] = "word-count";
