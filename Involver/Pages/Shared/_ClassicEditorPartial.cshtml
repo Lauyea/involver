@@ -6,9 +6,14 @@
     var maxLength = ViewData["MaxLength"] ?? 10000; // default max length
 }
 <script>
+    // å–å¾— _Layout.cshtml ä¸­ sticky header (id="TopHead") çš„é«˜åº¦
+    // æˆ‘å€‘éœ€è¦é€™å€‹é«˜åº¦ä¾†å‘Šè¨´ CKEditor çš„ sticky toolbar æ‡‰è©²åç§»å¤šå°‘
+    const headerHeight = document.querySelector('#TopHead') ? document.querySelector('#TopHead').offsetHeight : 0;
+
     ClassicEditor
         .create(document.querySelector('#@editorId'), {
             toolbar: {
+                viewportTopOffset: headerHeight, // è¨­å®š sticky toolbar çš„åç§»é‡ï¼Œä½¿å…¶ä¸æœƒè¢«ä¸»å°è¦½åˆ—é®ä½
                 items: [
                     'heading',
                     '|',
@@ -64,7 +69,7 @@
                 displayWords: false,
                 onUpdate: stats => {
                     if (stats.characters > @maxLength) {
-                        alert("¿é¤J¦r¤¸¶W¹L³Ì¤j­­¨î: @maxLength");
+                        alert("è¼¸å…¥å­—å…ƒè¶…éæœ€å¤§é™åˆ¶: @maxLength");
                     }
                 }
             }
@@ -77,8 +82,8 @@
                 wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
             }
 
-            // TODO: Validation JS ·|¦b¤¤³~¥hÅçÃÒEditorªº¤º®e¦ı¬O¥¢±Ñ¡C¥H¤Ucode¥u¦³¦b submitªº®É­Ô¥i¥HÁ×§K³oºØ±¡ªp¡C
-            // ¥u¦b editor ªì©l¤Æ§¹¦¨«á¸j©w submit¡A¦P¨B¤º®e
+            // TODO: Validation JS æœƒåœ¨ä¸­é€”å»é©—è­‰Editorçš„å…§å®¹ä½†æ˜¯å¤±æ•—ã€‚ä»¥ä¸‹codeåªæœ‰åœ¨ submitçš„æ™‚å€™å¯ä»¥é¿å…é€™ç¨®æƒ…æ³ã€‚
+            // åªåœ¨ editor åˆå§‹åŒ–å®Œæˆå¾Œç¶å®š submitï¼ŒåŒæ­¥å…§å®¹
             var form = document.getElementById('form');
             if (form) {
                 form.addEventListener('submit', function () {
