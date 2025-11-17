@@ -3,6 +3,13 @@
 
 // Write your Javascript code.
 
+/**
+ * 顯示全域 Toast 通知
+ * @param {Array<Object>} toasts - 一個包含 toast 物件的陣列
+ * @param {string} toast.header - Toast 的標題
+ * @param {string} toast.body - Toast 的內容
+ * @param {number} toast.award - 獎勵值 (10: bronze, 30: silver, other: gold)
+ */
 function showGlobalToasts(toasts) {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
@@ -20,7 +27,7 @@ function showGlobalToasts(toasts) {
 
         const toastId = `toast-${Date.now()}-${Math.random()}`;
         const toastHtml = `
-            <div id="${toastId}" class="toast" data-autohide="false">
+            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
                 <div class="toast-header">
                     ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
                     <strong class="mr-auto">${toast.header}</strong>
@@ -35,10 +42,29 @@ function showGlobalToasts(toasts) {
         `;
         toastContainer.insertAdjacentHTML('beforeend', toastHtml);
         const toastElement = document.getElementById(toastId);
-        $(toastElement).toast('show');
-        // Remove the element from the DOM after it has been hidden
-        $(toastElement).on('hidden.bs.toast', function () {
-            $(this).remove();
+
+        if (!toastElement) {
+            console.error(`Failed to find newly created toast with ID: ${toastId}`);
+            return;
+        }
+
+        // 檢查 Bootstrap JS 是否已載入
+        if (typeof bootstrap === 'undefined' || typeof bootstrap.Toast === 'undefined') {
+            console.error('Bootstrap JS (bootstrap.Toast) is not loaded. Cannot show toast.');
+            return;
+        }
+
+        // 使用 Vanilla JS 建立 Bootstrap Toast 實例
+        // (Bootstrap 會自動從 data-autohide="false" 讀取設定)
+        const bsToast = new bootstrap.Toast(toastElement);
+
+        bsToast.show();
+
+        // 監聽 'hidden.bs.toast' 事件 (這是 Bootstrap 提供的標準 DOM 事件)
+        toastElement.addEventListener('hidden.bs.toast', function () {
+            // 當 Toast 隱藏後，從 DOM 中移除它
+            // 在 'function' 回呼中, 'this' 會正確指向 toastElement
+            this.remove();
         });
     });
 }
@@ -56,17 +82,51 @@ function showGlobalToasts(toasts) {
 }(document, 'script', 'facebook-jssdk'));
 
 
-function SetDarkMode() {
-    $.ajax({
-        method: 'get',
-        url: "/DarkMode/Set",
-        error: function (xhr, status, err) {
-            alert(err)
+/**
+ * 切換深色模式
+ */
+async function SetDarkMode() {
+
+    // 取得 Anti-Forgery Token
+    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenElement ? tokenElement.value : null;
+
+    if (!token) {
+        console.error('Anti-forgery token not found. Cannot change mode.');
+        alert('無法切換模式，請重試。');
+        return;
+    }
+
+    try {
+        // 使用 fetch 發送 POST 請求
+        const response = await fetch("/DarkMode/Set", {
+            method: 'POST',
+            headers: {
+                // 在標頭中附加 Token
+                'RequestVerificationToken': token
+                // 注意：如果端點需要，可能還需要 'Content-Type'
+            }
+        });
+
+        if (response.ok) {
+            const themeIcon = document.getElementById("theme-icon");
+            const layoutBody = document.getElementById("layout-body");
+
+            if (themeIcon) {
+                themeIcon.classList.toggle('fa-sun');
+                themeIcon.classList.toggle('fa-moon');
+            }
+            if (layoutBody) {
+                layoutBody.classList.toggle('bootstrap-dark');
+                layoutBody.classList.toggle('bootstrap');
+            }
+        } else {
+            // 處理 HTTP 錯誤 (例如 404, 500)
+            alert(`切換失敗: ${response.statusText}`);
         }
-    }).done(function () {
-        $("#theme-icon").toggleClass('fa-sun fa-moon');
-        $("#layout-body").toggleClass('bootstrap-dark bootstrap');
-    });
+    } catch (err) {
+        alert(`網路錯誤: ${err.message}`);
+    }
 }
 
 /**
@@ -173,23 +233,55 @@ function FollowNovel(btn, id) {
     });
 }
 
-function ReadNotification(id, url) {
-    document.getElementById("notificationStack").removeAttribute("data-count");
+/**
+ * 讀取通知
+ * @param {string} id - 使用者 ID
+ * @param {string} url - 要發送請求的 URL
+ */
+async function ReadNotification(id, url) {
+    // 原生 DOM 操作
+    const notificationStack = document.getElementById("notificationStack");
+    if (notificationStack) {
+        notificationStack.removeAttribute("data-count");
+    }
 
-    $.ajax({
-        method: 'post',
-        url: url,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("X-CSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
-        data: { userId: id },
-        error: function (xhr, status, err) {
-            alert(err)
+    // 取得 Anti-Forgery Token
+    const tokenElement = document.querySelector('input[type="hidden"][name="__RequestVerificationToken"]');
+    const token = tokenElement ? tokenElement.value : null;
+
+    if (!token) {
+        console.error('Anti-forgery token (__RequestVerificationToken) not found.');
+        alert('無法讀取通知 (缺少 token)');
+        return;
+    }
+
+    // 準備 POST 資料
+    const formData = new URLSearchParams();
+    formData.append('userId', id);
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                // 設定標頭
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData // 傳送 URL-encoded 的資料
+        });
+
+        if (!response.ok) {
+            alert(`Error: ${response.statusText}`);
         }
-    });
 
-    document.getElementById("notificationClick").removeAttribute("onclick");
+    } catch (err) {
+        alert(`Network error: ${err.message}`);
+    }
+
+    const notificationClick = document.getElementById("notificationClick");
+    if (notificationClick) {
+        notificationClick.removeAttribute("onclick");
+    }
 }
 
 /*觀看紀錄 Modal 操作*/
