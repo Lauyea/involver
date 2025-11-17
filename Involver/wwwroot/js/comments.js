@@ -307,6 +307,11 @@ const app = createApp({
                 const data = await response.json();
                 // Update count with server's response
                 message.agrees.length = data.agreesCount;
+
+                // Show toasts for achievements
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
             } catch (error) {
                 console.error(error);
                 // Revert UI on error
@@ -424,6 +429,11 @@ const app = createApp({
                 if (!response.ok) throw new Error('Failed to toggle agree');
                 const data = await response.json();
                 comment.agreesCount = data.agreesCount;
+
+                // Show toasts for achievements
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
             } catch (error) {
                 console.error(error);
                 comment.agreesCount = originalAgreesCount;

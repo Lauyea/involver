@@ -436,6 +436,8 @@ namespace Involver.Controllers
                 return NotFound();
             }
 
+            List<Toast> userToasts = [];
+
             var existingAgree = comment.Agrees.FirstOrDefault(a => a.ProfileID == currentUserID);
 
             if (existingAgree == null)
@@ -468,7 +470,7 @@ namespace Involver.Controllers
 
                         await _context.SaveChangesAsync(); // Save mission changes first
 
-                        var toasts = await Involver.Helpers.AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
+                        var toasts = await AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
 
                         // Set notification
                         var from = GetCommentSource(comment);
@@ -477,6 +479,12 @@ namespace Involver.Controllers
                         await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, ownerProfile.ProfileID, url, toasts);
                     }
                 }
+
+                // Check achievements for user
+                var userProfile = await _context.Profiles
+                        .FirstOrDefaultAsync(p => p.ProfileID == currentUserID);
+
+                userToasts = AchievementHelper.AgreeCountAsync(_context, userProfile.ProfileID).Result;
             }
             else
             {
@@ -486,7 +494,13 @@ namespace Involver.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { agreesCount = _context.Agrees.Count(a => a.CommentID == id) });
+            var response = new
+            {
+                agreesCount = _context.Agrees.Count(a => a.CommentID == id),
+                Toasts = userToasts
+            };
+
+            return Ok(response);
         }
 
         [HttpPost("{id}/block")]

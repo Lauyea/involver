@@ -3,6 +3,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Authorization.Message;
+using Involver.Common;
 using Involver.Extensions; // Add this using for .ToMd5()
 using Involver.Helpers; // Add this using for TimePeriodHelper
 using Involver.Services.NotificationSetterService;
@@ -200,7 +201,14 @@ namespace Involver.Controllers
                 await _context.SaveChangesAsync(); // Save the agree first to get accurate count
                 await CheckMissionsAsync(message, userId);
                 // The second SaveChanges is inside CheckMissionsAsync
-                return Ok(new { agreesCount = message.Agrees.Count });
+
+                // Check achievements for user
+                var userProfile = await _context.Profiles
+                        .FirstOrDefaultAsync(p => p.ProfileID == userId);
+
+                List<Toast> userToasts = AchievementHelper.AgreeCountAsync(_context, userProfile.ProfileID).Result;
+
+                return Ok(new { agreesCount = message.Agrees.Count, Toasts = userToasts });
             }
 
             await _context.SaveChangesAsync();
