@@ -55,23 +55,6 @@ function showGlobalToasts(toasts) {
     fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
-function GetAgreeToasts() {
-    $.ajax({
-        method: 'get',
-        url: "/Toast/GetAgreeToasts",
-        error: function (xhr, status, err) {
-            if (xhr.status === 401 || xhr.status === 403) {
-                alert("請先登入");
-            }
-            else {
-                alert("系統錯誤：未搜索到指定評論");
-            }
-        }
-    }).done(function (res) {
-        $("#toasts").html(res);
-        $('.toast').toast('show');
-    });
-}
 
 function SetDarkMode() {
     $.ajax({

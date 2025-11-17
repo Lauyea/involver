@@ -204,6 +204,14 @@ button.accept-policy {
         color: #fff;
     }
 
+    .bootstrap .btn-primary:focus,
+    .bootstrap-dark .btn-primary:focus {
+        background-color: var(--primary-accent-hover);
+        border-color: var(--primary-accent-hover);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        color: #fff;
+    }
+
 .bootstrap .btn-link,
 .bootstrap-dark .btn-link {
     color: var(--primary-accent);
