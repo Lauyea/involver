@@ -29,7 +29,13 @@
         </a>
     </li>
     <li class="nav-item dropdown">
-        <div class="dropdown" id="notification"></div>
+        <div id="notification-container"
+             data-notification-url="@Url.Page("/Feed/Notifications")"
+             data-user-id="@UserManager.GetUserId(User)">
+            <div class="dropdown" id="notification">
+                載入中...
+            </div>
+        </div>
     </li>
     @if (SignInManager.IsSignedIn(User))
     {
@@ -66,15 +72,6 @@
 @using (Html.BeginScripts())
 {
     <script>
-        $(document).ready(function() {
-            $.ajax({
-                type: 'GET',
-                url: '@Url.Page("/Feed/Notifications")',
-                data: { userId: '@UserManager.GetUserId(User)' },
-                success: function(result) {
-                    $('#notification').html(result);
-                }
-            });
-        });
+        
     </script>
 }

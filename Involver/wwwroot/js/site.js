@@ -3,6 +3,9 @@
 
 // Write your Javascript code.
 
+// 等待 DOM 內容完全載入後才執行（替代 $(document).ready()）
+document.addEventListener('DOMContentLoaded', fetchNotifications);
+
 /**
  * 顯示全域 Toast 通知
  * @param {Array<Object>} toasts - 一個包含 toast 物件的陣列
@@ -68,9 +71,6 @@ function showGlobalToasts(toasts) {
         });
     });
 }
-
-//images add img-fluid class
-//$("img").addClass("img-fluid");
 
 /*FB's share function*/
 (function (d, s, id) {
@@ -231,6 +231,53 @@ function FollowNovel(btn, id) {
             $btn.text("追蹤創作");
         }
     });
+}
+
+/**
+ * 檢查通知
+ */
+function fetchNotifications() {
+    // 找到儲存資料的容器元素
+    const container = document.getElementById('notification-container');
+    const notificationElement = document.getElementById('notification');
+
+    // 檢查元素是否存在
+    if (!container || !notificationElement) {
+        console.error('必要元素 (notification-container 或 notification) 不存在。');
+        return;
+    }
+
+    // 從 Data Attributes 讀取 URL 和 User ID
+    // data-notification-url 會對應到 dataset.notificationUrl (注意駝峰命名法)
+    const url = container.dataset.notificationUrl;
+    // data-user-id 會對應到 dataset.userId
+    const userId = container.dataset.userId;
+
+    if (!url || !userId) {
+        console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
+        notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>';
+        return;
+    }
+
+    const fullUrl = `${url}?userId=${userId}`;
+
+    fetch(fullUrl, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(result => {
+            notificationElement.innerHTML = result;
+        })
+        .catch(error => {
+            // 處理錯誤
+            console.error('獲取通知失敗:', error);
+            notificationElement.innerHTML = '<p style="color: red;">載入通知失敗。</p>';
+        });
 }
 
 /**
