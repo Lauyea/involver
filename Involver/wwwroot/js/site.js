@@ -284,23 +284,88 @@ async function ReadNotification(id, url) {
     }
 }
 
-/*觀看紀錄 Modal 操作*/
-$(document).on('click', '.view-chart-trigger', function (e) {
-    e.preventDefault();
+/* 觀看紀錄 Modal 操作*/
 
-    var type = $(this).data('type');
-    var id = $(this).data('id');
-    var url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
+/**
+ * 處理 .view-chart-trigger 的點擊事件 (事件委派)
+ */
+document.addEventListener('click', async function (e) {
+    // 檢查點擊的目標是否為在'.view-chart-trigger' 內
+    const triggerElement = e.target.closest('.view-chart-trigger');
 
-    $('#modal').load(url, function () {
-        $('#viewRecordModal').modal('show');
-    });
+    // 如果點擊的不是 triggerElement，就結束
+    if (!triggerElement) {
+        return;
+    }
+
+    // 執行原始的 click 邏輯
+    e.preventDefault(); // 防止連結跳轉
+
+    const type = triggerElement.dataset.type;
+    const id = triggerElement.dataset.id;
+    const url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
+
+    const modalContainer = document.getElementById('modal');
+    if (!modalContainer) {
+        console.error('Modal container #modal not found');
+        return;
+    }
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to load partial view: ${response.statusText}`);
+        }
+        const html = await response.text();
+
+        modalContainer.innerHTML = html;
+
+        // 找到由 .cshtml  載入的 (但未執行的) script 標籤
+        const originalScript = modalContainer.querySelector('script');
+
+        if (originalScript) {
+            // 建立一個 *新的* script 元素
+            const newScript = document.createElement('script');
+
+            // 將舊 script  的內容複製到新 script
+            newScript.textContent = originalScript.textContent;
+
+            // 將新 script 附加到 modal 元素上
+            // 瀏覽器會 *執行* 透過 DOM API 附加的 script
+            modalContainer.appendChild(newScript);
+
+            // 移除原本那個無用的 script 標籤
+            originalScript.remove();
+        }
+
+        // 執行 load 的回呼函式 (callback)
+        // 找到剛剛注入的 modal 元素
+        const modalElement = document.getElementById('viewRecordModal');
+
+        if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            // 使用 Bootstrap 5/4 的原生 JS API 顯示 modal
+            const bsModal = new bootstrap.Modal(modalElement);
+            bsModal.show();
+        } else {
+            console.error('#viewRecordModal not found inside loaded HTML or Bootstrap JS is missing.');
+        }
+
+    } catch (err) {
+        console.error('Error loading modal content:', err);
+        alert('Error loading content.');
+    }
 });
 
-$(document).on('hidden.bs.modal', '#viewRecordModal', function () {
-    $(this).remove();
+/**
+ * 監聽 Modal 隱藏事件
+ */
+document.addEventListener('hidden.bs.modal', function (e) {
+    // 檢查觸發此事件的是否為 #viewRecordModal
+    if (e.target.id === 'viewRecordModal') {
+        // e.target 就是 modal 元素本人
+        e.target.remove();
+    }
 });
-/*觀看紀錄 Modal 操作*/
 
 /**
  * 設定無限滾動
