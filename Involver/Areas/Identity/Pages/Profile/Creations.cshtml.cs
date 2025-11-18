@@ -33,7 +33,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
 
             Novels = await _context.Novels
-                .Where(n => n.ProfileID == id)
+                .Where(n => n.ProfileID == id && n.IsDeleted == false)
                 .OrderByDescending(n => n.NovelID)
                 .Take(Parameters.PageSize)
                 .AsNoTracking()

@@ -379,54 +379,97 @@ function setupInfiniteScroll(containerSelector, loadingSelector, handlerName, ad
     let isLoading = false;
     let noMoreData = false;
 
+    // 獲取加載指示器元素 (只查詢一次以提高效能)
+    const loadingElement = document.querySelector(loadingSelector);
+
+    if (!loadingElement) {
+        console.error('無限滾動錯誤：找不到加載指示器', loadingSelector);
+        return;
+    }
+
     function loadMoreIfNeeded() {
         if (noMoreData || isLoading) {
             return;
         }
 
-        // 判斷是否滾到接近底部，或是頁面高度不足以出現滾動條
-        const nearBottom = $(window).scrollTop() + $(window).height() >= $(document).height() - 200;
-        const notScrollable = $(document).height() <= $(window).height() + 200;
+        // 判斷滾動位置
+        // window.scrollY = 當前滾動的垂直距離
+        // window.innerHeight = 瀏覽器視窗的可視高度
+        // document.documentElement.scrollHeight = 整個文件的總高度
+        const nearBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 200;
+        const notScrollable = document.documentElement.scrollHeight <= window.innerHeight + 200;
 
         if (nearBottom || notScrollable) {
             isLoading = true;
-            $(loadingSelector).show();
+            // 顯示加載動畫
+            loadingElement.style.display = 'block';
             page++;
 
+            // 準備請求參數
             const requestData = {
                 handler: handlerName,
                 pageIndex: page,
                 ...additionalParams
             };
 
-            $.ajax({
-                url: window.location.pathname,
-                type: 'GET',
-                data: requestData,
-                success: function (data) {
+            // 將參數物件轉換為 URL 查詢字串
+            const params = new URLSearchParams(requestData);
+            // 組合最終的請求 URL
+            const url = `${window.location.pathname}?${params.toString()}`;
+
+            // 使用 fetch API 執行 AJAX (GET) 請求
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    // 告知伺服器這是一個 AJAX 請求 (Razor Pages 可能需要)
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+                    }
+                    // 因為我們預期的是 HTML 片段，所以使用 .text()
+                    return response.text();
+                })
+                .then(data => {
                     if (data.trim().length > 0) {
-                        $(containerSelector).append(data);
+                        // 獲取內容容器
+                        const containerElement = document.querySelector(containerSelector);
+                        if (!containerElement) {
+                            console.error('無限滾動錯誤：找不到內容容器', containerSelector);
+                            isLoading = false; // 即使出錯也要重設狀態
+                            loadingElement.style.display = 'none';
+                            return;
+                        }
+
+                        // 附加 HTML 內容
+                        // .insertAdjacentHTML('beforeend', ...) 等同於 jQuery 的 .append(htmlString)
+                        containerElement.insertAdjacentHTML('beforeend', data);
+
                         isLoading = false;
-                        $(loadingSelector).hide();
-                        // 再次檢查是否需要載入更多
+                        loadingElement.style.display = 'none';
+
+                        // 再次檢查，以防新內容仍未填滿視窗導致無法滾動
                         loadMoreIfNeeded();
                     } else {
+                        // 沒有更多數據了
                         noMoreData = true;
-                        $(loadingSelector).hide();
+                        loadingElement.style.display = 'none';
                     }
-                },
-                error: function () {
+                })
+                .catch(error => {
                     isLoading = false;
-                    $(loadingSelector).hide();
-                    console.error('Error loading more content.');
-                }
-            });
+                    loadingElement.style.display = 'none';
+                    console.error('加載更多內容時出錯:', error);
+                });
         }
     }
 
     // 綁定滾動事件
-    $(window).scroll(loadMoreIfNeeded);
+    window.addEventListener('scroll', loadMoreIfNeeded);
 
-    // 初始化時先檢查一次（避免畫面太短不觸發）
-    loadMoreIfNeeded();
+    // 初始化時先檢查一次
+    // 使用 setTimeout 確保 DOM 初始渲染完成後再執行
+    setTimeout(loadMoreIfNeeded, 100);
 }
