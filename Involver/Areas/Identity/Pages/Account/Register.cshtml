@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model RegisterModel
 @{
     ViewData["Title"] = "註冊";
@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post" id="form">
+        <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Register">
             <h4>創建新帳號</h4>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
@@ -42,11 +42,7 @@
                     <strong>密碼必須包含英文大小寫與特殊符號以及數字</strong>
                 </p>
             </div>
-            <button class="g-recaptcha btn btn-primary" 
-                    data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" 
-                    data-callback='onSubmit' 
-                    data-action='submit'
-                    type="submit">註冊</button>
+            <button class="btn btn-primary" type="submit">註冊</button>
             <p></p>
             <div class="alert alert-info" role="alert">
                 <p>
@@ -149,11 +145,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-
-    <script>
-       function onSubmit(token) {
-         document.getElementById("form").submit();
-       }
-     </script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
 }

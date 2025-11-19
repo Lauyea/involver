@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Involvings.StoredValueModel
 @{
     ViewData["Title"] = "儲值";
@@ -34,7 +34,7 @@
         </div>
     </div>
     <div class="col-md-6">
-        <form method="post">
+        <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="StoredValue">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <p>實體150 In幣 × </p>
             <div class="form-group">
@@ -69,5 +69,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
 }

@@ -142,37 +142,80 @@
     }(document, 'script', 'facebook-jssdk'));</script>
 
     <script>
-        $(function () {
-            $('#copyMarkdownBtn').on('click', function () {
-                const $btn = $(this);
-                const episodeId = $btn.data('episode-id');
-                const originalHtml = $btn.html();
+        /**
+        * 複製 Markdown 內容
+        */
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取按鈕元素
+            const copyButton = document.getElementById('copyMarkdownBtn');
 
-                // Show loading state
-                $btn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
-                $btn.prop('disabled', true);
+            if (copyButton) {
+                // 監聽按鈕的點擊事件
+                copyButton.addEventListener('click', function() {
+                    // 在事件處理函式中，'this' 就是被點擊的 DOM 元素
+                    const btn = this;
 
-                $.get(`?handler=Markdown&id=${episodeId}`)
-                    .done(function (data) {
-                        navigator.clipboard.writeText(data).then(() => {
-                            $btn.html('<i class="fas fa-check"></i> 已複製');
+                    // 從 Data Attribute 獲取 episode ID（對應 .data('episode-id')）
+                    const episodeId = btn.dataset.episodeId;
+
+                    // 儲存原始 HTML 內容，用於恢復狀態
+                    const originalHtml = btn.innerHTML;
+
+                    // --- 進入載入中狀態 ---
+
+                    // 顯示載入狀態的 HTML
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+
+                    // 禁用按鈕
+                    btn.disabled = true;
+
+                    // --- 執行 AJAX 請求 ---
+
+                    // 構建 URL
+                    const fetchUrl = `?handler=Markdown&id=${episodeId}`;
+
+                    fetch(fetchUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+                            }
+                            // 解析回應內容為純文字（預期是 Markdown 字串）
+                            return response.text();
+                        })
+                        .then(markdownContent => {
+                            // --- 請求成功，執行複製操作 ---
+
+                            return navigator.clipboard.writeText(markdownContent);
+                        })
+                        .then(() => {
+                            // --- 複製成功 ---
+                            btn.innerHTML = '<i class="fas fa-check"></i> 已複製';
+
+                            // 設置定時器，恢復原始狀態
                             setTimeout(() => {
-                                $btn.html(originalHtml);
-                                $btn.prop('disabled', false);
-                            }, 2000);
-                        }).catch(err => {
-                            console.error('無法複製 Markdown: ', err);
-                            alert('複製失敗');
-                            $btn.html(originalHtml);
-                            $btn.prop('disabled', false);
+                                btn.innerHTML = originalHtml;
+                                btn.disabled = false; // 啟用按鈕
+                            }, 2000); // 2 秒後恢復
+
+                        })
+                        .catch(error => {
+                            // --- 處理錯誤（網路失敗、HTTP 狀態碼錯誤、或複製失敗） ---
+
+                            let errorMessage = '取得內容或複製失敗';
+                            if (error.name === 'NotAllowedError') {
+                                errorMessage = '複製失敗：瀏覽器不允許自動複製操作。';
+                            } else {
+                                console.error('操作錯誤:', error);
+                            }
+
+                            alert(errorMessage);
+
+                            // 恢復原始狀態
+                            btn.innerHTML = originalHtml;
+                            btn.disabled = false;
                         });
-                    })
-                    .fail(function () {
-                        alert('取得內容失敗');
-                        $btn.html(originalHtml);
-                        $btn.prop('disabled', false);
-                    });
-            });
+                });
+            }
         });
     </script>
 }

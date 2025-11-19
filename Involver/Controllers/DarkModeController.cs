@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Involver.Controllers
@@ -34,7 +34,7 @@ namespace Involver.Controllers
         /// <summary>
         /// Client-side Cookie
         /// </summary>
-        [HttpGet]
+        [HttpPost]
         public void Set()
         {
             string cookieValue = Request.Cookies[_sessionKey];

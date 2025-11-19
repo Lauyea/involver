@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="post">
+                <form enctype="multipart/form-data" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="EditNovel">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     @if (Model.ErrorMessage != null)
                     {
@@ -72,5 +72,5 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
 }

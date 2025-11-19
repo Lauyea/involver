@@ -3,6 +3,16 @@
 
 // Write your Javascript code.
 
+// 等待 DOM 內容完全載入後才執行
+document.addEventListener('DOMContentLoaded', fetchNotifications);
+
+/**
+ * 顯示全域 Toast 通知
+ * @param {Array<Object>} toasts - 一個包含 toast 物件的陣列
+ * @param {string} toast.header - Toast 的標題
+ * @param {string} toast.body - Toast 的內容
+ * @param {number} toast.award - 獎勵值 (10: bronze, 30: silver, other: gold)
+ */
 function showGlobalToasts(toasts) {
     const toastContainer = document.getElementById('toast-container');
     if (!toastContainer) {
@@ -20,7 +30,7 @@ function showGlobalToasts(toasts) {
 
         const toastId = `toast-${Date.now()}-${Math.random()}`;
         const toastHtml = `
-            <div id="${toastId}" class="toast" data-autohide="false">
+            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
                 <div class="toast-header">
                     ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
                     <strong class="mr-auto">${toast.header}</strong>
@@ -35,16 +45,32 @@ function showGlobalToasts(toasts) {
         `;
         toastContainer.insertAdjacentHTML('beforeend', toastHtml);
         const toastElement = document.getElementById(toastId);
-        $(toastElement).toast('show');
-        // Remove the element from the DOM after it has been hidden
-        $(toastElement).on('hidden.bs.toast', function () {
-            $(this).remove();
+
+        if (!toastElement) {
+            console.error(`Failed to find newly created toast with ID: ${toastId}`);
+            return;
+        }
+
+        // 檢查 Bootstrap JS 是否已載入
+        if (typeof bootstrap === 'undefined' || typeof bootstrap.Toast === 'undefined') {
+            console.error('Bootstrap JS (bootstrap.Toast) is not loaded. Cannot show toast.');
+            return;
+        }
+
+        // 使用 Vanilla JS 建立 Bootstrap Toast 實例
+        // (Bootstrap 會自動從 data-autohide="false" 讀取設定)
+        const bsToast = new bootstrap.Toast(toastElement);
+
+        bsToast.show();
+
+        // 監聽 'hidden.bs.toast' 事件 (這是 Bootstrap 提供的標準 DOM 事件)
+        toastElement.addEventListener('hidden.bs.toast', function () {
+            // 當 Toast 隱藏後，從 DOM 中移除它
+            // 在 'function' 回呼中, 'this' 會正確指向 toastElement
+            this.remove();
         });
     });
 }
-
-//images add img-fluid class
-//$("img").addClass("img-fluid");
 
 /*FB's share function*/
 (function (d, s, id) {
@@ -55,71 +81,52 @@ function showGlobalToasts(toasts) {
     fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
 
-function AgreeMessage(agreeBtn, messageId) {
-    $.ajax({
-        method: 'get',
-        url: "/Agree/AgreeMessage?messageId=" + messageId,
-        error: function (xhr, status, err) {
-            if (xhr.status === 401 || xhr.status === 403) {
-                alert("請先登入");
-            }
-            else {
-                alert("系統錯誤：未搜索到指定評論");
-            }
-        }
-    }).done(function (res) {
-        $(agreeBtn).find('span').text(res);
-        GetAgreeToasts();
-    });
-}
 
-function AgreeComment(agreeBtn, commentId) {
-    $.ajax({
-        method: 'get',
-        url: "/Agree/AgreeComment?commentId=" + commentId,
-        error: function (xhr, status, err) {
-            if (xhr.status === 401 || xhr.status === 403) {
-                alert("請先登入");
-            }
-            else {
-                alert("系統錯誤：未搜索到指定評論");
-            }
-        }
-    }).done(function (res) {
-        $(agreeBtn).find('span').text(res);
-        GetAgreeToasts();
-    });
-}
+/**
+ * 切換深色模式
+ */
+async function SetDarkMode() {
 
-function GetAgreeToasts() {
-    $.ajax({
-        method: 'get',
-        url: "/Toast/GetAgreeToasts",
-        error: function (xhr, status, err) {
-            if (xhr.status === 401 || xhr.status === 403) {
-                alert("請先登入");
-            }
-            else {
-                alert("系統錯誤：未搜索到指定評論");
-            }
-        }
-    }).done(function (res) {
-        $("#toasts").html(res);
-        $('.toast').toast('show');
-    });
-}
+    // 取得 Anti-Forgery Token
+    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+    const token = tokenElement ? tokenElement.value : null;
 
-function SetDarkMode() {
-    $.ajax({
-        method: 'get',
-        url: "/DarkMode/Set",
-        error: function (xhr, status, err) {
-            alert(err)
+    if (!token) {
+        console.error('Anti-forgery token not found. Cannot change mode.');
+        alert('無法切換模式，請重試。');
+        return;
+    }
+
+    try {
+        // 使用 fetch 發送 POST 請求
+        const response = await fetch("/DarkMode/Set", {
+            method: 'POST',
+            headers: {
+                // 在標頭中附加 Token
+                'RequestVerificationToken': token
+                // 注意：如果端點需要，可能還需要 'Content-Type'
+            }
+        });
+
+        if (response.ok) {
+            const themeIcon = document.getElementById("theme-icon");
+            const layoutBody = document.getElementById("layout-body");
+
+            if (themeIcon) {
+                themeIcon.classList.toggle('fa-sun');
+                themeIcon.classList.toggle('fa-moon');
+            }
+            if (layoutBody) {
+                layoutBody.classList.toggle('bootstrap-dark');
+                layoutBody.classList.toggle('bootstrap');
+            }
+        } else {
+            // 處理 HTTP 錯誤 (例如 404, 500)
+            alert(`切換失敗: ${response.statusText}`);
         }
-    }).done(function () {
-        $("#theme-icon").toggleClass('fa-sun fa-moon');
-        $("#layout-body").toggleClass('bootstrap-dark bootstrap');
-    });
+    } catch (err) {
+        alert(`網路錯誤: ${err.message}`);
+    }
 }
 
 /**
@@ -127,7 +134,7 @@ function SetDarkMode() {
  * @param {HTMLElement} btn - The button element that was clicked.
  */
 async function copyShareLinkAndTrackAsync(btn) {
-    const $btn = $(btn);
+    const $btn = $(btn); // TODO: 升級BS5以後再改
     const contentType = $btn.data('type');
     const contentId = $btn.data('id');
     const baseUrl = `${window.location.protocol}//${window.location.host}`;
@@ -226,42 +233,186 @@ function FollowNovel(btn, id) {
     });
 }
 
-function ReadNotification(id, url) {
-    document.getElementById("notificationStack").removeAttribute("data-count");
+/**
+ * 檢查通知
+ */
+function fetchNotifications() {
+    // 找到儲存資料的容器元素
+    const container = document.getElementById('notification-container');
+    const notificationElement = document.getElementById('notification');
 
-    $.ajax({
-        method: 'post',
-        url: url,
-        beforeSend: function (xhr) {
-            xhr.setRequestHeader("X-CSRF-TOKEN",
-                $('input:hidden[name="__RequestVerificationToken"]').val());
-        },
-        data: { userId: id },
-        error: function (xhr, status, err) {
-            alert(err)
-        }
-    });
+    // 檢查元素是否存在
+    if (!container || !notificationElement) {
+        console.error('必要元素 (notification-container 或 notification) 不存在。');
+        return;
+    }
 
-    document.getElementById("notificationClick").removeAttribute("onclick");
+    // 從 Data Attributes 讀取 URL 和 User ID
+    // data-notification-url 會對應到 dataset.notificationUrl (注意駝峰命名法)
+    const url = container.dataset.notificationUrl;
+    // data-user-id 會對應到 dataset.userId
+    const userId = container.dataset.userId;
+
+    if (!url || !userId) {
+        console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
+        notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>';
+        return;
+    }
+
+    const fullUrl = `${url}?userId=${userId}`;
+
+    fetch(fullUrl, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            }
+            return response.text();
+        })
+        .then(result => {
+            notificationElement.innerHTML = result;
+        })
+        .catch(error => {
+            // 處理錯誤
+            console.error('獲取通知失敗:', error);
+            notificationElement.innerHTML = '<p style="color: red;">載入通知失敗。</p>';
+        });
 }
 
-/*觀看紀錄 Modal 操作*/
-$(document).on('click', '.view-chart-trigger', function (e) {
-    e.preventDefault();
+/**
+ * 讀取通知
+ * @param {string} id - 使用者 ID
+ * @param {string} url - 要發送請求的 URL
+ */
+async function ReadNotification(id, url) {
+    // 原生 DOM 操作
+    const notificationStack = document.getElementById("notificationStack");
+    if (notificationStack) {
+        notificationStack.removeAttribute("data-count");
+    }
 
-    var type = $(this).data('type');
-    var id = $(this).data('id');
-    var url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
+    // 取得 Anti-Forgery Token
+    const tokenElement = document.querySelector('input[type="hidden"][name="__RequestVerificationToken"]');
+    const token = tokenElement ? tokenElement.value : null;
 
-    $('#modal').load(url, function () {
-        $('#viewRecordModal').modal('show');
-    });
+    if (!token) {
+        console.error('Anti-forgery token (__RequestVerificationToken) not found.');
+        alert('無法讀取通知 (缺少 token)');
+        return;
+    }
+
+    // 準備 POST 資料
+    const formData = new URLSearchParams();
+    formData.append('userId', id);
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                // 設定標頭
+                'X-CSRF-TOKEN': token,
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData // 傳送 URL-encoded 的資料
+        });
+
+        if (!response.ok) {
+            alert(`Error: ${response.statusText}`);
+        }
+
+    } catch (err) {
+        alert(`Network error: ${err.message}`);
+    }
+
+    const notificationClick = document.getElementById("notificationClick");
+    if (notificationClick) {
+        notificationClick.removeAttribute("onclick");
+    }
+}
+
+/* 觀看紀錄 Modal 操作*/
+
+/**
+ * 處理 .view-chart-trigger 的點擊事件 (事件委派)
+ */
+document.addEventListener('click', async function (e) {
+    // 檢查點擊的目標是否為在'.view-chart-trigger' 內
+    const triggerElement = e.target.closest('.view-chart-trigger');
+
+    // 如果點擊的不是 triggerElement，就結束
+    if (!triggerElement) {
+        return;
+    }
+
+    // 執行原始的 click 邏輯
+    e.preventDefault(); // 防止連結跳轉
+
+    const type = triggerElement.dataset.type;
+    const id = triggerElement.dataset.id;
+    const url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
+
+    const modalContainer = document.getElementById('modal');
+    if (!modalContainer) {
+        console.error('Modal container #modal not found');
+        return;
+    }
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to load partial view: ${response.statusText}`);
+        }
+        const html = await response.text();
+
+        modalContainer.innerHTML = html;
+
+        // 找到由 .cshtml  載入的 (但未執行的) script 標籤
+        const originalScript = modalContainer.querySelector('script');
+
+        if (originalScript) {
+            // 建立一個 *新的* script 元素
+            const newScript = document.createElement('script');
+
+            // 將舊 script  的內容複製到新 script
+            newScript.textContent = originalScript.textContent;
+
+            // 將新 script 附加到 modal 元素上
+            // 瀏覽器會 *執行* 透過 DOM API 附加的 script
+            modalContainer.appendChild(newScript);
+
+            // 移除原本那個無用的 script 標籤
+            originalScript.remove();
+        }
+
+        // 執行 load 的回呼函式 (callback)
+        // 找到剛剛注入的 modal 元素
+        const modalElement = document.getElementById('viewRecordModal');
+
+        if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            // 使用 Bootstrap 5/4 的原生 JS API 顯示 modal
+            const bsModal = new bootstrap.Modal(modalElement);
+            bsModal.show();
+        } else {
+            console.error('#viewRecordModal not found inside loaded HTML or Bootstrap JS is missing.');
+        }
+
+    } catch (err) {
+        console.error('Error loading modal content:', err);
+        alert('Error loading content.');
+    }
 });
 
-$(document).on('hidden.bs.modal', '#viewRecordModal', function () {
-    $(this).remove();
+/**
+ * 監聽 Modal 隱藏事件
+ */
+document.addEventListener('hidden.bs.modal', function (e) {
+    // 檢查觸發此事件的是否為 #viewRecordModal
+    if (e.target.id === 'viewRecordModal') {
+        // e.target 就是 modal 元素本人
+        e.target.remove();
+    }
 });
-/*觀看紀錄 Modal 操作*/
 
 /**
  * 設定無限滾動
@@ -275,54 +426,97 @@ function setupInfiniteScroll(containerSelector, loadingSelector, handlerName, ad
     let isLoading = false;
     let noMoreData = false;
 
+    // 獲取加載指示器元素 (只查詢一次以提高效能)
+    const loadingElement = document.querySelector(loadingSelector);
+
+    if (!loadingElement) {
+        console.error('無限滾動錯誤：找不到加載指示器', loadingSelector);
+        return;
+    }
+
     function loadMoreIfNeeded() {
         if (noMoreData || isLoading) {
             return;
         }
 
-        // 判斷是否滾到接近底部，或是頁面高度不足以出現滾動條
-        const nearBottom = $(window).scrollTop() + $(window).height() >= $(document).height() - 200;
-        const notScrollable = $(document).height() <= $(window).height() + 200;
+        // 判斷滾動位置
+        // window.scrollY = 當前滾動的垂直距離
+        // window.innerHeight = 瀏覽器視窗的可視高度
+        // document.documentElement.scrollHeight = 整個文件的總高度
+        const nearBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 200;
+        const notScrollable = document.documentElement.scrollHeight <= window.innerHeight + 200;
 
         if (nearBottom || notScrollable) {
             isLoading = true;
-            $(loadingSelector).show();
+            // 顯示加載動畫
+            loadingElement.style.display = 'block';
             page++;
 
+            // 準備請求參數
             const requestData = {
                 handler: handlerName,
                 pageIndex: page,
                 ...additionalParams
             };
 
-            $.ajax({
-                url: window.location.pathname,
-                type: 'GET',
-                data: requestData,
-                success: function (data) {
+            // 將參數物件轉換為 URL 查詢字串
+            const params = new URLSearchParams(requestData);
+            // 組合最終的請求 URL
+            const url = `${window.location.pathname}?${params.toString()}`;
+
+            // 使用 fetch API 執行 AJAX (GET) 請求
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    // 告知伺服器這是一個 AJAX 請求 (Razor Pages 可能需要)
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
+                    }
+                    // 因為我們預期的是 HTML 片段，所以使用 .text()
+                    return response.text();
+                })
+                .then(data => {
                     if (data.trim().length > 0) {
-                        $(containerSelector).append(data);
+                        // 獲取內容容器
+                        const containerElement = document.querySelector(containerSelector);
+                        if (!containerElement) {
+                            console.error('無限滾動錯誤：找不到內容容器', containerSelector);
+                            isLoading = false; // 即使出錯也要重設狀態
+                            loadingElement.style.display = 'none';
+                            return;
+                        }
+
+                        // 附加 HTML 內容
+                        // .insertAdjacentHTML('beforeend', ...) 等同於 jQuery 的 .append(htmlString)
+                        containerElement.insertAdjacentHTML('beforeend', data);
+
                         isLoading = false;
-                        $(loadingSelector).hide();
-                        // 再次檢查是否需要載入更多
+                        loadingElement.style.display = 'none';
+
+                        // 再次檢查，以防新內容仍未填滿視窗導致無法滾動
                         loadMoreIfNeeded();
                     } else {
+                        // 沒有更多數據了
                         noMoreData = true;
-                        $(loadingSelector).hide();
+                        loadingElement.style.display = 'none';
                     }
-                },
-                error: function () {
+                })
+                .catch(error => {
                     isLoading = false;
-                    $(loadingSelector).hide();
-                    console.error('Error loading more content.');
-                }
-            });
+                    loadingElement.style.display = 'none';
+                    console.error('加載更多內容時出錯:', error);
+                });
         }
     }
 
     // 綁定滾動事件
-    $(window).scroll(loadMoreIfNeeded);
+    window.addEventListener('scroll', loadMoreIfNeeded);
 
-    // 初始化時先檢查一次（避免畫面太短不觸發）
-    loadMoreIfNeeded();
+    // 初始化時先檢查一次
+    // 使用 setTimeout 確保 DOM 初始渲染完成後再執行
+    setTimeout(loadMoreIfNeeded, 100);
 }

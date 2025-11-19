@@ -82,14 +82,13 @@
                 wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
             }
 
-            // TODO: Validation JS 會在中途去驗證Editor的內容但是失敗。以下code只有在 submit的時候可以避免這種情況。
-            // 只在 editor 初始化完成後綁定 submit，同步內容
-            var form = document.getElementById('form');
-            if (form) {
-                form.addEventListener('submit', function () {
-                    document.getElementById('@editorId').value = editor.getData();
-                });
-            }
+            // 取得 textarea 元素
+            const editorTextarea = document.getElementById('@editorId');
+
+            // 監聽 'change:data' 事件，即時同步內容到 textarea
+            editor.model.document.on('change:data', () => {
+                editorTextarea.value = editor.getData();
+            });
         })
         .catch(error => {
             console.error('Oops, something went wrong!');

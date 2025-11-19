@@ -25,7 +25,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" id="form">
+                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="CreateArticle">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     @if (Model.ErrorMessage != null)
                     {
@@ -60,11 +60,7 @@
                     </div>
                     <div class="form-group d-flex justify-content-end">
                         <a asp-page="Index" class="btn btn-secondary mr-2">取消</a>
-                        <button class="g-recaptcha btn btn-primary"
-                                data-sitekey="@Configuration["reCAPTCHA-SiteKey"]"
-                                data-callback='onSubmit'
-                                data-action='submit'
-                                type="submit">建立</button>
+                        <button class="btn btn-primary" type="submit">建立</button>
                     </div>
                 </form>
             </div>
@@ -73,13 +69,7 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="https://www.google.com/recaptcha/api.js"></script>
-    <script>
-        function onSubmit(token) {
-            document.getElementById("form").submit();
-        }
-    </script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
     @{
         ViewData["EditorId"] = "editor";
         ViewData["WordCountDivId"] = "word-count";

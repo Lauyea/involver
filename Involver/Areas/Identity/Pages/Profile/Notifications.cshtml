@@ -38,9 +38,8 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
     <script>
-        $(function () {
+        document.addEventListener('DOMContentLoaded', function() {
             var profileId = "@Model.Profile.ProfileID";
             setupInfiniteScroll('#notifications-container', '#loading', 'LoadMore', { id: profileId });
         });

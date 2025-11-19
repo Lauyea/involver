@@ -69,7 +69,7 @@ const app = createApp({
         }
         this.getCommentsAsync(1);
 
-        $('#commentModal').on('shown.bs.modal', () => {
+        $('#commentModal').on('shown.bs.modal', () => { // TODO: 升級BS5以後再改
             if (!this.mainEditor) {
                 ClassicEditor
                     .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config
@@ -161,7 +161,10 @@ const app = createApp({
         async createCommentFromModalAsync() {
             if (!this.mainEditor) return;
             const content = this.mainEditor.data.get();
-            if (!content) return;
+            if (!content) {
+                alert("內容不能為空。"); 
+                return;
+            }
 
             await this.createCommentAsync(content);
             $('#commentModal').modal('hide');
@@ -304,6 +307,11 @@ const app = createApp({
                 const data = await response.json();
                 // Update count with server's response
                 message.agrees.length = data.agreesCount;
+
+                // Show toasts for achievements
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
             } catch (error) {
                 console.error(error);
                 // Revert UI on error
@@ -421,6 +429,11 @@ const app = createApp({
                 if (!response.ok) throw new Error('Failed to toggle agree');
                 const data = await response.json();
                 comment.agreesCount = data.agreesCount;
+
+                // Show toasts for achievements
+                if (data.toasts && data.toasts.length > 0) {
+                    this.showToasts(data.toasts);
+                }
             } catch (error) {
                 console.error(error);
                 comment.agreesCount = originalAgreesCount;

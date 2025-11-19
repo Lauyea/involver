@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model LoginModel
 
 @{
@@ -9,7 +9,7 @@
 <div class="row">
     <div class="col-md-4">
         <section>
-            <form id="account" method="post">
+            <form id="account" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Login">
                 <h4>以本站帳號登入</h4>
                 <hr />
                 <div asp-validation-summary="All" class="text-danger"></div>
@@ -135,5 +135,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
 }

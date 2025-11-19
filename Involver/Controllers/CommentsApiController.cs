@@ -108,7 +108,7 @@ namespace Involver.Controllers
                     break;
             }
 
-            var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery.AsNoTracking(), page, DataAccess.Common.Parameters.CommetPageSize);
+            var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery.AsNoTracking(), page, Parameters.CommetPageSize);
 
             var commentIds = paginatedComments.Select(c => c.CommentID).ToList();
             var messageCounts = await _context.Messages
@@ -149,13 +149,13 @@ namespace Involver.Controllers
                 {
                     CommentID = comment.CommentID,
                     Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\r\n", "<br />")),
-                    UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
+                    UpdateTime = TimePeriodHelper.Get(comment.UpdateTime),
                     FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                     ProfileID = comment.ProfileID,
                     UserName = comment.Profile.UserName,
                     UserImageUrl = !string.IsNullOrEmpty(comment.Profile.ImageUrl)
                         ? comment.Profile.ImageUrl
-                        : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
+                        : $"https://www.gravatar.com/avatar/{StringExtensions.ToMd5(user.Email)}?d=retro",
                     InvolverInfo = involverInfoString,
                     Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
                     MessagesCount = messageCounts.TryGetValue(comment.CommentID, out var count) ? count : 0,
@@ -249,7 +249,7 @@ namespace Involver.Controllers
 
             // Handle text-based dice rolls
             string contentWithDiceRolls = comment.Content;
-            int textDiceCount = Involver.Helpers.DiceHelper.ReplaceRollDiceString(ref contentWithDiceRolls);
+            int textDiceCount = DiceHelper.ReplaceRollDiceString(ref contentWithDiceRolls);
             comment.Content = contentWithDiceRolls;
 
             // 檢查並移除使用者自行輸入的骰子資訊標籤
@@ -297,10 +297,10 @@ namespace Involver.Controllers
             await _notificationSetter.ForCommentAsync(createDto.From, createDto.FromID, url, user.Id, comment.Content);
 
             // Achievement check and get achievement toasts
-            var toasts = await Involver.Helpers.AchievementHelper.CommentCountAsync(_context, user.Id);
+            var toasts = await AchievementHelper.CommentCountAsync(_context, user.Id);
             if (hasDices)
             {
-                var diceToasts = await Involver.Helpers.AchievementHelper.RollDicesAsync(_context, user.Id);
+                var diceToasts = await AchievementHelper.RollDicesAsync(_context, user.Id);
                 toasts.AddRange(diceToasts);
             }
 
@@ -319,20 +319,20 @@ namespace Involver.Controllers
                     break;
             }
             var totalComments = await commentsQuery.CountAsync();
-            var newTotalPages = (int)Math.Ceiling(totalComments / (double)DataAccess.Common.Parameters.CommetPageSize);
+            var newTotalPages = (int)Math.Ceiling(totalComments / (double)Parameters.CommetPageSize);
 
             // Map to DTO to return
             var newCommentDto = new CommentDto
             {
                 CommentID = comment.CommentID,
                 Content = CustomHtmlSanitizer.SanitizeHtml(comment.Content.Replace("\n", "<br />")),
-                UpdateTime = Involver.Helpers.TimePeriodHelper.Get(comment.UpdateTime),
+                UpdateTime = TimePeriodHelper.Get(comment.UpdateTime),
                 FullUpdateTime = comment.UpdateTime.ToString("yyyy/MM/dd HH:mm:ss"),
                 ProfileID = comment.ProfileID,
                 UserName = commenterProfile.UserName,
                 UserImageUrl = !string.IsNullOrEmpty(commenterProfile.ImageUrl)
                     ? commenterProfile.ImageUrl
-                    : $"https://www.gravatar.com/avatar/{Involver.Extensions.StringExtensions.ToMd5(user.Email)}?d=retro",
+                    : $"https://www.gravatar.com/avatar/{StringExtensions.ToMd5(user.Email)}?d=retro",
                 InvolverInfo = null, // To be implemented
                 Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? new List<object>(),
                 MessagesCount = 0, // New comment has no messages
@@ -436,6 +436,8 @@ namespace Involver.Controllers
                 return NotFound();
             }
 
+            List<Toast> userToasts = [];
+
             var existingAgree = comment.Agrees.FirstOrDefault(a => a.ProfileID == currentUserID);
 
             if (existingAgree == null)
@@ -468,7 +470,7 @@ namespace Involver.Controllers
 
                         await _context.SaveChangesAsync(); // Save mission changes first
 
-                        var toasts = await Involver.Helpers.AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
+                        var toasts = await AchievementHelper.GetAgreeCountAsync(_context, ownerProfile.ProfileID);
 
                         // Set notification
                         var from = GetCommentSource(comment);
@@ -477,6 +479,12 @@ namespace Involver.Controllers
                         await _notificationSetter.ForCommentBeAgreedAsync(comment.Content, ownerProfile.ProfileID, url, toasts);
                     }
                 }
+
+                // Check achievements for user
+                var userProfile = await _context.Profiles
+                        .FirstOrDefaultAsync(p => p.ProfileID == currentUserID);
+
+                userToasts = AchievementHelper.AgreeCountAsync(_context, userProfile.ProfileID).Result;
             }
             else
             {
@@ -486,7 +494,13 @@ namespace Involver.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { agreesCount = _context.Agrees.Count(a => a.CommentID == id) });
+            var response = new
+            {
+                agreesCount = _context.Agrees.Count(a => a.CommentID == id),
+                Toasts = userToasts
+            };
+
+            return Ok(response);
         }
 
         [HttpPost("{id}/block")]

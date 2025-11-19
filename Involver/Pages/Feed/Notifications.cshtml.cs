@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Involver.Pages.Feed
 {
     [AllowAnonymous]
-    [ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "userId" })]
+    //[ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "userId" })] // 暫停通知 Cache。通知即時化。
     public class NotificationsModel : DI_BasePageModel
     {
         public NotificationsModel(

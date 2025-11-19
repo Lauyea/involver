@@ -296,24 +296,53 @@
                 });
             });
 
-        // Toggle List/Card View
-        $(function () {
-            var viewMode = localStorage.getItem('novelViewMode') || 'list';
-            function setView(mode) {
-                if (mode === 'card') {
-                    $('#listView').hide();
-                    $('#cardView').show();
-                } else {
-                    $('#listView').show();
-                    $('#cardView').hide();
+            // Toggle List/Card View
+            document.addEventListener('DOMContentLoaded', function () {
+                // 獲取儲存的檢視模式，如果沒有則預設為 'list'
+                let viewMode = localStorage.getItem('novelViewMode') || 'list';
+
+                // 獲取 DOM 元素
+                const listView = document.getElementById('listView');
+                const cardView = document.getElementById('cardView');
+                const toggleViewBtn = document.getElementById('toggleViewBtn');
+
+                function setView(mode) {
+                    // 確保元素存在
+                    if (!listView || !cardView) {
+                        console.error("找不到 listView 或 cardView 元素。");
+                        return;
+                    }
+
+                    if (mode === 'card') {
+                        // 隱藏列表檢視，顯示卡片檢視
+                        listView.style.display = 'none';
+                        cardView.style.display = 'block';
+                    } else {
+                        // 顯示列表檢視，隱藏卡片檢視
+                        listView.style.display = 'block';
+                        cardView.style.display = 'none';
+                    }
+
+                    // 將新的檢視模式儲存到 localStorage
+                    localStorage.setItem('novelViewMode', mode);
+
+                    // 更新當前 viewMode 變數
+                    viewMode = mode;
                 }
-                localStorage.setItem('novelViewMode', mode);
-            }
-            setView(viewMode);
-            $('#toggleViewBtn').click(function () {
-                viewMode = (viewMode === 'list') ? 'card' : 'list';
+
+                // 1. 頁面載入時，設定初始檢視模式
                 setView(viewMode);
+
+                // 2. 為切換按鈕綁定點擊事件
+                if (toggleViewBtn) {
+                    toggleViewBtn.addEventListener('click', function () {
+                        // 切換 viewMode：如果是 'list' 則變為 'card'，否則變為 'list'
+                        const newViewMode = (viewMode === 'list') ? 'card' : 'list';
+                        setView(newViewMode);
+                    });
+                } else {
+                     console.error("找不到 toggleViewBtn 元素。");
+                }
             });
-        });
     </script>
 }

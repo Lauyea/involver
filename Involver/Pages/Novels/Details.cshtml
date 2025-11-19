@@ -178,31 +178,147 @@
     </div>
 </div>
 
-@section Scripts{
+@section Scripts {
     <script>
-        $(function () {
-            // Don't render pagination if there's only one page or less
-            if (@Model.Episodes.TotalPages <= 1) {
-                return;
+        // 取代 twbsPagination
+        // TODO: 之後可能考慮寫到 site.js 裡共用
+        // 使用 'DOMContentLoaded' 事件來確保在執行腳本前，頁面已完全載入
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // 獲取需要操作的 DOM 元素
+            const paginationContainer = document.getElementById('episodesPagination');
+            const listContainer = document.getElementById('episodeListContainer');
+
+            // 從 Model 獲取後端傳來的總頁數和 ID
+            const totalPages = @Model.Episodes.TotalPages;
+            const novelId = @Model.Novel.NovelID;
+
+            // 如果總頁數小於或等於1，則不需要顯示分頁
+            if (totalPages <= 1) {
+                return; 
             }
 
-            $('#episodesPagination').twbsPagination({
-                totalPages: @Model.Episodes.TotalPages,
-                visiblePages: 5, // A sensible default
-                startPage: 1,
-                first: '<<',
-                prev: '<',
-                next: '>',
-                last: '>>',
-                onPageClick: function (event, page) {
-                    // The AJAX call, now with the corrected URL by using a relative query string
-                    $.get(`?handler=Episodes&novelId=@Model.Novel.NovelID&pageIndex=${page}`, function (data) {
-                        $('#episodeListContainer').html(data); // Use .html() to replace content
-                    }).fail(function() {
+            // 追蹤當前頁碼，預設為 1 (因為伺服器已渲染第一頁)
+            let currentPage = 1;
+            // 設定可見的頁碼按鈕數量 (同原設定)
+            const visiblePages = 5;
+
+            // --- 1. 載入章節資料的函式 (使用 Fetch API) ---
+            function loadEpisodes(page) {
+                //  (start)
+                // 使用 fetch 進行非同步請求
+                fetch(`?handler=Episodes&novelId=${novelId}&pageIndex=${page}`)
+                    .then(response => {
+                        // 檢查請求是否成功
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        // 將回應轉換為 HTML 文本
+                        return response.text();
+                    })
+                    .then(data => {
+                        // 將獲取的 HTML 替換掉列表容器的內容
+                        listContainer.innerHTML = data; //
+                        // 更新當前頁碼
+                        currentPage = page;
+                        // 重新渲染分頁按鈕 (來更新 'active' 狀態等)
+                        renderPagination();
+                    })
+                    .catch(error => {
+                        console.error('Error loading episodes:', error);
+                        // 顯示錯誤訊息
                         alert('章節載入失敗，請稍後再試。');
                     });
+                //  (end)
+            }
+
+            // --- 2. 渲染分頁按鈕的函式 ---
+            function renderPagination() {
+                // 清空舊的分頁按鈕
+                paginationContainer.innerHTML = '';
+
+                // --- 內部輔助函式：建立單個分頁項目 (<li><a>...</a></li>) ---
+                // text: 按鈕上顯示的文字 (例如: '<', '1', '>>')
+                // page: 該按鈕指向的頁碼
+                // isDisabled: 是否禁用 (例如: '上一頁' 在第一頁時)
+                // isActive: 是否為當前頁
+                function createPageItem(page, text, isDisabled = false, isActive = false) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item';
+                    if (isDisabled) li.classList.add('disabled');
+                    if (isActive) li.classList.add('active');
+
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#'; // 避免頁面跳轉
+                    a.dataset.page = page; // 將頁碼存在 data-page 屬性中
+                    a.textContent = text;
+
+                    if (isDisabled) {
+                        a.setAttribute('tabindex', '-1');
+                        a.setAttribute('aria-disabled', 'true');
+                    }
+
+                    li.appendChild(a);
+                    return li;
+                }
+
+                // --- 計算要顯示的頁碼範圍 (核心邏輯) ---
+                let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + visiblePages - 1);
+
+                // 確保 'visiblePages' 數量：如果 endPage 已經到底
+                if (endPage === totalPages) {
+                    startPage = Math.max(1, totalPages - visiblePages + 1);
+                }
+                // 確保 'visiblePages' 數量：如果 startPage 已經到頂
+                if (startPage === 1) {
+                    endPage = Math.min(totalPages, visiblePages);
+                }
+
+                // --- 建立並添加按鈕 ---
+
+                // "第一頁" (<<)
+                paginationContainer.appendChild(createPageItem(1, '<<', currentPage === 1));
+
+                // "上一頁" (<)
+                paginationContainer.appendChild(createPageItem(currentPage - 1, '<', currentPage === 1));
+
+                // 數字頁碼
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationContainer.appendChild(createPageItem(i, i, false, i === currentPage));
+                }
+
+                // "下一頁" (>)
+                paginationContainer.appendChild(createPageItem(currentPage + 1, '>', currentPage === totalPages));
+
+                // "最後一頁" (>>)
+                paginationContainer.appendChild(createPageItem(totalPages, '>>', currentPage === totalPages));
+            }
+
+            // --- 3. 綁定點擊事件 ---
+            // 使用事件委派 (Event Delegation)，只在父容器上綁定一個監聽器
+            paginationContainer.addEventListener('click', function (event) {
+                // 防止 <a> 標籤的默認跳轉行為
+                event.preventDefault();
+
+                const target = event.target;
+
+                // 確保點擊的是 <a> 標籤，並且它不處於 'disabled' 或 'active' 狀態
+                if (target.tagName === 'A' && !target.parentElement.classList.contains('disabled') && !target.parentElement.classList.contains('active')) {
+                    // 從 data-page 屬性獲取頁碼
+                    const page = parseInt(target.dataset.page, 10);
+                    if (!isNaN(page)) {
+                        // 載入對應頁碼的章節
+                        loadEpisodes(page);
+                    }
                 }
             });
+
+            // --- 4. 初始渲染 ---
+            // 頁面載入時，伺服器已經渲染了第一頁的內容
+            // 我們只需要呼叫 renderPagination() 來產生第一頁的分頁控制按鈕
+            renderPagination();
         });
     </script>
 }

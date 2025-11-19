@@ -33,7 +33,7 @@ namespace Involver.Areas.Identity.Pages.Profile
             }
 
             Articles = await _context.Articles
-                .Where(a => a.ProfileID == id)
+                .Where(a => a.ProfileID == id && a.IsDeleted == false)
                 .OrderByDescending(a => a.UpdateTime)
                 .Take(Parameters.PageSize)
                 .AsNoTracking()
