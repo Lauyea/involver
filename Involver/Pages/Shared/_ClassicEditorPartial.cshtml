@@ -6,9 +6,14 @@
     var maxLength = ViewData["MaxLength"] ?? 10000; // default max length
 }
 <script>
+    // 取得 _Layout.cshtml 中 sticky header (id="TopHead") 的高度
+    // 我們需要這個高度來告訴 CKEditor 的 sticky toolbar 應該偏移多少
+    const headerHeight = document.querySelector('#TopHead') ? document.querySelector('#TopHead').offsetHeight : 0;
+
     ClassicEditor
         .create(document.querySelector('#@editorId'), {
             toolbar: {
+                viewportTopOffset: headerHeight, // 設定 sticky toolbar 的偏移量，使其不會被主導覽列遮住
                 items: [
                     'heading',
                     '|',

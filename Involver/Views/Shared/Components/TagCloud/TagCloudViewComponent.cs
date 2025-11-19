@@ -19,8 +19,12 @@ namespace Involver.Views.Shared.Components.TagCloud
         {
             List<TagCloudItemViewModel> tags;
 
+            string targetPage = ""; // 宣告目標頁面變數
+
             if (tagType == "Article")
             {
+                targetPage = "/Articles/Index"; // 如果是 Article，設定路徑
+
                 tags = await _context.ArticleTags
                     .Select(tag => new TagCloudItemViewModel
                     {
@@ -32,6 +36,8 @@ namespace Involver.Views.Shared.Components.TagCloud
             }
             else if (tagType == "Novel")
             {
+                targetPage = "/Novels/Index"; // 如果是 Novel，設定路徑
+
                 tags = await _context.NovelTags
                     .Select(tag => new TagCloudItemViewModel
                     {
@@ -65,6 +71,8 @@ namespace Involver.Views.Shared.Components.TagCloud
             // 隨機排序，讓視覺效果更好
             var random = new Random();
             var model = tags.OrderBy(t => random.Next());
+
+            ViewBag.TargetPage = targetPage; // 將路徑存入 ViewBag
 
             return View(model);
         }
