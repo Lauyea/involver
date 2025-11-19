@@ -163,36 +163,66 @@
     <script src="~/js/form-validation.js" asp-append-version="true"></script>
 
     <script type="text/javascript">
-        $(function() {
-            $('#loading').hide();
-            $('.toast').toast('show');
+        document.addEventListener('DOMContentLoaded', function() {
+            // 獲取所有相關 DOM 元素
+            const loadingElement = document.getElementById('loading');
+            const goTopButton = document.getElementById('gotop');
+            const topHeadNav = document.querySelector('#TopHead nav');
 
-            // --- 新增：啟用 Bootstrap Tooltips ---
-            $('[data-toggle="tooltip"]').tooltip();
+            // 隱藏載入畫面
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
 
-            // --- 新增：導覽列滾動效果 ---
-            $(window).scroll(function() {
-                if ($(this).scrollTop() > 50) {
-                    $('#TopHead nav').addClass('navbar-scrolled');
-                } else {
-                    $('#TopHead nav').removeClass('navbar-scrolled');
+            $('.toast').toast('show'); // TODO: 升級BS5以後再改
+
+            // --- 啟用 Bootstrap Tooltips ---
+            $('[data-toggle="tooltip"]').tooltip(); // TODO: 升級BS5以後再改
+
+            // --- 導覽列滾動效果 ---
+            function handleNavScroll() {
+                if (topHeadNav) {
+                    if (window.scrollY > 50) {
+                        topHeadNav.classList.add('navbar-scrolled');
+                    } else {
+                        topHeadNav.classList.remove('navbar-scrolled');
+                    }
                 }
-            });
+            }
 
-            /* 按下GoTop按鈕時的事件 - 優化為平滑滾動 */
-            $('#gotop').click(function(e) {
-                e.preventDefault();
-                $('html,body').animate({ scrollTop: 0 }, 600); /* 600毫秒滾動到頂部 */
-            });
+            // 綁定滾動事件
+            window.addEventListener('scroll', handleNavScroll);
 
-            /* 偵測卷軸滑動時，讓GoTop按鈕出現 */
-            $(window).scroll(function() {
-                if ($(this).scrollTop() > 400) {
-                    $('#gotop').fadeIn();
-                } else {
-                    $('#gotop').fadeOut();
+            // GoTop 按鈕出現/隱藏
+            function handleGoTopVisibility() {
+                if (goTopButton) {
+                    if (window.scrollY > 400) {
+                        goTopButton.style.display = 'block';
+                        // goTopButton.style.opacity = '1';
+                        // goTopButton.style.transition = 'opacity 1.4s'; // 這兩段無用。再想想看是否要有 fade in, fade out 效果
+                    } else {
+                        goTopButton.style.display = 'none'; // 簡單隱藏
+                    }
                 }
-            });
+            }
+
+            // 綁定滾動事件
+            window.addEventListener('scroll', handleGoTopVisibility);
+
+            // 頁面載入時執行一次，確保初始狀態正確
+            handleGoTopVisibility();
+
+
+            // GoTop 按鈕點擊平滑滾動
+            if (goTopButton) {
+                goTopButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth' // 啟用原生平滑滾動
+                    });
+                });
+            }
         });
     </script>
     <a href="#" id="gotop">

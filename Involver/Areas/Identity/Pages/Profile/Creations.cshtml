@@ -23,7 +23,7 @@
 
 @section Scripts {
     <script>
-        $(function () {
+        document.addEventListener('DOMContentLoaded', function() {
             var profileId = "@Model.Profile.ProfileID";
             setupInfiniteScroll('#creations-container', '#loading', 'LoadMore', { id: profileId });
         });

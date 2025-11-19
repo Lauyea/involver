@@ -31,7 +31,7 @@
 
 @section Scripts {
     <script>
-        $(function () {
+        document.addEventListener('DOMContentLoaded', function() {
             var profileId = "@Model.Profile.ProfileID";
             setupInfiniteScroll('#viewed-articles-container', '#loading', 'LoadMore', { id: profileId });
         });

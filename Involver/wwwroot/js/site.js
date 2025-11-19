@@ -3,7 +3,7 @@
 
 // Write your Javascript code.
 
-// 等待 DOM 內容完全載入後才執行（替代 $(document).ready()）
+// 等待 DOM 內容完全載入後才執行
 document.addEventListener('DOMContentLoaded', fetchNotifications);
 
 /**
@@ -134,7 +134,7 @@ async function SetDarkMode() {
  * @param {HTMLElement} btn - The button element that was clicked.
  */
 async function copyShareLinkAndTrackAsync(btn) {
-    const $btn = $(btn);
+    const $btn = $(btn); // TODO: 升級BS5以後再改
     const contentType = $btn.data('type');
     const contentId = $btn.data('id');
     const baseUrl = `${window.location.protocol}//${window.location.host}`;

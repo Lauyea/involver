@@ -69,7 +69,7 @@ const app = createApp({
         }
         this.getCommentsAsync(1);
 
-        $('#commentModal').on('shown.bs.modal', () => {
+        $('#commentModal').on('shown.bs.modal', () => { // TODO: 升級BS5以後再改
             if (!this.mainEditor) {
                 ClassicEditor
                     .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config

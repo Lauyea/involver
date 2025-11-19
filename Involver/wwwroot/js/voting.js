@@ -183,7 +183,7 @@ const app = createApp({
                 });
 
                 if (response.ok) {
-                    $('#createVotingModal').modal('hide');
+                    $('#createVotingModal').modal('hide'); // TODO: 升級BS5以後再改
                     this.fetchVotingsAsync();
                 }
                 else if (response.status === 401) {
