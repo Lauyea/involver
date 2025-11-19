@@ -1,4 +1,5 @@
 @model IEnumerable<Involver.Models.ViewModels.TagCloudItemViewModel>
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <div class="tag-cloud-container d-flex flex-wrap justify-content-center align-items-center p-3">
     @foreach (var tag in Model)
