@@ -159,22 +159,24 @@
                 </div>
                 <div class="modal-body">
                     <form @@submit.prevent="createVotingAsync">
-                        <div class="form-group">
-                            <label class="control-label">標題</label>
+
+                        <div class="mb-3">
+                            <label class="form-label">標題</label>
                             <textarea v-model="newVoting.title" class="form-control" rows="1" placeholder="在這裡寫些東西..."></textarea>
                         </div>
 
-                        <div class="form-row">
-                            <div class="form-group col-md-6" v-show="isProfessional">
-                                <label class="control-label">策略</label>
-                                <select v-model.number="newVoting.policy" class="form-control">
+                        <div class="row">
+                            <div class="col-md-6" v-show="isProfessional">
+                                <label class="form-label">策略</label>
+                                <select v-model.number="newVoting.policy" class="form-select">
                                     <option value="0">平等</option>
                                     <option value="1">自由</option>
                                 </select>
                             </div>
-                            <div class="form-group col-md-6">
-                                <label class="control-label">限制</label>
-                                <select v-model.number="newVoting.limit" class="form-control">
+
+                            <div class="col-md-6">
+                                <label class="form-label">限制</label>
+                                <select v-model.number="newVoting.limit" class="form-select">
                                     <option value="0">限時</option>
                                     <option value="1">限量</option>
                                     <option value="2">限值</option>
@@ -182,8 +184,8 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="control-label">票價</label>
+                        <div class="mb-3">
+                            <label class="form-label">票價</label>
                             <input v-model.number="newVoting.threshold" type="number" class="form-control" />
                         </div>
 
@@ -191,24 +193,24 @@
                             <strong>票價設定為零，則等於所有人都可投票</strong>
                         </div>
 
-                        <div v-if="newVoting.limit === 0" class="form-group">
-                            <label class="control-label">期限</label>
+                        <div v-if="newVoting.limit === 0" class="mb-3">
+                            <label class="form-label">期限</label>
                             <input v-model="newVoting.deadLine" type="datetime-local" class="form-control" />
                         </div>
-                        <div v-if="newVoting.limit === 1" class="form-group">
-                            <label class="control-label">人數上限</label>
+                        <div v-if="newVoting.limit === 1" class="mb-3">
+                            <label class="form-label">人數上限</label>
                             <input v-model.number="newVoting.numberLimit" type="number" class="form-control" />
                         </div>
-                        <div v-if="newVoting.limit === 2" class="form-group">
-                            <label class="control-label">總InCoins上限</label>
+                        <div v-if="newVoting.limit === 2" class="mb-3">
+                            <label class="form-label">總InCoins上限</label>
                             <input v-model.number="newVoting.coinLimit" type="number" class="form-control" />
                         </div>
 
                         <hr />
 
                         <h6>選項</h6>
-                        <div v-for="(option, index) in newVoting.options" :key="index" class="form-group">
-                            <label class="control-label">選項 {{ index + 1 }}</label>
+                        <div v-for="(option, index) in newVoting.options" :key="index" class="mb-3">
+                            <label class="form-label">選項 {{ index + 1 }}</label>
                             <input v-model="option.content" class="form-control" placeholder="選項內容..." />
                         </div>
 

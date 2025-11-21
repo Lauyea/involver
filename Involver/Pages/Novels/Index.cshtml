@@ -211,15 +211,13 @@
                         <li class="page-item @nextDisabled"><a asp-page="./Index" asp-route-PageIndex="@Model.Novels.TotalPages" asp-route-sortOrder="@Model.CurrentSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-right"></i></a></li>
                     </ul>
                 </nav>
-                <form class="form-inline" asp-page="./Index" method="get">
+                    <form class="d-flex" asp-page="./Index" method="get">
                     <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
                     <input type="hidden" name="currentType" value="@Model.CurrentType" />
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
                         <div class="input-group ms-2">
                             <input type="number" name="pageIndex" value="@Model.Novels.PageIndex" class="form-control" style="max-width: 75px;" />
-                        <div class="input-group-append">
                             <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-                        </div>
                     </div>
                 </form>
             </div>

@@ -37,13 +37,13 @@
         <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="StoredValue">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <p>實體150 In幣 × </p>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Quantity" class="form-label"></label>
                 <input asp-for="Quantity" class="form-control" disabled/>
                 <span asp-validation-for="Quantity" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label class="control-label">
+            <div class="mb-3">
+                <label class="form-label">
                     <input class="form-check-input"
                            style="display:none"
                            value="@UserID"
@@ -58,7 +58,7 @@
                     <strong>按下綠界支付當下會跳轉至綠界儲值頁面，完成儲值動作後請勿再次儲值；待完成儲值動作後，個人帳戶的實體In幣便會增加</strong>
                 </p>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <input type="submit" value="綠界支付" class="btn btn-primary" formtarget="_blank" disabled />
             </div>
         </form>

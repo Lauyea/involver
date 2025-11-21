@@ -139,14 +139,12 @@
                     </ul>
                 </nav>
 
-                <form class="form-inline" asp-page="./Index" method="get">
+                <form class="d-flex" asp-page="./Index" method="get">
                     <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
                     <div class="input-group ms-2">
                         <input type="number" name="pageIndex" value="@Model.Articles.PageIndex" class="form-control" style="max-width: 75px;" />
-                        <div class="input-group-append">
-                            <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-                        </div>
+                        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
                     </div>
                 </form>
             </div>

@@ -32,9 +32,7 @@
         <div id="notification-container"
              data-notification-url="@Url.Page("/Feed/Notifications")"
              data-user-id="@UserManager.GetUserId(User)">
-            <div class="dropdown" id="notification">
-                載入中...
-            </div>
+            <div class="dropdown" id="notification"></div>
         </div>
     </li>
     @if (SignInManager.IsSignedIn(User))
@@ -52,7 +50,7 @@
                 </a>
                 <a class="dropdown-item" asp-page="/Involvings/StoredValue">儲值</a>
                 <div class="dropdown-divider"></div>
-                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <form class="d-flex" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
                     <button type="submit" class="dropdown-item text-danger">登出</button>
                 </form>
             </div>

@@ -30,24 +30,24 @@
                     <input type="hidden" asp-for="Article.ArticleID" />
                     <input type="hidden" asp-for="Article.ProfileID" />
 
-                    <div class="form-group">
-                        <label asp-for="Article.Title" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Article.Title" class="form-label"></label>
                         <input asp-for="Article.Title" class="form-control" />
                         <span asp-validation-for="Article.Title" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Article.Content" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Article.Content" class="form-label"></label>
                         <textarea asp-for="Article.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
                         <div id="word-count" class="text-end text-body-secondary"></div>
                         <span asp-validation-for="Article.Content" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Article.ImageUrl" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Article.ImageUrl" class="form-label"></label>
                         <input asp-for="Article.ImageUrl" class="form-control">
                         <span asp-validation-for="Article.ImageUrl" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="TagString" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="TagString" class="form-label"></label>
                         <input asp-for="TagString" class="form-control" />
                         <span asp-validation-for="TagString" class="text-danger"></span>
                         <small class="form-text text-body-secondary">
@@ -59,13 +59,13 @@
                     @if (User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
                          User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole))
                     {
-                        <div class="form-group form-check">
+                        <div class="mb-3 form-check">
                             <input class="form-check-input" asp-for="Article.Block" />
                             <label class="form-check-label" asp-for="Article.Block">@Html.DisplayNameFor(model => model.Article.Block)</label>
                         </div>
                     }
 
-                    <div class="form-group d-flex justify-content-end">
+                    <div class="mb-3 d-flex justify-content-end">
                         <a asp-page="./Details" asp-route-id="@Model.Article.ArticleID" class="btn btn-secondary me-2">取消</a>
                         <input type="submit" value="儲存" class="btn btn-primary" />
                     </div>

@@ -255,7 +255,7 @@ function fetchNotifications() {
 
     if (!url || !userId) {
         console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
-        notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>';
+        //notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>'; // 沒有登入的情況，不顯示通知icon就好
         return;
     }
 

@@ -19,7 +19,7 @@
 
         <!-- Sorter -->
         <div v-if="!isOrderFixed" class="ms-auto">
-            <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+            <select v-model="sortBy" @@change="changeSort" class="form-select w-auto">
                 <option value="oldest">最舊的</option>
                 <option value="newest">最新的</option>
                 <option value="most_agrees">最多讚</option>
@@ -145,7 +145,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="comment-editor">評論內容</label>
                         <textarea id="comment-editor"></textarea>
                         <div id="comment-word-count" class="d-flex justify-content-end text-body-secondary small mt-1"></div>
@@ -163,9 +163,9 @@
                                     <h6><i class="fas fa-keyboard"></i> 文字指令</h6>
                                     <p class="small text-body-secondary">在內容中輸入 <code>Dice(次數)D(面數)</code>，例如 <code>Dice05D10</code>。最大為 99D99。</p>
                                 </div>
-                                <div class="col-md-6" v-if="from.toLowerCase() === 'episode'">
+                                <div class="col-md-6" v-if="from.toLowerCase() === 'episodes'">
                                     <h6><i class="fas fa-mouse-pointer"></i> 介面擲骰</h6>
-                                    <div class="form-row align-items-center">
+                                    <div class="row align-items-center">
                                         <div class="col-auto">
                                             <label class="text-body-secondary small" for="rollTimes">次數</label>
                                             <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control mb-2" id="rollTimes" placeholder="次數 (0-12)" min="0" max="12" title="最多12次">
@@ -181,7 +181,7 @@
                         </div>
                     </div>
                     
-                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episode'">
+                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episodes'">
                         <i class="fas fa-exclamation-triangle"></i> <strong>注意：</strong> 任何包含擲骰的評論送出後將無法編輯。
                     </div>
                 </div>
@@ -233,10 +233,10 @@
                                         </p>
                                     </div>
                                     <div v-else>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <button type="button" class="btn btn-primary btn-sm" @@click="updateMessageAsync(message)">儲存</button> &nbsp;
                                             <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
                                         </div>
@@ -246,11 +246,11 @@
                         </div>
                         <hr />
                         <form @@submit.prevent="createNewMessageAsync">
-                            <div class="form-group">
-                                <label for="messageContent" class="control-label">新增留言</label>
+                            <div class="mb-3">
+                                <label for="messageContent" class="form-label">新增留言</label>
                                 <textarea v-model="newMessageContent" class="form-control" rows="3"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">送出</button>
                             </div>
                         </form>

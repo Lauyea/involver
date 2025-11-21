@@ -20,18 +20,18 @@
                 <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="EditEpisode">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     <input type="hidden" asp-for="Episode.EpisodeID" />
-                    <div class="form-group">
-                        <label asp-for="Episode.Title" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Episode.Title" class="form-label"></label>
                         <input asp-for="Episode.Title" class="form-control" />
                         <span asp-validation-for="Episode.Title" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Episode.Content" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Episode.Content" class="form-label"></label>
                         <textarea asp-for="Episode.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
                         <div id="word-count" class="text-end text-body-secondary"></div>
                         <span asp-validation-for="Episode.Content" class="text-danger"></span>
                     </div>
-                    <div class="form-group d-flex justify-content-end">
+                    <div class="mb-3 d-flex justify-content-end">
                         <a asp-page="./Details" asp-route-id="@Model.Episode.EpisodeID" class="btn btn-secondary me-2">取消</a>
                         <input type="submit" value="儲存" class="btn btn-primary" />
                     </div>
