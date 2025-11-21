@@ -58,7 +58,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="d-flex justify-content-between text-muted mb-3">
+        <div class="d-flex justify-content-between text-body-secondary mb-3">
             <div>
                 <small>
                     作者：
@@ -66,18 +66,18 @@
                         @Model.Feedback.Profile.UserName
                     </a>
                 </small>
-                <small class="ml-3">
+                <small class="ms-3">
                     發布於：<span title="@Model.Feedback.UpdateTime">@TimePeriodHelper.Get(Model.Feedback.UpdateTime)</span>
                 </small>
             </div>
             <div>
                 @if (Model.Feedback.Block == true)
                 {
-                    <span class="badge badge-danger">Blocked</span>
+                    <span class="badge bg-danger">Blocked</span>
                 }
                 @if (Model.Feedback.Accept == true)
                 {
-                    <span class="badge badge-success">Accepted</span>
+                    <span class="badge bg-success">Accepted</span>
                 }
             </div>
         </div>

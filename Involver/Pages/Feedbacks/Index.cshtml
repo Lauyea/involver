@@ -20,7 +20,7 @@
         <form asp-page="./Index" method="get" class="mb-4">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <select asp-for="SearchType" class="custom-select">
+                    <select asp-for="SearchType" class="form-select">
                         <option value="Title">標題</option>
                         <option value="OwnerName">作者</option>
                     </select>
@@ -39,7 +39,7 @@
                     <tr>
                         <th>標題</th>
                         <th>作者</th>
-                        <th class="text-right">最後更新</th>
+                        <th class="text-end">最後更新</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,11 +50,11 @@
                                 <a asp-page="./Details" asp-route-id="@item.ArticleID">@Html.DisplayFor(modelItem => item.Title)</a>
                                 @if (item.Block == true)
                                 {
-                                    <span class="badge badge-danger ml-2">Blocked</span>
+                                    <span class="badge bg-danger ms-2">Blocked</span>
                                 }
                                 @if (item.Accept == true)
                                 {
-                                    <span class="badge badge-success ml-2">Accepted</span>
+                                    <span class="badge bg-success ms-2">Accepted</span>
                                 }
                             </td>
                             <td>
@@ -62,7 +62,7 @@
                                     @Html.DisplayFor(modelItem => item.Profile.UserName)
                                 </a>
                             </td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <small title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                             </td>
                         </tr>
@@ -109,7 +109,7 @@
                 <form class="form-inline" asp-page="./Index" method="get">
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
                     <input type="hidden" name="currentType" value="@Model.CurrentType" />
-                    <div class="input-group ml-2">
+                    <div class="input-group ms-2">
                         <input type="number" name="pageIndex" value="@Model.Feedbacks.PageIndex" class="form-control" style="max-width: 75px;" />
                         <div class="input-group-append">
                             <input type="submit" value="跳轉" class="btn btn-outline-primary" />

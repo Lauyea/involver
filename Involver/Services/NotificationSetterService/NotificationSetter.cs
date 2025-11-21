@@ -240,7 +240,7 @@ namespace Involver.Services.NotificationSetterService
                     badgeColor = "gold";
                 }
 
-                title = $"你的意見《{feedbackTitle}》被接受了。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+                title = $"你的意見《{feedbackTitle}》被接受了。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
 
                 Notification notification = new()
                 {
@@ -312,7 +312,7 @@ namespace Involver.Services.NotificationSetterService
                     badgeColor = "gold";
                 }
 
-                title = $"有人在你的留言「{messageContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+                title = $"有人在你的留言「{messageContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
 
                 Notification notification = new()
                 {
@@ -384,7 +384,7 @@ namespace Involver.Services.NotificationSetterService
                     badgeColor = "gold";
                 }
 
-                title = $"有人在你的評論「{commentContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot mr-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
+                title = $"有人在你的評論「{commentContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
 
                 Notification notification = new()
                 {

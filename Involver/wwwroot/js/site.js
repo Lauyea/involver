@@ -32,9 +32,9 @@ function showGlobalToasts(toasts) {
         const toastHtml = `
             <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
                 <div class="toast-header">
-                    ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
-                    <strong class="mr-auto">${toast.header}</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                    ${badgeClass ? `<span class="dot me-2 ${badgeClass}"></span>` : ''}
+                    <strong class="me-auto">${toast.header}</strong>
+                    <button type="button" class="ms-2 mb-1 btn-close" data-bs-dismiss="toast" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

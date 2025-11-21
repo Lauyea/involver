@@ -60,7 +60,7 @@
                                 <h5 class="card-title">@Html.DisplayFor(modelItem => item.Title)</h5>
                                 @if (item.Block == true)
                                 {
-                                    <small class="badge-danger badge-pill ms-1">Block</small>
+                                    <small class="bg-danger rounded-pill ms-1">Block</small>
                                 }
                             </a>
                             @{
@@ -72,7 +72,7 @@
                                     <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                                 </a>
                                 <div>
-                                    <small class="mr-2"><i class="far fa-comment"></i> @item.Comments.Count()</small>
+                                    <small class="me-2"><i class="far fa-comment"></i> @item.Comments.Count()</small>
                                     <small><i class="far fa-eye"></i> 
                                         <a href="#" class="view-chart-trigger" data-type="article" data-id="@item.ArticleID">
                                             @Html.DisplayFor(modelItem => item.TotalViews)
@@ -87,15 +87,15 @@
                                 <div class="d-flex align-items-center flex-wrap">
                                     @foreach (var tag in item.ArticleTags)
                                     {
-                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-info mr-1 mb-1">@tag.Name</a>
+                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge bg-info me-1 mb-1">@tag.Name</a>
                                     }
                                 </div>
 
                                 <div class="d-flex align-items-center">
-                                    <div class="mr-2" style="width:100px; height:30px;" title="最近觀看趨勢">
+                                    <div class="me-2" style="width:100px; height:30px;" title="最近觀看趨勢">
                                         <canvas id="article-chart-@item.ArticleID"></canvas>
                                     </div>
-                                    <small class="text-muted text-nowrap" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                                    <small class="text-body-secondary text-nowrap" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                                 </div>
                             </div>
                         </div>
@@ -142,7 +142,7 @@
                 <form class="form-inline" asp-page="./Index" method="get">
                     <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
-                    <div class="input-group ml-2">
+                    <div class="input-group ms-2">
                         <input type="number" name="pageIndex" value="@Model.Articles.PageIndex" class="form-control" style="max-width: 75px;" />
                         <div class="input-group-append">
                             <input type="submit" value="跳轉" class="btn btn-outline-primary" />

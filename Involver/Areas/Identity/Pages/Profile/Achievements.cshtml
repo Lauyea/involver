@@ -37,11 +37,11 @@
         <div class="col-md-4 mb-4">
             <div class="card h-100 @borderColorClass shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title badge badge-pill @titleColorClass text-dark">@item.Title</h5>
+                    <h5 class="card-title badge rounded-pill @titleColorClass text-dark">@item.Title</h5>
                     <p class="card-text">@item.Content</p>
                 </div>
                 <div class="card-footer bg-transparent border-top-0">
-                    <small class="text-muted">達成於: @item.ProfileAchievements.FirstOrDefault()?.AchieveDate.ToString("yyyy-MM-dd")</small>
+                    <small class="text-body-secondary">達成於: @item.ProfileAchievements.FirstOrDefault()?.AchieveDate.ToString("yyyy-MM-dd")</small>
                 </div>
             </div>
         </div>
