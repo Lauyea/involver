@@ -160,15 +160,29 @@
             const goTopButton = document.getElementById('gotop');
             const topHeadNav = document.querySelector('#TopHead nav');
 
+            // 獲取 Toast 元素（注意：.toast 是一個選擇器，可能有多個）
+            const toastElements = document.querySelectorAll('.toast');
+
             // 隱藏載入畫面
             if (loadingElement) {
                 loadingElement.style.display = 'none';
             }
 
-            $('.toast').toast('show'); // TODO: 升級BS5以後再改
+            // 顯示 Toast
+            if (toastElements.length > 0) {
+                toastElements.forEach(toastEl => {
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                });
+            }
 
-            // --- 啟用 Bootstrap Tooltips ---
-            $('[data-bs-toggle="tooltip"]').tooltip(); // TODO: 升級BS5以後再改
+            // 啟用 Bootstrap Tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            if (tooltipTriggerList.length > 0) {
+                tooltipTriggerList.forEach(tooltipTriggerEl => {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
 
             // --- 導覽列滾動效果 ---
             function handleNavScroll() {
