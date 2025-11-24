@@ -130,68 +130,91 @@ async function SetDarkMode() {
 }
 
 /**
- * Handles copying a share link to the clipboard and tracking the share event.
- * @param {HTMLElement} btn - The button element that was clicked.
+ * 處理複製分享連結到剪貼簿並追蹤分享事件
+ * @param {HTMLElement} btn - 被點擊的按鈕元素。
  */
 async function copyShareLinkAndTrackAsync(btn) {
-    const $btn = $(btn); // TODO: 升級BS5以後再改
-    const contentType = $btn.data('type');
-    const contentId = $btn.data('id');
+    // 從 data-* 屬性獲取資料
+    const contentType = btn.dataset.type;
+    const contentId = btn.dataset.id;
     const baseUrl = `${window.location.protocol}//${window.location.host}`;
-    // Construct the URL based on content type
+    // 根據內容類型建構 URL
     const shareUrl = `${baseUrl}/${contentType}s/Details/${contentId}`;
 
     try {
+        // 複製到剪貼簿
         await navigator.clipboard.writeText(shareUrl);
 
-        // Show tooltip
-        $btn.tooltip('show');
-        setTimeout(() => $btn.tooltip('hide'), 2000); // Hide after 2 seconds
+        // 顯示/隱藏 Bootstrap Tooltip
+        const tooltip = bootstrap.Tooltip.getInstance(btn);
+        if (tooltip) {
+            tooltip.show();
+            setTimeout(() => tooltip.hide(), 2000); // 2 秒後隱藏
+        }
 
-        // Get the anti-forgery token
-        const token = $('input[name="__RequestVerificationToken"]').val();
+        // 獲取 anti-forgery token
+        const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenEl ? tokenEl.value : null;
 
-        // Send tracking request to the API
-        await $.ajax({
-            url: '/api/shares',
-            type: 'POST',
-            contentType: 'application/json',
+        if (!token) {
+            console.log('Anti-forgery token not found. Skipping tracking.');
+            // 即使沒有 token，複製也已經成功了，所以不用 throw error
+            return;
+        }
+
+        // 使用 fetch API 發送追蹤請求
+        const response = await fetch('/api/shares', {
+            method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'RequestVerificationToken': token
             },
-            data: JSON.stringify({
+            body: JSON.stringify({
                 contentId: contentId,
                 contentType: contentType
-            }),
-            error: function (xhr) {
-                if (xhr.status === 401) {
-                    // Silently fail if not logged in, or prompt to log in
-                    console.log('User not authenticated for tracking share.');
-                } else {
-                    console.error('Error tracking share event.');
-                }
-            }
+            })
         });
 
+        // 處理 API 回應
+        if (!response.ok) {
+            if (response.status === 401) {
+                // 未登入，靜默失敗
+                console.log('User not authenticated for tracking share.');
+            } else {
+                // 其他錯誤
+                console.error('Error tracking share event.', response.status, response.statusText);
+            }
+        }
+
     } catch (err) {
-        console.error('Failed to copy: ', err);
-        // Optionally, provide feedback to the user that the copy failed
+        console.error('Failed to copy or track: ', err);
     }
 }
 
-$(function () {
-    // Initialize tooltips for all copy buttons
-    $('.btn-copy-link').each(function () {
-        $(this).tooltip({
-            trigger: 'manual',
+/**
+ * DOM 載入完成後執行的初始化代碼
+ */
+document.addEventListener('DOMContentLoaded', () => {
+
+    // 初始化所有 .btn-copy-link 按鈕的 Tooltip
+    const tooltipTriggerList = document.querySelectorAll('.btn-copy-link');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'manual', // 我們將手動控制顯示/隱藏
             placement: 'bottom'
+            //title: '已複製！' // 可以在這裡設定 tooltip 的標題。已經設定在原按鈕中。
         });
     });
 
-    // Attach click handler
-    $(document).on('click', '.btn-copy-link', function (e) {
-        e.preventDefault();
-        copyShareLinkAndTrackAsync(this);
+    // 使用事件委派 (Event Delegation) 附加點擊處理器
+    document.addEventListener('click', (e) => {
+        // 使用 .closest() 來找到被點擊的目標或其祖先中符合 .btn-copy-link 的元素
+        const copyButton = e.target.closest('.btn-copy-link');
+
+        if (copyButton) {
+            e.preventDefault(); // 防止預設行為
+            copyShareLinkAndTrackAsync(copyButton); // 呼叫函式
+        }
     });
 });
 
