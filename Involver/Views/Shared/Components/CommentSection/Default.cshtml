@@ -32,6 +32,21 @@
     </div>
 
     <div v-else>
+        <!-- Pagination -->
+        <nav v-if="pagination.totalPages > 1" style="background-image: none;">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: !pagination.hasPreviousPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage - 1)">前一頁</a>
+                </li>
+                <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === pagination.currentPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: !pagination.hasNextPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage + 1)">下一頁</a>
+                </li>
+            </ul>
+        </nav>
+
         <!-- Comment Loop -->
         <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID" class="comment-section">
             

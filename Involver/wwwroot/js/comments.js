@@ -590,7 +590,7 @@ const app = createApp({
             this.$nextTick(() => {
                 const el = document.getElementById('CommentHead');
                 if (!el) return;
-                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         },
 
