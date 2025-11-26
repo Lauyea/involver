@@ -179,24 +179,8 @@
         * POST：以 `create` 或 `add` 開頭，例如 `createNewArticle`。
         * PUT/PATCH：以 `update` 開頭，例如 `updateUserProfile`。
         * DELETE：以 `delete` 或 `remove` 開頭，例如 `deleteComment`。
-		  
-  * jQuery (使用指南)：
 
-      * 優先使用：對於簡單的 DOM 操作、事件處理、以及 AJAX 請求，應優先使用 jQuery 來處理。
-      * 複雜互動：如果頁面需要複雜的狀態管理或大量的雙向資料綁定，才應考慮導入 Vue.js。
-      * 命名：儲存 jQuery 物件的變數，應以 `$` 符號開頭，例如 `const $modal = $('#myModal');`。
-      * DOM Ready：所有的 jQuery 程式碼都應放在 `$(function() { ... });` 區塊中，確保在 DOM 完全載入後才執行。
-      * 鏈式呼叫 (Chaining)：盡可能使用鏈式呼叫來對同一元素執行多個操作，以增加程式碼的簡潔性和可讀性。
-        ```javascript
-        // 推薦
-        $('#myElement')
-            .addClass('active')
-            .css('color', 'red')
-            .show();
-        ```
-      * 選擇器 (Selectors)：盡量使用具體且高效的選擇器。優先使用 ID 選擇器 (`$('#myId')`)，其次是 class 選擇器 (`$('.myClass')`)。避免使用過於籠統的標籤選擇器。
-
-  * Vue.js (未來導入規範 - Options API 風格)
+  * Vue.js (Options API 風格)
     * 檔案結構：
   	  * 元件檔案應放置在 `Components` 資料夾中，並依功能或頁面進行分類。
   	  * 每個元件應為一個 `.vue` 單一檔案元件 (Single File Component)。
@@ -271,5 +255,5 @@
 ## 9. 相容性與相依性
 
   * .NET 版本：以 .Net 8 規格撰寫 C# 程式碼。
-  * Bootstrap 版本：v4.3.1。
+  * Bootstrap 版本：v5.3.8。
   * 外部相依性：除非絕對必要，否則避免引入新的外部相依性。若有需要，必須在團隊中提出討論並說明原因。

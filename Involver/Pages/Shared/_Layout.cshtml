@@ -19,10 +19,28 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Involver - @ViewData["Title"]</title>
+    @{
+        // 判斷是否為生產環境
+        bool isProduction = WebHostEnvironment.IsProduction();
+
+        // 根據環境設定 URL 和 Integrity Hash
+        string vueUrl = isProduction
+        ? "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.esm-browser.prod.min.js"
+        : "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.esm-browser.min.js";
+
+        string integrityHash = isProduction
+        // 替換為 prod 檔案正確的 SHA-512 雜湊值
+        ? "sha512-wPYDcdpwxrfjWOhuxSFpLvcaeBRD1IqFBjLhGe1XDfs6LO4KzDQCXxCqPJUgidYOqebx4yhFEAnaRjFBLrSf0Q=="
+        : "sha512-wwPCC5DrJ1qE35cUTcaRjYVYNaNhowKwfw5niTqSCD2d36g0NgozjdRWAQ2r3K8cd4ORPMqUh1S3AvKM7UigAQ==";
+    }
+
     <script type="importmap">
         {
             "imports": {
-                "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js"
+                "vue": "@vueUrl"
+            },
+            "integrity": {
+                "@vueUrl": "@integrityHash"
             }
         }
     </script>
