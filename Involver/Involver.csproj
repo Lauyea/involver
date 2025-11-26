@@ -44,6 +44,9 @@
   <ItemGroup>
     <ProjectReference Include="..\DataAccess\DataAccess.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\**\*.map" />
+  </ItemGroup>
   <ProjectExtensions>
     <VisualStudio><UserProperties /></VisualStudio>
   </ProjectExtensions>
