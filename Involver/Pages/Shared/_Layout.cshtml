@@ -26,12 +26,12 @@
         // 根據環境設定 URL 和 Integrity Hash
         string vueUrl = isProduction
         ? "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.esm-browser.prod.min.js"
-        : "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.esm-browser.min.js";
+        : "/lib/vue/vue.esm-browser.min.js"; // local
 
         string integrityHash = isProduction
         // 替換為 prod 檔案正確的 SHA-512 雜湊值
         ? "sha512-wPYDcdpwxrfjWOhuxSFpLvcaeBRD1IqFBjLhGe1XDfs6LO4KzDQCXxCqPJUgidYOqebx4yhFEAnaRjFBLrSf0Q=="
-        : "sha512-wwPCC5DrJ1qE35cUTcaRjYVYNaNhowKwfw5niTqSCD2d36g0NgozjdRWAQ2r3K8cd4ORPMqUh1S3AvKM7UigAQ==";
+        : "";
     }
 
     <script type="importmap">
