@@ -180,77 +180,45 @@
         * PUT/PATCH：以 `update` 開頭，例如 `updateUserProfile`。
         * DELETE：以 `delete` 或 `remove` 開頭，例如 `deleteComment`。
 
-  * Vue.js (Options API 風格)
-    * 檔案結構：
-  	  * 元件檔案應放置在 `Components` 資料夾中，並依功能或頁面進行分類。
-  	  * 每個元件應為一個 `.vue` 單一檔案元件 (Single File Component)。
-    * 命名：
-  	  * 元件檔名：使用 `PascalCase` (例如: `NovelCard.vue`)。
-  	  * 元件在模板中使用：使用 `<kebab-case>` (例如: `<novel-card>`)。
-    * 元件結構 (Options API)：
-  	  * 為確保程式碼的一致性與可讀性，元件內的選項 (Options) 應遵循以下建議順序。
-  	  * 建議順序：
-  		1.  `name`: 元件名稱，應與檔名保持一致的 `PascalCase`，有助於除錯。
-  		2.  `components`: 註冊此元件所使用的子元件。
-  		3.  `props`: 定義從父元件接收的屬性。
-  		4.  `emits`: 聲明此元件可以發出的自訂事件，以利於溝通。
-  		5.  `data`: 管理元件的內部響應式狀態，必須是一個函式 (`function`)。
-  		6.  `computed`: 計算屬性，用於衍生出新的狀態。
-  		7.  `watch`: 監聽器，用於觀察資料變化並執行相應操作。
-  		8.  生命週期鉤子 (Lifecycle Hooks)：按照執行的順序排列 (例如: `created`, `mounted`, `updated`, `unmounted`)。
-  		9.  `methods`: 方法，放置元件的業務邏輯函式。
-  	  * 範例：
-  		```javascript
-  		<script>
-  		import AuthorTag from './AuthorTag.vue';
-  
-  		export default {
-  		  name: 'NovelCard',
-  		  components: {
-  			AuthorTag,
-  		  },
-  		  props: {
-  			novel: {
-  			  type: Object,
-  			  required: true,
-  			},
-  		  },
-  		  emits: ['add-to-favorite'],
-  		  data() {
-  			return {
-  			  isFavorite: false,
-  			  userComment: '',
-  			};
-  		  },
-  		  computed: {
-  			displayTitle() {
-  			  return `《${this.novel.title}》`;
-  			},
-  		  },
-  		  watch: {
-  			isFavorite(newValue) {
-  			  console.log(`小說 ${this.novel.title} 的收藏狀態變更為: ${newValue}`);
-  			}
-  		  },
-  		  mounted() {
-  			// DOM 掛載後執行的操作
-  			console.log('NovelCard component has been mounted.');
-  		  },
-  		  methods: {
-  			toggleFavorite() {
-  			  this.isFavorite = !this.isFavorite;
-  			  if (this.isFavorite) {
-  				this.$emit('add-to-favorite', this.novel.id);
-  			  }
-  			},
-  		  },
-  		};
-  		</script>
-  		```
-    * 開發原則：
-  	  * 單向數據流：嚴格遵守 `props` 向下傳遞 (`props` down)，事件向上發出 (`events` up) 的原則。子元件不應直接修改父元件傳入的 `props`。
-  	  * 元件職責：保持元件的單一職責，避免建立過於龐大且複雜的元件。
-  	  * 狀態管理：對於跨多個元件共享的狀態，應考慮使用 Pinia 或類似的狀態管理工具。
+  * Vue.js 開發規範 (Options API)
+    * 模組化語法：
+        * 一律使用 `import { createApp } from 'vue'` 開頭。
+        * 禁止依賴全域變數 (如 `window.Vue`)。
+    * 初始化與掛載：
+        * 每個 View Component 對應一個獨立的 Vue App 實體。
+        * 在 JS 檔末尾執行 `app.mount('#component-id')`。
+    * 資料傳遞 (C# -> Vue)：
+        * 推薦方式：使用 HTML `data-*` 屬性 (Dataset) 傳遞初始化設定與簡單資料。
+        * 讀取時機：在 Vue 的 `mounted()` 生命週期中，透過 `document.getElementById(...).dataset` 讀取並轉型。
+    * Razor 語法衝突處理：
+        * Vue 的事件綁定 `@click` 在 Razor 檔案中必須寫成 `@@click` 以進行跳脫。
+        * Vue 的動態參數 `:id` 或 `v-bind:id` 可直接使用，不會衝突。
+    * 程式碼風格與順序 (Options API)
+    為保持一致性，Vue 實體內的屬性順序如下：
+        1. `data()`: 必須是函式，回傳元件狀態。
+        2. `watch`: 監聽資料變動。
+        3. `computed`: 計算屬性。
+        4. `mounted()`: 執行 DOM 相關初始化 (讀取 dataset、綁定編輯器等)。
+        5. `methods`: 業務邏輯函式。
+            * API 呼叫方法建議使用 `Async` 結尾 (如 `getCommentsAsync`)。
+            * 複雜邏輯應加上 JSDoc 註解。
+  * Vue.js + View Components + Import Maps
+    * Razor Pages 作為主要架構，在互動性較高的區塊（如留言板、即時更新區）使用 Vue.js 進行增強。使用 Import Maps 技術直接在瀏覽器中載入 ES Modules，無需額外的前端打包工具 (Webpack/Vite)。
+    * 檔案結構：採用 View Components 封裝 UI 與邏輯，將 C# 後端邏輯、HTML 結構與 Vue 前端互動邏輯分離。
+  	    * 後端邏輯 (C# ViewComponent)
+            * 位置：`ViewComponents/` 或 `Views/Shared/Components/{ComponentName}/`
+            * 職責：處理資料庫查詢、權限驗證，並建立 ViewModel。
+            * 範例：`CommentSectionViewComponent.cs`
+        * 視圖樣板 (Razor View)
+            * 位置：`Views/Shared/Components/{ComponentName}/Default.cshtml`
+            * 職責：
+                1. 定義 Vue 的掛載點 (Mount Point) 與 HTML 結構。
+                2. 利用 Razor 語法 (`@Model`) 將後端資料轉換為 `data-*` 屬性 (Dataset)。
+                3. 引用對應的 JS 模組 (`<script type="module" src="...">`)。
+        * 前端邏輯 (Vue ES Module)
+            * 位置：`wwwroot/js/components/{component-name}.js` (或依功能分類)
+            * 職責：定義 Vue 實體、處理使用者互動、呼叫 API。
+            * 範例：`comments.js`
 
 ## 9. 相容性與相依性
 
