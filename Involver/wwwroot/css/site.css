@@ -48,6 +48,7 @@ body.bootstrap-dark {
 
 .bootstrap a, .bootstrap-dark a {
     color: var(--primary-accent);
+    text-decoration:none;
 }
 
     .bootstrap a:hover, .bootstrap-dark a:hover {
