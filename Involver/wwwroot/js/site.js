@@ -81,53 +81,6 @@ function showGlobalToasts(toasts) {
 
 
 /**
- * 切換深色模式
- */
-async function SetDarkMode() {
-
-    // 取得 Anti-Forgery Token
-    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-    const token = tokenElement ? tokenElement.value : null;
-
-    if (!token) {
-        console.error('Anti-forgery token not found. Cannot change mode.');
-        alert('無法切換模式，請重試。');
-        return;
-    }
-
-    try {
-        // 使用 fetch 發送 POST 請求
-        const response = await fetch("/DarkMode/Set", {
-            method: 'POST',
-            headers: {
-                // 在標頭中附加 Token
-                'RequestVerificationToken': token
-                // 注意：如果端點需要，可能還需要 'Content-Type'
-            }
-        });
-
-        if (response.ok) {
-            const themeIcon = document.getElementById("theme-icon");
-            const layoutBody = document.getElementById("layout-body");
-
-            if (themeIcon) {
-                themeIcon.classList.toggle('fa-sun');
-                themeIcon.classList.toggle('fa-moon');
-            }
-            if (layoutBody) {
-                layoutBody.classList.toggle('bootstrap-dark');
-                layoutBody.classList.toggle('bootstrap');
-            }
-        } else {
-            // 處理 HTTP 錯誤 (例如 404, 500)
-            alert(`切換失敗: ${response.statusText}`);
-        }
-    } catch (err) {
-        alert(`網路錯誤: ${err.message}`);
-    }
-}
-
-/**
  * 處理複製分享連結到剪貼簿並追蹤分享事件
  * @param {HTMLElement} btn - 被點擊的按鈕元素。
  */

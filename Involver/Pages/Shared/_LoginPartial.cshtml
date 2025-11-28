@@ -7,6 +7,7 @@
     <li class="nav-item dropdown">
         <button type="button" class="nav-link btn btn-link" data-bs-toggle="dropdown" title="搜尋">
             <i class="fa-solid fa-magnifying-glass"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">搜尋</span>
         </button>
         <div class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
             <div class="nav-item col-auto">
@@ -15,17 +16,41 @@
             </div>
         </div>
     </li>
-    @{
-        string themeIcon = Context.Request.Cookies["_DarkMode"] == "On" ? "fa-sun" : "fa-moon";
-    }
-    <li class="nav-item">
-        <a class="nav-link" onclick="SetDarkMode()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="切換模式">
-            <i class="fa-solid @themeIcon" id="theme-icon"></i>
-        </a>
+    <li class="nav-item dropdown">
+        <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center"
+                id="bd-theme"
+                type="button"
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+                aria-label="Toggle theme (auto)">
+            <i class="fa-solid fa-circle-half-stroke my-1" id="theme-icon"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">&nbsp;切換主題</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                    <i class="fa-solid fa-sun me-2 opacity-50"></i>
+                    Light
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                    <i class="fa-solid fa-moon me-2 opacity-50"></i>
+                    Dark
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">
+                    <i class="fa-solid fa-circle-half-stroke me-2 opacity-50"></i>
+                    Auto
+                </button>
+            </li>
+        </ul>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="https://github.com/Lauyea/involver" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="GitHub 原始碼">
             <i class="fa-brands fa-github"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">GitHub 原始碼</span>
         </a>
     </li>
     <li class="nav-item dropdown">

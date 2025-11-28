@@ -6,21 +6,31 @@ for details on configuring this project to bundle and minify static web assets. 
 ==============================================
 */
 :root {
+    /* 預設 (淺色模式) 變數 */
     --bg-color: #fdfaf6; /* 柔和米白背景 */
     --text-color: #4C4842; /* 暖灰色文字 */
     --primary-accent: #D98236; /* 溫暖的橘色調 */
     --primary-accent-hover: #BF712E; /* 滑鼠懸停時的深橘色 */
     --card-bg-color: #fff; /* 卡片背景，保持白色以凸顯 */
     --border-color: #e0dcd5; /* 柔和的邊框顏色 */
+    --breadcrumb-bg-color: #e9ecef;
+    --theme-gradient: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
 }
 
-.bootstrap-dark {
+/* Bootstrap 5 Color Mode: Dark */
+[data-bs-theme="dark"] {
     --bg-color: #282420; /* 深灰褐色背景 */
     --text-color: #d4cdc3; /* 淺米色文字 */
     --primary-accent: #E89F59; /* 黑暗模式下稍亮的橘色 */
     --primary-accent-hover: #D98236;
     --card-bg-color: #3a352f; /* 稍亮的卡片背景 */
     --border-color: #5a534a;
+    /* 若需要覆寫 Bootstrap 原生變數，可在此加入，例如：
+    --bs-body-bg: var(--bg-color);
+    --bs-body-color: var(--text-color);
+    */
+    --breadcrumb-bg-color: #343a40;
+    --theme-gradient: linear-gradient(128deg, hwb(46deg 83% 10%), hwb(47deg 60% 13%));
 }
 
 /* ==============================================
@@ -39,19 +49,18 @@ html {
     }
 }
 
-body.bootstrap,
-body.bootstrap-dark {
+body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.bootstrap a, .bootstrap-dark a {
+a {
     color: var(--primary-accent);
-    text-decoration:none;
+    text-decoration: none;
 }
 
-    .bootstrap a:hover, .bootstrap-dark a:hover {
+    a:hover {
         color: var(--primary-accent-hover);
     }
 
@@ -61,7 +70,7 @@ body.bootstrap-dark {
 */
 .footer {
     bottom: 0;
-    line-height: 60px; /* Vertically center the text there */
+    line-height: 60px;
     white-space: nowrap;
     width: 100%;
 }
@@ -82,20 +91,19 @@ body.bootstrap-dark {
     border-radius: .5rem;
 }
 
-.bootstrap nav,
-.bootstrap-dark nav {
-    background-image: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
-}
-
-.bootstrap-dark nav {
-    background-image: linear-gradient(128deg, hwb(46deg 83% 10%), hwb(47deg 60% 13%));
+/* 導覽列漸層 */
+nav,
+.bg-light,
+.bg-themed,
+.navbar-themed {
+    background-image: var(--theme-gradient);
 }
 
 .navbar-scrolled {
     box-shadow: 0 2px 4px rgba(0,0,0,.05);
 }
 
-.bootstrap-dark .navbar-scrolled {
+[data-bs-theme="dark"] .navbar-scrolled {
     box-shadow: 0 2px 4px rgba(255,255,255,.2);
 }
 
@@ -105,50 +113,55 @@ a.navbar-brand {
     word-break: break-all;
 }
 
-.bootstrap .navbar-light .navbar-brand:focus,
-.bootstrap .navbar-light .navbar-brand:hover,
-.bootstrap .navbar-themed .navbar-brand:focus,
-.bootstrap .navbar-themed .navbar-brand:hover,
-.bootstrap-dark .navbar-light .navbar-brand:focus,
-.bootstrap-dark .navbar-light .navbar-brand:hover,
-.bootstrap-dark .navbar-themed .navbar-brand:focus,
-.bootstrap-dark .navbar-themed .navbar-brand:hover {
+/* Navbar Brand 互動狀態 */
+.navbar-brand:focus,
+.navbar-brand:hover {
     color: rgb(255 180 0 / 90%);
 }
 
-.bootstrap-dark .navbar-light .navbar-brand,
-.bootstrap-dark .navbar-themed .navbar-brand {
+/* 深色模式下的 Navbar Brand */
+[data-bs-theme="dark"] .navbar-brand {
     color: rgba(0,0,0,.9);
 }
 
-.bootstrap .navbar-light .navbar-nav .nav-link,
-.bootstrap .navbar-themed .navbar-nav .nav-link,
-.bootstrap-dark .navbar-light .navbar-nav .nav-link,
-.bootstrap-dark .navbar-themed .navbar-nav .nav-link {
+/* Nav Link 顏色 */
+.navbar-nav .nav-link {
     color: rgba(0,0,0,.5);
+    font-weight:500;
 }
 
-    .bootstrap .navbar-dark .navbar-nav .nav-link:focus,
-    .bootstrap .navbar-dark .navbar-nav .nav-link:hover,
-    .bootstrap .navbar-themed .navbar-nav .nav-link:focus,
-    .bootstrap .navbar-themed .navbar-nav .nav-link:hover,
-    .bootstrap-dark .navbar-dark .navbar-nav .nav-link:focus,
-    .bootstrap-dark .navbar-dark .navbar-nav .nav-link:hover,
-    .bootstrap-dark .navbar-themed .navbar-nav .nav-link:focus,
-    .bootstrap-dark .navbar-themed .navbar-nav .nav-link:hover {
+    .navbar-nav .nav-link:focus,
+    .navbar-nav .nav-link:hover {
         color: rgb(255 180 0 / 90%);
     }
 
-.bootstrap-dark .navbar-dark .navbar-toggler,
-.bootstrap-dark .navbar-themed .navbar-toggler {
+/* 深色模式下的 Toggler */
+[data-bs-theme="dark"] .navbar-toggler {
     border-color: rgba(0,0,0,.1);
 }
 
-.bootstrap-dark .navbar-dark .navbar-toggler-icon,
-.bootstrap-dark .navbar-themed .navbar-toggler-icon {
+[data-bs-theme="dark"] .navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
+/* Nav Pills */
+nav.nav-pills {
+    background-image: none;
+    background-color: var(--breadcrumb-bg-color);
+}
+
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent-hover);
+    color: #fff;
+}
+
+.nav-pills .nav-link {
+    border-radius: 0.75rem;
+    color: var(--primary-accent);
+    font-weight: 500;
+}
 
 /* ==============================================
     5. 卡片 (Cards)
@@ -164,12 +177,11 @@ a.navbar-brand {
         transform: translateY(-5px);
     }
 
-.bootstrap-dark .card.hover-effect:hover {
+[data-bs-theme="dark"] .card.hover-effect:hover {
     box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
 }
 
-.bootstrap .card-body {
-    background-color: var(--bg-color);
+.card-body {
     color: var(--text-color);
 }
 
@@ -188,8 +200,7 @@ button.accept-policy {
     line-height: inherit;
 }
 
-.bootstrap .btn-primary,
-.bootstrap-dark .btn-primary {
+.btn-primary {
     background-color: var(--primary-accent);
     border-color: var(--primary-accent);
     color: #fff;
@@ -197,79 +208,69 @@ button.accept-policy {
     transition: all 0.3s ease;
 }
 
-    .bootstrap .btn-primary:hover,
-    .bootstrap-dark .btn-primary:hover {
+    .btn-primary:hover,
+    .btn-primary:focus {
         background-color: var(--primary-accent-hover);
         border-color: var(--primary-accent-hover);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         color: #fff;
     }
 
-    .bootstrap .btn-primary:focus,
-    .bootstrap-dark .btn-primary:focus {
-        background-color: var(--primary-accent-hover);
-        border-color: var(--primary-accent-hover);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        color: #fff;
-    }
-
-.bootstrap .btn-link,
-.bootstrap-dark .btn-link {
+.btn-link {
     color: var(--primary-accent);
 }
 
-    .bootstrap .btn-link:hover,
-    .bootstrap-dark .btn-link:hover {
+    .btn-link:hover {
         color: var(--primary-accent-hover);
     }
 
 /* Social Media Buttons */
-.bootstrap .btn-facebook, .bootstrap-dark .btn-facebook {
+.btn-facebook {
     background: #305c99;
     color: #fff;
 }
 
-    .bootstrap .btn-facebook:hover, .bootstrap-dark .btn-facebook:hover {
+    .btn-facebook:hover {
         background: #2b4db1;
         color: #fff;
     }
 
-.bootstrap .btn-twitter, .bootstrap-dark .btn-twitter {
+.btn-twitter {
     background: #00cdff;
     color: #fff;
 }
 
-    .bootstrap .btn-twitter:hover, .bootstrap-dark .btn-twitter:hover {
+    .btn-twitter:hover {
         background: #007bb6;
         color: #fff;
     }
 
-.bootstrap .btn-google, .bootstrap-dark .btn-google {
+.btn-google {
     background: #d24228;
     color: #fff;
 }
 
-    .bootstrap .btn-google:hover, .bootstrap-dark .btn-google:hover {
+    .btn-google:hover {
         background: #b22222;
         color: #fff;
     }
 
-.bootstrap .btn-linkedin, .bootstrap-dark .btn-linkedin {
+.btn-linkedin {
     background: #007bb6;
     color: #fff;
 }
 
-    .bootstrap .btn-linkedin:hover, .bootstrap-dark .btn-linkedin:hover {
+    .btn-linkedin:hover {
         background: #005983;
         color: #fff;
     }
 
-.bootstrap .btn-microsoft, .bootstrap-dark .btn-microsoft {
+.btn-microsoft {
     background: #007bb6;
     color: #fff;
 }
 
-    .bootstrap .btn-microsoft:hover, .bootstrap-dark .btn-microsoft:hover {
+    .btn-microsoft:hover {
         background: #00618E;
         color: #fff;
     }
@@ -279,22 +280,9 @@ button.accept-policy {
     7. 元件 (Components)
 ==============================================
 */
-/* Nav Pills */
-.nav-pills .nav-link.active,
-.nav-pills .show > .nav-link {
-    background-color: var(--primary-accent);
-    border-color: var(--primary-accent-hover);
-    color: #fff;
-}
-
-.bootstrap .nav-pills .nav-link,
-.bootstrap-dark .nav-pills .nav-link {
-    border-radius: 0.75rem;
-}
 
 /* Active State Override (Pills, Pagination etc.) */
-.bootstrap .active,
-.bootstrap-dark .active {
+.active {
     background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
 }
 
@@ -304,33 +292,26 @@ button.accept-policy {
     overflow-y: auto;
 }
 
-.bootstrap .dropdown-item:focus,
-.bootstrap .dropdown-item:hover,
-.bootstrap-dark .dropdown-item:focus,
-.bootstrap-dark .dropdown-item:hover {
+.dropdown-item:focus,
+.dropdown-item:hover {
     background-color: hwb(45deg 3% 0% / 30%);
 }
 
-.bootstrap .dropdown-item.active,
-.bootstrap .dropdown-item:active,
-.bootstrap-dark .dropdown-item.active,
-.bootstrap-dark .dropdown-item:active {
+.dropdown-item.active,
+.dropdown-item:active {
     background-color: hwb(33deg 3% 0% / 30%);
 }
 
 /* Pagination */
-.bootstrap .page-link,
-.bootstrap-dark .page-link {
+.page-link {
     color: var(--primary-accent);
 }
 
-    .bootstrap .page-link:hover,
-    .bootstrap-dark .page-link:hover {
+    .page-link:hover {
         color: var(--primary-accent-hover);
     }
 
-.bootstrap .page-item.active .page-link,
-.bootstrap-dark .page-item.active .page-link {
+.page-item.active .page-link {
     background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
     border-color: #00000000;
 }
@@ -340,11 +321,14 @@ button.accept-policy {
     z-index: 90;
 }
 
-.bootstrap .tooltip,
-.bootstrap-dark .tooltip {
+.tooltip {
     z-index: 1030;
 }
 
+.breadcrumb {
+    background-color: var(--breadcrumb-bg-color);
+    border-radius: .5rem;
+}
 
 /* ==============================================
     8. 自訂功能樣式 (Custom Feature Styles)
@@ -387,13 +371,19 @@ button.accept-policy {
 }
 
 /* Tag Cloud */
-.bootstrap.tag-cloud-container {
+.tag-cloud-container {
     background-color: #f9f9f9;
     border: 1px solid var(--border-color);
     border-radius: 8px;
 }
 
-.bootstrap.tag-item {
+/* 深色模式下的標籤雲容器 */
+[data-bs-theme="dark"] .tag-cloud-container {
+    background-color: var(--card-bg-color); /* 使用卡片背景色替代 */
+    border-color: var(--border-color);
+}
+
+.tag-item {
     background-color: #e9ecef;
     border: 1px solid #ced4da;
     border-radius: 5px;
@@ -403,19 +393,29 @@ button.accept-policy {
     transition: all 0.3s ease;
 }
 
-    .bootstrap.tag-item:hover {
-        background-color: var(--primary-accent);
-        border-color: var(--primary-accent-hover);
-        color: var(--bg-color);
-        transform: scale(1.1);
-    }
+/* 深色模式下的標籤項目 */
+[data-bs-theme="dark"] .tag-item {
+    background-color: #495057;
+    border-color: #6c757d;
+}
 
-.bootstrap.tag-count {
+.tag-item:hover {
+    background-color: var(--primary-accent);
+    border-color: var(--primary-accent-hover);
+    color: var(--bg-color);
+    transform: scale(1.1);
+}
+
+.tag-count {
     color: #6c757d;
     font-size: 0.8em;
 }
 
-.bootstrap.tag-item:hover .tag-count {
+[data-bs-theme="dark"] .tag-count {
+    color: #adb5bd;
+}
+
+.tag-item:hover .tag-count {
     color: var(--bg-color);
 }
 
@@ -483,19 +483,6 @@ button.accept-policy {
 
 .box-shadow {
     box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
-
-/* Themed Backgrounds */
-.bootstrap .bg-light,
-.bootstrap .bg-themed,
-.bootstrap .navbar-themed {
-    background-image: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
-}
-
-.bootstrap-dark .bg-light,
-.bootstrap-dark .bg-themed,
-.bootstrap-dark .navbar-themed {
-    background-image: linear-gradient(128deg, hwb(46deg 83% 10%), hwb(47deg 60% 13%));
 }
 
 /* Gradient Backgrounds */
