@@ -14,6 +14,16 @@ for details on configuring this project to bundle and minify static web assets. 
     --card-bg-color: #fff; /* 卡片背景，保持白色以凸顯 */
     --border-color: #e0dcd5; /* 柔和的邊框顏色 */
     --breadcrumb-bg-color: #e9ecef;
+    /* --- 元件特定變數 --- */
+    --navbar-shadow: 0 2px 4px rgba(0,0,0,.05);
+    --navbar-brand-color-hover: rgb(255 180 0 / 90%);
+    --toggler-border-color: rgba(0,0,0,.1);
+
+    --card-hover-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+    --tag-container-bg: #f9f9f9;
+    --tag-item-bg: #e9ecef;
+    --tag-item-border: #ced4da;
+    --tag-count-color: #6c757d;
     --theme-gradient: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
 }
 
@@ -25,11 +35,16 @@ for details on configuring this project to bundle and minify static web assets. 
     --primary-accent-hover: #D98236;
     --card-bg-color: #3a352f; /* 稍亮的卡片背景 */
     --border-color: #5a534a;
-    /* 若需要覆寫 Bootstrap 原生變數，可在此加入，例如：
-    --bs-body-bg: var(--bg-color);
-    --bs-body-color: var(--text-color);
-    */
     --breadcrumb-bg-color: #343a40;
+    /* --- 元件特定變數重定義 --- */
+    --navbar-shadow: 0 2px 4px rgba(255,255,255,.2);
+    --navbar-brand-color-hover: rgba(255, 180, 0, 0.9);
+    --toggler-border-color: rgba(0,0,0,.1);
+    --card-hover-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
+    --tag-container-bg: var(--card-bg-color);
+    --tag-item-bg: #495057;
+    --tag-item-border: #6c757d;
+    --tag-count-color: #adb5bd;
     --theme-gradient: linear-gradient(128deg, hwb(46deg 83% 10%), hwb(47deg 60% 13%));
 }
 
@@ -100,11 +115,7 @@ nav,
 }
 
 .navbar-scrolled {
-    box-shadow: 0 2px 4px rgba(0,0,0,.05);
-}
-
-[data-bs-theme="dark"] .navbar-scrolled {
-    box-shadow: 0 2px 4px rgba(255,255,255,.2);
+    box-shadow: var(--navbar-shadow);
 }
 
 a.navbar-brand {
@@ -114,9 +125,9 @@ a.navbar-brand {
 }
 
 /* Navbar Brand 互動狀態 */
-.navbar-brand:focus,
+.navbar-brand:focus, 
 .navbar-brand:hover {
-    color: rgb(255 180 0 / 90%);
+    color: var(--navbar-brand-color-hover);
 }
 
 /* 深色模式下的 Navbar Brand */
@@ -130,17 +141,17 @@ a.navbar-brand {
     font-weight:500;
 }
 
-    .navbar-nav .nav-link:focus,
+    .navbar-nav .nav-link:focus, 
     .navbar-nav .nav-link:hover {
-        color: rgb(255 180 0 / 90%);
+        color: var(--navbar-brand-color-hover);
     }
 
 /* 深色模式下的 Toggler */
-[data-bs-theme="dark"] .navbar-toggler {
-    border-color: rgba(0,0,0,.1);
+.navbar-toggler {
+    border-color: var(--toggler-border-color);
 }
 
-[data-bs-theme="dark"] .navbar-toggler-icon {
+.navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
 }
 
@@ -173,13 +184,9 @@ nav.nav-pills {
 }
 
     .card.hover-effect:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+        box-shadow: var(--card-hover-shadow);
         transform: translateY(-5px);
     }
-
-[data-bs-theme="dark"] .card.hover-effect:hover {
-    box-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
-}
 
 .card-body {
     color: var(--text-color);
@@ -372,20 +379,14 @@ button.accept-policy {
 
 /* Tag Cloud */
 .tag-cloud-container {
-    background-color: #f9f9f9;
+    background-color: var(--tag-container-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
 }
 
-/* 深色模式下的標籤雲容器 */
-[data-bs-theme="dark"] .tag-cloud-container {
-    background-color: var(--card-bg-color); /* 使用卡片背景色替代 */
-    border-color: var(--border-color);
-}
-
 .tag-item {
-    background-color: #e9ecef;
-    border: 1px solid #ced4da;
+    background-color: var(--tag-item-bg);
+    border: 1px solid var(--tag-item-border);
     border-radius: 5px;
     color: var(--primary-accent);
     padding: 5px 10px;
@@ -407,12 +408,8 @@ button.accept-policy {
 }
 
 .tag-count {
-    color: #6c757d;
+    color: var(--tag-count-color);
     font-size: 0.8em;
-}
-
-[data-bs-theme="dark"] .tag-count {
-    color: #adb5bd;
 }
 
 .tag-item:hover .tag-count {
