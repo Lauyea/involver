@@ -1,0 +1,279 @@
+@page
+@model Involver.Pages.Theme.IndexModel
+@{
+    ViewData["Title"] = "Theme Preview";
+}
+
+<style>
+    .color-swatch {
+        display: inline-block;
+        width: 50px;
+        height: 50px;
+        border-radius: .25rem;
+        vertical-align: middle;
+        margin-right: 1rem;
+        border: 1px solid var(--border-color);
+    }
+    .swatch-group {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .swatch-info {
+        display: flex;
+        flex-direction: column;
+    }
+    .swatch-info strong {
+        font-weight: 600;
+    }
+    .swatch-info span {
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+    .component-section {
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        border-radius: .5rem;
+        background-color: var(--card-bg-color);
+    }
+</style>
+
+<h1>@ViewData["Title"]</h1>
+<p>This page showcases the styles defined in <code>site.css</code> for quick visual checking.</p>
+
+<div class="component-section">
+    <h2>Color Palette</h2>
+    <p>Colors defined in <code>:root</code> and <code>[data-bs-theme="dark"]</code>.</p>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Light Mode (Default)</h4>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #fdfaf6;"></div>
+                <div class="swatch-info">
+                    <strong>Background</strong>
+                    <span>var(--bg-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #4C4842;"></div>
+                <div class="swatch-info">
+                    <strong>Text</strong>
+                    <span>var(--text-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #D98236;"></div>
+                <div class="swatch-info">
+                    <strong>Primary Accent</strong>
+                    <span>var(--primary-accent)</span>
+                </div>
+            </div>
+             <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #BF712E;"></div>
+                <div class="swatch-info">
+                    <strong>Primary Accent Hover</strong>
+                    <span>var(--primary-accent-hover)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #fff;"></div>
+                <div class="swatch-info">
+                    <strong>Card Background</strong>
+                    <span>var(--card-bg-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #e0dcd5;"></div>
+                <div class="swatch-info">
+                    <strong>Border</strong>
+                    <span>var(--border-color)</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h4>Dark Mode</h4>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #282420;"></div>
+                <div class="swatch-info">
+                    <strong>Background</strong>
+                    <span>var(--bg-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #d4cdc3;"></div>
+                <div class="swatch-info">
+                    <strong>Text</strong>
+                    <span>var(--text-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #E89F59;"></div>
+                <div class="swatch-info">
+                    <strong>Primary Accent</strong>
+                    <span>var(--primary-accent)</span>
+                </div>
+            </div>
+             <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #D98236;"></div>
+                <div class="swatch-info">
+                    <strong>Primary Accent Hover</strong>
+                    <span>var(--primary-accent-hover)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #3a352f;"></div>
+                <div class="swatch-info">
+                    <strong>Card Background</strong>
+                    <span>var(--card-bg-color)</span>
+                </div>
+            </div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: #5a534a;"></div>
+                <div class="swatch-info">
+                    <strong>Border</strong>
+                    <span>var(--border-color)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="component-section">
+    <h2>Typography</h2>
+    <h1>h1. Heading</h1>
+    <h2>h2. Heading</h2>
+    <h3>h3. Heading</h3>
+    <h4>h4. Heading</h4>
+    <h5>h5. Heading</h5>
+    <h6>h6. Heading</h6>
+    <p>This is a paragraph of text. It is used to demonstrate the default text style. And here is a <a href="#">link</a> to show the anchor tag style.</p>
+    <blockquote class="blockquote">
+        <p>This is a blockquote. It is used to stand out from the surrounding text.</p>
+    </blockquote>
+</div>
+
+<div class="component-section">
+    <h2>Buttons</h2>
+    <p>Primary button, link button, and social media buttons.</p>
+    <button class="btn btn-primary">Primary Button</button>
+    <button class="btn btn-link">Link Button</button>
+    <hr />
+    <button class="btn btn-facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+    <button class="btn btn-twitter"><i class="fab fa-twitter"></i> Twitter</button>
+    <button class="btn btn-google"><i class="fab fa-google"></i> Google</button>
+    <button class="btn btn-linkedin"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
+    <button class="btn btn-microsoft"><i class="fab fa-microsoft"></i> Microsoft</button>
+</div>
+
+<div class="component-section">
+    <h2>Cards</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <p>Standard Card</p>
+            <div class="card">
+                <img class="card-img-top" src="https://upload-os-bbs.hoyolab.com/upload/2025/11/12/067463d3ca8863eb1e47ed18423e3378_4846415971095213666.jpg" alt="Placeholder image">
+                <div class="card-body">
+                    <h5 class="card-title">Card Title</h5>
+                    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <p>Hover-effect Card</p>
+            <div class="card hover-effect">
+                <img class="card-img-top" src="https://upload-os-bbs.hoyolab.com/upload/2025/11/12/067463d3ca8863eb1e47ed18423e3378_4846415971095213666.jpg" alt="Placeholder image">
+                <div class="card-body">
+                    <h5 class="card-title">Hover Effect Card</h5>
+                    <p class="card-text">This card has a hover effect that lifts it up and adds a shadow.</p>
+                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="component-section">
+    <h2>Components</h2>
+    
+    <p><strong>Breadcrumb:</strong></p>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb p-3">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item"><a href="#">Library</a></li>
+        <li class="breadcrumb-item text-secondary" aria-current="page">Data</li>
+      </ol>
+    </nav>
+    
+    <p class="mt-4"><strong>Pagination:</strong></p>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+        <li class="page-item"><a class="page-link" href="#">1</a></li>
+        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li>
+        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+      </ul>
+    </nav>
+
+    <p class="mt-4"><strong>Nav Pills:</strong></p>
+    <ul class="nav nav-pills p-3">
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">Active</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Another Link</a>
+      </li>
+    </ul>
+
+    <p class="mt-4"><strong>Dropdown:</strong></p>
+    <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        Dropdown button
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item" href="#">Action</a></li>
+        <li><a class="dropdown-item active" href="#">Active action</a></li>
+        <li><a class="dropdown-item" href="#">Something else here</a></li>
+      </ul>
+    </div>
+</div>
+
+<div class="component-section">
+    <h2>Custom Styles</h2>
+
+    <p><strong>Tag Cloud:</strong></p>
+    <div class="tag-cloud-container p-3 d-flex flex-wrap gap-2 align-items-center">
+        <a href="#" class="tag-item tag-size-5">Large Tag <span class="tag-count">50</span></a>
+        <a href="#" class="tag-item tag-size-4">Big Tag <span class="tag-count">40</span></a>
+        <a href="#" class="tag-item tag-size-3">Normal Tag <span class="tag-count">30</span></a>
+        <a href="#" class="tag-item tag-size-2">Small Tag <span class="tag-count">20</span></a>
+        <a href="#" class="tag-item tag-size-1">Tiny Tag <span class="tag-count">10</span></a>
+    </div>
+
+    <p class="mt-4"><strong>Dice Roll Info:</strong></p>
+    <div class="dice-roll-info">
+      User rolled: 2d6, result: 8
+    </div>
+
+    <p class="mt-4"><strong>Notification Indicator:</strong></p>
+    <span class="fa-stack fa-2x" data-count="12">
+      <i class="fa fa-solid fa-bell fa-stack-1x"></i>
+    </span>
+
+    <p class="mt-4"><strong>Dot Indicator:</strong></p>
+    A status with a <span class="dot"></span>
+</div>
+
+<div class="component-section">
+    <h2>Utility Classes</h2>
+    <p>Gradient backgrounds.</p>
+    <div class="p-3 mb-2 rounded gold text-dark">.gold</div>
+    <div class="p-3 mb-2 rounded silver text-dark">.silver</div>
+    <div class="p-3 mb-2 rounded bronze text-dark">.bronze</div>
+</div>

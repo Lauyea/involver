@@ -147,6 +147,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
                         </li>
+                        @if (WebHostEnvironment.IsDevelopment())
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-info" asp-area="" asp-page="/Theme/Index">Theme</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
