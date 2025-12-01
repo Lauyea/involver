@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Feed.TrendingCreationsModel
 @{
     ViewData["Title"] = "屬於每個人的創作";
@@ -31,10 +31,10 @@
                             @Html.DisplayFor(modelItem => novel.Title)
                         </a>
                     </div>
-                    <div class="col-md-4 text-muted">
+                    <div class="col-md-4 text-body-secondary">
                         @Html.DisplayFor(modelItem => novel.Profile.UserName)
                     </div>
-                    <div class="col-md-3 text-muted" title="@novel.UpdateTime">
+                    <div class="col-md-3 text-body-secondary" title="@novel.UpdateTime">
                         @TimePeriodHelper.Get(novel.UpdateTime)
                     </div>
                 </div>

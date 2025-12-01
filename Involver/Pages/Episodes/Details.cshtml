@@ -64,9 +64,9 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="text-muted mb-3">
+        <div class="text-body-secondary mb-3">
             <small>發布於：<span title="@Model.Episode.UpdateTime">@TimePeriodHelper.Get(Model.Episode.UpdateTime)</span></small>
-            <small class="ml-3">觀看數：@Html.DisplayFor(model => model.Episode.Views)</small>
+            <small class="ms-3">觀看數：@Html.DisplayFor(model => model.Episode.Views)</small>
         </div>
         <article class="ck-content">
             @if (Model.Episode.Content != null)
@@ -90,7 +90,7 @@
             </div>
             
             <div class="d-flex align-items-center">
-                <button class="btn btn-sm btn-outline-secondary btn-copy-link mr-2"
+                <button class="btn btn-sm btn-outline-secondary btn-copy-link me-2"
                         data-type="Episode"
                         data-id="@Model.Episode.EpisodeID"
                         type="button"

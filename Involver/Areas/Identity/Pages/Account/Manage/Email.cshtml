@@ -11,14 +11,14 @@
     <div class="col-md-6">
         <form id="email-form" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="ChangeEmail">
             <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label asp-for="Email"></label>
                 @if (Model.IsEmailConfirmed)
                 {
                     <div class="input-group">
                         <input asp-for="Email" class="form-control" disabled />
                         <div class="input-group-append">
-                            <span class="input-group-text text-success font-weight-bold">✓</span>
+                            <span class="input-group-text text-success fw-bold">✓</span>
                         </div>
                     </div>
                 }
@@ -28,7 +28,7 @@
                     <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verification email</button>
                 }
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label asp-for="Input.NewEmail"></label>
                 <input asp-for="Input.NewEmail" class="form-control" />
                 <span asp-validation-for="Input.NewEmail" class="text-danger"></span>

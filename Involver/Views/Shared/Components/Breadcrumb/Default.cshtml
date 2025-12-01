@@ -3,8 +3,8 @@
 
 @if (Model != null && Model.Count > 1)
 {
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb d-flex justify-content-end align-items-center">
+    <div aria-label="breadcrumb">
+        <ol class="breadcrumb d-flex justify-content-end align-items-center p-2">
             @foreach (var item in Model)
             {
                 if (item.IsActive)
@@ -17,5 +17,5 @@
                 }
             }
         </ol>
-    </nav>
+    </div>
 }

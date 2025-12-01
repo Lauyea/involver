@@ -148,13 +148,14 @@ services.AddAuthentication()
 
 services.AddDistributedMemoryCache();
 
-services.AddSession(options =>
-{
-    options.Cookie.Name = "_DarkMode";
-    options.IdleTimeout = TimeSpan.FromDays(365);
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
-});
+// 不再使用 Session 去紀錄 dark mode parameter
+//services.AddSession(options =>
+//{
+//    options.Cookie.Name = "_DarkMode";
+//    options.IdleTimeout = TimeSpan.FromDays(365);
+//    options.Cookie.HttpOnly = true;
+//    options.Cookie.IsEssential = true;
+//});
 
 var app = builder.Build();
 
@@ -191,7 +192,7 @@ app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSession();
+//app.UseSession(); // 暫時沒有用到 Session
 
 app.MapRazorPages();
 //加上MapDefaultControllerRoute()

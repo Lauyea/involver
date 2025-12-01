@@ -38,7 +38,7 @@
                         <th>標題</th>
                         <th>作者</th>
                         <th class="text-center">觀看數</th>
-                        <th class="text-right">發布時間</th>
+                        <th class="text-end">發布時間</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -54,7 +54,7 @@
                             <td class="text-center">
                                 @Html.DisplayFor(modelItem => item.TotalViews)
                             </td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <small title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                             </td>
                         </tr>
@@ -123,13 +123,11 @@
                     </ul>
                 </nav>
 
-                <form class="form-inline" asp-page="./Index" method="get">
+                <form class="d-flex" asp-page="./Index" method="get">
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
-                    <div class="input-group ml-2">
+                    <div class="input-group ms-2">
                         <input type="number" name="pageIndex" value="@Model.Announcements.PageIndex" class="form-control" style="max-width: 75px;" />
-                        <div class="input-group-append">
-                            <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-                        </div>
+                        <input type="submit" value="跳轉" class="btn btn-outline-primary" />
                     </div>
                 </form>
             </div>

@@ -183,7 +183,12 @@ const app = createApp({
                 });
 
                 if (response.ok) {
-                    $('#createVotingModal').modal('hide'); // TODO: 升級BS5以後再改
+                    const modalEl = document.getElementById('createVotingModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl); // 這裡可以用 getInstance 因為已經打開了
+                    if (modal) {
+                        modal.hide();
+                    }
+
                     this.fetchVotingsAsync();
                 }
                 else if (response.status === 401) {
@@ -223,7 +228,10 @@ const app = createApp({
             if (!this.isProfessional) {
                 this.newVoting.policy = 0; // Force policy to Equality for non-pro users
             }
-            $('#createVotingModal').modal('show');
+
+            const modalEl = document.getElementById('createVotingModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
         },
         async fetchVotingsAsync() {
             this.isLoading = true;

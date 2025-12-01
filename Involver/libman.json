@@ -1,0 +1,26 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "provider": "jsdelivr",
+      "library": "bootstrap@5.3.8",
+      "destination": "wwwroot/lib/bootstrap/",
+      "files": [
+        "LICENSE",
+        "README.md",
+        "dist/css/bootstrap.css",
+        "dist/css/bootstrap.css.map",
+        "dist/js/bootstrap.bundle.js",
+        "dist/js/bootstrap.bundle.js.map"
+      ]
+    },
+    {
+      "library": "vue@3.5.22",
+      "destination": "wwwroot/lib/vue/",
+      "files": [
+        "vue.esm-browser.min.js"
+      ]
+    }
+  ]
+}

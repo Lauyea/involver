@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="mb-3 text-muted">
+        <div class="mb-3 text-body-secondary">
             <small>
                 作者：
                 <a asp-area="Identity"
@@ -38,7 +38,7 @@
                     @Html.DisplayFor(model => model.Announcement.Profile.UserName)
                 </a>
             </small>
-            <small class="ml-3">
+            <small class="ms-3">
                 發布於：<span title="@Model.Announcement.UpdateTime">@Model.Announcement.UpdateTime.ToShortDateString()</span>
             </small>
         </div>

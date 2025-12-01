@@ -15,19 +15,19 @@
     <div class="col-md-12">
         <form enctype="multipart/form-data" method="post">
             @*<div asp-validation-summary="All" class="text-danger"></div>*@
-            <div class="form-group">
-                <label asp-for="Profile.Introduction" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="Profile.Introduction" class="form-label"></label>
                 <textarea asp-for="Profile.Introduction" id="editor" class="form-control" rows="6" placeholder="在這裡寫些東西..."></textarea>
                 <div id="word-count"></div>
                 <span asp-validation-for="Profile.Introduction" class="text-danger"></span>
             </div>
-            <div class="form-group">
-	            <label asp-for="Profile.ImageUrl" class="control-label"></label>
+            <div class="mb-3">
+	            <label asp-for="Profile.ImageUrl" class="form-label"></label>
 	            <input asp-for="Profile.ImageUrl" class="form-control" />
 	            <span asp-validation-for="Profile.ImageUrl" class="text-danger"></span>
             </div>
-            <div class="form-group">
-	            <label asp-for="Profile.BannerImageUrl" class="control-label"></label>
+            <div class="mb-3">
+	            <label asp-for="Profile.BannerImageUrl" class="form-label"></label>
 	            <input asp-for="Profile.BannerImageUrl" class="form-control" />
 	            <span asp-validation-for="Profile.BannerImageUrl" class="text-danger"></span>
             </div>

@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http.Features
+@using Microsoft.AspNetCore.Http.Features
 
 @{
     var consentFeature = Context.Features.Get<ITrackingConsentFeature>();
@@ -10,7 +10,7 @@
 {
     <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert">
         本網站會使用cookie為用戶提供服務 <a asp-area="" asp-page="/Descriptions/Privacy">了解更多</a>
-        <button type="button" class="accept-policy close" data-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
+        <button type="button" class="accept-policy btn-close" data-bs-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
             <span aria-hidden="true">同意</span>
         </button>
     </div>

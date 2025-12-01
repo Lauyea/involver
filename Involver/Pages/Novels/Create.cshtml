@@ -28,37 +28,37 @@
                     }
                     <input type="hidden" value="@UserID" asp-for="Novel.ProfileID" />
 
-                    <div class="form-group">
-                        <label asp-for="Novel.Title" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Novel.Title" class="form-label"></label>
                         <input asp-for="Novel.Title" class="form-control" />
                         <span asp-validation-for="Novel.Title" class="text-danger"></span>
                         <small class="form-text text-warning"><strong>作品名稱一旦設定便無法更改。</strong></small>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Novel.Introduction" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Novel.Introduction" class="form-label"></label>
                         <textarea asp-for="Novel.Introduction" class="form-control" rows="6" placeholder="在這裡寫些東西..."></textarea>
                         <span asp-validation-for="Novel.Introduction" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Novel.ImageUrl" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Novel.ImageUrl" class="form-label"></label>
                         <input asp-for="Novel.ImageUrl" class="form-control" />
                         <span asp-validation-for="Novel.ImageUrl" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Novel.Type" class="control-label"></label>
-                        <select asp-for="Novel.Type" asp-items="Model.Types" class="custom-select"></select>
+                    <div class="mb-3">
+                        <label asp-for="Novel.Type" class="form-label"></label>
+                        <select asp-for="Novel.Type" asp-items="Model.Types" class="form-select"></select>
                         <span asp-validation-for="Novel.Type" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="TagString" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="TagString" class="form-label"></label>
                         <input asp-for="TagString" class="form-control" />
                         <span asp-validation-for="TagString" class="text-danger"></span>
-                        <small class="form-text text-muted">
+                        <small class="form-text text-body-secondary">
                             請用半形逗號 (,) 分隔每個標籤，例如：標籤1,標籤2,標籤3。<br />
                             最多 @Parameters.TagSize 個標籤，每個標籤長度不超過 @Parameters.TagNameMaxLength 個字。
                         </small>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="form-check">
                             <input class="form-check-input" asp-for="Novel.PrimeRead" />
                             <label class="form-check-label" asp-for="Novel.PrimeRead" title="只有付費會員才能閱讀最新章節">@Html.DisplayNameFor(model => model.Novel.PrimeRead)</label>
@@ -69,8 +69,8 @@
                         </div>
                     </div>
 
-                    <div class="form-group d-flex justify-content-end">
-                        <a asp-page="Index" class="btn btn-secondary mr-2">取消</a>
+                    <div class="mb-3 d-flex justify-content-end">
+                        <a asp-page="Index" class="btn btn-secondary me-2">取消</a>
                         <button class="btn btn-primary" type="submit">建立</button>
                     </div>
                 </form>

@@ -32,11 +32,9 @@ function showGlobalToasts(toasts) {
         const toastHtml = `
             <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
                 <div class="toast-header">
-                    ${badgeClass ? `<span class="dot mr-2 ${badgeClass}"></span>` : ''}
-                    <strong class="mr-auto">${toast.header}</strong>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    ${badgeClass ? `<span class="dot me-2 ${badgeClass}"></span>` : ''}
+                    <strong class="me-auto">${toast.header}</strong>
+                    <button type="button" class="ms-2 mb-1 btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                 </div>
                 <div class="toast-body">
                     ${toast.body}
@@ -83,154 +81,161 @@ function showGlobalToasts(toasts) {
 
 
 /**
- * 切換深色模式
+ * 處理複製分享連結到剪貼簿並追蹤分享事件
+ * @param {HTMLElement} btn - 被點擊的按鈕元素。
  */
-async function SetDarkMode() {
-
-    // 取得 Anti-Forgery Token
-    const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-    const token = tokenElement ? tokenElement.value : null;
-
-    if (!token) {
-        console.error('Anti-forgery token not found. Cannot change mode.');
-        alert('無法切換模式，請重試。');
-        return;
-    }
+async function copyShareLinkAndTrackAsync(btn) {
+    // 從 data-* 屬性獲取資料
+    const contentType = btn.dataset.type;
+    const contentId = btn.dataset.id;
+    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    // 根據內容類型建構 URL
+    const shareUrl = `${baseUrl}/${contentType}s/Details/${contentId}`;
 
     try {
-        // 使用 fetch 發送 POST 請求
-        const response = await fetch("/DarkMode/Set", {
+        // 複製到剪貼簿
+        await navigator.clipboard.writeText(shareUrl);
+
+        // 顯示/隱藏 Bootstrap Tooltip
+        const tooltip = bootstrap.Tooltip.getInstance(btn);
+        if (tooltip) {
+            tooltip.show();
+            setTimeout(() => tooltip.hide(), 2000); // 2 秒後隱藏
+        }
+
+        // 獲取 anti-forgery token
+        const tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenEl ? tokenEl.value : null;
+
+        if (!token) {
+            console.log('Anti-forgery token not found. Skipping tracking.');
+            // 即使沒有 token，複製也已經成功了，所以不用 throw error
+            return;
+        }
+
+        // 使用 fetch API 發送追蹤請求
+        const response = await fetch('/api/shares', {
             method: 'POST',
             headers: {
-                // 在標頭中附加 Token
+                'Content-Type': 'application/json',
                 'RequestVerificationToken': token
-                // 注意：如果端點需要，可能還需要 'Content-Type'
-            }
+            },
+            body: JSON.stringify({
+                contentId: contentId,
+                contentType: contentType
+            })
         });
 
-        if (response.ok) {
-            const themeIcon = document.getElementById("theme-icon");
-            const layoutBody = document.getElementById("layout-body");
-
-            if (themeIcon) {
-                themeIcon.classList.toggle('fa-sun');
-                themeIcon.classList.toggle('fa-moon');
+        // 處理 API 回應
+        if (!response.ok) {
+            if (response.status === 401) {
+                // 未登入，靜默失敗
+                console.log('User not authenticated for tracking share.');
+            } else {
+                // 其他錯誤
+                console.error('Error tracking share event.', response.status, response.statusText);
             }
-            if (layoutBody) {
-                layoutBody.classList.toggle('bootstrap-dark');
-                layoutBody.classList.toggle('bootstrap');
-            }
-        } else {
-            // 處理 HTTP 錯誤 (例如 404, 500)
-            alert(`切換失敗: ${response.statusText}`);
         }
+
     } catch (err) {
-        alert(`網路錯誤: ${err.message}`);
+        console.error('Failed to copy or track: ', err);
     }
 }
 
 /**
- * Handles copying a share link to the clipboard and tracking the share event.
- * @param {HTMLElement} btn - The button element that was clicked.
+ * DOM 載入完成後執行的初始化代碼
  */
-async function copyShareLinkAndTrackAsync(btn) {
-    const $btn = $(btn); // TODO: 升級BS5以後再改
-    const contentType = $btn.data('type');
-    const contentId = $btn.data('id');
-    const baseUrl = `${window.location.protocol}//${window.location.host}`;
-    // Construct the URL based on content type
-    const shareUrl = `${baseUrl}/${contentType}s/Details/${contentId}`;
+document.addEventListener('DOMContentLoaded', () => {
 
-    try {
-        await navigator.clipboard.writeText(shareUrl);
-
-        // Show tooltip
-        $btn.tooltip('show');
-        setTimeout(() => $btn.tooltip('hide'), 2000); // Hide after 2 seconds
-
-        // Get the anti-forgery token
-        const token = $('input[name="__RequestVerificationToken"]').val();
-
-        // Send tracking request to the API
-        await $.ajax({
-            url: '/api/shares',
-            type: 'POST',
-            contentType: 'application/json',
-            headers: {
-                'RequestVerificationToken': token
-            },
-            data: JSON.stringify({
-                contentId: contentId,
-                contentType: contentType
-            }),
-            error: function (xhr) {
-                if (xhr.status === 401) {
-                    // Silently fail if not logged in, or prompt to log in
-                    console.log('User not authenticated for tracking share.');
-                } else {
-                    console.error('Error tracking share event.');
-                }
-            }
-        });
-
-    } catch (err) {
-        console.error('Failed to copy: ', err);
-        // Optionally, provide feedback to the user that the copy failed
-    }
-}
-
-$(function () {
-    // Initialize tooltips for all copy buttons
-    $('.btn-copy-link').each(function () {
-        $(this).tooltip({
-            trigger: 'manual',
+    // 初始化所有 .btn-copy-link 按鈕的 Tooltip
+    const tooltipTriggerList = document.querySelectorAll('.btn-copy-link');
+    tooltipTriggerList.forEach(tooltipTriggerEl => {
+        new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'manual', // 我們將手動控制顯示/隱藏
             placement: 'bottom'
+            //title: '已複製！' // 可以在這裡設定 tooltip 的標題。已經設定在原按鈕中。
         });
     });
 
-    // Attach click handler
-    $(document).on('click', '.btn-copy-link', function (e) {
-        e.preventDefault();
-        copyShareLinkAndTrackAsync(this);
+    // 使用事件委派 (Event Delegation) 附加點擊處理器
+    document.addEventListener('click', (e) => {
+        // 使用 .closest() 來找到被點擊的目標或其祖先中符合 .btn-copy-link 的元素
+        const copyButton = e.target.closest('.btn-copy-link');
+
+        if (copyButton) {
+            e.preventDefault(); // 防止預設行為
+            copyShareLinkAndTrackAsync(copyButton); // 呼叫函式
+        }
     });
 });
 
+/**
+ * 追蹤/取消追蹤作者的功能。
+ * 使用 Fetch API 執行 GET 請求。
+ * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
+ * @param {string|number} id - 作者的 ID。
+ */
 function FollowAuthor(btn, id) {
-    $.ajax({
-        method: 'get',
-        url: "/Follow/FollowAuthor?id=" + id,
-        error: function (xhr, status, err) {
-            alert(err)
-        }
-    }).done(function () {
-        $(btn).toggleClass('disabled  ');
-        if ($(btn).text() === "追蹤作者") {
-            $(btn).text("取消追蹤");
-        }
-        else {
-            $(btn).text("追蹤作者");
-        }
-    });
+    const url = `/Follow/FollowAuthor?id=${encodeURIComponent(id)}`;
+
+    fetch(url, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                // 如果 HTTP 狀態碼不是 2xx，拋出錯誤
+                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            }
+        })
+        .then(() => {
+            if (btn.textContent.trim() === "追蹤作者") {
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-secondary");
+                btn.textContent = "取消追蹤";
+            } else {
+                btn.classList.remove("btn-secondary");
+                btn.classList.add("btn-primary");
+                btn.textContent = "追蹤作者";
+            }
+        })
+        .catch(error => {
+            alert(error.message);
+            console.error('追蹤作者發生錯誤:', error);
+        });
 }
 
+/**
+ * 追蹤/取消追蹤小說的功能。
+ * 使用 Fetch API 執行 GET 請求
+ * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
+ * @param {string|number} id - 小說的 ID。
+ */
 function FollowNovel(btn, id) {
-    $.ajax({
-        method: 'get',
-        url: "/Follow/FollowNovel?id=" + id,
-        error: function (xhr, status, err) {
-            alert(err);
-        }
-    }).done(function () {
-        let $btn = $(btn);
-        // 切換狀態
-        if ($btn.hasClass("btn-primary")) {
-            $btn.removeClass("btn-primary").addClass("btn-secondary");
-            $btn.text("取消追蹤");
-        } else {
-            $btn.removeClass("btn-secondary").addClass("btn-primary");
-            $btn.text("追蹤創作");
-        }
-    });
+    const url = `/Follow/FollowNovel?id=${encodeURIComponent(id)}`;
+
+    fetch(url, {
+        method: 'GET'
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+            }
+        })
+        .then(() => {
+            if (btn.classList.contains("btn-primary")) {
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-secondary");
+                btn.textContent = "取消追蹤";
+            } else {
+                btn.classList.remove("btn-secondary");
+                btn.classList.add("btn-primary");
+                btn.textContent = "追蹤創作";
+            }
+        })
+        .catch(error => {
+            alert(error.message);
+            console.error('追蹤小說發生錯誤:', error);
+        });
 }
 
 /**
@@ -255,7 +260,7 @@ function fetchNotifications() {
 
     if (!url || !userId) {
         console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
-        notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>';
+        //notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>'; // 沒有登入的情況，不顯示通知icon就好
         return;
     }
 

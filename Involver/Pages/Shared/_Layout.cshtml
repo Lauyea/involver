@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="auto">
 <head>
     <!-- 暫停使用 Google Adsence，改善用戶體驗 -->
     @* @if (userManager.GetUserAsync(User).Result != null)
@@ -19,27 +19,49 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Involver - @ViewData["Title"]</title>
+    @{
+        // 判斷是否為生產環境
+        bool isProduction = WebHostEnvironment.IsProduction();
+
+        // 根據環境設定 URL 和 Integrity Hash
+        string vueUrl = isProduction
+        ? "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.esm-browser.prod.min.js"
+        : "/lib/vue/vue.esm-browser.min.js"; // local
+
+        string integrityHash = isProduction
+        // 替換為 prod 檔案正確的 SHA-512 雜湊值
+        ? "sha512-wPYDcdpwxrfjWOhuxSFpLvcaeBRD1IqFBjLhGe1XDfs6LO4KzDQCXxCqPJUgidYOqebx4yhFEAnaRjFBLrSf0Q=="
+        : "";
+    }
+
     <script type="importmap">
         {
             "imports": {
-                "vue": "https://cdn.jsdelivr.net/npm/vue@3/dist/vue.esm-browser.js"
+                "vue": "@vueUrl"
+            },
+            "integrity": {
+                "@vueUrl": "@integrityHash"
             }
         }
     </script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    </environment>
+    <environment include="Staging,Production">
+        <link rel="stylesheet"
+              href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/css/bootstrap.min.css"
+              asp-fallback-test-class="visually-hidden"
+              asp-fallback-test-property="position"
+              asp-fallback-test-value="absolute"
+              integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
+    </environment>
     <link rel="stylesheet" href="~/lib/ckeditor5/CKContent.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-    @{
-        string toggleBootstrap = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap.min.css";
-        string toggleBootstrapDark = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap-dark.min.css";
-        string toggleBootstrapPrint = @"https://cdn.jsdelivr.net/npm/@forevolve/bootstrap-dark@2.1.0/dist/css/toggle-bootstrap-print.min.css";
-    }
-
-    <link rel="stylesheet" href=@toggleBootstrap />
-    <link rel="stylesheet" href=@toggleBootstrapDark />
-    <link rel="stylesheet" href=@toggleBootstrapPrint />
     <link rel="stylesheet" asp-append-version="true" href="~/css/site.css" />
+    <script src="~/js/color-mode-toggler.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @RenderSection("Styles", required: false)
@@ -87,21 +109,20 @@
 </head>
 
 @{
-            string theme = Context.Request.Cookies["_DarkMode"] == "On" ? "bootstrap-dark" : "bootstrap";
-            string returnRightFunction = ViewData["ReturnRightFunction"] != null ? "false" : "true";
+    string returnRightFunction = ViewData["ReturnRightFunction"] != null ? "false" : "true";
 }
 
-<body class="@theme" id="layout-body" oncontextmenu="return @returnRightFunction" onselectstart="return @returnRightFunction">
+<body id="layout-body" oncontextmenu="return @returnRightFunction" onselectstart="return @returnRightFunction">
     <div class="text-center" style="position: absolute;top: 15rem;right: 50%;z-index:100;">
         <div id="loading" class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
     <header id="TopHead" class="sticky-top">
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light navbar-themed mb-3">
+        <nav class="navbar navbar-expand-sm mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico" style="height:36px; margin-right: 5px;"> Involver</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -126,6 +147,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
                         </li>
+                        @if (WebHostEnvironment.IsDevelopment())
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-info" asp-area="" asp-page="/Theme/Index">Theme</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -143,7 +170,7 @@
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-body-secondary">
         <div class="container-fluid text-center">
             <div class="d-flex justify-content-center align-items-center flex-wrap">
                 <span class="mx-2">&copy; 2020 - Involver</span>
@@ -155,8 +182,16 @@
         </div>
     </footer>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <environment include="Development">
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    </environment>
+    <environment include="Staging,Production">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+                asp-fallback-src="~/lib/bootstrap/js/bootstrap.bundle.min.js"
+                asp-fallback-test="window.bootstrap"
+                integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+                crossorigin="anonymous"></script>
+    </environment>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/ckeditor5/build/ckeditor.js"></script>
     <script src="https://www.google.com/recaptcha/api.js"></script>
@@ -169,15 +204,29 @@
             const goTopButton = document.getElementById('gotop');
             const topHeadNav = document.querySelector('#TopHead nav');
 
+            // 獲取 Toast 元素（注意：.toast 是一個選擇器，可能有多個）
+            const toastElements = document.querySelectorAll('.toast');
+
             // 隱藏載入畫面
             if (loadingElement) {
                 loadingElement.style.display = 'none';
             }
 
-            $('.toast').toast('show'); // TODO: 升級BS5以後再改
+            // 顯示 Toast
+            if (toastElements.length > 0) {
+                toastElements.forEach(toastEl => {
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                });
+            }
 
-            // --- 啟用 Bootstrap Tooltips ---
-            $('[data-toggle="tooltip"]').tooltip(); // TODO: 升級BS5以後再改
+            // 啟用 Bootstrap Tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            if (tooltipTriggerList.length > 0) {
+                tooltipTriggerList.forEach(tooltipTriggerEl => {
+                    new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
 
             // --- 導覽列滾動效果 ---
             function handleNavScroll() {

@@ -28,7 +28,7 @@
         <form asp-page="./Index" method="get">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <select asp-for="SearchType" class="custom-select">
+                    <select asp-for="SearchType" class="form-select">
                         <option value="">所有類別</option>
                         <option value="Fantasy">奇幻</option>
                         <option value="History">歷史</option>
@@ -77,11 +77,11 @@
                     {
                         <tr>
                             <td class="text-center">
-                                <span class="badge badge-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
+                                <span class="badge bg-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
                                 <div class="mt-1">
                                     @foreach (var tag in item.NovelTags)
                                     {
-                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info">@tag.Name</a>
+                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge rounded-pill bg-info">@tag.Name</a>
                                     }
                                 </div>
                             </td>
@@ -101,7 +101,7 @@
                                         <a asp-page="./Details" asp-route-id="@item.NovelID" class="fw-bold">@Html.DisplayFor(modelItem => item.Title)</a>
                                         @if (item.Block == true)
                                         {
-                                            <small class="badge-danger badge-pill ms-1">Block</small>
+                                            <small class="bg-danger rounded-pill ms-1">Block</small>
                                         }
                                         <div>
                                             <small><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">@Html.DisplayFor(modelItem => item.Profile.UserName)</a></small>
@@ -147,7 +147,7 @@
                                     <a asp-page="./Details" asp-route-id="@item.NovelID">@Html.DisplayFor(modelItem => item.Title)</a>
                                     @if (item.Block == true)
                                     {
-                                        <small class="badge-danger badge-pill ms-1">Block</small>
+                                        <small class="bg-danger rounded-pill ms-1">Block</small>
                                     }
                                 </h5>
                                 <p class="card-text flex-grow-1"></p>
@@ -156,7 +156,7 @@
                                         <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                                     </a>
                                     <div>
-                                        <small class="mr-2">
+                                        <small class="me-2">
                                             <i class="far fa-eye"></i>
                                             <a href="#" class="view-chart-trigger" data-type="novel" data-id="@item.NovelID">
                                                 @Html.DisplayFor(modelItem => item.TotalViews)
@@ -170,17 +170,17 @@
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center flex-wrap">
-                                        <span class="badge badge-secondary mr-1 mb-1">@novelTypeDetermination.GetTypeName(item.Type)</span>
+                                        <span class="badge bg-secondary me-1 mb-1">@novelTypeDetermination.GetTypeName(item.Type)</span>
                                         @foreach (var tag in item.NovelTags)
                                         {
-                                            <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-pill badge-info mr-1 mb-1">@tag.Name</a>
+                                            <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge rounded-pill bg-info me-1 mb-1">@tag.Name</a>
                                         }
                                     </div>
                                     <div class="d-flex align-items-center">
-                                        <div class="mr-2" style="width:100px; height:30px;" title="最近觀看趨勢">
+                                        <div class="me-2" style="width:100px; height:30px;" title="最近觀看趨勢">
                                             <canvas id="novel-chart-@item.NovelID"></canvas>
                                         </div>
-                                        <small class="text-muted text-nowrap" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
+                                        <small class="text-body-secondary text-nowrap" title="@item.UpdateTime">@TimePeriodHelper.Get(item.UpdateTime)</small>
                                     </div>
                                 </div>
                             </div>
@@ -211,15 +211,13 @@
                         <li class="page-item @nextDisabled"><a asp-page="./Index" asp-route-PageIndex="@Model.Novels.TotalPages" asp-route-sortOrder="@Model.CurrentSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-right"></i></a></li>
                     </ul>
                 </nav>
-                <form class="form-inline" asp-page="./Index" method="get">
+                    <form class="d-flex" asp-page="./Index" method="get">
                     <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
                     <input type="hidden" name="currentType" value="@Model.CurrentType" />
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
-                        <div class="input-group ml-2">
+                        <div class="input-group ms-2">
                             <input type="number" name="pageIndex" value="@Model.Novels.PageIndex" class="form-control" style="max-width: 75px;" />
-                        <div class="input-group-append">
                             <input type="submit" value="跳轉" class="btn btn-outline-primary" />
-                        </div>
                     </div>
                 </form>
             </div>

@@ -10,7 +10,7 @@
     <div id="CommentHead" class="d-flex justify-content-between align-items-center">
         <button @@click="showNewCommentModal()" class="btn btn-xs btn-outline-primary">新增評論</button>
 
-        <div v-if="ownerId" class="form-check ml-3">
+        <div v-if="ownerId" class="form-check ms-3">
             <input class="form-check-input" type="checkbox" v-model="authorOnly" id="authorOnlyCheckbox">
             <label class="form-check-label" for="authorOnlyCheckbox">
                 只看作者
@@ -18,8 +18,8 @@
         </div>
 
         <!-- Sorter -->
-        <div v-if="!isOrderFixed" class="ml-auto">
-            <select v-model="sortBy" @@change="changeSort" class="form-control w-auto">
+        <div v-if="!isOrderFixed" class="ms-auto">
+            <select v-model="sortBy" @@change="changeSort" class="form-select w-auto">
                 <option value="oldest">最舊的</option>
                 <option value="newest">最新的</option>
                 <option value="most_agrees">最多讚</option>
@@ -32,38 +32,55 @@
     </div>
 
     <div v-else>
+        <!-- Pagination -->
+        <nav v-if="pagination.totalPages > 1" style="background-image: none;">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" :class="{ disabled: !pagination.hasPreviousPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage - 1)">前一頁</a>
+                </li>
+                <li v-for="page in pages" :key="page" class="page-item" :class="{ active: page === pagination.currentPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(page)">{{ page }}</a>
+                </li>
+                <li class="page-item" :class="{ disabled: !pagination.hasNextPage }">
+                    <a class="page-link" href="#" @@click.prevent="changePage(pagination.currentPage + 1)">下一頁</a>
+                </li>
+            </ul>
+        </nav>
+
         <!-- Comment Loop -->
         <div v-for="comment in comments" :key="comment.commentID" :id="'comment-' + comment.commentID" class="comment-section">
             
             <!-- Blocked Comment Header (only shown if blocked) -->
             <div v-if="comment.isBlocked" class="p-2 border rounded-top">
-                <span class="text-muted small">
+                <span class="text-body-secondary small">
                     <i class="fas fa-eye-slash"></i> 本評論已被封鎖。
                 </span>
-                <button @@click="comment.isBlockedContentVisible = !comment.isBlockedContentVisible" class="btn btn-sm btn-outline-secondary ml-2 py-0 px-1">
+                <button @@click="comment.isBlockedContentVisible = !comment.isBlockedContentVisible" class="btn btn-sm btn-outline-secondary ms-2 py-0 px-1">
                     {{ comment.isBlockedContentVisible ? '隱藏' : '顯示' }}
                 </button>
-                <button v-if="comment.canBlock" @@click="updateCommentBlockAsync(comment)" class="btn btn-sm btn-warning ml-2 py-0 px-1">
+                <button v-if="comment.canBlock" @@click="updateCommentBlockAsync(comment)" class="btn btn-sm btn-warning ms-2 py-0 px-1">
                     解除封鎖
                 </button>
             </div>
 
             <!-- The Actual Comment Body -->
             <div v-show="!comment.isBlocked || comment.isBlockedContentVisible"
-                 class="media border p-3 rounded shadow-sm"
+                 class="media d-flex border p-3 rounded shadow-sm"
                  :class="{ 'border-warning': comment.isBlocked, 'mt-0 rounded-top-0': comment.isBlocked, 'my-3': !comment.isBlocked }">
-                <a :href="'/Identity/Profile?id=' + comment.profileID">
-                    <!-- Responsive Avatar -->
-                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-3 mt-3 rounded-circle d-none d-sm-block" style="width:60px;">
-                    <img :src="comment.userImageUrl" :title="comment.userName" class="mr-2 mt-3 rounded-circle d-block d-sm-none" style="width:50px;">
-                </a>
-                <div class="media-body">
+                <div class="flex-shrink-0">
+                    <a :href="'/Identity/Profile?id=' + comment.profileID">
+                        <!-- Responsive Avatar -->
+                        <img :src="comment.userImageUrl" :title="comment.userName" class="mt-3 rounded-circle d-none d-sm-block" style="width:60px;">
+                        <img :src="comment.userImageUrl" :title="comment.userName" class="mt-3 rounded-circle d-block d-sm-none" style="width:50px;">
+                    </a>
+                </div>
+                <div class="flex-grow-1 ms-3 media-body">
                     <b>
                         <a :href="'/Identity/Profile?id=' + comment.profileID">{{ comment.userName }}</a> | 
                         <a :href="'#comment-' + comment.commentID"><small :title="comment.fullUpdateTime">{{ comment.updateTime }}</small></a>
                     </b>
                     <!-- Involver Info -->
-                    <p v-if="comment.involverInfo" class="small text-muted mb-2"><small>{{ comment.involverInfo }}</small></p>
+                    <p v-if="comment.involverInfo" class="small text-body-secondary mb-2"><small>{{ comment.involverInfo }}</small></p>
                     
                     <!-- Content -->
                     <div v-if="!comment.isEditing" class="ck-content mt-2" v-html="comment.content"></div>
@@ -75,7 +92,7 @@
                             <div class="d-flex mb-3">
                                 <button @@click="updateCommentFromInlineEditorAsync(comment)" class="btn btn-primary mt-2">儲存</button> &nbsp;
                                 <button @@click="toggleCommentEdit(comment)" class="btn btn-secondary mt-2">取消</button>
-                                <div :id="'word-count-' + comment.commentID" class="ml-auto p-2"></div>
+                                <div :id="'word-count-' + comment.commentID" class="ms-auto p-2"></div>
                             </div>
                         </div>
                     </div>
@@ -93,7 +110,7 @@
                     <!-- Control Menu -->
                     <div id="control-menu" class="d-flex flex-wrap align-items-center mt-2">
                         <!-- Messages Button -->
-                        <a href="#" title="留言" @@click.prevent="getMessagesAsync(comment)" class="text-secondary mr-3">
+                        <a href="#" title="留言" @@click.prevent="getMessagesAsync(comment)" class="text-secondary me-3">
                             <i class="far fa-comments"></i> 留言 ({{ comment.messagesCount }})
                         </a>
                         <!-- Agree Button -->
@@ -101,9 +118,9 @@
                             <i :class="comment.isAgreedByCurrentUser ? 'fas fa-thumbs-up' : 'far fa-thumbs-up'"></i> <span>{{ comment.agreesCount }}</span>
                         </button>
                         <!-- Dropdown Menu -->
-                        <div v-if="comment.canEdit || comment.canBlock" class="dropdown d-inline-flex ml-auto">
-                            <button type="button" class="btn btn-link text-secondary" data-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
-                            <div class="dropdown-menu dropdown-menu-right">
+                        <div v-if="comment.canEdit || comment.canBlock" class="dropdown d-inline-flex ms-auto">
+                            <button type="button" class="btn btn-link text-secondary" data-bs-toggle="dropdown"><i class="fas fa-ellipsis-h"></i></button>
+                            <div class="dropdown-menu dropdown-menu-end">
                                 <button v-if="comment.canEdit && comment.dices.length === 0" @@click="toggleCommentEdit(comment)" class="dropdown-item">
                                     <i class="far fa-edit"></i> {{ comment.isEditing ? '取消' : '編輯' }}
                                 </button>
@@ -142,51 +159,51 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">新增評論</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="comment-editor">評論內容</label>
                         <textarea id="comment-editor"></textarea>
-                        <div id="comment-word-count" class="d-flex justify-content-end text-muted small mt-1"></div>
+                        <div id="comment-word-count" class="d-flex justify-content-end text-body-secondary small mt-1"></div>
                     </div>
 
                     <hr />
 
                     <h5><i class="fas fa-dice"></i> 擲骰選項</h5>
-                    <p class="text-muted small">您可以透過文字指令或下方的介面進行擲骰。</p>
+                    <p class="text-body-secondary small">您可以透過文字指令或下方的介面進行擲骰。</p>
 
                     <div class="card mt-3">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <h6><i class="fas fa-keyboard"></i> 文字指令</h6>
-                                    <p class="small text-muted">在內容中輸入 <code>Dice(次數)D(面數)</code>，例如 <code>Dice05D10</code>。最大為 99D99。</p>
+                                    <p class="small text-body-secondary">在內容中輸入 <code>Dice(次數)D(面數)</code>，例如 <code>Dice05D10</code>。最大為 99D99。</p>
                                 </div>
-                                <div class="col-md-6" v-if="from.toLowerCase() === 'episode'">
+                                <div class="col-md-6" v-if="from.toLowerCase() === 'episodes'">
                                     <h6><i class="fas fa-mouse-pointer"></i> 介面擲骰</h6>
-                                    <div class="form-row align-items-center">
+                                    <div class="row align-items-center">
                                         <div class="col-auto">
-                                            <label class="text-muted small" for="rollTimes">次數</label>
+                                            <label class="text-body-secondary small" for="rollTimes">次數</label>
                                             <input type="number" v-model.number="newCommentDice.rollTimes" class="form-control mb-2" id="rollTimes" placeholder="次數 (0-12)" min="0" max="12" title="最多12次">
                                         </div>
                                         <div class="col-auto">
-                                            <label class="text-muted small" for="diceSides">面數</label>
+                                            <label class="text-body-secondary small" for="diceSides">面數</label>
                                             <input type="number" v-model.number="newCommentDice.diceSides" class="form-control mb-2" id="diceSides" placeholder="面數 (0-999)" min="0" max="999" title="最多999面">
                                         </div>
                                     </div>
-                                    <p class="small text-muted">在內容中使用 <code>DiceTotal</code> 來顯示擲骰總和。</p>
+                                    <p class="small text-body-secondary">在內容中使用 <code>DiceTotal</code> 來顯示擲骰總和。</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episode'">
+                    <div class="alert alert-danger mt-3" role="alert" v-if="from.toLowerCase() === 'episodes'">
                         <i class="fas fa-exclamation-triangle"></i> <strong>注意：</strong> 任何包含擲骰的評論送出後將無法編輯。
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
                     <button type="button" class="btn btn-primary" @@click="createCommentFromModalAsync()">送出</button>
                 </div>
             </div>
@@ -199,7 +216,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">留言</h5>
-                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div v-if="isLoadingMessages" class="text-center">
@@ -207,12 +224,12 @@
                     </div>
                     <div v-else>
                         <div id="messageList">
-                            <div v-for="message in messages" :key="message.messageID" class="media border p-3 shadow-sm rounded mb-3">
-                                <a :href="'/Identity/Profile?id=' + message.profileID">
-                                    <img v-if="message.profile.imageUrl" :src="message.profile.imageUrl" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
-                                    <img v-else :src="'https://www.gravatar.com/avatar/' + message.profile.emailMd5 + '?d=retro'" :title="message.profile.userName" class="mr-3 mt-3 rounded-circle" style="width:60px;">
+                            <div v-for="message in messages" :key="message.messageID" class="d-flex media border p-3 shadow-sm rounded mb-3">
+                                <a :href="'/Identity/Profile?id=' + message.profileID" class="flex-shrink-0">
+                                    <img v-if="message.profile.imageUrl" :src="message.profile.imageUrl" :title="message.profile.userName" class="me-3 mt-3 rounded-circle" style="width:60px;">
+                                    <img v-else :src="'https://www.gravatar.com/avatar/' + message.profile.emailMd5 + '?d=retro'" :title="message.profile.userName" class="me-3 mt-3 rounded-circle" style="width:60px;">
                                 </a>
-                                <div class="media-body">
+                                <div class="flex-grow-1 ms-3 media-body">
                                     <b>
                                         <a :href="'/Identity/Profile?id=' + message.profileID">{{ message.profile.userName }}</a> &nbsp;
                                         <small :title="message.updateTime">{{ message.updateTimeRelative }}</small>
@@ -233,10 +250,10 @@
                                         </p>
                                     </div>
                                     <div v-else>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <textarea v-model="message.editableContent" class="form-control" rows="3"></textarea>
                                         </div>
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <button type="button" class="btn btn-primary btn-sm" @@click="updateMessageAsync(message)">儲存</button> &nbsp;
                                             <button type="button" class="btn btn-secondary btn-sm" @@click="cancelMessageEdit(message)">取消</button>
                                         </div>
@@ -244,24 +261,23 @@
                                 </div>
                             </div>
                         </div>
-                        <hr />
                         <form @@submit.prevent="createNewMessageAsync">
-                            <div class="form-group">
-                                <label for="messageContent" class="control-label">新增留言</label>
+                            <div class="mb-3">
+                                <label for="messageContent" class="form-label">新增留言</label>
                                 <textarea v-model="newMessageContent" class="form-control" rows="3"></textarea>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary">送出</button>
                             </div>
                         </form>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">關閉</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="/js/comments.js" type="module"></script>
+<script src="/js/components/comments.js" type="module"></script>

@@ -52,14 +52,14 @@
         </div>
     </div>
     <div class="card-body">
-        <div class="text-muted mb-3">
+        <div class="text-body-secondary mb-3">
             <small>
                 作者：
                 <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.Article.ProfileID">
                     @Model.Article.Profile.UserName
                 </a>
             </small>
-            <small class="ml-3">
+            <small class="ms-3">
                 發布於：<span title="@Model.Article.UpdateTime">@TimePeriodHelper.Get(Model.Article.UpdateTime)</span>
             </small>
         </div>
@@ -74,19 +74,19 @@
         <div>
             @foreach (var tag in Model.Article.ArticleTags)
             {
-                <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge badge-info mr-1">@tag.Name</a>
+                <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge bg-info me-1">@tag.Name</a>
             }
         </div>
     </div>
     <div class="card-footer">
         <div class="d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center">
-                <span class="mr-2">本月 InCoin: @Html.DisplayFor(model => model.Article.MonthlyCoins)</span>
-                <a class="btn btn-sm btn-danger mr-2" asp-page="/Involvings/InvolveArticle" asp-route-id="@Model.Article.ArticleID">
+                <span class="me-2">本月 InCoin: @Html.DisplayFor(model => model.Article.MonthlyCoins)</span>
+                <a class="btn btn-sm btn-danger me-2" asp-page="/Involvings/InvolveArticle" asp-route-id="@Model.Article.ArticleID">
                     <i class="fas fa-coins"></i> Involve
                 </a>
                 <div class="dropdown">
-                    <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-toggle="dropdown">
+                    <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown">
                         Involvers
                     </button>
                     <div class="dropdown-menu">
@@ -101,7 +101,7 @@
                 @{
                     string shareUrl = $"https://involver.tw/Articles/Details?id={Model.Article.ArticleID}";
                 }
-                <button class="btn btn-sm btn-outline-secondary btn-copy-link mr-2"
+                <button class="btn btn-sm btn-outline-secondary btn-copy-link me-2"
                         data-type="Article"
                         data-id="@Model.Article.ArticleID"
                         type="button"

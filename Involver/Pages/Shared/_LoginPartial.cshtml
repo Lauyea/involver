@@ -5,45 +5,68 @@
 
 <ul class="navbar-nav">
     <li class="nav-item dropdown">
-        <button type="button" class="nav-link btn btn-link" data-toggle="dropdown" title="搜尋">
+        <button type="button" class="nav-link btn btn-link" data-bs-toggle="dropdown" title="搜尋">
             <i class="fa-solid fa-magnifying-glass"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">搜尋</span>
         </button>
-        <div class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
+        <div class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
             <div class="nav-item col-auto">
                 <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
                 <div class="gcse-search"></div>
             </div>
         </div>
     </li>
-    @{
-        string themeIcon = Context.Request.Cookies["_DarkMode"] == "On" ? "fa-sun" : "fa-moon";
-    }
-    <li class="nav-item">
-        <a class="nav-link" onclick="SetDarkMode()" data-toggle="tooltip" data-placement="bottom" title="切換模式">
-            <i class="fa-solid @themeIcon" id="theme-icon"></i>
-        </a>
+    <li class="nav-item dropdown">
+        <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center"
+                id="bd-theme"
+                type="button"
+                aria-expanded="false"
+                data-bs-toggle="dropdown"
+                aria-label="Toggle theme (auto)">
+            <i class="fa-solid fa-circle-half-stroke my-1" id="theme-icon"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">&nbsp;切換主題</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme-text">
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                    <i class="fa-solid fa-sun me-2 opacity-50"></i>
+                    Light
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                    <i class="fa-solid fa-moon me-2 opacity-50"></i>
+                    Dark
+                </button>
+            </li>
+            <li>
+                <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="true">
+                    <i class="fa-solid fa-circle-half-stroke me-2 opacity-50"></i>
+                    Auto
+                </button>
+            </li>
+        </ul>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="https://github.com/Lauyea/involver" target="_blank" data-toggle="tooltip" data-placement="bottom" title="GitHub 原始碼">
+        <a class="nav-link" href="https://github.com/Lauyea/involver" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom" title="GitHub 原始碼">
             <i class="fa-brands fa-github"></i>
+            <span class="d-sm-none ms-2" id="bd-theme-text">GitHub 原始碼</span>
         </a>
     </li>
     <li class="nav-item dropdown">
         <div id="notification-container"
              data-notification-url="@Url.Page("/Feed/Notifications")"
              data-user-id="@UserManager.GetUserId(User)">
-            <div class="dropdown" id="notification">
-                載入中...
-            </div>
+            <div class="dropdown" id="notification"></div>
         </div>
     </li>
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item dropdown">
-            <button type="button" class="nav-link btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button type="button" class="nav-link btn btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 @UserManager.GetUserName(User)
             </button>
-            <div class="dropdown-menu dropdown-menu-right">
+            <div class="dropdown-menu dropdown-menu-end">
                 <a class="dropdown-item" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@UserManager.GetUserId(User)">
                     個人檔案
                 </a>
@@ -52,7 +75,7 @@
                 </a>
                 <a class="dropdown-item" asp-page="/Involvings/StoredValue">儲值</a>
                 <div class="dropdown-divider"></div>
-                <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
+                <form class="d-flex" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/", new { area = "" })" method="post">
                     <button type="submit" class="dropdown-item text-danger">登出</button>
                 </form>
             </div>

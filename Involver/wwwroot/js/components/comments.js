@@ -69,25 +69,28 @@ const app = createApp({
         }
         this.getCommentsAsync(1);
 
-        $('#commentModal').on('shown.bs.modal', () => { // TODO: 升級BS5以後再改
-            if (!this.mainEditor) {
-                ClassicEditor
+        const commentModalEl = document.getElementById('commentModal');
+        if (commentModalEl) {
+            commentModalEl.addEventListener('shown.bs.modal', () => {
+                if (!this.mainEditor) {
+                    ClassicEditor
                     .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config
-                    .then(editor => {
-                        this.mainEditor = markRaw(editor);
-                        const wordCountPlugin = editor.plugins.get('WordCount');
-                        const wordCountWrapper = document.getElementById('comment-word-count');
-                        if (wordCountPlugin && wordCountWrapper) {
-                            wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error creating main CKEditor instance:', error);
-                    });
-            } else {
-                this.mainEditor.setData('');
-            }
-        });
+                        .then(editor => {
+                            this.mainEditor = markRaw(editor);
+                            const wordCountPlugin = editor.plugins.get('WordCount');
+                            const wordCountWrapper = document.getElementById('comment-word-count');
+                            if (wordCountPlugin && wordCountWrapper) {
+                                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error creating main CKEditor instance:', error);
+                        });
+                } else {
+                    this.mainEditor.setData('');
+                }
+            });
+        }
     },
     methods: {
         /**
@@ -153,7 +156,10 @@ const app = createApp({
          */
         showNewCommentModal() {
             this.newCommentDice = { rollTimes: 0, diceSides: 0 };
-            $('#commentModal').modal('show');
+
+            const modalEl = document.getElementById('commentModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
         },
         /**
          * Handles the submission from the main comment editor modal.
@@ -167,7 +173,12 @@ const app = createApp({
             }
 
             await this.createCommentAsync(content);
-            $('#commentModal').modal('hide');
+
+            const modalEl = document.getElementById('commentModal');
+            const modal = bootstrap.Modal.getInstance(modalEl); // 這裡可以用 getInstance 因為已經打開了
+            if (modal) {
+                modal.hide();
+            }
         },
         /**
          * Creates a new comment and adds it to the list.
@@ -233,7 +244,11 @@ const app = createApp({
             this.currentCommentForMessages = comment;
             this.isLoadingMessages = true;
             this.messages = [];
-            $('#messageModal').modal('show');
+
+            const modalEl = document.getElementById('messageModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+
             try {
                 const response = await fetch(`/api/v1/messages/ByComment/${comment.commentID}`);
                 if (!response.ok) throw new Error('Failed to fetch messages');
@@ -575,7 +590,7 @@ const app = createApp({
             this.$nextTick(() => {
                 const el = document.getElementById('CommentHead');
                 if (!el) return;
-                 el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         },
 

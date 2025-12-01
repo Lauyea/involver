@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Feed.NotificationsModel
 @{
     Layout = null;
@@ -22,13 +22,13 @@
     @if(Model.UserId != null && Model.Notifications != null)
     {
         var url = @"/Feed/Notifications?handler=Read";
-        <button id="notificationClick" type="button" class="nav-link btn btn-sm btn-link" data-toggle="dropdown" title="通知" onclick="ReadNotification('@Model.UserId', '@url')">
+        <button id="notificationClick" type="button" class="nav-link btn btn-sm btn-link" data-bs-toggle="dropdown" title="通知" onclick="ReadNotification('@Model.UserId', '@url')">
             <span class="fa-stack" id="notificationStack" @dataCount>
                 <i class="fa fa-circle fa-stack-2x"></i>
                 <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
             </span>
         </button>
-        <div class="dropdown-menu dropdown-menu-right" style="min-width: 300px;">
+        <div class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
             @if (Model.Notifications.Count != 0)
             {
                 foreach (var item in Model.Notifications)

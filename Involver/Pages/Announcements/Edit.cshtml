@@ -28,18 +28,18 @@
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     <input type="hidden" asp-for="Announcement.ArticleID" />
                     <input type="hidden" value="@UserID" asp-for="Announcement.ProfileID" />
-                    <div class="form-group">
-                        <label asp-for="Announcement.Title" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Announcement.Title" class="form-label"></label>
                         <input asp-for="Announcement.Title" class="form-control" />
                         <span asp-validation-for="Announcement.Title" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Announcement.Content" class="control-label"></label>
+                    <div class="mb-3">
+                        <label asp-for="Announcement.Content" class="form-label"></label>
                         <textarea asp-for="Announcement.Content" id="editor" class="form-control" rows="12" placeholder="在這裡寫些東西..."></textarea>
-                        <div id="word-count" class="text-right text-muted"></div>
+                        <div id="word-count" class="text-end text-body-secondary"></div>
                         <span asp-validation-for="Announcement.Content" class="text-danger"></span>
                     </div>
-                    <div class="form-group d-flex justify-content-end">
+                    <div class="mb-3 d-flex justify-content-end">
                         <input type="submit" value="儲存" class="btn btn-primary" />
                     </div>
                 </form>
