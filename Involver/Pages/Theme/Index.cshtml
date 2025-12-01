@@ -44,93 +44,51 @@
 
 <div class="component-section">
     <h2>Color Palette</h2>
-    <p>Colors defined in <code>:root</code> and <code>[data-bs-theme="dark"]</code>.</p>
+    <p>Colors defined in <code>site.css</code>.</p>
     
     <div class="row">
-        <div class="col-md-6">
-            <h4>Light Mode (Default)</h4>
+        <div class="col-md-4">
             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #fdfaf6;"></div>
+                <div class="color-swatch" style="background-color: var(--bg-color)"></div>
                 <div class="swatch-info">
                     <strong>Background</strong>
                     <span>var(--bg-color)</span>
                 </div>
             </div>
             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #4C4842;"></div>
+                <div class="color-swatch" style="background-color: var(--text-color)"></div>
                 <div class="swatch-info">
                     <strong>Text</strong>
                     <span>var(--text-color)</span>
-                </div>
-            </div>
-            <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #D98236;"></div>
-                <div class="swatch-info">
-                    <strong>Primary Accent</strong>
-                    <span>var(--primary-accent)</span>
-                </div>
-            </div>
-             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #BF712E;"></div>
-                <div class="swatch-info">
-                    <strong>Primary Accent Hover</strong>
-                    <span>var(--primary-accent-hover)</span>
-                </div>
-            </div>
-            <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #fff;"></div>
-                <div class="swatch-info">
-                    <strong>Card Background</strong>
-                    <span>var(--card-bg-color)</span>
-                </div>
-            </div>
-            <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #e0dcd5;"></div>
-                <div class="swatch-info">
-                    <strong>Border</strong>
-                    <span>var(--border-color)</span>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <h4>Dark Mode</h4>
+        <div class="col-md-4">
             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #282420;"></div>
-                <div class="swatch-info">
-                    <strong>Background</strong>
-                    <span>var(--bg-color)</span>
-                </div>
-            </div>
-            <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #d4cdc3;"></div>
-                <div class="swatch-info">
-                    <strong>Text</strong>
-                    <span>var(--text-color)</span>
-                </div>
-            </div>
-            <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #E89F59;"></div>
+                <div class="color-swatch" style="background-color: var(--primary-accent)"></div>
                 <div class="swatch-info">
                     <strong>Primary Accent</strong>
                     <span>var(--primary-accent)</span>
                 </div>
             </div>
-             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #D98236;"></div>
+            <div class="swatch-group">
+                <div class="color-swatch" style="background-color: var(--primary-accent-hover)"></div>
                 <div class="swatch-info">
                     <strong>Primary Accent Hover</strong>
                     <span>var(--primary-accent-hover)</span>
                 </div>
             </div>
+        </div>
+        <div class="col-md-4">
             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #3a352f;"></div>
+                <div class="color-swatch" style="background-color: var(--card-bg-color)"></div>
                 <div class="swatch-info">
                     <strong>Card Background</strong>
                     <span>var(--card-bg-color)</span>
                 </div>
             </div>
             <div class="swatch-group">
-                <div class="color-swatch" style="background-color: #5a534a;"></div>
+                <div class="color-swatch" style="background-color: var(--border-color)"></div>
                 <div class="swatch-info">
                     <strong>Border</strong>
                     <span>var(--border-color)</span>
