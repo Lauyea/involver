@@ -24,12 +24,17 @@ namespace Involver.Pages.Involvings
         [BindProperty]
         public Involving Involving { get; set; }
         public Article Article { get; set; }
+        public Profile Involver { get; set; }
         public int ArticleID { get; set; }
         public string UserID { get; set; }
 
         private async Task LoadAsync(int id)
         {
             UserID = _userManager.GetUserId(User);
+            if (UserID != null)
+            {
+                Involver = await _context.Profiles.FindAsync(UserID);
+            }
             Article = await _context.Articles
                 .Include(a => a.Profile)
                 .Where(a => a.ArticleID == id)
@@ -76,19 +81,16 @@ namespace Involver.Pages.Involvings
                 return NotFound();
             }
 
-            Profile Involver = await _context.Profiles
-                .Where(p => p.ProfileID == UserID)
-                .FirstOrDefaultAsync();
             Profile Creator = await _context.Profiles
             .Where(p => p.ProfileID == Article.ProfileID)
             .FirstOrDefaultAsync();
 
             if (Involver.RealCoins < Involving.Value)
             {
-                ModelState.AddModelError(Involving.Value.ToString(), "±b¤á¾lÃB¤£¨¬");
+                ModelState.AddModelError(Involving.Value.ToString(), "å¸³æˆ¶é¤˜é¡ä¸è¶³");
                 return Page();
             }
-            Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//¤å³¹ª½±µÃÙ§U¡A§@ªÌ±o50%¤À¼í
+            Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//æ–‡ç« ç›´æŽ¥è´ŠåŠ©ï¼Œä½œè€…å¾—50%åˆ†æ½¤
             Involver.RealCoins -= Involving.Value;
             Involver.UsedCoins += Involving.Value;
 

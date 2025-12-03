@@ -4,114 +4,128 @@
     ViewData["Title"] = "Involvers";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 
-    string TitleSub = "";
-    string RecentBtnStyle;
-    string MonthlyBtnStyle;
-    string TotalTimeBtnStyle;
-    RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
-    if (Model.TimeSpan == "TotalTime")
+    string titleSub = "最近（按時間排序）";
+    string recentBtnClass = "active";
+    string monthlyBtnClass = "";
+    string totalTimeBtnClass = "";
+
+    switch (Model.TimeSpan)
     {
-        TitleSub = "總共（按程度排序）";
-        TotalTimeBtnStyle = "btn-info disabled";
-    }
-    else if (Model.TimeSpan == "Monthly")
-    {
-        TitleSub = "每月（按程度排序）";
-        MonthlyBtnStyle = "btn-info disabled";
-    }
-    else
-    {
-        TitleSub = "最近（按時間排序）";
-        RecentBtnStyle = "btn-info disabled";
+        case "TotalTime":
+            titleSub = "總共（按貢獻排序）";
+            totalTimeBtnClass = "active";
+            recentBtnClass = "";
+            break;
+        case "Monthly":
+            titleSub = "每月（按貢獻排序）";
+            monthlyBtnClass = "active";
+            recentBtnClass = "";
+            break;
     }
 }
 
-<h4>@ViewData["Title"] - @TitleSub</h4>
-<hr />
-
-<div>
-    <div class="row">
-        <div class="dropdown col-md-2">
-            <a asp-page="../Articles/Details" asp-route-id="@Model.ArticleID"
-               class="btn btn-xs btn-outline-info"><i class="fas fa-chevron-left"></i> 回到文章</a>
-        </div>
-        <div class="dropdown col-md-3">
-            <button type="button" class="btn btn-xs btn-outline-info" data-bs-toggle="dropdown">
-                Involvers <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="dropdown-menu">
-                <a class="btn btn-xs @RecentBtnStyle dropdown-item"
-                   asp-page="./ArticleInvolvers"
-                   asp-route-id="@Model.ArticleID"
-                   title="Recent">最近</a>
-                <a class="btn btn-xs @MonthlyBtnStyle dropdown-item"
-                   asp-page="./ArticleInvolvers"
-                   asp-route-id="@Model.ArticleID"
-                   asp-route-TimeSpan="Monthly"
-                   title="Monthly">每月</a>
-                <a class="btn btn-xs @TotalTimeBtnStyle dropdown-item"
-                   asp-page="./ArticleInvolvers"
-                   asp-route-id="@Model.ArticleID"
-                   asp-route-TimeSpan="TotalTime"
-                   title="TotalTime">總共</a>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">@ViewData["Title"] - @titleSub</h4>
+        <div class="d-flex gap-2">
+            <a asp-page="../Articles/Details" asp-route-id="@Model.ArticleID" class="btn btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i> 回到文章
+            </a>
+            <div class="dropdown">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                    篩選 <i class="fas fa-filter"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a class="dropdown-item @recentBtnClass"
+                       asp-page="./ArticleInvolvers"
+                       asp-route-id="@Model.ArticleID"
+                       title="Recent">最近</a>
+                    <a class="dropdown-item @monthlyBtnClass"
+                       asp-page="./ArticleInvolvers"
+                       asp-route-id="@Model.ArticleID"
+                       asp-route-TimeSpan="Monthly"
+                       title="Monthly">每月</a>
+                    <a class="dropdown-item @totalTimeBtnClass"
+                       asp-page="./ArticleInvolvers"
+                       asp-route-id="@Model.ArticleID"
+                       asp-route-TimeSpan="TotalTime"
+                       title="TotalTime">總共</a>
+                </div>
             </div>
         </div>
     </div>
-    <hr />
-    <p></p>
-    <div>
-        @if (Model.Involvings != null)
-        {
-            @foreach (Involving involving in Model.Involvings)
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (Model.Involvings != null && Model.Involvings.Any())
             {
-                <div class="row">
-                    @if (involving.InvolverID != null)
-                    {
-                        <div class="col-md-5">
-                            <a asp-area="Indentify"
-                               asp-page="/Profile/Index"
-                               asp-route-id="@involving.InvolverID">
-                                @if (!string.IsNullOrEmpty(involving.Involver.ImageUrl))
-                                {
-                                    <img src="@involving.Involver.ImageUrl"
-                                         asp-append-version="true"
-                                         alt="讀取失敗"
-                                         title="@involving.Involver.UserName"
-                                         style="width: 25%; height: auto; display:inline; border-radius:10%">
-                                }
-                                else
-                                {
-                                    var user = await userManager.FindByIdAsync(involving.Involver.ProfileID);
-                                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro" 
-                                         alt="讀取失敗"
-                                         title="@involving.Involver.UserName"
-                                         style="width: 25%; height: auto; display:inline; border-radius:10%">
-                                }
-                                @Html.DisplayFor(modelItem => involving.Involver.UserName)
-                            </a>
-                        </div>
-                    }
-                    <div class="col-md-3">
-                        @if (Model.TimeSpan == "TotalTime")
-                        {
-                            @involving.TotalValue
-                        }
-                        else if (Model.TimeSpan == "Monthly")
-                        {
-                            @involving.MonthlyValue
-                        }
-                        else
-                        {
-                            @involving.Value
-                        }
-                        In幣
-                    </div>
-                    <div class="col-md-4" title="@involving.LastTime">
-                        @TimePeriodHelper.Get(involving.LastTime)
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table">
+                            <tr>
+                                <th scope="col">Involver</th>
+                                <th scope="col" class="text-end">數量 (In幣)</th>
+                                <th scope="col" class="text-end">時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (Involving involving in Model.Involvings)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (involving.InvolverID != null)
+                                        {
+                                            <a asp-area="Identity"
+                                               asp-page="/Profile/Index"
+                                               asp-route-id="@involving.InvolverID"
+                                               class="text-decoration-none d-flex align-items-center">
+                                                @if (!string.IsNullOrEmpty(involving.Involver.ImageUrl))
+                                                {
+                                                    <img src="@involving.Involver.ImageUrl"
+                                                         asp-append-version="true"
+                                                         alt="Avatar"
+                                                         class="rounded-circle me-2"
+                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    var user = await userManager.FindByIdAsync(involving.Involver.ProfileID);
+                                                    <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
+                                                         alt="Avatar"
+                                                         class="rounded-circle me-2"
+                                                         style="width: 40px; height: 40px; object-fit: cover;">
+                                                }
+                                                <span class="fw-bold">@Html.DisplayFor(modelItem => involving.Involver.UserName)</span>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <span>匿名使用者</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        @{
+                                            var value = Model.TimeSpan == "TotalTime" ? involving.TotalValue
+                                                      : Model.TimeSpan == "Monthly" ? involving.MonthlyValue
+                                                      : involving.Value;
+                                        }
+                                        <span class="fw-bold">@value</span>
+                                    </td>
+                                    <td class="text-end" title="@involving.LastTime">
+                                        <small class="text-muted">@TimePeriodHelper.Get(involving.LastTime)</small>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
-                <hr />
             }
-        }
+            else
+            {
+                <div class="text-center p-5">
+                    <p class="lead text-muted">目前沒有 Involver 記錄。</p>
+                </div>
+            }
+        </div>
     </div>
 </div>

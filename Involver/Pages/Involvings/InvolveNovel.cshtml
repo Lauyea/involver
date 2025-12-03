@@ -1,119 +1,128 @@
 @page
 @model Involver.Pages.Involvings.InvolveNovelModel
 @{
-    ViewData["Title"] = "Involve";
+    ViewData["Title"] = "Involve 創作";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
 }
-<partial name="_Toasts" model="Model.Toasts" />
-<h4>@ViewData["Title"]</h4>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
-<hr />
-<div>
-    <a asp-page="../Novels/Details"
-       asp-route-id="@Model.NovelID"
-       class="btn btn-xs btn-outline-info">
-        <i class="fas fa-chevron-left"></i> 回到目錄
-    </a>
-</div>
-<p></p>
-<div class="row row-cols-1 row-cols-md-4 g-4">
-    <div class="col">
-        <div class="card h-100">
-            <form method="post" class="m-2">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="mb-3 card-title">
-                    <text>直接Involve In幣</text>
-                    <label asp-for="Involving.Value" class="form-label">
-                        <input asp-for="Involving.Value"
-                               class="form-control" style="display:inline;width:100px" />
-                    </label>
-                    <span asp-validation-for="Involving.Value" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">
-                        <input class="form-check-input"
-                               style="display:none"
-                               value="@UserID"
-                               asp-for="Involving.InvolverID" />
-                    </label>
-                </div>
-                <p></p>
-                <div class="alert alert-warning card-text" role="alert">
-                    <p>
-                        <strong>Involve都是使用實體In幣</strong>
-                    </p>
-                </div>
-                <input type="submit" value="Involve"
-                       asp-page-handler="SingleInvolve"
-                       asp-route-id="@Model.NovelID"
-                       class="btn btn-outline-danger" />
-            </form>
-        </div>
+
+<div class="container-fluid py-4">
+    <partial name="_Toasts" model="Model.Toasts" />
+    <partial name="_StatusMessage" model="Model.StatusMessage" />
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-page="../Novels/Details"
+           asp-route-id="@Model.NovelID"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i> 回到目錄
+        </a>
     </div>
 
-    <div class="col">
-        <div class="card h-100">
-            <form method="post" class="m-2">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="mb-3 card-title">
-                    <text>每月Involve 150 In幣</text>
+    <div class="row g-4">
+        <!-- Left side with action cards -->
+        <div class="col-lg-9">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                <!-- Direct Involve Card -->
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">直接 Involve</h5>
+                            <p class="card-text text-muted">一次性投入In幣支持本作品。</p>
+                            <form method="post" class="mt-auto">
+                                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                <div class="mb-3">
+                                    <label asp-for="Involving.Value" class="form-label">In幣數量</label>
+                                    <div class="input-group">
+                                        <input asp-for="Involving.Value" class="form-control" placeholder="輸入數量" />
+                                        <span class="input-group-text">幣</span>
+                                    </div>
+                                    <span asp-validation-for="Involving.Value" class="text-danger"></span>
+                                </div>
+                                <input class="form-check-input" type="hidden" value="@UserID" asp-for="Involving.InvolverID" />
+                                <div class="d-grid">
+                                    <input type="submit" value="Involve"
+                                           asp-page-handler="SingleInvolve"
+                                           asp-route-id="@Model.NovelID"
+                                           class="btn btn-primary" />
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card-footer bg-transparent border-0">
+                             <small class="text-muted">Involve都是使用實體In幣</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="alert alert-warning card-text" role="alert">
-                    <p>
-                        <strong>Involve當下直接扣款，每月初再扣款，餘額不足則自動取消；建議月初Involve</strong>
-                    </p>
-                </div>
-                <div class="mb-3">
-                    <input type="submit" value="Involve"
-                           asp-page-handler="MonthlyInvolve"
-                           asp-route-id="@Model.NovelID"
-                           class="btn btn-outline-danger" />
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div class="col">
-        <div class="card h-100">
-            <form method="post" class="m-2">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="mb-3 card-title">
-                    <text>取消Involve</text>
+                <!-- Monthly Involve Card -->
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">每月 Involve</h5>
+                            <p class="card-text">
+                                <span class="fs-4 fw-bold">150</span> <small class="text-muted">In幣 / 月</small>
+                            </p>
+                            <div class="alert alert-info small mt-auto">
+                                Involve當下直接扣款，之後每月初再扣款，餘額不足則自動取消。建議月初Involve。
+                            </div>
+                            <form method="post" class="d-grid mt-2">
+                                <input type="submit" value="每月Involve"
+                                       asp-page-handler="MonthlyInvolve"
+                                       asp-route-id="@Model.NovelID"
+                                       class="btn btn-success" />
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div class="alert alert-warning card-text" role="alert">
-                    <p>
-                        <strong>一旦取消Involve立即失去Involve獎勵，如無緊迫性，建議月底再取消</strong>
-                    </p>
-                </div>
-                <div class="mb-3">
-                    <input type="submit" value="UnInvolve"
-                           asp-page-handler="UnInvolve"
-                           asp-route-id="@Model.NovelID"
-                           class="btn btn-outline-danger" />
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div class="col">
-        <div>
-            <b>Involve創作</b>
-            <p>@Model.Novel.Title</p>
+                <!-- UnInvolve Card -->
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-danger">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-danger">取消每月 Involve</h5>
+                            <div class="alert alert-warning small mt-auto">
+                                一旦取消，將立即失去Involve獎勵。如無緊迫性，建議月底再取消。
+                            </div>
+                            <form method="post" class="d-grid mt-2">
+                                <input type="submit" value="確認取消"
+                                       asp-page-handler="UnInvolve"
+                                       asp-route-id="@Model.NovelID"
+                                       class="btn btn-outline-danger" />
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div>
-            <b>創作者</b>
-            <p>@Model.Novel.Profile.UserName</p>
-        </div>
-        <div>
-            <b>您的實體In幣</b>
-            <p>@Model.Involver.RealCoins</p>
+
+        <!-- Right side with information -->
+        <div class="col-lg-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>作品資訊</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">作品名稱</small>
+                        <span class="fw-bold">@Model.Novel.Title</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">創作者</small>
+                        <span class="fw-bold">@Model.Novel.Profile.UserName</span>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <small class="text-muted d-block">您目前的實體In幣</small>
+                        <span class="fs-5 fw-bold text-primary">@Model.Involver.RealCoins.ToString("0") 幣</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        
+        // Any page-specific scripts can go here
     </script>
 }

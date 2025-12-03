@@ -3,89 +3,95 @@
 @{
     ViewData["Title"] = "成為特約作者";
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    string GetInvolversPercent()
-    {
-        string InvolversPercent = "0%";
-        if (Model.Involvers > 100)
-        {
-            InvolversPercent = "100 %";
-        }
-        else
-        {
-            double percent = double.Parse(Model.Involvers.ToString()) / 100;
-            InvolversPercent = (percent * 100).ToString() + "%";
-        }
-        return InvolversPercent;
-    }
-    string GetIncomePercent()
-    {
-        string IncomePercent = "0%";
-        if (Model.Profile.MonthlyCoins > 1000)
-        {
-            IncomePercent = "100%";
-        }
-        else
-        {
-            double percent = double.Parse(Model.Profile.MonthlyCoins.ToString()) / 1000;
-            IncomePercent = (percent * 100).ToString() + "%";
-        }
-        return IncomePercent;
-    }
+
+    // Prepare values for progress bars
+    const int InvolversTarget = 100;
+    const int IncomeTarget = 1000;
+
+    int involversCount = Model.Involvers;
+    decimal incomeAmount = Model.Profile.MonthlyCoins;
+
+    double involversPercent = Math.Min(100, (double)involversCount / InvolversTarget * 100);
+    string involversPercentText = involversPercent.ToString("0") + "%";
+
+    double incomePercent = Math.Min(100, (double)incomeAmount / IncomeTarget * 100);
+    string incomePercentText = incomePercent.ToString("0") + "%";
 }
 
-<h4>@ViewData["Title"]</h4>
-<hr />
-<div>
-    <a asp-area="Identity"
-       asp-page="/Profile/Index"
-       asp-route-id="@Model.ProfileID"
-       class="btn btn-xs btn-outline-info">
-        <i class="fas fa-chevron-left"></i> 回到個人檔案
-    </a>
-</div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header text-center">
+                    <h4 class="mb-0"><i class="fas fa-feather-alt me-2"></i>@ViewData["Title"]</h4>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-center text-muted">達成以下兩個條件，即可成為特約作者，解鎖更多功能。</p>
+                    <hr class="my-4">
 
-<div>
-    <p></p>
-    <b>每月Involve人數達到100人</b>
-    <div class="progress">
-        <div class="progress-bar bg-success" role="progressbar"
-             style="width:@GetInvolversPercent();" aria-valuenow="25"
-             aria-valuemin="0" aria-valuemax="100">@GetInvolversPercent()</div>
-        </div>
-        <p></p>
-        <b>月收入達1000 In幣</b>
-        <div class="progress">
-            <div class="progress-bar bg-success" role="progressbar"
-                 style="width: @GetIncomePercent();" aria-valuenow="25"
-                 aria-valuemin="0" aria-valuemax="100">@GetIncomePercent()</div>
+                    <!-- Involvers Progress -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <strong>每月 Involve 人數</strong>
+                            <span>@involversCount / @InvolversTarget 人</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 20px;">
+                            <div class="progress-bar bg-success" role="progressbar"
+                                 style="width: @involversPercentText;"
+                                 aria-valuenow="@involversCount"
+                                 aria-valuemin="0"
+                                 aria-valuemax="@InvolversTarget">@involversPercentText</div>
+                        </div>
+                    </div>
+
+                    <!-- Income Progress -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <strong>月收入 In幣</strong>
+                            <span>@incomeAmount.ToString("N0") / @IncomeTarget.ToString("N0") 幣</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 20px;">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: @incomePercentText;"
+                                 aria-valuenow="@((int)incomeAmount)"
+                                 aria-valuemin="0"
+                                 aria-valuemax="@IncomeTarget">@incomePercentText</div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Action Button -->
+                    <form method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="d-grid">
+                            @if (Model.CanBeProfessional)
+                            {
+                                <button type="submit"
+                                        asp-route-id="@Model.Profile.ProfileID"
+                                        class="btn btn-lg btn-success">
+                                    <i class="fas fa-check-circle me-2"></i> 恭喜！點此成為特約作家
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button"
+                                        class="btn btn-lg btn-secondary" disabled>
+                                    <i class="fas fa-times-circle me-2"></i> 尚未達成條件
+                                </button>
+                            }
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-area="Identity"
+                       asp-page="/Profile/Index"
+                       asp-route-id="@Model.ProfileID"
+                       class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-chevron-left"></i> 回到個人檔案
+                    </a>
+                </div>
             </div>
-            <p></p>
         </div>
-
-
-        @if (Model.CanBeProfessional)
-        {
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="mb-3">
-                    <button type="button"
-                            asp-route-id="@Model.Profile.ProfileID"
-                            class="btn btn-xs btn-outline-success">
-                        <i class="fas fa-feather-alt"></i> 成為特約作家
-                    </button>
-                </div>
-            </form>
-        }
-        else
-        {
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="mb-3">
-                    <button type="button"
-                            asp-route-id="@Model.Profile.ProfileID"
-                            class="btn btn-xs btn-outline-success" disabled>
-                        <i class="fas fa-feather-alt"></i> 成為特約作家
-                    </button>
-                </div>
-            </form>
-        }
+    </div>
+</div>

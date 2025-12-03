@@ -1,51 +1,69 @@
 @page
 @model Involver.Pages.Involvings.InvolveArticleModel
 @{
-    ViewData["Title"] = "Involve";
+    ViewData["Title"] = "Involve 文章";
     Layout = "~/Pages/Shared/_Layout.cshtml";
     string UserID = userManager.GetUserId(User);
 }
 
-<h4>@ViewData["Title"]</h4>
-<hr />
-<div>
-    <a asp-page="../Articles/Details"
-       asp-route-id="@Model.ArticleID"
-       class="btn btn-xs btn-outline-info">
-        <i class="fas fa-chevron-left"></i> 回到文章
-    </a>
-</div>
-<p></p>
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="mb-3">
-                <label class="form-label">In幣</label>
-                <input asp-for="Involving.Value"
-                       class="form-control" />
-                <span asp-validation-for="Involving.Value" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">
-                    <input class="form-check-input"
-                           style="display:none"
-                           value="@UserID"
-                           asp-for="Involving.InvolverID" />
-                </label>
-            </div>
-            <p></p>
-            <input type="submit" value="Involve" class="btn btn-outline-danger" />
-        </form>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">@ViewData["Title"]</h4>
+        <a asp-page="../Articles/Details"
+           asp-route-id="@Model.ArticleID"
+           class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left"></i> 回到文章
+        </a>
     </div>
-    <div class="col-md-4">
-        <div>
-            <b>Involve文章</b>
-            <p>@Model.Article.Title</p>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Involve 這篇文章</h5>
+                    <small class="card-text text-body-secondary">您的Involve是對創作者最大的鼓勵。</small>
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+                        <div class="mb-3">
+                            <label asp-for="Involving.Value" class="form-label">In幣數量</label>
+                            <div class="input-group">
+                                <input asp-for="Involving.Value" class="form-control" placeholder="輸入數量" />
+                                <span class="input-group-text">幣</span>
+                            </div>
+                            <span asp-validation-for="Involving.Value" class="text-danger"></span>
+                        </div>
+                        <input class="form-check-input" type="hidden" value="@UserID" asp-for="Involving.InvolverID" />
+                        <div class="alert alert-info small">
+                            Involve都是使用實體In幣。
+                        </div>
+                        <div class="d-grid">
+                            <input type="submit" value="確認 Involve" class="btn btn-primary" />
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-            <b>文章作者</b>
-            <p>@Model.Article.Profile.UserName</p>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>作品資訊</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">文章標題</small>
+                        <span class="fw-bold">@Model.Article.Title</span>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted d-block">創作者</small>
+                        <span class="fw-bold">@Model.Article.Profile.UserName</span>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <small class="text-muted d-block">您目前的實體In幣</small>
+                        <span class="fs-5 fw-bold text-primary">@Model.Involver.RealCoins.ToString("0") 幣</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
