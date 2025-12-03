@@ -4,42 +4,47 @@
 @{
     ViewData["Title"] = "登入";
 }
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-signin-body text-center">
+            <main class="form-signin w-100 m-auto">
+                <form id="account" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Login">
+                    <h2 class="fw-normal">
+                        <img class="m-2 align-middle" src="/favicon.ico" alt="" height="36" />
+                        <span class="align-middle">@ViewData["Title"]</span>
+                    </h2>
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-<div class="form-signin-body text-center">
-    <main class="form-signin w-100 m-auto">
-        <form id="account" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Login">
-            <h3 class="fw-normal">
-                <img class="m-2 align-middle" src="/favicon.ico" alt="" height="36" />
-                <span class="align-middle">@ViewData["Title"]</span>
-            </h3>
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-floating">
+                        <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Input.Username" />
+                        <label asp-for="Input.Username"></label>
+                        <span asp-validation-for="Input.Username" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating">
+                        <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Input.Password" />
+                        <label asp-for="Input.Password"></label>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
 
-            <div class="form-floating">
-                <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="Input.Username" />
-                <label asp-for="Input.Username"></label>
-                <span asp-validation-for="Input.Username" class="text-danger"></span>
-            </div>
-            <div class="form-floating">
-                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Input.Password" />
-                <label asp-for="Input.Password"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
+                    <div class="checkbox mb-3">
+                        <label asp-for="Input.RememberMe">
+                            <input class="form-check-input" asp-for="Input.RememberMe" />
+                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                        </label>
+                    </div>
+                    <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">登入</button>
 
-            <div class="checkbox mb-3">
-                <label asp-for="Input.RememberMe">
-                    <input class="form-check-input" asp-for="Input.RememberMe" />
-                    @Html.DisplayNameFor(m => m.Input.RememberMe)
-                </label>
-            </div>
-            <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">登入</button>
-            
-            <div class="d-flex justify-content-between">
-                <a id="forgot-password" asp-page="./ForgotPassword">忘記密碼？</a>
-                <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">註冊為新用戶</a>
-            </div>
-
-            <hr />
-            <h3 class="mb-3 fw-normal">外部登入</h3>
+                    <div class="d-flex justify-content-between">
+                        <a id="forgot-password" asp-page="./ForgotPassword">忘記密碼？</a>
+                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">註冊為新用戶</a>
+                    </div>
+                </form>
+            </main>
+        </div>
+    </div>
+    <div class="col-md-6 form-signin-body text-center">
+        <main class="form-signin w-100 m-auto">
+            <h2 class="mb-3 fw-normal">外部登入</h2>
             @{
                 if ((Model.ExternalLogins?.Count ?? 0) != 0)
                 {
@@ -90,8 +95,8 @@
                     </section>
                 }
             }
-        </form>
-    </main>
+        </main>
+    </div>
 </div>
 
 @section Styles {
