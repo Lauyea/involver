@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -72,7 +72,7 @@ namespace Involver.Areas.Identity.Pages.Account
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
-            [Display(Name = "記住我?")]
+            [Display(Name = "記住我？")]
             public bool RememberMe { get; set; }
         }
 
