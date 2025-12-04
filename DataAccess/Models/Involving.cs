@@ -29,6 +29,8 @@ namespace DataAccess.Models
         [InverseProperty("Involvers")]
         public Profile? Involver { get; set; }
 
+        [Required(ErrorMessage = "必填欄位。")]
+        [Range(1, 1048576, ErrorMessage = "數值不可為 0。")]
         [Column(TypeName = "money")]
         public int Value { get; set; }
 
