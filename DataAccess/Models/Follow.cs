@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -26,6 +26,8 @@ namespace DataAccess.Models
         /// 是否為對個人的月贊助者
         /// </summary>
         public bool ProfileMonthlyInvolver { get; set; }
+
+        // TODO: 還要在 RoutineWork 以 ProfileMonthlyInvolver, NovelMonthlyInvolver 每月去扣除實體In幣。但因為實體In幣尚未實裝，所以也沒有實際去扣除。
 
         /// <summary>
         /// 是否為對創作的月贊助者

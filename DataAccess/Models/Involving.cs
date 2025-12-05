@@ -15,6 +15,10 @@ namespace DataAccess.Models
     /// </summary>
     public class Involving
     {
+        /* 只是單純紀錄單筆、月累積、總累積 Involving。
+        月累積會以 RoutineWork 按月歸零。
+        對人、對創作或對文章。 */
+
         public int InvolvingID { get; set; }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace DataAccess.Models
         /// <summary>
         /// FK to being involved one
         /// </summary>
-        //這個不用Required，因為這是被Involve的對象，可以是NULL
+        // 這個不用Required，因為這是被Involve的對象，可以是NULL
         public string? ProfileID { get; set; }
         /// <summary>
         /// Reference navigation to being involved one
