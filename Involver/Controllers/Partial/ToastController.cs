@@ -1,4 +1,4 @@
-﻿using DataAccess.Data;
+using DataAccess.Data;
 
 using Involver.Common;
 
@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Involver.Controllers.Partial
 {
+    [Obsolete("This controller is obsolete. Use CommentsApiController instead.", true)]
     [Route("[controller]/[action]")]
     [ApiController]
     public class ToastController : Controller

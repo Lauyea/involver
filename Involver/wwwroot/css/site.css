@@ -325,7 +325,7 @@ button.accept-policy {
 
 /* Toast & Tooltip */
 .toast {
-    z-index: 90;
+    z-index: 1030;
 }
 
 .tooltip {
