@@ -25,7 +25,24 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Index", "列表" },
         { "Create", "新增" },
         { "Edit", "編輯" },
-        { "Details", "詳細" }
+        { "Details", "詳細" },
+        { "Feed", "動態" },
+        { "FollowArticles", "追蹤文章" },
+        { "TrendingCreations", "熱門創作" },
+        { "Identity", "身分" },
+        { "Profile", "個人資料" },
+        { "Creations", "創作" },
+        { "Interaction", "互動" },
+        { "Missions", "任務" },
+        { "Achievements", "成就" },
+        { "Vieweds", "觀看紀錄" },
+        { "Follow", "追蹤" },
+        { "Messages", "留言" },
+        { "Agrees", "贊同" },
+        { "Notifications", "通知" },
+        { "FollowCreators", "創作者" },
+        { "Followers", "追蹤者" },
+        { "ViewedArticles", "文章" }
     };
 
     public async Task<IViewComponentResult> InvokeAsync()
