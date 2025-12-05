@@ -30,7 +30,7 @@ function showGlobalToasts(toasts) {
 
         const toastId = `toast-${Date.now()}-${Math.random()}`;
         const toastHtml = `
-            <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-autohide="false">
+            <div id="${toastId}" class="toast mb-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
                 <div class="toast-header">
                     ${badgeClass ? `<span class="dot me-2 ${badgeClass}"></span>` : ''}
                     <strong class="me-auto">${toast.header}</strong>
@@ -56,7 +56,7 @@ function showGlobalToasts(toasts) {
         }
 
         // 使用 Vanilla JS 建立 Bootstrap Toast 實例
-        // (Bootstrap 會自動從 data-autohide="false" 讀取設定)
+        // (Bootstrap 會自動從 data-bs-autohide="false" 讀取設定)
         const bsToast = new bootstrap.Toast(toastElement);
 
         bsToast.show();
