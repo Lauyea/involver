@@ -32,8 +32,28 @@
             </div>
         </div>
     }
+    <div class="text-center">
+        @if (!string.IsNullOrEmpty(Model.Profile.ImageUrl))
+        {
+            <img src="@Model.Profile.ImageUrl"
+                 asp-append-version="true"
+                 alt="讀取失敗"
+                 title="@Model.Profile.UserName"
+                 style="max-width: 100%; max-height: 150px; border-radius:50%; z-index:1; position:relative; margin-top:-7rem;">
+        }
+        else
+        {
+            var user = await userManager.FindByIdAsync(Model.Profile.ProfileID);
+            string email = user.Email;
+            string md5 = email.ToMd5();
+            <img src="https://www.gravatar.com/avatar/@md5?d=retro"
+                 alt="讀取失敗"
+                 title="@Model.Profile.UserName"
+                 style="max-width: 100%; max-height: 150px; border-radius:50%; z-index:1; position:relative; margin-top:-7rem;">
+        }
+    </div>
     <div class="card mx-auto" style="margin-top:-4rem;width:90%;">
-        <div class="card-body row" style="border-radius: 0.75rem;">
+        <div class="card-body row mt-5" style="border-radius: 0.75rem;">
             <div class="col-md-3 my-3">
                 <partial name="_ManageNav" />
             </div>
