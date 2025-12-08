@@ -25,7 +25,32 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Index", "列表" },
         { "Create", "新增" },
         { "Edit", "編輯" },
-        { "Details", "詳細" }
+        { "Details", "詳細" },
+        { "Feed", "動態" },
+        { "FollowArticles", "追蹤文章" },
+        { "TrendingCreations", "熱門創作" },
+        { "Identity", "身分" },
+        { "Profile", "個人資料" },
+        { "Creations", "創作" },
+        { "Interaction", "互動" },
+        { "Missions", "任務" },
+        { "Achievements", "成就" },
+        { "Vieweds", "觀看紀錄" },
+        { "Follow", "追蹤" },
+        { "Messages", "留言" },
+        { "Agrees", "贊同" },
+        { "Notifications", "通知" },
+        { "FollowCreators", "創作者" },
+        { "Followers", "追蹤者" },
+        { "ViewedArticles", "文章" },
+        { "Involving", "Involving" },
+        { "Involvers", "Involvers" },
+        { "Account", "帳號" },
+        { "Manage", "管理" },
+        { "Email", "Email" },
+        { "ChangePassword", "變更密碼" },
+        { "ExternalLogins", "外部登入" },
+        { "PersonalData", "個人資料" }
     };
 
     public async Task<IViewComponentResult> InvokeAsync()
@@ -43,6 +68,62 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         }
 
         string currentUrl = "/";
+
+        // Special handling for Identity Profile pages
+        if (path.Length > 1 && path[0].Equals("Identity", StringComparison.OrdinalIgnoreCase) && path[1].Equals("Profile", StringComparison.OrdinalIgnoreCase))
+        {
+            string userId = HttpContext.Request.Query["id"];
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Add "個人資料" breadcrumb linking to the user's profile page
+                breadcrumbs.Add(new BreadcrumbItemViewModel { Text = _pathTranslations["Profile"], Url = $"/Identity/Profile?id={userId}" });
+
+                // Process remaining segments like "Achievements"
+                for (int i = 2; i < path.Length; i++)
+                {
+                    var segment = path[i];
+                    if (_pathTranslations.TryGetValue(segment, out var translatedText))
+                    {
+                        var segmentUrl = $"/Identity/Profile/{segment}?id={userId}";
+                        breadcrumbs.Add(new BreadcrumbItemViewModel { Text = translatedText, Url = segmentUrl });
+                    }
+                }
+
+                // Set the last breadcrumb as active
+                if (breadcrumbs.Count != 0)
+                {
+                    breadcrumbs.Last().IsActive = true;
+                    breadcrumbs.Last().Url = null;
+                }
+
+                return View(breadcrumbs);
+            }
+        }
+
+        // Special handling for Identity Account pages
+        if (path.Length > 1 && path[0].Equals("Identity", StringComparison.OrdinalIgnoreCase) && path[1].Equals("Account", StringComparison.OrdinalIgnoreCase))
+        {
+            // Process remaining segments like "Achievements"
+            for (int i = 2; i < path.Length; i++)
+            {
+                var segment = path[i];
+                if (_pathTranslations.TryGetValue(segment, out var translatedText))
+                {
+                    var segmentUrl = $"/Identity/Account/{segment}";
+                    breadcrumbs.Add(new BreadcrumbItemViewModel { Text = translatedText, Url = segmentUrl });
+                }
+            }
+
+            // Set the last breadcrumb as active
+            if (breadcrumbs.Count != 0)
+            {
+                breadcrumbs.Last().IsActive = true;
+                breadcrumbs.Last().Url = null;
+            }
+
+            return View(breadcrumbs);
+        }
+
         for (int i = 0; i < path.Length; i++)
         {
             var segment = path[i];
