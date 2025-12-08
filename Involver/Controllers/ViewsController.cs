@@ -61,7 +61,7 @@ namespace Involver.Controllers
         [HttpPost("GetBatchArticleViews")]
         public async Task<IActionResult> GetBatchArticleViews([FromBody] int[] ids)
         {
-            if (ids == null || !ids.Any())
+            if (ids == null || ids.Length == 0)
             {
                 return BadRequest();
             }
@@ -85,7 +85,7 @@ namespace Involver.Controllers
         [HttpPost("GetBatchNovelViews")]
         public async Task<IActionResult> GetBatchNovelViews([FromBody] int[] ids)
         {
-            if (ids == null || !ids.Any())
+            if (ids == null || ids.Length == 0)
             {
                 return BadRequest();
             }

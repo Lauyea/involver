@@ -53,7 +53,7 @@ namespace Involver.Views.Shared.Components.TagCloud
             }
 
             // 計算權重，用於決定字體大小
-            if (tags.Any())
+            if (tags.Count != 0)
             {
                 double maxCount = tags.Max(t => t.Count);
 

@@ -342,7 +342,7 @@ namespace Involver.Controllers
                 .OrderByDescending(v => v.VotingID)
                 .ToListAsync();
 
-            if (votings == null || !votings.Any())
+            if (votings == null || votings.Count == 0)
             {
                 return NotFound();
             }

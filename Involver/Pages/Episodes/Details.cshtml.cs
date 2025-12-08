@@ -255,7 +255,7 @@ namespace Involver.Pages.Episodes
                     .OrderBy(m => m.UpdateTime)
                     .ToList();
 
-                if (relatedMessages.Any())
+                if (relatedMessages.Count != 0)
                 {
                     sb.AppendLine("#### 回覆");
                     foreach (var message in relatedMessages)
