@@ -1,0 +1,74 @@
+@page
+@model Involver.Pages.Functions.MarkdownToHtmlModel
+@using Involver.Helpers
+@{
+    ViewData["Title"] = "Markdown 到 HTML 轉換器";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<p>在下方的輸入框中貼上您的 Markdown 語法，即可看到 HTML 原始碼和渲染後的預覽。</p>
+
+<form method="post" id="converter-form">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Markdown 輸入
+                </div>
+                <div class="card-body">
+                    <textarea asp-for="MarkdownContent" class="form-control" rows="20" id="markdown-input" style="height: 20rem;"></textarea>
+                </div>
+                <div class="card-footer text-end">
+                    <button type="submit" class="btn btn-primary">轉換</button>
+                </div>
+            </div>
+            <div class="card m-3">
+                <div class="card-header position-relative">
+                    HTML 原始碼輸出
+                    <button type="button" class="btn btn-sm btn-secondary" id="copy-button" style="position: absolute; top: 0.5rem; right: 0.5rem;">
+                        <i class="fa-regular fa-clipboard"></i> 複製
+                    </button>
+                </div>
+                <div class="card-body" style="max-height: 15rem; overflow-y: auto;">
+                    <pre><code id="html-output">@Model.HtmlContent</code></pre>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    HTML 預覽
+                </div>
+                <div class="card-body" id="rendered-output" style="max-height: 44rem; overflow-y: auto;">
+                    @Html.AntiXssRaw(Model.HtmlContent)
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const copyButton = document.getElementById('copy-button');
+            const htmlOutput = document.getElementById('html-output');
+
+            if (copyButton && htmlOutput) {
+                copyButton.addEventListener('click', function () {
+                    const codeToCopy = htmlOutput.innerText;
+                    navigator.clipboard.writeText(codeToCopy).then(function () {
+                        // Optional: Show a success message or change button text
+                        const originalText = copyButton.innerHTML;
+                        copyButton.innerHTML = '<i class="fa-solid fa-check"></i> 已複製！';
+                        setTimeout(function () {
+                            copyButton.innerHTML = originalText;
+                        }, 2000);
+                    }, function (err) {
+                        console.error('Could not copy text: ', err);
+                    });
+                });
+            }
+        });
+    </script>
+}

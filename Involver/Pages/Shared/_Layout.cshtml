@@ -141,8 +141,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Feedbacks/Index">回報與意見</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTools" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                工具
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownTools">
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/MarkdownToHtml">Markdown轉換器</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
