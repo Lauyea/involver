@@ -1,21 +1,29 @@
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="auto">
 <head>
-    <!-- 暫停使用 Google Adsence，改善用戶體驗 -->
-    @* @if (userManager.GetUserAsync(User).Result != null)
+    @{
+        var currentPath = HttpContextAccessor.HttpContext.Request.Path.Value;
+        bool showAdsOnToolPages = currentPath.StartsWith("/Functions");
+    }
+
+    @if (showAdsOnToolPages)
     {
-        @if (!userManager.GetUserAsync(User).Result.Prime)
+        //Google AdSense
+        @if (userManager.GetUserAsync(User).Result != null)
         {
-            //Google AdSense
+            @if (!userManager.GetUserAsync(User).Result.Prime)
+            {
+                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
+                        crossorigin="anonymous"></script>
+            }
+        }
+        else
+        {
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
-            crossorigin="anonymous"></script>
+                    crossorigin="anonymous"></script>
         }
     }
-    else
-    {
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
-            crossorigin="anonymous"></script>
-    } *@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Involver - @ViewData["Title"]</title>
@@ -141,8 +149,14 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Feedbacks/Index">回報與意見</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTools" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                工具
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownTools">
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/MarkdownToHtml">Markdown轉換器</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
