@@ -1,5 +1,55 @@
 @page
 @model Involver.Pages.Functions.IndexModel
 @{
-    // This page exists only to redirect.
+    ViewData["Title"] = "工具箱";
 }
+
+<style>
+    .tool-card {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .tool-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .tool-card .card-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .tool-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: var(--primary-accent);
+    }
+</style>
+
+<div class="text-center mb-4">
+    <h1>@ViewData["Title"]</h1>
+    <p class="lead text-muted">這裡集結了所有能幫助您創作與交流的工具。</p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var tool in Model.Tools)
+    {
+        <div class="col">
+            <a href="@tool.Url" class="card h-100 tool-card">
+                <div class="card-body p-4">
+                    <div class="tool-icon">
+                        <i class="@tool.IconClass"></i>
+                    </div>
+                    <h5 class="card-title">@tool.Title</h5>
+                    <p class="card-text text-muted">@tool.Description</p>
+                </div>
+            </a>
+        </div>
+    }
+</div>
