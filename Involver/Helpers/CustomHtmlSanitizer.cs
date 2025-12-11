@@ -16,6 +16,7 @@ namespace Involver.Helpers
             var sanitizer = new HtmlSanitizer();
 
             sanitizer.AllowedAttributes.Add("class");
+            sanitizer.AllowedAttributes.Add("id");
 
             sanitizer.RemovingTag += FilterTags;
 

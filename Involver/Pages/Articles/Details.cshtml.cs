@@ -12,7 +12,8 @@ using Involver.Authorization.Article;
 using Involver.Authorization.Comment;
 using Involver.Common;
 using Involver.Extensions;
-
+using Involver.Helpers;
+using Involver.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,6 +35,8 @@ namespace Involver.Pages.Articles
         }
 
         public Article Article { get; set; }
+        public List<TocItem> Toc { get; set; }
+        public string ProcessedContent { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
         {
@@ -66,6 +69,15 @@ namespace Involver.Pages.Articles
             {
                 return Forbid();
             }
+
+            //TOC
+            string content = Article.Content;
+            if (content != null)
+            {
+                content = content.Replace("\r\n", "<br />");
+            }
+            Toc = TableOfContentsHelper.Generate(content, out string processedContent);
+            ProcessedContent = processedContent;
 
             await AddViewRecordAsync();
 
