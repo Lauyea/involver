@@ -27,6 +27,8 @@ for details on configuring this project to bundle and minify static web assets. 
     /* 定義 TOC 的寬度變數，方便統一管理 */
     --toc-width: 260px;
     --gap-size: 1.5rem;
+    /* UI 主要字體：優先使用思源黑體，若無則退回系統字體 */
+    --font-main: 'Noto Sans TC', system-ui, -apple-system, "Microsoft JhengHei", sans-serif;
 }
 
 /* Bootstrap 5 Color Mode: Dark */
@@ -70,6 +72,11 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
+    /* 套用全域字體 */
+    font-family: var(--font-main);
+    /* 優化字體渲染，讓文字在 MacOS/iOS 上更清晰 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 a {
