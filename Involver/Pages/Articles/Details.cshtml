@@ -17,6 +17,34 @@
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
+@if (Model.Toc != null && Model.Toc.Any())
+{
+    <div class="d-lg-none mb-3"> <!-- d-lg-none hides it on large screens and up -->
+        <div class="card">
+            <div class="card-header">
+                <a class="text-decoration-none d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#mobile-toc-collapse" role="button" aria-expanded="false" aria-controls="mobile-toc-collapse">
+                    <span class="fw-bold">目錄</span>
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+            </div>
+            <div class="collapse" id="mobile-toc-collapse">
+                <div class="toc-body p-2">
+                    <div id="mobile-toc-nav" class="nav nav-pills flex-column">
+                        @foreach (var item in Model.Toc)
+                        {
+                            <a class="nav-link text-truncate"
+                               style="padding-left: @(((item.Level - 1) * 1) + "rem");"
+                               href="#@item.Id">
+                                @item.Text
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="article-layout-wrapper">
     <div class="article-main-content" style="min-width: 0;">
         <div class="card mb-4">

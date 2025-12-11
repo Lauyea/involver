@@ -462,7 +462,7 @@ h1, h2, h3, h4, h5, h6 {
     scroll-margin-top: var(--top-head-height, 0px);
 }
 
-/* 1. 外層佈局容器 */
+/* 文章佈局容器 */
 .article-layout-wrapper {
     display: grid;
     /* 預設：單欄佈局 (給手機版用) */
@@ -471,13 +471,13 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
 }
 
-/* 2. TOC 容器設定 */
+/* TOC 容器設定 */
 #toc-container {
     /* 預設隱藏 (手機版) */
     display: none;
 }
 
-/* 3. 電腦版 (Desktop) 設定 - 這裡才開啟雙欄模式 */
+/* 電腦版 (Desktop) TOC 設定 - 這裡才開啟雙欄模式 */
 @media (min-width: 992px) {
     /* 使用 :has 偵測，只有當容器內真的有 #toc-container 時，才切分成兩欄 */
     .article-layout-wrapper:has(#toc-container) {
@@ -488,14 +488,23 @@ h1, h2, h3, h4, h5, h6 {
     #toc-container {
         display: block;
         position: sticky;
-        /* top 的高度要考慮 Header 高度，這裡假設 Header 約 70px + 留一點間距 */
         top: calc(var(--top-head-height, 60px) + 1.5rem);
-        /* 必須設定高度，讓 sticky 知道邊界，通常設為內容高度即可 */
-        height: fit-content;
-        /* 限制最大高度，讓目錄內容自己捲動，不要讓整個頁面捲動 */
+        /* 限制最大高度，讓 TOC 卡片本身不要超出螢幕 */
         max-height: calc(100vh - var(--top-head-height, 60px) - 3rem);
-        overflow-y: auto;
+        height: fit-content;
+        overflow-x: hidden; /* 防止內容撐開導致水平捲軸 */
         z-index: 10;
+    }
+
+        #toc-container .toc-body {
+            overflow-y: auto; /* 讓 TOC 內容產生垂直捲軸 */
+            overflow-x: hidden;
+        }
+
+    #toc-container > .card {
+        display: flex;
+        flex-direction: column;
+        height: 100%; /* Make card fill the height of #toc-container */
     }
 }
 
