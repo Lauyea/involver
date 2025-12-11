@@ -286,6 +286,14 @@
                     });
                 });
             }
+
+            // 取 sticky nav 高度，避免 heading id anchor 被擋住
+            const topHead = document.querySelector('#TopHead');
+            const headerHeight = topHead ? topHead.offsetHeight + 16 : 0; // +16px，不要完全貼合 sticky nav
+
+            // 寫到 root 的 CSS 變數
+            document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
+
         });
     </script>
     <a href="#" id="gotop">

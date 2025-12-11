@@ -18,13 +18,15 @@ for details on configuring this project to bundle and minify static web assets. 
     --navbar-shadow: 0 2px 4px rgba(0,0,0,.05);
     --navbar-brand-color-hover: rgb(255 180 0 / 90%);
     --toggler-border-color: rgba(0,0,0,.1);
-
     --card-hover-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
     --tag-container-bg: #f9f9f9;
     --tag-item-bg: #e9ecef;
     --tag-item-border: #ced4da;
     --tag-count-color: #6c757d;
     --theme-gradient: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
+    /* 定義 TOC 的寬度變數，方便統一管理 */
+    --toc-width: 260px;
+    --gap-size: 1.5rem;
 }
 
 /* Bootstrap 5 Color Mode: Dark */
@@ -454,6 +456,47 @@ h4:hover .anchor-link,
 h5:hover .anchor-link,
 h6:hover .anchor-link {
     opacity: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    scroll-margin-top: var(--top-head-height, 0px);
+}
+
+/* 1. 外層佈局容器 */
+.article-layout-wrapper {
+    display: grid;
+    /* 預設：單欄佈局 (給手機版用) */
+    grid-template-columns: 1fr;
+    gap: var(--gap-size);
+    position: relative;
+}
+
+/* 2. TOC 容器設定 */
+#toc-container {
+    /* 預設隱藏 (手機版) */
+    display: none;
+}
+
+/* 3. 電腦版 (Desktop) 設定 - 這裡才開啟雙欄模式 */
+@media (min-width: 992px) {
+    /* 使用 :has 偵測，只有當容器內真的有 #toc-container 時，才切分成兩欄 */
+    .article-layout-wrapper:has(#toc-container) {
+        /* 左邊自動填滿 (1fr)，右邊固定寬度 */
+        grid-template-columns: 1fr var(--toc-width);
+    }
+
+    #toc-container {
+        display: block;
+        position: sticky;
+        /* top 的高度要考慮 Header 高度，這裡假設 Header 約 70px + 留一點間距 */
+        top: calc(var(--top-head-height, 60px) + 1.5rem);
+        /* 必須設定高度，讓 sticky 知道邊界，通常設為內容高度即可 */
+        height: fit-content;
+        /* 限制最大高度，讓目錄內容自己捲動，不要讓整個頁面捲動 */
+        max-height: calc(100vh - var(--top-head-height, 60px) - 3rem);
+        overflow-y: auto;
+        z-index: 10;
+    }
 }
 
 /* Notification Indicator */

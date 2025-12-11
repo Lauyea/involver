@@ -46,6 +46,8 @@ namespace Involver.Helpers
                 id = Regex.Replace(id, @"[^\p{L}\p{N}-]", "");
                 id = id.Length > 50 ? id.Substring(0, 50) : id;
 
+                id = "h-" + id; // 避免 querySelector 無法抓到阿拉伯數字開頭的 id
+
                 // Ensure ID is unique
                 var originalId = id;
                 int counter = 1;
@@ -53,6 +55,7 @@ namespace Involver.Helpers
                 {
                     id = $"{originalId}-{counter++}";
                 }
+
                 usedIds.Add(id);
 
                 // Update the heading

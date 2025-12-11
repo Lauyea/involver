@@ -17,8 +17,8 @@
 <partial name="_Toasts" model="Model.Toasts" />
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
-<div class="row">
-    <div class="col-lg-9">
+<div class="article-layout-wrapper">
+    <div class="article-main-content" style="min-width: 0;">
         <div class="card mb-4">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
@@ -118,23 +118,25 @@
 
     @if (Model.Toc != null && Model.Toc.Any())
     {
-        <div class="col-lg-3 d-none d-lg-block">
-            <div class="position-sticky" style="top: 1rem;">
-                <div class="card">
-                    <div class="card-header">
-                        目錄
-                    </div>
-                    <div style="max-height: 80vh; overflow-y: auto;">
-                        <nav id="toc" class="nav nav-pills flex-column p-2">
-                            @foreach (var item in Model.Toc)
-                            {
-                                <a class="nav-link" style="padding-left: @(((item.Level - 1) * 1.2) + "rem");" href="#@item.Id">@item.Text</a>
-                            }
-                        </nav>
+        <aside id="toc-container">
+            <div class="card">
+                <div class="card-header fw-bold">
+                    目錄
+                </div>
+                <div class="toc-body">
+                    <div id="toc" class="nav nav-pills flex-column p-2">
+                        @foreach (var item in Model.Toc)
+                        {
+                            <a class="nav-link text-truncate"
+                               style="padding-left: @(((item.Level - 1) * 1) + "rem");"
+                               href="#@item.Id">
+                                @item.Text
+                            </a>
+                        }
                     </div>
                 </div>
             </div>
-        </div>
+        </aside>
     }
 </div>
 
@@ -147,16 +149,24 @@
             js = d.createElement(s); js.id = id;
             js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.2";
             fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));</script>
+        }(document, 'script', 'facebook-jssdk'));
+    </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (document.getElementById('toc')) {
-                var scrollSpy = new bootstrap.ScrollSpy(document.body, {
-                    target: '#toc',
-                    offset: 120
-                });
-            }
+            document.addEventListener('DOMContentLoaded', function () {
+            // 等待 CSS / 字體 / layout 渲染穩定
+            requestAnimationFrame(() => {
+                const topHead = document.querySelector('#TopHead');
+                const headerHeight = topHead ? topHead.getBoundingClientRect().height + 16 : 0; // 這邊設定與 _Layout headerHeight 一樣
+
+                if (document.getElementById('toc')) {
+                    new bootstrap.ScrollSpy(document.body, {
+                        target: '#toc',
+                        offset: headerHeight
+                    });
+                }
+            });
         });
+
     </script>
 }
