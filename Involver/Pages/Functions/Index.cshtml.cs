@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections.Generic;
 
 namespace Involver.Pages.Functions
 {
+    [AllowAnonymous]
     public class IndexModel : PageModel
     {
         public List<ToolInfo> Tools { get; set; }

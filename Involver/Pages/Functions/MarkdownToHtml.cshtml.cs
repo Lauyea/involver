@@ -1,9 +1,12 @@
 using Markdig;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Involver.Pages.Functions
 {
+    [AllowAnonymous]
     public class MarkdownToHtmlModel : PageModel
     {
         [BindProperty]
