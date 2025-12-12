@@ -8,10 +8,20 @@
 
 @if (showBanner)
 {
-    <div id="cookieConsent" class="alert alert-info alert-dismissible fade show" role="alert">
-        本網站會使用cookie為用戶提供服務 <a asp-area="" asp-page="/Descriptions/Privacy">了解更多</a>
-        <button type="button" class="accept-policy btn-close" data-bs-dismiss="alert" aria-label="Close" data-cookie-string="@cookieString">
-            <span aria-hidden="true">同意</span>
+    <div id="cookieConsent"
+         class="alert alert-info fade show d-flex justify-content-between align-items-center"
+         role="alert">
+
+        <div>
+            本網站會使用 cookie 為用戶提供服務
+            <a asp-area="" asp-page="/Descriptions/Privacy">了解更多</a>
+        </div>
+
+        <button type="button"
+                class="accept-policy btn btn-sm btn-primary ms-3"
+                data-bs-dismiss="alert"
+                data-cookie-string="@cookieString">
+            同意
         </button>
     </div>
     <script>
