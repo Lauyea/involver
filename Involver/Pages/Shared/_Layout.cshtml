@@ -96,26 +96,42 @@
             border: none;
         }
 
-        #gotop {
+        #gotop, #gobottom {
             position: fixed;
             z-index: 90;
             right: 30px;
-            bottom: 31px;
-            display: none;
             width: 50px;
             height: 50px;
             color: #fff;
-            background-color: var(--primary-accent); /* 使用 CSS 變數 */
+            background-color: var(--primary-accent);
             line-height: 50px;
             border-radius: 50%;
-            transition: all 0.5s;
             text-align: center;
             box-shadow: 0 2px 10px 0 rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, background-color 0.3s;
+            pointer-events: none; /* Initially not clickable */
         }
 
-            #gotop:hover {
-                background-color: var(--primary-accent-hover); /* 使用 CSS 變數 */
-                transform: translateY(-3px);
+        #gotop {
+            bottom: 91px;
+        }
+
+        #gobottom {
+            bottom: 31px;
+        }
+
+            #gotop.visible, #gobottom.visible {
+                opacity: 0.8;
+                transform: scale(1);
+                pointer-events: auto; /* Clickable when visible */
+            }
+
+            #gotop:hover, #gobottom:hover {
+                background-color: var(--primary-accent-hover);
+                opacity: 1;
+                transform: scale(1.05) translateY(-3px);
             }
     </style>
 </head>
@@ -260,34 +276,65 @@
             // 綁定滾動事件
             window.addEventListener('scroll', handleNavScroll);
 
-            // GoTop 按鈕出現/隱藏
-            function handleGoTopVisibility() {
-                if (goTopButton) {
-                    if (window.scrollY > 400) {
-                        goTopButton.style.display = 'block';
-                        // goTopButton.style.opacity = '1';
-                        // goTopButton.style.transition = 'opacity 1.4s'; // 這兩段無用。再想想看是否要有 fade in, fade out 效果
-                    } else {
-                        goTopButton.style.display = 'none'; // 簡單隱藏
-                    }
-                }
+            // --- GoTop & GoBottom 按鈕邏輯 ---
+            const goBottomButton = document.getElementById('gobottom');
+            let scrollTimeout;
+
+            // 計時器函數，用於隱藏按鈕
+            function setHideTimeout() {
+                scrollTimeout = setTimeout(() => {
+                    goTopButton.classList.remove('visible');
+                    goBottomButton.classList.remove('visible');
+                }, 1500);
+            }
+
+            function handleScrollButtons() {
+                // 顯示按鈕
+                goTopButton.classList.add('visible');
+                goBottomButton.classList.add('visible');
+
+                // 清除之前的計時器並重新設定
+                clearTimeout(scrollTimeout);
+                setHideTimeout();
             }
 
             // 綁定滾動事件
-            window.addEventListener('scroll', handleGoTopVisibility);
+            window.addEventListener('scroll', handleScrollButtons);
 
-            // 頁面載入時執行一次，確保初始狀態正確
-            handleGoTopVisibility();
+            // 處理按鈕的通用邏輯
+            function setupButtonEvents(button) {
+                if (button) {
+                    // 滑鼠移入時，清除計時器，保持按鈕可見
+                    button.addEventListener('mouseenter', () => clearTimeout(scrollTimeout));
+                    // 滑鼠移出時，重新設定計時器
+                    button.addEventListener('mouseleave', setHideTimeout);
+                }
+            }
 
+            setupButtonEvents(goTopButton);
+            setupButtonEvents(goBottomButton);
 
-            // GoTop 按鈕點擊平滑滾動
+            // GoTop 按鈕點擊
             if (goTopButton) {
-                goTopButton.addEventListener('click', function(e) {
+                goTopButton.addEventListener('click', function (e) {
                     e.preventDefault();
                     window.scrollTo({
                         top: 0,
-                        behavior: 'smooth' // 啟用原生平滑滾動
+                        behavior: 'smooth'
                     });
+                    this.blur(); // 移除焦點
+                });
+            }
+
+            // GoBottom 按鈕點擊
+            if (goBottomButton) {
+                goBottomButton.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                    this.blur(); // 移除焦點
                 });
             }
 
@@ -302,6 +349,9 @@
     </script>
     <a href="#" id="gotop">
         <i class="fa fa-angle-up"></i>
+    </a>
+    <a href="#" id="gobottom">
+        <i class="fa fa-angle-down"></i>
     </a>
 
     @RenderSection("Scripts", required: false)
