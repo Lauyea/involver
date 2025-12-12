@@ -280,30 +280,39 @@
             const goBottomButton = document.getElementById('gobottom');
             let scrollTimeout;
 
-            function handleScrollButtons() {
-                // 如果滾動不夠，則不顯示按鈕
-                if (window.scrollY < 400) {
-                    goTopButton.classList.remove('visible');
-                    goBottomButton.classList.remove('visible');
-                    return;
-                }
-
-                // 顯示按鈕
-                goTopButton.classList.add('visible');
-                goBottomButton.classList.add('visible');
-
-                // 清除之前的計時器
-                clearTimeout(scrollTimeout);
-
-                // 設定新的計時器，滾動停止 1.5 秒後淡出按鈕
+            // 計時器函數，用於隱藏按鈕
+            function setHideTimeout() {
                 scrollTimeout = setTimeout(() => {
                     goTopButton.classList.remove('visible');
                     goBottomButton.classList.remove('visible');
                 }, 1500);
             }
 
+            function handleScrollButtons() {
+                // 顯示按鈕
+                goTopButton.classList.add('visible');
+                goBottomButton.classList.add('visible');
+
+                // 清除之前的計時器並重新設定
+                clearTimeout(scrollTimeout);
+                setHideTimeout();
+            }
+
             // 綁定滾動事件
             window.addEventListener('scroll', handleScrollButtons);
+
+            // 處理按鈕的通用邏輯
+            function setupButtonEvents(button) {
+                if (button) {
+                    // 滑鼠移入時，清除計時器，保持按鈕可見
+                    button.addEventListener('mouseenter', () => clearTimeout(scrollTimeout));
+                    // 滑鼠移出時，重新設定計時器
+                    button.addEventListener('mouseleave', setHideTimeout);
+                }
+            }
+
+            setupButtonEvents(goTopButton);
+            setupButtonEvents(goBottomButton);
 
             // GoTop 按鈕點擊
             if (goTopButton) {
@@ -313,6 +322,7 @@
                         top: 0,
                         behavior: 'smooth'
                     });
+                    this.blur(); // 移除焦點
                 });
             }
 
@@ -324,6 +334,7 @@
                         top: document.documentElement.scrollHeight,
                         behavior: 'smooth'
                     });
+                    this.blur(); // 移除焦點
                 });
             }
 
