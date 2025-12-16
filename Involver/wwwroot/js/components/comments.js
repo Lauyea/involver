@@ -67,7 +67,47 @@ const app = createApp({
         if (this.isOrderFixed) {
             this.sortBy = 'oldest';
         }
-        this.getCommentsAsync(1);
+        
+        this.getCommentsAsync(1).then(() => {
+            this.$nextTick(() => {
+                const hash = window.location.hash;
+                if (!hash) return;
+
+                const scrollToHash = () => {
+                    const targetId = hash.substring(1);
+                    const element = document.getElementById(targetId);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+
+                const commentApp = document.getElementById('comment-app');
+                if (!commentApp) {
+                    scrollToHash(); // Fallback
+                    return;
+                }
+                
+                const images = commentApp.querySelectorAll('img');
+                const loadingImages = Array.from(images).filter(img => !img.complete);
+
+                if (loadingImages.length === 0) {
+                    // All images are loaded or there are no images, scroll now
+                    scrollToHash();
+                } else {
+                    // Wait for the remaining images to load
+                    const promises = loadingImages.map(img =>
+                        new Promise(resolve => {
+                            img.onload = resolve;
+                            img.onerror = resolve; // Also resolve on error
+                        })
+                    );
+                    Promise.all(promises).then(() => {
+                        // Add a small delay for rendering after image load
+                        setTimeout(scrollToHash, 100);
+                    });
+                }
+            });
+        });
 
         const commentModalEl = document.getElementById('commentModal');
         if (commentModalEl) {
