@@ -449,6 +449,10 @@ button.accept-policy {
     font-weight: 800;
 }
 
+[id] {
+    scroll-margin-top: var(--top-head-height, 0px); /* 對有 id 的項目滾動時都向上保留空間，避免被 sticky nav 擋住 */
+}
+
 /* Heading Anchor Link */
 .anchor-link {
     opacity: 0;
@@ -463,10 +467,6 @@ h4:hover .anchor-link,
 h5:hover .anchor-link,
 h6:hover .anchor-link {
     opacity: 1;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    scroll-margin-top: var(--top-head-height, 0px);
 }
 
 /* 文章佈局容器 */
