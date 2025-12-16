@@ -243,7 +243,7 @@ namespace Involver.Controllers
             var toasts = await AchievementHelper.GetAgreeCountAsync(_context, authorProfile.ProfileID);
 
             // Set notification
-            var url = $"{Request.Scheme}://{Request.Host}/Comments/Details?id={message.CommentID}";
+            var url = $"{Request.Scheme}://{Request.Host}/Episodes/Details?id={message.Comment.EpisodeID}#comment-{message.CommentID}";
             await _notificationSetter.ForMessageBeAgreedAsync(message.Content, authorProfile.ProfileID, url, toasts);
 
             await _context.SaveChangesAsync();
