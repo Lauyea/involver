@@ -4,7 +4,12 @@
 {
     <div class="row">
         <div class="col-md-6">
-            <a asp-page="/Articles/Details" asp-route-id="@article.ArticleID">@Html.DisplayFor(modelItem => article.Title)</a>
+            <p>
+                <a asp-page="/Articles/Details" asp-route-id="@article.ArticleID">@Html.DisplayFor(modelItem => article.Title)</a>
+            </p>
+            <span class="badge @article.Type.GetBadgeClass() ms-2">
+                @Html.DisplayFor(modelItem => article.Type)
+            </span>
         </div>
         <div class="col-md-3">
             <p>
