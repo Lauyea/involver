@@ -3,9 +3,6 @@
 
 // Write your Javascript code.
 
-// 等待 DOM 內容完全載入後才執行
-document.addEventListener('DOMContentLoaded', fetchNotifications);
-
 /**
  * 顯示全域 Toast 通知
  * @param {Array<Object>} toasts - 一個包含 toast 物件的陣列
@@ -143,39 +140,35 @@ async function copyShareLinkAndTrackAsync(btn) {
 }
 
 /**
- * DOM 載入完成後執行的初始化代碼
+ * DOM 載入完成後執行的統一初始化代碼
  */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 初始化所有 .btn-copy-link 按鈕的 Tooltip
-    const tooltipTriggerList = document.querySelectorAll('.btn-copy-link');
-    tooltipTriggerList.forEach(tooltipTriggerEl => {
+    // --- 1. 通知相關 ---
+    fetchNotifications();
+
+    // --- 2. 複製連結按鈕邏輯 ---
+    const copyLinkTooltips = document.querySelectorAll('.btn-copy-link');
+    copyLinkTooltips.forEach(tooltipTriggerEl => {
         new bootstrap.Tooltip(tooltipTriggerEl, {
-            trigger: 'manual', // 我們將手動控制顯示/隱藏
+            trigger: 'manual',
             placement: 'bottom'
-            //title: '已複製！' // 可以在這裡設定 tooltip 的標題。已經設定在原按鈕中。
         });
     });
 
-    // 使用事件委派 (Event Delegation) 附加點擊處理器
+    // 使用事件委派附加點擊處理器
     document.addEventListener('click', (e) => {
-        // 使用 .closest() 來找到被點擊的目標或其祖先中符合 .btn-copy-link 的元素
         const copyButton = e.target.closest('.btn-copy-link');
-
         if (copyButton) {
-            e.preventDefault(); // 防止預設行為
-            copyShareLinkAndTrackAsync(copyButton); // 呼叫函式
+            e.preventDefault();
+            copyShareLinkAndTrackAsync(copyButton);
         }
     });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    // 獲取所有相關 DOM 元素
+    // --- 3. UI 通用邏輯 (Loading, Nav, Toasts, GoTop) ---
     const loadingElement = document.getElementById('loading');
     const goTopButton = document.getElementById('gotop');
     const topHeadNav = document.querySelector('#TopHead nav');
-
-    // 獲取 Toast 元素（注意：.toast 是一個選擇器，可能有多個）
     const toastElements = document.querySelectorAll('.toast');
 
     // 隱藏載入畫面
@@ -186,15 +179,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // 顯示 Toast
     if (toastElements.length > 0) {
         toastElements.forEach(toastEl => {
-            const toast = new bootstrap.Toast(toastEl);
-            toast.show();
+            // 檢查 Bootstrap 是否已載入
+            if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
+            }
         });
     }
 
-    // 啟用 Bootstrap Tooltips
-    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-    if (tooltipTriggerList.length > 0) {
-        tooltipTriggerList.forEach(tooltipTriggerEl => {
+    // 啟用通用 Bootstrap Tooltips
+    const commonTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    if (commonTooltips.length > 0) {
+        commonTooltips.forEach(tooltipTriggerEl => {
             new bootstrap.Tooltip(tooltipTriggerEl);
         });
     }
@@ -209,8 +205,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-
-    // 綁定滾動事件
     window.addEventListener('scroll', handleNavScroll);
 
     // --- GoTop & GoBottom 按鈕邏輯 ---
@@ -220,25 +214,21 @@ document.addEventListener('DOMContentLoaded', function () {
     // 計時器函數，用於隱藏按鈕
     function setHideTimeout() {
         scrollTimeout = setTimeout(() => {
-            goTopButton.classList.remove('visible');
-            goBottomButton.classList.remove('visible');
+            if (goTopButton) goTopButton.classList.remove('visible');
+            if (goBottomButton) goBottomButton.classList.remove('visible');
         }, 1500);
     }
 
     function handleScrollButtons() {
         // 顯示按鈕
-        goTopButton.classList.add('visible');
-        goBottomButton.classList.add('visible');
-
+        if (goTopButton) goTopButton.classList.add('visible');
+        if (goBottomButton) goBottomButton.classList.add('visible');
         // 清除之前的計時器並重新設定
         clearTimeout(scrollTimeout);
         setHideTimeout();
     }
-
-    // 綁定滾動事件
     window.addEventListener('scroll', handleScrollButtons);
 
-    // 處理按鈕的通用邏輯
     function setupButtonEvents(button) {
         if (button) {
             // 滑鼠移入時，清除計時器，保持按鈕可見
@@ -247,31 +237,22 @@ document.addEventListener('DOMContentLoaded', function () {
             button.addEventListener('mouseleave', setHideTimeout);
         }
     }
-
     setupButtonEvents(goTopButton);
     setupButtonEvents(goBottomButton);
 
-    // GoTop 按鈕點擊
     if (goTopButton) {
         goTopButton.addEventListener('click', function (e) {
             e.preventDefault();
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-            this.blur(); // 移除焦點
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.blur();
         });
     }
 
-    // GoBottom 按鈕點擊
     if (goBottomButton) {
         goBottomButton.addEventListener('click', function (e) {
             e.preventDefault();
-            window.scrollTo({
-                top: document.documentElement.scrollHeight,
-                behavior: 'smooth'
-            });
-            this.blur(); // 移除焦點
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            this.blur();
         });
     }
 
@@ -281,7 +262,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 寫到 root 的 CSS 變數
     document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
-
 });
 
 /**
