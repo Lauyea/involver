@@ -401,12 +401,7 @@ button.accept-policy {
     padding: 5px 10px;
     text-decoration: none;
     transition: all 0.3s ease;
-}
-
-/* 深色模式下的標籤項目 */
-[data-bs-theme="dark"] .tag-item {
-    background-color: #495057;
-    border-color: #6c757d;
+    border-color: var(--tag-item-border);
 }
 
 .tag-item:hover {
