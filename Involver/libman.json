@@ -19,7 +19,7 @@
       "library": "vue@3.5.22",
       "destination": "wwwroot/lib/vue/",
       "files": [
-        "vue.esm-browser.min.js"
+        "vue.global.min.js"
       ]
     }
   ]

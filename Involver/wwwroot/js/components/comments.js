@@ -1,4 +1,4 @@
-import { createApp, markRaw } from 'vue';
+const { createApp, markRaw } = Vue;
 
 const app = createApp({
     data() {
