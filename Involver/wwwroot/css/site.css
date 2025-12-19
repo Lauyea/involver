@@ -29,6 +29,7 @@ for details on configuring this project to bundle and minify static web assets. 
     --gap-size: 1.5rem;
     /* UI 主要字體：優先使用思源黑體，若無則退回系統字體 */
     --font-main: 'Noto Sans TC', system-ui, -apple-system, "Microsoft JhengHei", sans-serif;
+    --notification-indicator-color: rgba(255,0,0,.85);
 }
 
 /* Bootstrap 5 Color Mode: Dark */
@@ -512,11 +513,11 @@ h6:hover .anchor-link {
 
 /* Notification Indicator */
 .fa-stack[data-count]:after {
-    background: rgba(255,0,0,.85);
+    background: var(--notification-indicator-color);
     border-radius: 999px;
     color: white;
     content: attr(data-count);
-    font-size: 30%;
+    font-size: 40%;
     font-weight: bold;
     line-height: .75em;
     min-width: 2em;
