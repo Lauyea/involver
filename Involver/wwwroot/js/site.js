@@ -3,9 +3,6 @@
 
 // Write your Javascript code.
 
-// 等待 DOM 內容完全載入後才執行
-document.addEventListener('DOMContentLoaded', fetchNotifications);
-
 /**
  * 顯示全域 Toast 通知
  * @param {Array<Object>} toasts - 一個包含 toast 物件的陣列
@@ -143,385 +140,126 @@ async function copyShareLinkAndTrackAsync(btn) {
 }
 
 /**
- * DOM 載入完成後執行的初始化代碼
+ * DOM 載入完成後執行的統一初始化代碼
  */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // 初始化所有 .btn-copy-link 按鈕的 Tooltip
-    const tooltipTriggerList = document.querySelectorAll('.btn-copy-link');
-    tooltipTriggerList.forEach(tooltipTriggerEl => {
+    // --- 1. 通知相關 ---
+    fetchNotifications();
+
+    // --- 2. 複製連結按鈕邏輯 ---
+    const copyLinkTooltips = document.querySelectorAll('.btn-copy-link');
+    copyLinkTooltips.forEach(tooltipTriggerEl => {
         new bootstrap.Tooltip(tooltipTriggerEl, {
-            trigger: 'manual', // 我們將手動控制顯示/隱藏
+            trigger: 'manual',
             placement: 'bottom'
-            //title: '已複製！' // 可以在這裡設定 tooltip 的標題。已經設定在原按鈕中。
         });
     });
 
-    // 使用事件委派 (Event Delegation) 附加點擊處理器
+    // 使用事件委派附加點擊處理器
     document.addEventListener('click', (e) => {
-        // 使用 .closest() 來找到被點擊的目標或其祖先中符合 .btn-copy-link 的元素
         const copyButton = e.target.closest('.btn-copy-link');
-
         if (copyButton) {
-            e.preventDefault(); // 防止預設行為
-            copyShareLinkAndTrackAsync(copyButton); // 呼叫函式
+            e.preventDefault();
+            copyShareLinkAndTrackAsync(copyButton);
         }
     });
-});
 
-/**
- * 追蹤/取消追蹤作者的功能。
- * 使用 Fetch API 執行 GET 請求。
- * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
- * @param {string|number} id - 作者的 ID。
- */
-function FollowAuthor(btn, id) {
-    const url = `/Follow/FollowAuthor?id=${encodeURIComponent(id)}`;
+    // --- 3. UI 通用邏輯 (Loading, Nav, Toasts, GoTop) ---
+    const loadingElement = document.getElementById('loading');
+    const goTopButton = document.getElementById('gotop');
+    const topHeadNav = document.querySelector('#TopHead nav');
+    const toastElements = document.querySelectorAll('.toast');
 
-    fetch(url, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                // 如果 HTTP 狀態碼不是 2xx，拋出錯誤
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+    // 隱藏載入畫面
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+
+    // 顯示 Toast
+    if (toastElements.length > 0) {
+        toastElements.forEach(toastEl => {
+            // 檢查 Bootstrap 是否已載入
+            if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                const toast = new bootstrap.Toast(toastEl);
+                toast.show();
             }
-        })
-        .then(() => {
-            if (btn.textContent.trim() === "追蹤作者") {
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-secondary");
-                btn.textContent = "取消追蹤";
+        });
+    }
+
+    // 啟用通用 Bootstrap Tooltips
+    const commonTooltips = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+    if (commonTooltips.length > 0) {
+        commonTooltips.forEach(tooltipTriggerEl => {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    }
+
+    // --- 導覽列滾動效果 ---
+    function handleNavScroll() {
+        if (topHeadNav) {
+            if (window.scrollY > 50) {
+                topHeadNav.classList.add('navbar-scrolled');
             } else {
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-primary");
-                btn.textContent = "追蹤作者";
+                topHeadNav.classList.remove('navbar-scrolled');
             }
-        })
-        .catch(error => {
-            alert(error.message);
-            console.error('追蹤作者發生錯誤:', error);
-        });
-}
-
-/**
- * 追蹤/取消追蹤小說的功能。
- * 使用 Fetch API 執行 GET 請求
- * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
- * @param {string|number} id - 小說的 ID。
- */
-function FollowNovel(btn, id) {
-    const url = `/Follow/FollowNovel?id=${encodeURIComponent(id)}`;
-
-    fetch(url, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-            }
-        })
-        .then(() => {
-            if (btn.classList.contains("btn-primary")) {
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-secondary");
-                btn.textContent = "取消追蹤";
-            } else {
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-primary");
-                btn.textContent = "追蹤創作";
-            }
-        })
-        .catch(error => {
-            alert(error.message);
-            console.error('追蹤小說發生錯誤:', error);
-        });
-}
-
-/**
- * 檢查通知
- */
-function fetchNotifications() {
-    // 找到儲存資料的容器元素
-    const container = document.getElementById('notification-container');
-    const notificationElement = document.getElementById('notification');
-
-    // 檢查元素是否存在
-    if (!container || !notificationElement) {
-        console.error('必要元素 (notification-container 或 notification) 不存在。');
-        return;
-    }
-
-    // 從 Data Attributes 讀取 URL 和 User ID
-    // data-notification-url 會對應到 dataset.notificationUrl (注意駝峰命名法)
-    const url = container.dataset.notificationUrl;
-    // data-user-id 會對應到 dataset.userId
-    const userId = container.dataset.userId;
-
-    if (!url || !userId) {
-        console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
-        //notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>'; // 沒有登入的情況，不顯示通知icon就好
-        return;
-    }
-
-    const fullUrl = `${url}?userId=${userId}`;
-
-    fetch(fullUrl, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then(result => {
-            notificationElement.innerHTML = result;
-        })
-        .catch(error => {
-            // 處理錯誤
-            console.error('獲取通知失敗:', error);
-            notificationElement.innerHTML = '<p style="color: red;">載入通知失敗。</p>';
-        });
-}
-
-/**
- * 讀取通知
- * @param {string} id - 使用者 ID
- * @param {string} url - 要發送請求的 URL
- */
-async function ReadNotification(id, url) {
-    // 原生 DOM 操作
-    const notificationStack = document.getElementById("notificationStack");
-    if (notificationStack) {
-        notificationStack.removeAttribute("data-count");
-    }
-
-    // 取得 Anti-Forgery Token
-    const tokenElement = document.querySelector('input[type="hidden"][name="__RequestVerificationToken"]');
-    const token = tokenElement ? tokenElement.value : null;
-
-    if (!token) {
-        console.error('Anti-forgery token (__RequestVerificationToken) not found.');
-        alert('無法讀取通知 (缺少 token)');
-        return;
-    }
-
-    // 準備 POST 資料
-    const formData = new URLSearchParams();
-    formData.append('userId', id);
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                // 設定標頭
-                'X-CSRF-TOKEN': token,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData // 傳送 URL-encoded 的資料
-        });
-
-        if (!response.ok) {
-            alert(`Error: ${response.statusText}`);
         }
+    }
+    window.addEventListener('scroll', handleNavScroll);
 
-    } catch (err) {
-        alert(`Network error: ${err.message}`);
+    // --- GoTop & GoBottom 按鈕邏輯 ---
+    const goBottomButton = document.getElementById('gobottom');
+    let scrollTimeout;
+
+    // 計時器函數，用於隱藏按鈕
+    function setHideTimeout() {
+        scrollTimeout = setTimeout(() => {
+            if (goTopButton) goTopButton.classList.remove('visible');
+            if (goBottomButton) goBottomButton.classList.remove('visible');
+        }, 1500);
     }
 
-    const notificationClick = document.getElementById("notificationClick");
-    if (notificationClick) {
-        notificationClick.removeAttribute("onclick");
+    function handleScrollButtons() {
+        // 顯示按鈕
+        if (goTopButton) goTopButton.classList.add('visible');
+        if (goBottomButton) goBottomButton.classList.add('visible');
+        // 清除之前的計時器並重新設定
+        clearTimeout(scrollTimeout);
+        setHideTimeout();
     }
-}
+    window.addEventListener('scroll', handleScrollButtons);
 
-/* 觀看紀錄 Modal 操作*/
-
-/**
- * 處理 .view-chart-trigger 的點擊事件 (事件委派)
- */
-document.addEventListener('click', async function (e) {
-    // 檢查點擊的目標是否為在'.view-chart-trigger' 內
-    const triggerElement = e.target.closest('.view-chart-trigger');
-
-    // 如果點擊的不是 triggerElement，就結束
-    if (!triggerElement) {
-        return;
-    }
-
-    // 執行原始的 click 邏輯
-    e.preventDefault(); // 防止連結跳轉
-
-    const type = triggerElement.dataset.type;
-    const id = triggerElement.dataset.id;
-    const url = `/StatisticalData/PartialViewRecord?handler=ViewRecord&type=${type}&id=${id}`;
-
-    const modalContainer = document.getElementById('modal');
-    if (!modalContainer) {
-        console.error('Modal container #modal not found');
-        return;
-    }
-
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Failed to load partial view: ${response.statusText}`);
+    function setupButtonEvents(button) {
+        if (button) {
+            // 滑鼠移入時，清除計時器，保持按鈕可見
+            button.addEventListener('mouseenter', () => clearTimeout(scrollTimeout));
+            // 滑鼠移出時，重新設定計時器
+            button.addEventListener('mouseleave', setHideTimeout);
         }
-        const html = await response.text();
-
-        modalContainer.innerHTML = html;
-
-        // 找到由 .cshtml  載入的 (但未執行的) script 標籤
-        const originalScript = modalContainer.querySelector('script');
-
-        if (originalScript) {
-            // 建立一個 *新的* script 元素
-            const newScript = document.createElement('script');
-
-            // 將舊 script  的內容複製到新 script
-            newScript.textContent = originalScript.textContent;
-
-            // 將新 script 附加到 modal 元素上
-            // 瀏覽器會 *執行* 透過 DOM API 附加的 script
-            modalContainer.appendChild(newScript);
-
-            // 移除原本那個無用的 script 標籤
-            originalScript.remove();
-        }
-
-        // 執行 load 的回呼函式 (callback)
-        // 找到剛剛注入的 modal 元素
-        const modalElement = document.getElementById('viewRecordModal');
-
-        if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-            // 使用 Bootstrap 5/4 的原生 JS API 顯示 modal
-            const bsModal = new bootstrap.Modal(modalElement);
-            bsModal.show();
-        } else {
-            console.error('#viewRecordModal not found inside loaded HTML or Bootstrap JS is missing.');
-        }
-
-    } catch (err) {
-        console.error('Error loading modal content:', err);
-        alert('Error loading content.');
     }
+    setupButtonEvents(goTopButton);
+    setupButtonEvents(goBottomButton);
+
+    if (goTopButton) {
+        goTopButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            this.blur();
+        });
+    }
+
+    if (goBottomButton) {
+        goBottomButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
+            this.blur();
+        });
+    }
+
+    // 取 sticky nav 高度，避免 heading id anchor 被擋住
+    const topHead = document.querySelector('#TopHead');
+    const headerHeight = topHead ? topHead.offsetHeight + 16 : 0; // +16px，不要完全貼合 sticky nav
+
+    // 寫到 root 的 CSS 變數
+    document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
 });
-
-/**
- * 監聽 Modal 隱藏事件
- */
-document.addEventListener('hidden.bs.modal', function (e) {
-    // 檢查觸發此事件的是否為 #viewRecordModal
-    if (e.target.id === 'viewRecordModal') {
-        // e.target 就是 modal 元素本人
-        e.target.remove();
-    }
-});
-
-/**
- * 設定無限滾動
- * @param {string} containerSelector - 內容容器的選擇器，例如 '#articles-container'
- * @param {string} loadingSelector - 加載指示器的選擇器，例如 '#loading'
- * @param {string} handlerName - Razor Page 中用於加載更多的處理器名稱，例如 'LoadMore'
- * @param {object} additionalParams - 附加到 AJAX 請求的額外參數
- */
-function setupInfiniteScroll(containerSelector, loadingSelector, handlerName, additionalParams = {}) {
-    let page = 1;
-    let isLoading = false;
-    let noMoreData = false;
-
-    // 獲取加載指示器元素 (只查詢一次以提高效能)
-    const loadingElement = document.querySelector(loadingSelector);
-
-    if (!loadingElement) {
-        console.error('無限滾動錯誤：找不到加載指示器', loadingSelector);
-        return;
-    }
-
-    function loadMoreIfNeeded() {
-        if (noMoreData || isLoading) {
-            return;
-        }
-
-        // 判斷滾動位置
-        // window.scrollY = 當前滾動的垂直距離
-        // window.innerHeight = 瀏覽器視窗的可視高度
-        // document.documentElement.scrollHeight = 整個文件的總高度
-        const nearBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 200;
-        const notScrollable = document.documentElement.scrollHeight <= window.innerHeight + 200;
-
-        if (nearBottom || notScrollable) {
-            isLoading = true;
-            // 顯示加載動畫
-            loadingElement.style.display = 'block';
-            page++;
-
-            // 準備請求參數
-            const requestData = {
-                handler: handlerName,
-                pageIndex: page,
-                ...additionalParams
-            };
-
-            // 將參數物件轉換為 URL 查詢字串
-            const params = new URLSearchParams(requestData);
-            // 組合最終的請求 URL
-            const url = `${window.location.pathname}?${params.toString()}`;
-
-            // 使用 fetch API 執行 AJAX (GET) 請求
-            fetch(url, {
-                method: 'GET',
-                headers: {
-                    // 告知伺服器這是一個 AJAX 請求 (Razor Pages 可能需要)
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP 錯誤! 狀態: ${response.status}`);
-                    }
-                    // 因為我們預期的是 HTML 片段，所以使用 .text()
-                    return response.text();
-                })
-                .then(data => {
-                    if (data.trim().length > 0) {
-                        // 獲取內容容器
-                        const containerElement = document.querySelector(containerSelector);
-                        if (!containerElement) {
-                            console.error('無限滾動錯誤：找不到內容容器', containerSelector);
-                            isLoading = false; // 即使出錯也要重設狀態
-                            loadingElement.style.display = 'none';
-                            return;
-                        }
-
-                        // 附加 HTML 內容
-                        // .insertAdjacentHTML('beforeend', ...) 等同於 jQuery 的 .append(htmlString)
-                        containerElement.insertAdjacentHTML('beforeend', data);
-
-                        isLoading = false;
-                        loadingElement.style.display = 'none';
-
-                        // 再次檢查，以防新內容仍未填滿視窗導致無法滾動
-                        loadMoreIfNeeded();
-                    } else {
-                        // 沒有更多數據了
-                        noMoreData = true;
-                        loadingElement.style.display = 'none';
-                    }
-                })
-                .catch(error => {
-                    isLoading = false;
-                    loadingElement.style.display = 'none';
-                    console.error('加載更多內容時出錯:', error);
-                });
-        }
-    }
-
-    // 綁定滾動事件
-    window.addEventListener('scroll', loadMoreIfNeeded);
-
-    // 初始化時先檢查一次
-    // 使用 setTimeout 確保 DOM 初始渲染完成後再執行
-    setTimeout(loadMoreIfNeeded, 100);
-}

@@ -216,127 +216,12 @@
                 integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
                 crossorigin="anonymous"></script>
     </environment>
+    <script src="~/js/notifications.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/ckeditor5/build/ckeditor.js"></script>
     <script src="https://www.google.com/recaptcha/api.js"></script>
     <script src="~/js/form-validation.js" asp-append-version="true"></script>
 
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function() {
-            // 獲取所有相關 DOM 元素
-            const loadingElement = document.getElementById('loading');
-            const goTopButton = document.getElementById('gotop');
-            const topHeadNav = document.querySelector('#TopHead nav');
-
-            // 獲取 Toast 元素（注意：.toast 是一個選擇器，可能有多個）
-            const toastElements = document.querySelectorAll('.toast');
-
-            // 隱藏載入畫面
-            if (loadingElement) {
-                loadingElement.style.display = 'none';
-            }
-
-            // 顯示 Toast
-            if (toastElements.length > 0) {
-                toastElements.forEach(toastEl => {
-                    const toast = new bootstrap.Toast(toastEl);
-                    toast.show();
-                });
-            }
-
-            // 啟用 Bootstrap Tooltips
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            if (tooltipTriggerList.length > 0) {
-                tooltipTriggerList.forEach(tooltipTriggerEl => {
-                    new bootstrap.Tooltip(tooltipTriggerEl);
-                });
-            }
-
-            // --- 導覽列滾動效果 ---
-            function handleNavScroll() {
-                if (topHeadNav) {
-                    if (window.scrollY > 50) {
-                        topHeadNav.classList.add('navbar-scrolled');
-                    } else {
-                        topHeadNav.classList.remove('navbar-scrolled');
-                    }
-                }
-            }
-
-            // 綁定滾動事件
-            window.addEventListener('scroll', handleNavScroll);
-
-            // --- GoTop & GoBottom 按鈕邏輯 ---
-            const goBottomButton = document.getElementById('gobottom');
-            let scrollTimeout;
-
-            // 計時器函數，用於隱藏按鈕
-            function setHideTimeout() {
-                scrollTimeout = setTimeout(() => {
-                    goTopButton.classList.remove('visible');
-                    goBottomButton.classList.remove('visible');
-                }, 1500);
-            }
-
-            function handleScrollButtons() {
-                // 顯示按鈕
-                goTopButton.classList.add('visible');
-                goBottomButton.classList.add('visible');
-
-                // 清除之前的計時器並重新設定
-                clearTimeout(scrollTimeout);
-                setHideTimeout();
-            }
-
-            // 綁定滾動事件
-            window.addEventListener('scroll', handleScrollButtons);
-
-            // 處理按鈕的通用邏輯
-            function setupButtonEvents(button) {
-                if (button) {
-                    // 滑鼠移入時，清除計時器，保持按鈕可見
-                    button.addEventListener('mouseenter', () => clearTimeout(scrollTimeout));
-                    // 滑鼠移出時，重新設定計時器
-                    button.addEventListener('mouseleave', setHideTimeout);
-                }
-            }
-
-            setupButtonEvents(goTopButton);
-            setupButtonEvents(goBottomButton);
-
-            // GoTop 按鈕點擊
-            if (goTopButton) {
-                goTopButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                    this.blur(); // 移除焦點
-                });
-            }
-
-            // GoBottom 按鈕點擊
-            if (goBottomButton) {
-                goBottomButton.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    window.scrollTo({
-                        top: document.documentElement.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                    this.blur(); // 移除焦點
-                });
-            }
-
-            // 取 sticky nav 高度，避免 heading id anchor 被擋住
-            const topHead = document.querySelector('#TopHead');
-            const headerHeight = topHead ? topHead.offsetHeight + 16 : 0; // +16px，不要完全貼合 sticky nav
-
-            // 寫到 root 的 CSS 變數
-            document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
-
-        });
-    </script>
     <a href="#" id="gotop">
         <i class="fa fa-angle-up"></i>
     </a>
