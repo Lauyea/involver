@@ -59,7 +59,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            var bankAccount = _userManager.GetUserAsync(User).Result.BankAccount;
+            var bankAccount = user.BankAccount;
 
             Input = new InputModel
             {

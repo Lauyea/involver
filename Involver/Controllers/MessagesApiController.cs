@@ -206,7 +206,7 @@ namespace Involver.Controllers
                 var userProfile = await _context.Profiles
                         .FirstOrDefaultAsync(p => p.ProfileID == userId);
 
-                List<Toast> userToasts = AchievementHelper.AgreeCountAsync(_context, userProfile.ProfileID).Result;
+                List<Toast> userToasts = await AchievementHelper.AgreeCountAsync(_context, userProfile.ProfileID);
 
                 return Ok(new { agreesCount = message.Agrees.Count, Toasts = userToasts });
             }
