@@ -181,7 +181,8 @@ namespace Involver.Helpers
             {
                 if (profile.Achievements.Where(a => a.Code == item.Header).FirstOrDefault() == null)
                 {
-                    Achievement achievement = await context.Achievements.Where(a => a.Code == item.Header).FirstOrDefaultAsync();
+                    Achievement achievement = await context.Achievements
+                        .Where(a => a.Code == item.Header).FirstOrDefaultAsync();
 
                     if (achievement == null)
                     {

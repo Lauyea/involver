@@ -82,6 +82,8 @@ services.AddControllers(config =>
 
 ServiceExtension.AddAuthorizationHandlers(services);
 
+services.AddScoped<IAchievementService, AchievementService>();
+
 services.Configure<IdentityOptions>(options =>
 {
     // Password settings.
