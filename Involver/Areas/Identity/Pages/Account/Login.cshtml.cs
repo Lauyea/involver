@@ -14,156 +14,136 @@ using Involver.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Logging;
 
-namespace Involver.Areas.Identity.Pages.Account
+namespace Involver.Areas.Identity.Pages.Account;
+
+[AllowAnonymous]
+public class LoginModel(SignInManager<InvolverUser> signInManager,
+    ILogger<LoginModel> logger,
+    ApplicationDbContext context) : PageModel
 {
-    [AllowAnonymous]
-    public class LoginModel : PageModel
+    [BindProperty]
+    public InputModel Input { get; set; }
+
+    public IList<AuthenticationScheme> ExternalLogins { get; set; }
+
+    public string ReturnUrl { get; set; }
+
+    [TempData]
+    public string ErrorMessage { get; set; }
+
+    [TempData]
+    public string StatusMessage { get; set; }
+
+    [TempData]
+    public string ToastsJson { get; set; }
+
+    public List<Toast> Toasts { get; set; } = [];
+
+    public class InputModel
     {
-        private readonly UserManager<InvolverUser> _userManager;
-        private readonly SignInManager<InvolverUser> _signInManager;
-        private readonly ILogger<LoginModel> _logger;
-        private readonly ApplicationDbContext Context;
+        [Required]
+        [Display(Name = "用戶名")]
+        [DataType(DataType.Text)]
+        public string Username { get; set; }
 
-        public LoginModel(SignInManager<InvolverUser> signInManager,
-            ILogger<LoginModel> logger,
-            UserManager<InvolverUser> userManager,
-            ApplicationDbContext context)
+        [Required]
+        [Display(Name = "密碼")]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
+
+        [Display(Name = "記住我？")]
+        public bool RememberMe { get; set; }
+    }
+
+    public async Task OnGetAsync(string returnUrl = null)
+    {
+        if (!string.IsNullOrEmpty(ErrorMessage))
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            Context = context;
+            ModelState.AddModelError(string.Empty, ErrorMessage);
         }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+        returnUrl ??= Url.Content("~/");
 
-        public IList<AuthenticationScheme> ExternalLogins { get; set; }
+        // Clear the existing external cookie to ensure a clean login process
+        await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-        public string ReturnUrl { get; set; }
+        ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-        [TempData]
-        public string ErrorMessage { get; set; }
+        ReturnUrl = returnUrl;
+    }
 
-        [TempData]
-        public string StatusMessage { get; set; }
+    public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+    {
+        returnUrl ??= Url.Content("~/");
 
-        [TempData]
-        public string ToastsJson { get; set; }
-
-        public List<Toast> Toasts { get; set; } = new List<Toast>();
-
-        public class InputModel
+        if (ModelState.IsValid)
         {
-            [Required]
-            [Display(Name = "用戶名")]
-            [DataType(DataType.Text)]
-            public string Username { get; set; }
-
-            [Required]
-            [Display(Name = "密碼")]
-            [DataType(DataType.Password)]
-            public string Password { get; set; }
-
-            [Display(Name = "記住我？")]
-            public bool RememberMe { get; set; }
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            if (result.Succeeded)
+            {
+                logger.LogInformation("User logged in.");
+                await ProfileOperation();
+                return LocalRedirect(returnUrl);
+            }
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, Input.RememberMe });
+            }
+            if (result.IsLockedOut)
+            {
+                logger.LogWarning("User account locked out.");
+                return RedirectToPage("./Lockout");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+                return Page();
+            }
         }
 
-        public async Task OnGetAsync(string returnUrl = null)
+        // If we got this far, something failed, redisplay form
+        ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+        return Page();
+    }
+
+    private async Task ProfileOperation()
+    {
+        DataAccess.Models.Profile userProfile = await context
+                                .Profiles
+                                .Where(p => p.UserName == Input.Username)
+                                .Include(p => p.Achievements)
+                                .Include(p => p.Missions)
+                                .FirstOrDefaultAsync();
+        //確認成就表的存在，若無則建一個給Profile
+        userProfile.Achievements ??= [];
+
+        if (userProfile != null)
         {
-            if (!string.IsNullOrEmpty(ErrorMessage))
+            userProfile.LastTimeLogin = DateTime.Now;//登入時間
+            if (!userProfile.Missions.DailyLogin)
             {
-                ModelState.AddModelError(string.Empty, ErrorMessage);
+                userProfile.Missions.DailyLogin = true;//每日登入任務
+                userProfile.VirtualCoins += 5;
+                StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
             }
 
-            returnUrl = returnUrl ?? Url.Content("~/");
+            var toasts = await Helpers.AchievementHelper.CheckGradeAsync(context, userProfile.ProfileID, userProfile.EnrollmentDate);
 
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            Toasts.AddRange(toasts);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
+            toasts = await Helpers.AchievementHelper.BeBetaInvolverAsync(context, userProfile.ProfileID);
 
-            ReturnUrl = returnUrl;
-        }
+            Toasts.AddRange(toasts);
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-        {
-            returnUrl = returnUrl ?? Url.Content("~/");
-
-            if (ModelState.IsValid)
-            {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    await ProfileOperation();
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-                    return Page();
-                }
-            }
-
-            // If we got this far, something failed, redisplay form
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            return Page();
-        }
-
-        private async Task ProfileOperation()
-        {
-            DataAccess.Models.Profile UserProfile = await Context
-                                    .Profiles
-                                    .Where(p => p.UserName == Input.Username)
-                                    .Include(p => p.Achievements)
-                                    .Include(p => p.Missions)
-                                    .FirstOrDefaultAsync();
-            //確認成就表的存在，若無則建一個給Profile
-            if (UserProfile.Achievements == null)
-            {
-                UserProfile.Achievements = new List<Achievement>();
-            }
-            if (UserProfile != null)
-            {
-                UserProfile.LastTimeLogin = DateTime.Now;//登入時間
-                if (!UserProfile.Missions.DailyLogin)
-                {
-                    UserProfile.Missions.DailyLogin = true;//每日登入任務
-                    UserProfile.VirtualCoins += 5;
-                    StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
-                }
-
-                var toasts = await Helpers.AchievementHelper.CheckGradeAsync(Context, UserProfile.ProfileID, UserProfile.EnrollmentDate);
-
-                Toasts.AddRange(toasts);
-
-                // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
-                toasts = await Helpers.AchievementHelper.BeBetaInvolverAsync(Context, UserProfile.ProfileID);
-
-                Toasts.AddRange(toasts);
-
-                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-            }
+            ToastsJson = JsonSerializer.Serialize(Toasts);
         }
     }
 }

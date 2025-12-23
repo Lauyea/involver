@@ -9,20 +9,7 @@
 
     @if (showAdsOnToolPages)
     {
-        //Google AdSense
-        @if (userManager.GetUserAsync(User).Result != null)
-        {
-            @if (!userManager.GetUserAsync(User).Result.Prime)
-            {
-                <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
-                        crossorigin="anonymous"></script>
-            }
-        }
-        else
-        {
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"
-                    crossorigin="anonymous"></script>
-        }
+        @await Component.InvokeAsync("UserStatus")
     }
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

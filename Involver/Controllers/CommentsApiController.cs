@@ -111,6 +111,10 @@ namespace Involver.Controllers
             var paginatedComments = await PaginatedList<Comment>.CreateAsync(commentsQuery.AsNoTracking(), page, Parameters.CommetPageSize);
 
             var commentIds = paginatedComments.Select(c => c.CommentID).ToList();
+            var profileIds = paginatedComments.Select(c => c.ProfileID).Distinct().ToList();
+
+            var users = await _context.Users.Where(u => profileIds.Contains(u.Id)).ToDictionaryAsync(u => u.Id);
+
             var messageCounts = await _context.Messages
                 .Where(m => commentIds.Contains(m.CommentID))
                 .GroupBy(m => m.CommentID)
@@ -123,7 +127,7 @@ namespace Involver.Controllers
 
             foreach (var comment in paginatedComments)
             {
-                var user = await _userManager.FindByIdAsync(comment.ProfileID);
+                var isOwner = currentUserID != null && currentUserID == comment.ProfileID;
                 var canEdit = (await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Update)).Succeeded;
                 var canDelete = (await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Delete)).Succeeded;
                 var canBlock = (await _authorizationService.AuthorizeAsync(User, comment, CommentOperations.Block)).Succeeded;
@@ -144,6 +148,8 @@ namespace Involver.Controllers
                 {
                     involverInfoString = $"月 Involve: {involverInfo.MonthlyValue} In幣 | 總 Involve: {involverInfo.TotalValue} In幣";
                 }
+
+                users.TryGetValue(comment.ProfileID, out var user);
 
                 commentDtos.Add(new CommentDto
                 {
