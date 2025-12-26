@@ -151,7 +151,9 @@ namespace Involver.Pages.Articles
                 var cookieOptions = new CookieOptions
                 {
                     Expires = DateTime.Now.AddDays(1),
-                    IsEssential = true
+                    HttpOnly = false, // 若要讓 JS 也能存取，設為 false
+                    Secure = true,    // 若只允許 HTTPS，設為 true
+                    SameSite = SameSiteMode.Lax
                 };
                 Response.Cookies.Append("ViewSession", sessionId, cookieOptions);
             }
