@@ -5,7 +5,7 @@ using DataAccess.Models;
 using DataAccess.Models.NovelModel;
 
 using Involver.Common;
-
+using Involver.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,16 +13,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Pages.Involvings
 {
-    public class BecomeProfessionalModel : DI_BasePageModel
-    {
-        public BecomeProfessionalModel(
+    public class BecomeProfessionalModel(
         ApplicationDbContext context,
         IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
-        {
-        }
-
+        UserManager<InvolverUser> userManager,
+        IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager)
+    {
         public Profile Profile { get; set; }
         public string ProfileID { get; set; }
         public int Involvers { get; set; }
@@ -90,11 +86,12 @@ namespace Involver.Pages.Involvings
             {
                 Profile.Professional = true;
 
-                var toasts = await Helpers.AchievementHelper.BeProfessionalAsync(_context, ProfileID);
+                List<Toast> toasts = await achievementService.BeProfessionalAsync(ProfileID);
 
-                Toasts.AddRange(toasts);
-
-                ToastsJson = JsonSerializer.Serialize(toasts);
+                if (toasts.Count > 0)
+                {
+                    TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+                }
             }
 
             return RedirectToPage("/Profile/Index", "OnGet", new { area = "Identity", id = ProfileID });

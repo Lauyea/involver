@@ -209,6 +209,28 @@
     <script src="https://www.google.com/recaptcha/api.js"></script>
     <script src="~/js/form-validation.js" asp-append-version="true"></script>
 
+    @{
+        if (TempData["Toasts"] is string toastsJson)
+        {
+            // Ensure the JSON is not empty or just "[]"
+            if (!string.IsNullOrWhiteSpace(toastsJson) && toastsJson.Length > 2)
+            {
+                <script>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        try {
+                            // The JSON comes from the server and is safe to be rendered raw.
+                            // The receiving function `showGlobalToasts` will then build the safe HTML.
+                            showGlobalToasts(@Html.Raw(toastsJson));
+                        }
+                        catch (e) {
+                            console.error("Failed to show toasts from TempData:", e);
+                        }
+                    });
+                </script>
+            }
+        }
+    }
+
     <a href="#" id="gotop">
         <i class="fa fa-angle-up"></i>
     </a>
