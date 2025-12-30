@@ -18,7 +18,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers;
 
-[AllowAnonymous]
 [Route("api/v1/comments")]
 [ApiController]
 public class CommentsApiController(
@@ -31,6 +30,7 @@ public class CommentsApiController(
 
     // GET: api/Comments
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest", [FromQuery] string ownerId = null, [FromQuery] bool authorOnly = false)
     {
         IQueryable<Comment> commentsQuery = context.Comments

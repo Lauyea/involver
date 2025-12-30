@@ -15,7 +15,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Controllers;
 
-[AllowAnonymous]
 [Route("api/v1/messages")]
 [ApiController]
 public class MessagesApiController(
@@ -28,6 +27,7 @@ public class MessagesApiController(
 
     // GET: api/MessagesApi/ByComment/5
     [HttpGet("ByComment/{commentId}", Name = "GetMessages")]
+    [AllowAnonymous]
     public async Task<ActionResult<IEnumerable<object>>> GetMessages(int commentId)
     {
         var messages = await context.Messages
