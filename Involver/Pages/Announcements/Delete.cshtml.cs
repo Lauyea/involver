@@ -3,83 +3,78 @@ using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Announcements
+namespace Involver.Pages.Announcements;
+
+public class DeleteModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class DeleteModel : DI_BasePageModel
+    [BindProperty]
+    public Article Announcement { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id)
     {
-
-        public DeleteModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
+            return NotFound();
         }
 
-        [BindProperty]
-        public Article Announcement { get; set; }
+        Announcement = await Context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(a => a.ArticleID == id);
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        if (Announcement == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Announcement = await _context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(a => a.ArticleID == id);
-
-            if (Announcement == null)
-            {
-                return NotFound();
-            }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Announcement,
-                                                 ArticleOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            return Page();
+            return NotFound();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Announcement,
+                                             ArticleOperations.Delete);
+        if (!isAuthorized.Succeeded)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Announcement = await _context.Articles.FindAsync(id);
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Announcement,
-                                                 ArticleOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-
-            var comments = from c in _context.Comments
-                           where c.ArticleID == id
-                           select c;
-
-            if (Announcement != null)
-            {
-                _context.Comments.RemoveRange(comments);
-                _context.Articles.Remove(Announcement);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index");
+            return Forbid();
         }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        Announcement = await Context.Articles.FindAsync(id);
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Announcement,
+                                             ArticleOperations.Delete);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+
+        var comments = from c in Context.Comments
+                       where c.ArticleID == id
+                       select c;
+
+        if (Announcement != null)
+        {
+            Context.Comments.RemoveRange(comments);
+            Context.Articles.Remove(Announcement);
+            await Context.SaveChangesAsync();
+        }
+
+        return RedirectToPage("./Index");
     }
 }

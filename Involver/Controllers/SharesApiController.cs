@@ -34,7 +34,6 @@ namespace Involver.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> PostShareAsync([FromBody] ShareRequest shareRequest)
         {
             //Check mission:ShareCreation //CheckMissionShareCreation

@@ -14,8 +14,6 @@
     string arrowView = Model.CurrentSort?.StartsWith("View") ?? false ? (Model.CurrentSort.EndsWith("desc") ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-chevron-up'></i>") : "";
 }
 
-<partial name="_Toasts" model="Model.Toasts" />
-
 <div class="card">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -224,7 +222,7 @@
         }
     </div>
 </div>
-
+</div>
 @section Scripts{
     <script src="~/js/utils.js" asp-append-version="true"></script>
     <script>

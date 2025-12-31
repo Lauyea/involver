@@ -1,98 +1,96 @@
+using System.Text.Json;
+
 using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
 using Involver.Common;
 using Involver.Helpers;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Articles
+namespace Involver.Pages.Articles;
+
+public class DeleteModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager, 
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class DeleteModel : DI_BasePageModel
+    [BindProperty]
+    public Article Article { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id)
     {
-
-        public DeleteModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
+            return NotFound();
         }
 
-        [BindProperty]
-        public Article Article { get; set; }
+        Article = await Context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(m => m.ArticleID == id);
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        if (Article == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Article = await _context.Articles.Include(a => a.Profile).FirstOrDefaultAsync(m => m.ArticleID == id);
-
-            if (Article == null)
-            {
-                return NotFound();
-            }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Article,
-                                                 ArticleOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            return Page();
+            return NotFound();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Article,
+                                             ArticleOperations.Delete);
+        if (!isAuthorized.Succeeded)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Article = await _context.Articles.FindAsync(id);
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Article,
-                                                 ArticleOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            var comments = from c in _context.Comments
-                           where c.ArticleID == id
-                           select c;
-            var involvings = from i in _context.Involvings
-                             where i.ArticleID == id
-                             select i;
-
-            if (Article != null)
-            {
-                //_context.Involvings.RemoveRange(involvings);
-                //_context.Comments.RemoveRange(comments);
-                //_context.Articles.Remove(Article);
-
-                Article.IsDeleted = true;
-
-                await _context.SaveChangesAsync();
-            }
-
-            var toasts = await AchievementHelper.FirstTimeDeleteAsync(_context, Article.ProfileID);
-
-            Toasts.AddRange(toasts);
-
-            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-
-            return RedirectToPage("./Index");
+            return Forbid();
         }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        Article = await Context.Articles.FindAsync(id);
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Article,
+                                             ArticleOperations.Delete);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        var comments = from c in Context.Comments
+                       where c.ArticleID == id
+                       select c;
+        var involvings = from i in Context.Involvings
+                         where i.ArticleID == id
+                         select i;
+
+        if (Article != null)
+        {
+            //_context.Involvings.RemoveRange(involvings);
+            //_context.Comments.RemoveRange(comments);
+            //_context.Articles.Remove(Article);
+
+            Article.IsDeleted = true;
+
+            await Context.SaveChangesAsync();
+        }
+
+        var toasts = await AchievementService.FirstTimeDeleteAsync(Article.ProfileID);
+
+        if (toasts.Count > 0)
+        {
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+        }
+
+        return RedirectToPage("./Index");
     }
 }

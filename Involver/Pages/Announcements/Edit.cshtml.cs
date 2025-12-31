@@ -4,111 +4,107 @@ using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Announcements
+namespace Involver.Pages.Announcements;
+
+public class EditModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class EditModel : DI_BasePageModel
+    [BindProperty]
+    public Article Announcement { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id)
     {
-        public EditModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
+            return NotFound();
         }
 
-        [BindProperty]
-        public Article Announcement { get; set; }
+        Announcement = await Context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        if (Announcement == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            Announcement = await _context.Articles.FirstOrDefaultAsync(m => m.ArticleID == id);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                              User, Announcement,
+                                              ArticleOperations.Update);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
 
-            if (Announcement == null)
-            {
-                return NotFound();
-            }
+        return Page();
+    }
 
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                  User, Announcement,
-                                                  ArticleOperations.Update);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    public async Task<IActionResult> OnPostAsync(int id)
+    {
+        if (Announcement.Content?.Length > Parameters.ArticleLength)
+        {
             return Page();
         }
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync(int id)
+        if (!ModelState.IsValid)
         {
-            if (Announcement.Content?.Length > Parameters.ArticleLength)
-            {
-                return Page();
-            }
+            return Page();
+        }
 
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+        // Fetch data from DB to get OwnerID.
+        var announcement = await Context
+            .Articles
+            .FirstOrDefaultAsync(f => f.ArticleID == id);
 
-            // Fetch data from DB to get OwnerID.
-            var announcement = await _context
-                .Articles
-                .FirstOrDefaultAsync(f => f.ArticleID == id);
+        if (announcement == null)
+        {
+            return NotFound();
+        }
 
-            if (announcement == null)
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                              User, announcement,
+                                              ArticleOperations.Update);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.ProfileID);
+        announcement.UpdateTime = DateTime.Now;
+        announcement.Content = Announcement.Content;
+        announcement.Title = Announcement.Title;
+
+        try
+        {
+            await Context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AnnouncementExists(Announcement.ArticleID))
             {
                 return NotFound();
             }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                  User, announcement,
-                                                  ArticleOperations.Update);
-            if (!isAuthorized.Succeeded)
+            else
             {
-                return Forbid();
+                throw;
             }
-
-            var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Announcement.ProfileID);
-            announcement.UpdateTime = DateTime.Now;
-            announcement.Content = Announcement.Content;
-            announcement.Title = Announcement.Title;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AnnouncementExists(Announcement.ArticleID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToPage("./Index");
         }
 
-        private bool AnnouncementExists(int id)
-        {
-            return _context.Articles.Any(e => e.ArticleID == id);
-        }
+        return RedirectToPage("./Index");
+    }
+
+    private bool AnnouncementExists(int id)
+    {
+        return Context.Articles.Any(e => e.ArticleID == id);
     }
 }

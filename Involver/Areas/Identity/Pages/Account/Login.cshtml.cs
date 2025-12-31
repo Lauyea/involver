@@ -131,7 +131,7 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
                 StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
             }
 
-            List<Toast> toasts = await Helpers.AchievementHelper.CheckGradeAsync(context, userProfile.ProfileID, userProfile.EnrollmentDate);
+            List<Toast> toasts = await achievementService.CheckGradeAsync(userProfile.ProfileID, userProfile.EnrollmentDate);
 
             // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
             toasts.AddRange(await achievementService.BeBetaInvolverAsync(userProfile.ProfileID));

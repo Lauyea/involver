@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 using DataAccess.Common;
 using DataAccess.Data;
@@ -8,6 +9,7 @@ using DataAccess.Models.NovelModel;
 using Involver.Authorization.Novel;
 using Involver.Common;
 using Involver.Helpers;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,180 +19,173 @@ using Microsoft.EntityFrameworkCore;
 
 using Type = DataAccess.Common.Type;
 
-namespace Involver.Pages.Novels
+namespace Involver.Pages.Novels;
+
+public class CreateModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class CreateModel : DI_BasePageModel
+    public IActionResult OnGet()
     {
+        //ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
+        return Page();
+    }
 
-        public CreateModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
-        {
-        }
+    [BindProperty]
+    public Novel Novel { get; set; }
 
-        public IActionResult OnGet()
+    [BindProperty]
+    [Display(Name = "標籤")]
+    [MaxLength(50)]
+    public string TagString { get; set; }
+
+    public string ErrorMessage { get; set; }
+
+    // Use for upload file
+    //[BindProperty]
+    //public BufferedSingleFileUploadDb FileUpload { get; set; }
+
+    public List<SelectListItem> Types { get; } =
+    [
+        new() { Value = Type.Fantasy.ToString(), Text = "奇幻" },
+        new() { Value = Type.History.ToString(), Text = "歷史" },
+        new() { Value = Type.Love.ToString(), Text = "愛情" },
+        new() { Value = Type.Real.ToString(), Text = "真實" },
+        new() { Value = Type.Modern.ToString(), Text = "現代" },
+        new() { Value = Type.Science.ToString(), Text = "科幻" },
+        new() { Value = Type.Horror.ToString(), Text = "驚悚" },
+        new() { Value = Type.Detective.ToString(), Text = "推理" },
+    ];
+
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (!ModelState.IsValid)
         {
-            //ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
             return Page();
         }
 
-        [BindProperty]
-        public Novel Novel { get; set; }
-
-        [BindProperty]
-        [Display(Name = "標籤")]
-        [MaxLength(50)]
-        public string TagString { get; set; }
-
-        public string ErrorMessage { get; set; }
-
-        // Use for upload file
-        //[BindProperty]
-        //public BufferedSingleFileUploadDb FileUpload { get; set; }
-
-        public List<SelectListItem> Types { get; } = new List<SelectListItem>
+        var user = await UserManager.GetUserAsync(User);
+        if (user.Banned)
         {
-            new SelectListItem { Value = Type.Fantasy.ToString(), Text = "奇幻" },
-            new SelectListItem { Value = Type.History.ToString(), Text = "歷史" },
-            new SelectListItem { Value = Type.Love.ToString(), Text = "愛情" },
-            new SelectListItem { Value = Type.Real.ToString(), Text = "真實" },
-            new SelectListItem { Value = Type.Modern.ToString(), Text = "現代" },
-            new SelectListItem { Value = Type.Science.ToString(), Text = "科幻" },
-            new SelectListItem { Value = Type.Horror.ToString(), Text = "驚悚" },
-            new SelectListItem { Value = Type.Detective.ToString(), Text = "推理" },
-        };
+            return Forbid();
+        }
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        Novel.ProfileID = UserManager.GetUserId(User);
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                                    User, Novel,
+                                                    NovelOperations.Create);
+        if (!isAuthorized.Succeeded)
         {
-            if (!ModelState.IsValid)
+            return Forbid();
+        }
+
+        #region 設定Tags
+        var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+
+        if (tagArr.Length > Parameters.TagSize)
+        {
+            ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            return Page();
+        }
+
+        foreach (var tag in tagArr)
+        {
+            if (tag.Length > Parameters.TagNameMaxLength)
             {
+                ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
                 return Page();
             }
+        }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user.Banned)
+        List<NovelTag> novelTags = [];
+
+        foreach (var tag in tagArr)
+        {
+            var existingTag = await Context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+            if (existingTag != null)
             {
-                return Forbid();
+                novelTags.Add(existingTag);
             }
-
-            Novel.ProfileID = _userManager.GetUserId(User);
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                        User, Novel,
-                                                        NovelOperations.Create);
-            if (!isAuthorized.Succeeded)
+            else
             {
-                return Forbid();
-            }
-
-            #region 設定Tags
-            var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
-
-            if (tagArr.Length > Parameters.TagSize)
-            {
-                ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
-                return Page();
-            }
-
-            foreach (var tag in tagArr)
-            {
-                if (tag.Length > Parameters.TagNameMaxLength)
+                NovelTag newTag = new()
                 {
-                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                    return Page();
-                }
-            }
-
-            List<NovelTag> novelTags = new();
-
-            foreach (var tag in tagArr)
-            {
-                var existingTag = await _context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
-
-                if (existingTag != null)
-                {
-                    novelTags.Add(existingTag);
-                }
-                else
-                {
-                    NovelTag newTag = new NovelTag
-                    {
-                        Name = tag
-                    };
-
-                    novelTags.Add(newTag);
-                }
-            }
-            #endregion
-
-            Novel emptyNovel =
-                new Novel
-                {
-                    Title = "temp title",
-                    Introduction = "temp introduction",
-                    ProfileID = Novel.ProfileID
+                    Name = tag
                 };
 
-            // Code below use for upload file
-            //using (var memoryStream = new MemoryStream())
-            //{
-            //    if (FileUpload.FormFile != null)
-            //    {
-            //        await FileUpload.FormFile.CopyToAsync(memoryStream);
-            //    }
+                novelTags.Add(newTag);
+            }
+        }
+        #endregion
 
-            //    // Upload the file if less than 260 KB
-            //    if (memoryStream.Length < 262144)
-            //    {
-
-            //    }
-            //    else
-            //    {
-            //        ModelState.AddModelError("FileUpload", "這個檔案太大了");
-            //    }
-            //}
-
-            //Protect from overposting attacks
-            if (await TryUpdateModelAsync<Novel>(
-                emptyNovel,
-                "Novel",   // Prefix for form value.
-                n => n.Title, n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.Block, n => n.ProfileID, n => n.ImageUrl))
+        Novel emptyNovel =
+            new()
             {
-                //if (memoryStream.Length != 0)
-                //{
-                //    emptyNovel.Image = memoryStream.ToArray();
-                //}
-                emptyNovel.UpdateTime = DateTime.Now;
-                emptyNovel.CreateTime = DateTime.Now;
-                //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
-                //emptyNovel.ProfileID = Novel.ProfileID;
+                Title = "temp title",
+                Introduction = "temp introduction",
+                ProfileID = Novel.ProfileID
+            };
 
-                emptyNovel.NovelTags = novelTags;
+        // Code below use for upload file
+        //using (var memoryStream = new MemoryStream())
+        //{
+        //    if (FileUpload.FormFile != null)
+        //    {
+        //        await FileUpload.FormFile.CopyToAsync(memoryStream);
+        //    }
 
-                _context.Novels.Add(emptyNovel);
-                await _context.SaveChangesAsync();
+        //    // Upload the file if less than 260 KB
+        //    if (memoryStream.Length < 262144)
+        //    {
 
-                var toasts = await AchievementHelper.NovelCountAsync(_context, Novel.ProfileID);
+        //    }
+        //    else
+        //    {
+        //        ModelState.AddModelError("FileUpload", "這個檔案太大了");
+        //    }
+        //}
 
-                Toasts.AddRange(toasts);
+        //Protect from overposting attacks
+        if (await TryUpdateModelAsync<Novel>(
+            emptyNovel,
+            "Novel",   // Prefix for form value.
+            n => n.Title, n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.Block, n => n.ProfileID, n => n.ImageUrl))
+        {
+            //if (memoryStream.Length != 0)
+            //{
+            //    emptyNovel.Image = memoryStream.ToArray();
+            //}
+            emptyNovel.UpdateTime = DateTime.Now;
+            emptyNovel.CreateTime = DateTime.Now;
+            //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
+            //emptyNovel.ProfileID = Novel.ProfileID;
 
-                if (novelTags.Count > 0)
-                {
-                    toasts = await AchievementHelper.FirstTimeUseTagsAsync(_context, Novel.ProfileID);
+            emptyNovel.NovelTags = novelTags;
 
-                    Toasts.AddRange(toasts);
-                }
+            Context.Novels.Add(emptyNovel);
+            await Context.SaveChangesAsync();
 
-                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
+            var toasts = await AchievementService.NovelCountAsync(Novel.ProfileID);
 
-                return RedirectToPage("./Index");
+            if (novelTags.Count > 0)
+            {
+                toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Novel.ProfileID));
             }
 
-            return Page();
+            if (toasts.Count > 0)
+            {
+                TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+            }
+
+            return RedirectToPage("./Index");
         }
+
+        return Page();
     }
 }

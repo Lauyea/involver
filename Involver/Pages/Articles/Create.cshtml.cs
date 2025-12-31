@@ -8,6 +8,7 @@ using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,162 +16,150 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Involver.Pages.Articles
+namespace Involver.Pages.Articles;
+
+public class CreateModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class CreateModel : DI_BasePageModel
+    public IActionResult OnGet()
     {
+        return Page();
+    }
 
-        public CreateModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+    [BindProperty]
+    public Article Article { get; set; }
+
+    [BindProperty]
+    [Display(Name = "標籤")]
+    [MaxLength(50)]
+    public string TagString { get; set; }
+
+    public string ErrorMessage { get; set; }
+
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    public async Task<IActionResult> OnPostAsync()
+    {
+        if (Article.Content?.Length > Parameters.ArticleLength)
         {
-        }
-
-        public IActionResult OnGet()
-        {
-            if (!string.IsNullOrEmpty(ToastsJson))
-            {
-                Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
-            }
-
             return Page();
         }
 
-        [BindProperty]
-        public Article Article { get; set; }
-
-        [BindProperty]
-        [Display(Name = "標籤")]
-        [MaxLength(50)]
-        public string TagString { get; set; }
-
-        public string ErrorMessage { get; set; }
-
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        if (!ModelState.IsValid)
         {
-            if (Article.Content?.Length > Parameters.ArticleLength)
-            {
-                return Page();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            //if(Article.Title == null || Article.Content == null)
-            //{
-            //    return Page();
-            //}
-
-            var user = await _userManager.GetUserAsync(User);
-            if (user.Banned)
-            {
-                return Forbid();
-            }
-
-            Article.ProfileID = _userManager.GetUserId(User);
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                        User, Article,
-                                                        ArticleOperations.Create);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            #region 設定Tags
-            var tagArr = TagString?.Split(",").Select(t => t.Trim()).ToArray();
-
-            if (tagArr?.Length > Parameters.TagSize)
-            {
-                ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
-                return Page();
-            }
-
-            List<ArticleTag> articleTags = [];
-
-            if (!tagArr.IsNullOrEmpty())
-            {
-                foreach (var tag in tagArr)
-                {
-                    if (tag.Length > Parameters.TagNameMaxLength)
-                    {
-                        ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                        return Page();
-                    }
-                }
-
-                foreach (var tag in tagArr)
-                {
-                    var existingTag = await _context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
-
-                    if (existingTag != null)
-                    {
-                        articleTags.Add(existingTag);
-                    }
-                    else
-                    {
-                        ArticleTag newTag = new ArticleTag
-                        {
-                            Name = tag
-                        };
-
-                        articleTags.Add(newTag);
-                    }
-                }
-            }
-            
-            #endregion
-
-            Article emptyArticle =
-                new Article
-                {
-                    Title = "temp",
-                    Content = "temp content post here.",
-                    ProfileID = Article.ProfileID
-                };
-
-            //Protect from overposting attacks
-            if (await TryUpdateModelAsync<Article>(
-                emptyArticle,
-                "Article",   // Prefix for form value.
-                a => a.Title, a => a.Content, a => a.ImageUrl))
-            {
-                emptyArticle.UpdateTime = DateTime.Now;
-                var tempUser = await _context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);
-                emptyArticle.ProfileID = Article.ProfileID;
-                emptyArticle.TotalViews = 0;
-                emptyArticle.Block = false;
-                emptyArticle.TotalCoins = 0;
-                emptyArticle.MonthlyCoins = 0;
-
-                emptyArticle.ArticleTags = articleTags;
-
-                _context.Articles.Add(emptyArticle);
-                await _context.SaveChangesAsync();
-
-                var toasts = await Helpers.AchievementHelper.ArticleCountAsync(_context, Article.ProfileID);
-
-                Toasts.AddRange(toasts);
-
-                if (articleTags.Count > 0)
-                {
-                    toasts = await Helpers.AchievementHelper.FirstTimeUseTagsAsync(_context, Article.ProfileID);
-
-                    Toasts.AddRange(toasts);
-                }
-
-                ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-
-                return RedirectToPage("./Index");
-            }
-
             return Page();
         }
+
+        //if(Article.Title == null || Article.Content == null)
+        //{
+        //    return Page();
+        //}
+
+        var user = await UserManager.GetUserAsync(User);
+        if (user.Banned)
+        {
+            return Forbid();
+        }
+
+        Article.ProfileID = UserManager.GetUserId(User);
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                                    User, Article,
+                                                    ArticleOperations.Create);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        #region 設定Tags
+        var tagArr = TagString?.Split(",").Select(t => t.Trim()).ToArray();
+
+        if (tagArr?.Length > Parameters.TagSize)
+        {
+            ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            return Page();
+        }
+
+        List<ArticleTag> articleTags = [];
+
+        if (!tagArr.IsNullOrEmpty())
+        {
+            foreach (var tag in tagArr)
+            {
+                if (tag.Length > Parameters.TagNameMaxLength)
+                {
+                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                    return Page();
+                }
+            }
+
+            foreach (var tag in tagArr)
+            {
+                var existingTag = await Context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+
+                if (existingTag != null)
+                {
+                    articleTags.Add(existingTag);
+                }
+                else
+                {
+                    ArticleTag newTag = new ArticleTag
+                    {
+                        Name = tag
+                    };
+
+                    articleTags.Add(newTag);
+                }
+            }
+        }
+        
+        #endregion
+
+        Article emptyArticle =
+            new Article
+            {
+                Title = "temp",
+                Content = "temp content post here.",
+                ProfileID = Article.ProfileID
+            };
+
+        //Protect from overposting attacks
+        if (await TryUpdateModelAsync<Article>(
+            emptyArticle,
+            "Article",   // Prefix for form value.
+            a => a.Title, a => a.Content, a => a.ImageUrl))
+        {
+            emptyArticle.UpdateTime = DateTime.Now;
+            var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Article.ProfileID);
+            emptyArticle.ProfileID = Article.ProfileID;
+            emptyArticle.TotalViews = 0;
+            emptyArticle.Block = false;
+            emptyArticle.TotalCoins = 0;
+            emptyArticle.MonthlyCoins = 0;
+
+            emptyArticle.ArticleTags = articleTags;
+
+            Context.Articles.Add(emptyArticle);
+            await Context.SaveChangesAsync();
+
+            var toasts = await AchievementService.ArticleCountAsync(Article.ProfileID);
+
+            if (articleTags.Count > 0)
+            {
+                toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Article.ProfileID));
+            }
+
+            if (toasts.Count > 0)
+            {
+                TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+            }
+
+            return RedirectToPage("./Index");
+        }
+
+        return Page();
     }
 }

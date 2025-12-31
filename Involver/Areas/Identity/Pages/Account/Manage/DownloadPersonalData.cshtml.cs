@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using DataAccess.Data;
@@ -9,9 +10,6 @@ using DataAccess.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-
-using Newtonsoft.Json;
 
 namespace Involver.Areas.Identity.Pages.Account.Manage
 {
@@ -48,7 +46,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
             }
 
             Response.Headers.Append("Content-Disposition", "attachment; filename=PersonalData.json");
-            return new FileContentResult(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(personalData)), "text/json");
+            return new FileContentResult(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(personalData)), "text/json");
         }
     }
 }

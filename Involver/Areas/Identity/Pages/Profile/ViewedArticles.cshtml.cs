@@ -1,94 +1,92 @@
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
+
 using Involver.Common;
+using Involver.Extensions;
+using Involver.Services;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using DataAccess.Common;
-using Involver.Extensions;
 
-namespace Involver.Areas.Identity.Pages.Profile
+namespace Involver.Areas.Identity.Pages.Profile;
+
+[AllowAnonymous]
+public class ViewedArticlesModel(
+    ApplicationDbContext context,
+    IAuthorizationService authorizationService,
+    UserManager<InvolverUser> userManager,
+    IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class ViewedArticlesModel : DI_BasePageModel
+    public class ViewedArticleViewModel
     {
-        public ViewedArticlesModel(
-            ApplicationDbContext context,
-            IAuthorizationService authorizationService,
-            UserManager<InvolverUser> userManager)
-            : base(context, authorizationService, userManager)
+        public int ArticleID { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public DateTime ViewDate { get; set; }
+    }
+
+    public DataAccess.Models.Profile Profile { get; set; }
+    public List<ViewedArticleViewModel> Articles { get; set; }
+
+    private async Task<List<ViewedArticleViewModel>> GetViewedArticles(string id, int pageIndex = 1)
+    {
+        var userId = UserManager.GetUserId(User);
+        if (id != userId)
         {
+            return new List<ViewedArticleViewModel>(); // Or handle as an error
         }
 
-        public class ViewedArticleViewModel
-        {
-            public int ArticleID { get; set; }
-            public string Title { get; set; }
-            public string Content { get; set; }
-            public DateTime ViewDate { get; set; }
-        }
+        Profile = await Context.Profiles
+            .Where(p => p.ProfileID == id)
+            .Include(p => p.ViewedArticles)
+            .FirstOrDefaultAsync();
 
-        public DataAccess.Models.Profile Profile { get; set; }
-        public List<ViewedArticleViewModel> Articles { get; set; }
-
-        private async Task<List<ViewedArticleViewModel>> GetViewedArticles(string id, int pageIndex = 1)
-        {
-            var userId = _userManager.GetUserId(User);
-            if (id != userId)
+        var articles = Profile.ViewedArticles
+            .OrderByDescending(v => v.ArticleViewers.FirstOrDefault()?.ViewDate)
+            .Select(v => new ViewedArticleViewModel
             {
-                return new List<ViewedArticleViewModel>(); // Or handle as an error
-            }
+                ArticleID = v.ArticleID,
+                Title = v.Title.Length < Parameters.SmallContentLength
+                    ? v.Title
+                    : v.Title.Substring(0, Parameters.SmallContentLength) + "...",
+                Content = v.Content.StripHTML().Length < Parameters.ContentLength
+                    ? v.Content.StripHTML()
+                    : v.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...",
+                ViewDate = (DateTime)(v.ArticleViewers.FirstOrDefault()?.ViewDate)
+            })
+            .Skip((pageIndex - 1) * Parameters.PageSize)
+            .Take(Parameters.PageSize)
+            .ToList();
 
-            Profile = await _context.Profiles
-                .Where(p => p.ProfileID == id)
-                .Include(p => p.ViewedArticles)
-                .FirstOrDefaultAsync();
+        return articles;
+    }
 
-            var articles = Profile.ViewedArticles
-                .OrderByDescending(v => v.ArticleViewers.FirstOrDefault()?.ViewDate)
-                .Select(v => new ViewedArticleViewModel
-                {
-                    ArticleID = v.ArticleID,
-                    Title = v.Title.Length < Parameters.SmallContentLength
-                        ? v.Title
-                        : v.Title.Substring(0, Parameters.SmallContentLength) + "...",
-                    Content = v.Content.StripHTML().Length < Parameters.ContentLength
-                        ? v.Content.StripHTML()
-                        : v.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...",
-                    ViewDate = (DateTime)(v.ArticleViewers.FirstOrDefault()?.ViewDate)
-                })
-                .Skip((pageIndex - 1) * Parameters.PageSize)
-                .Take(Parameters.PageSize)
-                .ToList();
+    public async Task<IActionResult> OnGetAsync(string id)
+    {
+        Profile = await Context.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ProfileID == id);
 
-            return articles;
-        }
-
-        public async Task<IActionResult> OnGetAsync(string id)
+        if (Profile == null)
         {
-            Profile = await _context.Profiles.AsNoTracking().FirstOrDefaultAsync(p => p.ProfileID == id);
-
-            if (Profile == null)
-            {
-                return NotFound();
-            }
-
-            var userId = _userManager.GetUserId(User);
-            if (id != userId)
-            {
-                return Forbid();
-            }
-
-            Articles = await GetViewedArticles(id);
-
-            return Page();
+            return NotFound();
         }
 
-        public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
+        var userId = UserManager.GetUserId(User);
+        if (id != userId)
         {
-            var articles = await GetViewedArticles(id, pageIndex);
-            return Partial("_ViewedArticleListPartial", articles);
+            return Forbid();
         }
+
+        Articles = await GetViewedArticles(id);
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
+    {
+        var articles = await GetViewedArticles(id, pageIndex);
+        return Partial("_ViewedArticleListPartial", articles);
     }
 }
