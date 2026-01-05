@@ -1,259 +1,247 @@
+using System.Text.Json;
+
 using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Involvings
+namespace Involver.Pages.Involvings;
+
+[AllowAnonymous]
+public class InvolveCreatorModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class InvolveCreatorModel : DI_BasePageModel
+    [BindProperty]
+    public Involving Involving { get; set; }
+    public Profile Profile { get; set; }
+    public string ProfileID { get; set; }
+    public string UserID { get; set; }
+    public Profile Involver { get; set; }
+
+    private async Task LoadAsync(string id)
     {
-        public InvolveCreatorModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        UserID = UserManager.GetUserId(User);
+        Profile = await Context.Profiles
+            .Where(p => p.ProfileID == id)
+            .FirstOrDefaultAsync();
+        Involver = await Context.Profiles
+            .Where(p => p.ProfileID == UserID)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<IActionResult> OnGetAsync(string id)
+    {
+        ProfileID = id;
+        await LoadAsync(id);
+        if (UserID == null)
         {
+            return Challenge();
         }
 
-        [BindProperty]
-        public Involving Involving { get; set; }
-        public Profile Profile { get; set; }
-        public string ProfileID { get; set; }
-        public string UserID { get; set; }
-        public Profile Involver { get; set; }
+        return Profile != null ? Page() : NotFound();
+    }
 
-        private async Task LoadAsync(string id)
+    public async Task<IActionResult> OnPostSingleInvolveAsync(string id)
+    {
+        ProfileID = id;
+        await LoadAsync(ProfileID);
+
+        if (UserID == null)
         {
-            UserID = _userManager.GetUserId(User);
-            Profile = await _context.Profiles
-                .Where(p => p.ProfileID == id)
-                .FirstOrDefaultAsync();
-            Involver = await _context.Profiles
-                .Where(p => p.ProfileID == UserID)
-                .FirstOrDefaultAsync();
+            return Challenge();
         }
 
-        public async Task<IActionResult> OnGetAsync(string id)
+        if (!ModelState.IsValid)
         {
-            ProfileID = id;
-            await LoadAsync(id);
-            if (UserID == null)
-            {
-                return Challenge();
-            }
-
-            if (Profile != null)
-            {
-                if (!string.IsNullOrEmpty(ToastsJson))
-                {
-                    Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
-                }
-
-                return Page();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
-        public async Task<IActionResult> OnPostSingleInvolveAsync(string id)
-        {
-            ProfileID = id;
-            await LoadAsync(ProfileID);
-
-            if (UserID == null)
-            {
-                return Challenge();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            if (Profile == null)
-            {
-                return NotFound();
-            }
-
-            Profile Involver = await _context.Profiles
-                .Where(p => p.ProfileID == UserID)
-                .FirstOrDefaultAsync();
-            Profile Creator = Profile;
-
-            if (Involver.RealCoins < Involving.Value)
-            {
-                ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
-                return Page();
-            }
-            Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作者直接贊助，作者得50%分潤
-            Involver.RealCoins -= Involving.Value;
-            Involver.UsedCoins += Involving.Value;
-
-            Involving ExistingInvolving = await _context.Involvings
-                .Where(i => i.ProfileID == ProfileID)
-                .Where(i => i.InvolverID == UserID)
-                .FirstOrDefaultAsync();
-
-            if (ExistingInvolving != null)
-            {
-                ExistingInvolving.Value = Involving.Value;
-                ExistingInvolving.MonthlyValue += Involving.Value;
-                ExistingInvolving.TotalValue += Involving.Value;
-                ExistingInvolving.LastTime = DateTime.Now;
-            }
-            else
-            {
-                Involving newInvolving = new Involving()
-                {
-                    Value = Involving.Value,
-                    MonthlyValue = Involving.Value,
-                    TotalValue = Involving.Value,
-                    LastTime = DateTime.Now,
-                    InvolverID = UserID,
-                    ProfileID = ProfileID
-                };
-                _context.Involvings.Add(newInvolving);
-            }
-            await _context.SaveChangesAsync();
-            StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
-
-            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
-
-            Toasts.AddRange(toasts);
-
-            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-
             return Page();
         }
 
-        public async Task<IActionResult> OnPostMonthlyInvolveAsync(string id)
+        if (Profile == null)
         {
-            ProfileID = id;
-            int InvolveValue = 150;
-            await LoadAsync(id);
-            if (UserID == null)
-            {
-                return Challenge();
-            }
+            return NotFound();
+        }
 
-            Follow existingFollow = await _context.Follows
-                .Where(f => f.ProfileID == ProfileID)
-                .Where(f => f.FollowerID == UserID)
-                .FirstOrDefaultAsync();
+        Profile Involver = await Context.Profiles
+            .Where(p => p.ProfileID == UserID)
+            .FirstOrDefaultAsync();
+        Profile Creator = Profile;
 
-            if (existingFollow == null)
-            {
-                Follow newFollow = new Follow
-                {
-                    FollowerID = UserID,
-                    NovelMonthlyInvolver = true,
-                    UpdateTime = DateTime.Now,
-                    ProfileID = ProfileID
-                };
-                _context.Follows.Add(newFollow);
-            }
-            else
-            {
-                if (existingFollow.NovelMonthlyInvolver)
-                {
-                    StatusMessage = "已經Involve過了，如要繼續Involve，可以使用直接Involve的功能";
-                    return Page();
-                }
-                existingFollow.NovelMonthlyInvolver = true;
-                existingFollow.UpdateTime = DateTime.Now;
-            }
+        if (Involver.RealCoins < Involving.Value)
+        {
+            ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
+            return Page();
+        }
+        Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作者直接贊助，作者得50%分潤
+        Involver.RealCoins -= Involving.Value;
+        Involver.UsedCoins += Involving.Value;
 
-            Profile Creator = await _context.Profiles
-            .Where(p => p.ProfileID == ProfileID)
+        Involving ExistingInvolving = await Context.Involvings
+            .Where(i => i.ProfileID == ProfileID)
+            .Where(i => i.InvolverID == UserID)
             .FirstOrDefaultAsync();
 
-            if (Involver.RealCoins < InvolveValue)
-            {
-                StatusMessage = "Error: 帳戶餘額不足";
-                return Page();
-            }
-            Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作者每月Involve，作者得60%分潤
-            Involver.RealCoins -= InvolveValue;
-            Involver.UsedCoins += InvolveValue;
-
-            Involving ExistingInvolving = await _context.Involvings
-                .Where(i => i.ProfileID == ProfileID)
-                .Where(i => i.InvolverID == UserID)
-                .FirstOrDefaultAsync();
-
-            if (ExistingInvolving != null)
-            {
-                ExistingInvolving.Value = InvolveValue;
-                ExistingInvolving.MonthlyValue += InvolveValue;
-                ExistingInvolving.TotalValue += InvolveValue;
-                ExistingInvolving.LastTime = DateTime.Now;
-            }
-            else
-            {
-                Involving newInvolving = new Involving()
-                {
-                    Value = InvolveValue,
-                    MonthlyValue = InvolveValue,
-                    TotalValue = InvolveValue,
-                    LastTime = DateTime.Now,
-                    InvolverID = UserID,
-                    ProfileID = ProfileID
-                };
-                _context.Involvings.Add(newInvolving);
-            }
-
-            await _context.SaveChangesAsync();
-
-            StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
-
-            var toasts = await Helpers.AchievementHelper.UseCoinsCountAsync(_context, Involver.ProfileID, Involver.UsedCoins);
-
-            Toasts.AddRange(toasts);
-
-            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostUnInvolveAsync(string id)
+        if (ExistingInvolving != null)
         {
-            ProfileID = id;
-            await LoadAsync(id);
-            if (UserID == null)
+            ExistingInvolving.Value = Involving.Value;
+            ExistingInvolving.MonthlyValue += Involving.Value;
+            ExistingInvolving.TotalValue += Involving.Value;
+            ExistingInvolving.LastTime = DateTime.Now;
+        }
+        else
+        {
+            Involving newInvolving = new Involving()
             {
-                return Challenge();
-            }
+                Value = Involving.Value,
+                MonthlyValue = Involving.Value,
+                TotalValue = Involving.Value,
+                LastTime = DateTime.Now,
+                InvolverID = UserID,
+                ProfileID = ProfileID
+            };
+            Context.Involvings.Add(newInvolving);
+        }
+        await Context.SaveChangesAsync();
+        StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
 
-            Follow follow = await _context.Follows
-                .Where(f => f.ProfileID == ProfileID)
-                .Where(f => f.FollowerID == UserID)
-                .FirstOrDefaultAsync();
+        var toasts = await AchievementService.UseCoinsCountAsync(Involver.ProfileID, Involver.UsedCoins);
 
-            if (follow == null)
+        if (toasts.Count > 0)
+        {
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+        }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostMonthlyInvolveAsync(string id)
+    {
+        ProfileID = id;
+        int InvolveValue = 150;
+        await LoadAsync(id);
+        if (UserID == null)
+        {
+            return Challenge();
+        }
+
+        Follow existingFollow = await Context.Follows
+            .Where(f => f.ProfileID == ProfileID)
+            .Where(f => f.FollowerID == UserID)
+            .FirstOrDefaultAsync();
+
+        if (existingFollow == null)
+        {
+            Follow newFollow = new Follow
             {
-                StatusMessage = "Error: 無效操作";
+                FollowerID = UserID,
+                NovelMonthlyInvolver = true,
+                UpdateTime = DateTime.Now,
+                ProfileID = ProfileID
+            };
+            Context.Follows.Add(newFollow);
+        }
+        else
+        {
+            if (existingFollow.NovelMonthlyInvolver)
+            {
+                StatusMessage = "已經Involve過了，如要繼續Involve，可以使用直接Involve的功能";
                 return Page();
             }
-            else
-            {
-                if (!follow.NovelMonthlyInvolver)
-                {
-                    StatusMessage = "Error: 您沒有每月Involve這部創作";
-                    return Page();
-                }
-                follow.NovelMonthlyInvolver = false;
-            }
-            await _context.SaveChangesAsync();
-            StatusMessage = "UnInvolve成功";
+            existingFollow.NovelMonthlyInvolver = true;
+            existingFollow.UpdateTime = DateTime.Now;
+        }
+
+        Profile Creator = await Context.Profiles
+        .Where(p => p.ProfileID == ProfileID)
+        .FirstOrDefaultAsync();
+
+        if (Involver.RealCoins < InvolveValue)
+        {
+            StatusMessage = "Error: 帳戶餘額不足";
             return Page();
         }
+        Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作者每月Involve，作者得60%分潤
+        Involver.RealCoins -= InvolveValue;
+        Involver.UsedCoins += InvolveValue;
+
+        Involving ExistingInvolving = await Context.Involvings
+            .Where(i => i.ProfileID == ProfileID)
+            .Where(i => i.InvolverID == UserID)
+            .FirstOrDefaultAsync();
+
+        if (ExistingInvolving != null)
+        {
+            ExistingInvolving.Value = InvolveValue;
+            ExistingInvolving.MonthlyValue += InvolveValue;
+            ExistingInvolving.TotalValue += InvolveValue;
+            ExistingInvolving.LastTime = DateTime.Now;
+        }
+        else
+        {
+            Involving newInvolving = new Involving()
+            {
+                Value = InvolveValue,
+                MonthlyValue = InvolveValue,
+                TotalValue = InvolveValue,
+                LastTime = DateTime.Now,
+                InvolverID = UserID,
+                ProfileID = ProfileID
+            };
+            Context.Involvings.Add(newInvolving);
+        }
+
+        await Context.SaveChangesAsync();
+
+        StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
+
+        var toasts = await AchievementService.UseCoinsCountAsync(Involver.ProfileID, Involver.UsedCoins);
+
+        if (toasts.Count > 0)
+        {
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+        }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostUnInvolveAsync(string id)
+    {
+        ProfileID = id;
+        await LoadAsync(id);
+        if (UserID == null)
+        {
+            return Challenge();
+        }
+
+        Follow follow = await Context.Follows
+            .Where(f => f.ProfileID == ProfileID)
+            .Where(f => f.FollowerID == UserID)
+            .FirstOrDefaultAsync();
+
+        if (follow == null)
+        {
+            StatusMessage = "Error: 無效操作";
+            return Page();
+        }
+        else
+        {
+            if (!follow.NovelMonthlyInvolver)
+            {
+                StatusMessage = "Error: 您沒有每月Involve這部創作";
+                return Page();
+            }
+            follow.NovelMonthlyInvolver = false;
+        }
+        await Context.SaveChangesAsync();
+        StatusMessage = "UnInvolve成功";
+        return Page();
     }
 }

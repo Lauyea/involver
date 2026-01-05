@@ -2,67 +2,63 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Feed
+namespace Involver.Pages.Feed;
+
+[AllowAnonymous]
+//[ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "userId" })] // 暫停通知 Cache。通知即時化。
+public class NotificationsModel(
+    ApplicationDbContext context,
+    IAuthorizationService authorizationService,
+    UserManager<InvolverUser> userManager,
+    IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    //[ResponseCache(Duration = 60, VaryByQueryKeys = new string[] { "userId" })] // 暫停通知 Cache。通知即時化。
-    public class NotificationsModel : DI_BasePageModel
+    public List<Notification> Notifications { get; set; }
+
+    public string UserId { get; set; }
+
+    public int Count { get; set; } = 0;
+
+    public async Task<IActionResult> OnGetAsync(string userId)
     {
-        public NotificationsModel(
-            ApplicationDbContext context,
-            IAuthorizationService authorizationService,
-            UserManager<InvolverUser> userManager)
-            : base(context, authorizationService, userManager)
+        if (userId == null)
         {
-        }
-
-        public List<Notification> Notifications { get; set; }
-
-        public string UserId { get; set; }
-
-        public int Count { get; set; } = 0;
-
-        public async Task<IActionResult> OnGetAsync(string userId)
-        {
-            if (userId == null)
-            {
-                return Page();
-            }
-
-            UserId = userId;
-
-            Notifications = await _context.Notifications
-                .Where(n => n.ProfileID == userId)
-                .OrderByDescending(n => n.CreatedDate)
-                .Take(10)
-                .ToListAsync().ConfigureAwait(false);
-
-            Count = Notifications.Where(n => n.IsRead == false).Count();
-
             return Page();
         }
 
-        /// <summary>
-        /// 設定通知已讀
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <returns></returns>
-        public async Task OnPostReadAsync(string userId)
+        UserId = userId;
+
+        Notifications = await Context.Notifications
+            .Where(n => n.ProfileID == userId)
+            .OrderByDescending(n => n.CreatedDate)
+            .Take(10)
+            .ToListAsync().ConfigureAwait(false);
+
+        Count = Notifications.Where(n => n.IsRead == false).Count();
+
+        return Page();
+    }
+
+    /// <summary>
+    /// 設定通知已讀
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns></returns>
+    public async Task OnPostReadAsync(string userId)
+    {
+        var notifications = await Context.Notifications.Where(n => n.ProfileID == userId).ToListAsync();
+
+        foreach (var notification in notifications)
         {
-            var notifications = await _context.Notifications.Where(n => n.ProfileID == userId).ToListAsync();
-
-            foreach (var notification in notifications)
-            {
-                notification.IsRead = true;
-            }
-
-            await _context.SaveChangesAsync();
+            notification.IsRead = true;
         }
+
+        await Context.SaveChangesAsync();
     }
 }

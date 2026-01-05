@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 using DataAccess.Common;
@@ -9,6 +10,7 @@ using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,72 +18,65 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Announcements
+namespace Involver.Pages.Announcements;
+
+[AllowAnonymous]
+public class DetailsModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class DetailsModel : DI_BasePageModel
+    public Article Announcement { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
     {
-        public DetailsModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
+            return NotFound();
         }
 
-        public Article Announcement { get; set; }
+        Announcement = await Context.Articles
+            .Include(a => a.Profile)
+            .FirstOrDefaultAsync(a => a.ArticleID == id);
 
-        public async Task<IActionResult> OnGetAsync(int? id, int? pageIndex)
+        if (Announcement == null)
         {
-            if (id == null)
+            return NotFound();
+        }
+
+        Announcement.TotalViews++;
+
+        try
+        {
+            await Context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!AnnouncementExists(Announcement.ArticleID))
             {
                 return NotFound();
             }
-
-            Announcement = await _context.Articles
-                .Include(a => a.Profile)
-                .FirstOrDefaultAsync(a => a.ArticleID == id);
-
-            if (Announcement == null)
+            else
             {
-                return NotFound();
+                throw;
             }
-
-            Announcement.TotalViews++;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AnnouncementExists(Announcement.ArticleID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(ToastsJson))
-            {
-                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
-            }
-
-            var profileId = _userManager.GetUserId(User);
-
-            var toasts = await Helpers.AchievementHelper.ReadAnnouncementAsync(_context, profileId);
-
-            Toasts.AddRange(toasts);
-
-            return Page();
         }
 
-        private bool AnnouncementExists(int id)
+        var profileId = UserManager.GetUserId(User);
+
+        var toasts = await AchievementService.ReadAnnouncementAsync(profileId);
+
+        if (toasts.Count > 0)
         {
-            return _context.Articles.Any(e => e.ArticleID == id);
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
         }
+
+        return Page();
+    }
+
+    private bool AnnouncementExists(int id)
+    {
+        return Context.Articles.Any(e => e.ArticleID == id);
     }
 }

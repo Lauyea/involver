@@ -3,75 +3,72 @@ using DataAccess.Models.StatisticalData;
 
 using Involver.Authorization.Payment;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.StatisticalData.Payments
+namespace Involver.Pages.StatisticalData.Payments;
+
+public class DeleteModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class DeleteModel : DI_BasePageModel
+    [BindProperty]
+    public Payment Payment { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id)
     {
-        public DeleteModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
-        }
-        [BindProperty]
-        public Payment Payment { get; set; }
-
-        public async Task<IActionResult> OnGetAsync(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Payment = await _context.Payments.FirstOrDefaultAsync(p => p.PaymentID == id);
-
-            if (Payment == null)
-            {
-                return NotFound();
-            }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Payment,
-                                                 PaymentOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            return Page();
+            return NotFound();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        Payment = await Context.Payments.FirstOrDefaultAsync(p => p.PaymentID == id);
+
+        if (Payment == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            Payment = await _context.Payments.FindAsync(id);
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Payment,
-                                                 PaymentOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            if (Payment != null)
-            {
-                _context.Payments.Remove(Payment);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index");
+            return NotFound();
         }
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Payment,
+                                             PaymentOperations.Delete);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        Payment = await Context.Payments.FindAsync(id);
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Payment,
+                                             PaymentOperations.Delete);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        if (Payment != null)
+        {
+            Context.Payments.Remove(Payment);
+            await Context.SaveChangesAsync();
+        }
+
+        return RedirectToPage("./Index");
     }
 }

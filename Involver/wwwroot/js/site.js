@@ -165,26 +165,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 3. UI 通用邏輯 (Loading, Nav, Toasts, GoTop) ---
+    // --- 3. UI 通用邏輯 (Loading, Nav, GoTop) ---
     const loadingElement = document.getElementById('loading');
     const goTopButton = document.getElementById('gotop');
     const topHeadNav = document.querySelector('#TopHead nav');
-    const toastElements = document.querySelectorAll('.toast');
 
     // 隱藏載入畫面
     if (loadingElement) {
         loadingElement.style.display = 'none';
-    }
-
-    // 顯示 Toast
-    if (toastElements.length > 0) {
-        toastElements.forEach(toastEl => {
-            // 檢查 Bootstrap 是否已載入
-            if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
-                const toast = new bootstrap.Toast(toastEl);
-                toast.show();
-            }
-        });
     }
 
     // 啟用通用 Bootstrap Tooltips

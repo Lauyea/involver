@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -16,90 +17,72 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Involver.Pages
+namespace Involver.Pages;
+
+[AllowAnonymous]
+public class IndexModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class IndexModel : DI_BasePageModel
+    //private readonly ILogger<IndexModel> _logger;
+
+    public Profile UserProfile;
+
+    public ICollection<Follow> Follows { get; set; }
+
+    public async Task<IActionResult> OnGetAsync()
     {
-        //private readonly ILogger<IndexModel> _logger;
+        string userId = UserManager.GetUserId(User);
 
-        public Profile UserProfile;
-
-        public ICollection<Follow> Follows { get; set; }
-
-        //public IndexModel(ILogger<IndexModel> logger, 
-        //    ApplicationDb_context _context, 
-        //    UserManager<InvolverUser> userManager)
+        //if(userId == null)
         //{
-        //    _logger = logger;
-        //    _context = _context;
-        //    UserManager = userManager;
+        //    return RedirectToPage("/Feed/TrendingCreations", "OnGet");
         //}
 
-        public IndexModel(
-        ApplicationDbContext _context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(_context, authorizationService, userManager)
+        UserProfile = await Context
+                                .Profiles
+                                .Where(p => p.ProfileID == userId)
+                                .Include(p => p.Missions)
+                                .FirstOrDefaultAsync();
+
+        if (UserProfile == null)
         {
-        }
-
-        public async Task<IActionResult> OnGetAsync()
-        {
-            string userId = _userManager.GetUserId(User);
-
-            //if(userId == null)
-            //{
-            //    return RedirectToPage("/Feed/TrendingCreations", "OnGet");
-            //}
-
-            UserProfile = await _context
-                                    .Profiles
-                                    .Where(p => p.ProfileID == userId)
-                                    .Include(p => p.Missions)
-                                    .FirstOrDefaultAsync();
-
-            if (UserProfile == null)
-            {
-                return Page();
-            }
-
-            Follows = await _context.Follows
-                .Include(f => f.Novel)
-                    .ThenInclude(n => n.Episodes)
-                 .Include(f => f.Novel)
-                    .ThenInclude(n => n.Profile)
-                .Where(f => f.FollowerID == userId)
-                .OrderByDescending(f => f.Novel.UpdateTime)
-                .Take(10)
-                .ToListAsync();
-
-            if (UserProfile != null)
-            {
-                if (!UserProfile.Missions.DailyLogin)
-                {
-                    UserProfile.LastTimeLogin = DateTime.Now;//登入時間
-                    UserProfile.Missions.DailyLogin = true;//每日登入任務
-                    UserProfile.VirtualCoins += 5;
-                    StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
-                }
-                await _context.SaveChangesAsync();
-            }
-
-            if (!string.IsNullOrEmpty(ToastsJson))
-            {
-                Toasts = JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
-            }
-
-            var toasts = await Helpers.AchievementHelper.GetCoinsCountAsync(_context, userId, UserProfile.VirtualCoins + UserProfile.RealCoins);
-
-            Toasts.AddRange(toasts);
-
-            toasts = await Helpers.AchievementHelper.CheckGradeAsync(_context, UserProfile.ProfileID, UserProfile.EnrollmentDate);
-
-            Toasts.AddRange(toasts);
-
             return Page();
         }
+
+        Follows = await Context.Follows
+            .Include(f => f.Novel)
+                .ThenInclude(n => n.Episodes)
+             .Include(f => f.Novel)
+                .ThenInclude(n => n.Profile)
+            .Where(f => f.FollowerID == userId)
+            .OrderByDescending(f => f.Novel.UpdateTime)
+            .Take(10)
+            .ToListAsync();
+
+        if (UserProfile != null)
+        {
+            if (!UserProfile.Missions.DailyLogin)
+            {
+                UserProfile.LastTimeLogin = DateTime.Now;//登入時間
+                UserProfile.Missions.DailyLogin = true;//每日登入任務
+                UserProfile.VirtualCoins += 5;
+                StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
+            }
+            await Context.SaveChangesAsync();
+        }
+
+        var toasts = await AchievementService.GetCoinsCountAsync(userId, UserProfile.VirtualCoins + UserProfile.RealCoins);
+
+        toasts.AddRange(await AchievementService.CheckGradeAsync(UserProfile.ProfileID, UserProfile.EnrollmentDate));
+
+        if (toasts.Count > 0)
+        {
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+        }
+
+        return Page();
     }
 }

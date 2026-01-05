@@ -1,123 +1,122 @@
-﻿using DataAccess.Common;
+using System.Text.Json;
+
+using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models.NovelModel;
 
 using Involver.Authorization.Novel;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Episodes
+namespace Involver.Pages.Episodes;
+
+public class EditModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class EditModel : DI_BasePageModel
+    [BindProperty]
+    public Episode Episode { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int? id)
     {
-        public EditModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (id == null)
         {
+            return NotFound();
         }
 
-        [BindProperty]
-        public Episode Episode { get; set; }
+        Episode = await Context.Episodes
+            .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        if (Episode == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            Episode = await _context.Episodes
-                .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                              User, Episode.Novel,
+                                              NovelOperations.Update);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
 
-            if (Episode == null)
-            {
-                return NotFound();
-            }
+        return Page();
+    }
 
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                  User, Episode.Novel,
-                                                  NovelOperations.Update);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    public async Task<IActionResult> OnPostAsync(int id)
+    {
+        if (Episode.Content?.Length > Parameters.ArticleLength)
+        {
             return Page();
         }
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync(int id)
+        if (!ModelState.IsValid)
         {
-            if (Episode.Content?.Length > Parameters.ArticleLength)
-            {
-                return Page();
-            }
+            return Page();
+        }
 
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+        // Fetch data from DB to get OwnerID.
+        Episode episode = await Context
+            .Episodes
+            .Include(e => e.Novel)
+            .FirstOrDefaultAsync(a => a.EpisodeID == id);
 
-            // Fetch data from DB to get OwnerID.
-            Episode episode = await _context
-                .Episodes
-                .Include(e => e.Novel)
-                .FirstOrDefaultAsync(a => a.EpisodeID == id);
+        if (episode == null)
+        {
+            return NotFound();
+        }
 
-            if (episode == null)
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                              User, episode.Novel,
+                                              NovelOperations.Update);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        episode.UpdateTime = DateTime.Now;
+        episode.OwnerID = UserManager.GetUserId(User);
+        episode.Content = Episode.Content;
+        episode.Title = Episode.Title;
+
+
+        try
+        {
+            await Context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!EpisodeExists(Episode.EpisodeID))
             {
                 return NotFound();
             }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                  User, episode.Novel,
-                                                  NovelOperations.Update);
-            if (!isAuthorized.Succeeded)
+            else
             {
-                return Forbid();
+                throw;
             }
-
-            episode.UpdateTime = DateTime.Now;
-            episode.OwnerID = _userManager.GetUserId(User);
-            episode.Content = Episode.Content;
-            episode.Title = Episode.Title;
-
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!EpisodeExists(Episode.EpisodeID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            var toasts = await Helpers.AchievementHelper.FirstTimeEditAsync(_context, Episode.OwnerID);
-
-            Toasts.AddRange(toasts);
-
-            ToastsJson = System.Text.Json.JsonSerializer.Serialize(Toasts);
-
-            return RedirectToPage("/Novels/Details", "OnGet", new { id = episode.NovelID }, "EpisodeHead");
         }
 
-        private bool EpisodeExists(int id)
+        var toasts = await AchievementService.FirstTimeEditAsync(Episode.OwnerID);
+
+        if (toasts.Count > 0)
         {
-            return _context.Episodes.Any(e => e.EpisodeID == id);
+            TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
         }
+
+        return RedirectToPage("/Novels/Details", "OnGet", new { id = episode.NovelID }, "EpisodeHead");
+    }
+
+    private bool EpisodeExists(int id)
+    {
+        return Context.Episodes.Any(e => e.EpisodeID == id);
     }
 }

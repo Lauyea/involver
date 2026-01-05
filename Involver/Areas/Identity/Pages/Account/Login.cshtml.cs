@@ -10,6 +10,7 @@ using DataAccess.Data;
 using DataAccess.Models.AchievementModel;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,8 @@ namespace Involver.Areas.Identity.Pages.Account;
 [AllowAnonymous]
 public class LoginModel(SignInManager<InvolverUser> signInManager,
     ILogger<LoginModel> logger,
-    ApplicationDbContext context) : PageModel
+    ApplicationDbContext context,
+    IAchievementService achievementService) : PageModel
 {
     [BindProperty]
     public InputModel Input { get; set; }
@@ -37,11 +39,6 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
 
     [TempData]
     public string StatusMessage { get; set; }
-
-    [TempData]
-    public string ToastsJson { get; set; }
-
-    public List<Toast> Toasts { get; set; } = [];
 
     public class InputModel
     {
@@ -134,16 +131,15 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
                 StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
             }
 
-            var toasts = await Helpers.AchievementHelper.CheckGradeAsync(context, userProfile.ProfileID, userProfile.EnrollmentDate);
-
-            Toasts.AddRange(toasts);
+            List<Toast> toasts = await achievementService.CheckGradeAsync(userProfile.ProfileID, userProfile.EnrollmentDate);
 
             // TODO: Beta時間登入即可解鎖成就，之後這個要刪掉
-            toasts = await Helpers.AchievementHelper.BeBetaInvolverAsync(context, userProfile.ProfileID);
+            toasts.AddRange(await achievementService.BeBetaInvolverAsync(userProfile.ProfileID));
 
-            Toasts.AddRange(toasts);
-
-            ToastsJson = JsonSerializer.Serialize(Toasts);
+            if (toasts.Count > 0)
+            {
+                TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+            }
         }
     }
 }

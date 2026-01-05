@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models.NovelModel;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -17,144 +18,134 @@ using Microsoft.EntityFrameworkCore;
 
 using Type = DataAccess.Common.Type;
 
-namespace Involver.Pages.Novels
+namespace Involver.Pages.Novels;
+
+[AllowAnonymous]
+public class IndexModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class IndexModel : DI_BasePageModel
+    public string SearchType { get; set; }
+    public string CurrentType { get; set; }
+    public string IncoinSort { get; set; }
+    public string DateSort { get; set; }
+    public string ViewSort { get; set; }
+    public string CurrentFilter { get; set; }
+    public string CurrentSort { get; set; }
+    public PaginatedList<Novel> Novels { get; set; }
+
+    public async Task OnGetAsync(
+        string currentType,
+        string searchType,
+        string sortOrder,
+        string currentFilter,
+        string searchString,
+        int? PageIndex)
     {
-        public IndexModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        CurrentSort = sortOrder;
+        DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
+
+        IncoinSort = sortOrder == "Incoin_desc" ? "Incoin" : "Incoin_desc";
+        ViewSort = sortOrder == "View_desc" ? "View" : "View_desc";
+
+        if (searchType != null || searchString != null)
         {
+            PageIndex = 1;
+        }
+        else
+        {
+            searchString = currentFilter;
+            searchType = currentType;
+        }
+        CurrentFilter = searchString;
+        CurrentType = searchType;
+
+        IQueryable<Novel> NovelsIQ = from n in Context.Novels.Include("Profile").Include(n => n.NovelTags)
+                                     select n;
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            NovelTag novelTag = await Context.NovelTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
+
+            NovelsIQ = NovelsIQ.Where(n => n.Profile.UserName.Contains(searchString)
+                                   || n.Title.Contains(searchString)
+                                   || n.NovelTags.Contains(novelTag));
         }
 
-        public string SearchType { get; set; }
-        public string CurrentType { get; set; }
-        public string IncoinSort { get; set; }
-        public string DateSort { get; set; }
-        public string ViewSort { get; set; }
-        public string CurrentFilter { get; set; }
-        public string CurrentSort { get; set; }
-        public PaginatedList<Novel> Novels { get; set; }
-
-        public async Task OnGetAsync(
-            string currentType,
-            string searchType,
-            string sortOrder,
-            string currentFilter,
-            string searchString,
-            int? PageIndex)
+        if (!String.IsNullOrEmpty(searchType))
         {
-            CurrentSort = sortOrder;
-            DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
-
-            IncoinSort = sortOrder == "Incoin_desc" ? "Incoin" : "Incoin_desc";
-            ViewSort = sortOrder == "View_desc" ? "View" : "View_desc";
-
-            if (searchType != null || searchString != null)
+            switch (searchType)
             {
-                PageIndex = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-                searchType = currentType;
-            }
-            CurrentFilter = searchString;
-            CurrentType = searchType;
-
-            IQueryable<Novel> NovelsIQ = from n in _context.Novels.Include("Profile").Include(n => n.NovelTags)
-                                         select n;
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                NovelTag novelTag = await _context.NovelTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
-
-                NovelsIQ = NovelsIQ.Where(n => n.Profile.UserName.Contains(searchString)
-                                       || n.Title.Contains(searchString)
-                                       || n.NovelTags.Contains(novelTag));
-            }
-
-            if (!String.IsNullOrEmpty(searchType))
-            {
-                switch (searchType)
-                {
-                    case "Fantasy":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Fantasy);
-                        break;
-                    case "History":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.History);
-                        break;
-                    case "Love":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Love);
-                        break;
-                    case "Real":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Real);
-                        break;
-                    case "Modern":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Modern);
-                        break;
-                    case "Science":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Science);
-                        break;
-                    case "Horror":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Horror);
-                        break;
-                    case "Detective":
-                        NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Detective);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            switch (sortOrder)
-            {
-                case "Date":
-                    NovelsIQ = NovelsIQ.OrderBy(s => s.UpdateTime);
+                case "Fantasy":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Fantasy);
                     break;
-                case "Incoin_desc":
-                    NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins).OrderByDescending(s => s.TotalCoins);
+                case "History":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.History);
                     break;
-                case "Incoin":
-                    NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins).OrderBy(s => s.TotalCoins);
+                case "Love":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Love);
                     break;
-                case "View_desc":
-                    NovelsIQ = NovelsIQ.OrderByDescending(s => s.TotalViews);
+                case "Real":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Real);
                     break;
-                case "View":
-                    NovelsIQ = NovelsIQ.OrderBy(s => s.TotalViews);
+                case "Modern":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Modern);
+                    break;
+                case "Science":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Science);
+                    break;
+                case "Horror":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Horror);
+                    break;
+                case "Detective":
+                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Detective);
                     break;
                 default:
-                    NovelsIQ = NovelsIQ.OrderByDescending(s => s.UpdateTime);
                     break;
             }
-
-            var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
-                           User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
-
-            var currentUserId = _userManager.GetUserId(User);
-
-            // Only approved contacts are shown UNLESS you're authorized to see them
-            // or you are the owner.
-            if (!isAuthorized)
-            {
-                NovelsIQ = NovelsIQ.Where(a => a.Block == false
-                                            || a.ProfileID == currentUserId);
-            }
-
-            // 不顯示軟刪除的資料
-            NovelsIQ = NovelsIQ.Where(n => n.IsDeleted == false);
-
-            Novels = await PaginatedList<Novel>.CreateAsync(
-                NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
-
-            if (!string.IsNullOrEmpty(ToastsJson))
-            {
-                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
-            }
         }
+
+        switch (sortOrder)
+        {
+            case "Date":
+                NovelsIQ = NovelsIQ.OrderBy(s => s.UpdateTime);
+                break;
+            case "Incoin_desc":
+                NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins).OrderByDescending(s => s.TotalCoins);
+                break;
+            case "Incoin":
+                NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins).OrderBy(s => s.TotalCoins);
+                break;
+            case "View_desc":
+                NovelsIQ = NovelsIQ.OrderByDescending(s => s.TotalViews);
+                break;
+            case "View":
+                NovelsIQ = NovelsIQ.OrderBy(s => s.TotalViews);
+                break;
+            default:
+                NovelsIQ = NovelsIQ.OrderByDescending(s => s.UpdateTime);
+                break;
+        }
+
+        var isAuthorized = User.IsInRole(Authorization.Novel.Novels.NovelManagersRole) ||
+                       User.IsInRole(Authorization.Novel.Novels.NovelAdministratorsRole);
+
+        var currentUserId = UserManager.GetUserId(User);
+
+        // Only approved contacts are shown UNLESS you're authorized to see them
+        // or you are the owner.
+        if (!isAuthorized)
+        {
+            NovelsIQ = NovelsIQ.Where(a => a.Block == false
+                                        || a.ProfileID == currentUserId);
+        }
+
+        // 不顯示軟刪除的資料
+        NovelsIQ = NovelsIQ.Where(n => n.IsDeleted == false);
+
+        Novels = await PaginatedList<Novel>.CreateAsync(
+            NovelsIQ.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
     }
 }

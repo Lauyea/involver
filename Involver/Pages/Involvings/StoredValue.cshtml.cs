@@ -4,136 +4,129 @@ using System.Web;
 using DataAccess.Data;
 
 using Involver.Common;
+using Involver.Services;
 using Involver.Services.ECPay;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Involver.Pages.Involvings
+namespace Involver.Pages.Involvings;
+
+[AllowAnonymous]
+public class StoredValueModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IHttpClientFactory clientFactory,
+IConfiguration configuration,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class StoredValueModel : DI_BasePageModel
+    public IConfiguration Configuration { get; } = configuration;
+
+    public IActionResult OnGet()
     {
-        public StoredValueModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager,
-        IHttpClientFactory clientFactory,
-        IConfiguration configuration)
-        : base(context, authorizationService, userManager)
-        {
-            _clientFactory = clientFactory;
-            Configuration = configuration;
-        }
+        return Page();
+    }
 
-        private readonly IHttpClientFactory _clientFactory;
-        public IConfiguration Configuration { get; }
+    [BindProperty]
+    [Display(Name = "Êï∏Èáè")]
+    [Range(1, 100, ErrorMessage = "Â§ßÂ∞èÂè™ËÉΩ‰ªãÊñº0Âà∞100‰πãÈñì")]
+    public int Quantity { get; set; }
+    [BindProperty]
+    public string UserID { get; set; }
 
-        public IActionResult OnGet()
+    // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+    // more details see https://aka.ms/RazorPagesCRUD.
+    public IActionResult OnPostAsync()
+    {
+        if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        [BindProperty]
-        [Display(Name = "º∆∂q")]
-        [Range(1, 100, ErrorMessage = "§j§p•uØ‡§∂©Û0®Ï100§ß∂°")]
-        public int Quantity { get; set; }
-        [BindProperty]
-        public string UserID { get; set; }
+        UserID = UserManager.GetUserId(User);
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public IActionResult OnPostAsync()
+        if (UserID == null)
         {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
-
-            UserID = _userManager.GetUserId(User);
-
-            if (UserID == null)
-            {
-                return Challenge();
-            }
-
-            var client = _clientFactory.CreateClient();
-            client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
-
-            //### ´ÿ•ﬂService
-            CommonService _CommonService = new CommonService();
-
-            //### ≤’¶X¿À¨dΩX
-            string PostURL = "https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5";
-            string MerchantID = "3216093";
-            string HashKey = Configuration["ECPay:HashKey"];
-            string HashIV = Configuration["ECPay:HashIV"];
-
-            SortedDictionary<string, string> PostCollection = new SortedDictionary<string, string>();
-            PostCollection.Add("MerchantID", MerchantID);
-            PostCollection.Add("MerchantTradeNo", DateTime.Now.ToString("yyyyMMddHHmmss"));//ºt∞”≠q≥ÊΩs∏π
-            PostCollection.Add("MerchantTradeDate", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));//ºt∞”≠q≥Ê§È¥¡
-            PostCollection.Add("PaymentType", "aio");//©T©w±aaio
-            PostCollection.Add("TotalAmount", (Quantity * 150).ToString());
-            PostCollection.Add("TradeDesc", "•Ê©ˆ¥y≠z:Involver™∫ECPay≠q≥Ê");
-            PostCollection.Add("ItemName", "InvolverπÍ≈ÈInπÙ");
-            PostCollection.Add("ReturnURL", "https://involver.tw/api/CheckOutFeedback");//ºt∞”≥q™æ•I¥⁄µ≤™GAPI
-            PostCollection.Add("ChoosePayment", "ALL");//øÔæ‹πw≥]•I¥⁄§Ë¶°   
-            PostCollection.Add("OrderResultURL", ""); //æ…¶^≠∂≠±
-            PostCollection.Add("EncryptType", "1");//©T©w
-            PostCollection.Add("StoreID", ""); //ØS©±∫X§U©±ÁE•N∏π
-            PostCollection.Add("CustomField1", UserID); //∑|≠˚ID
-
-            //¿£ΩX
-            string str = string.Empty;
-            string str_pre = string.Empty;
-            foreach (var item in PostCollection)
-            {
-                str += string.Format("&{0}={1}", item.Key, item.Value);
-            }
-
-            str_pre += string.Format("HashKey={0}" + str + "&HashIV={1}", HashKey, HashIV);
-
-            string urlEncodeStrPost = HttpUtility.UrlEncode(str_pre);
-            string ToLower = urlEncodeStrPost.ToLower();
-            string sCheckMacValue = _CommonService.GetSHA256(ToLower);
-            PostCollection.Add("CheckMacValue", sCheckMacValue);
-
-            //### Form Post To ECPay
-            string ParameterString = string.Join("&", PostCollection.Select(p => p.Key + "=" + p.Value));
-
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-            sb.Append("<html><body>").AppendLine();
-            sb.Append("<form name='ECPayAIO'  id='ECPayAIO' action='" + PostURL + "' method='POST'>").AppendLine();
-            foreach (var aa in PostCollection)
-            {
-                sb.Append("<input type='hidden' name='" + aa.Key + "' value='" + aa.Value + "'>").AppendLine();
-            }
-
-            sb.Append("</form>").AppendLine();
-            sb.Append("<script> var theForm = document.forms['ECPayAIO'];  if (!theForm) { theForm = document.ECPayAIO; } theForm.submit(); </script>").AppendLine();
-            sb.Append("<html><body>").AppendLine();
-
-            TempData["PostForm"] = sb.ToString();
-
-            //use http client
-            //var formData = new FormUrlEncodedContent(PostCollection);
-
-            //using var response = await client.PostAsync(PostURL, formData);
-
-            //if (response.IsSuccessStatusCode)
-            //{
-            //    using var responseStream = await response.Content.ReadAsStreamAsync();
-            //    string TempStr = await response.Content.ReadAsStringAsync();
-            //    TempData["PostForm"] = await response.Content.ReadAsStringAsync();
-            //}
-            //else
-            //{
-
-            //}
-
-            return Page();
+            return Challenge();
         }
+
+        var client = clientFactory.CreateClient();
+        client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
+
+        //### Âª∫Á´ãService
+        CommonService _CommonService = new CommonService();
+
+        //### ÁµÑÂêàÊ™¢Êü•Á¢º
+        string PostURL = "https://payment.ecpay.com.tw/Cashier/AioCheckOut/V5";
+        string MerchantID = "3216093";
+        string HashKey = Configuration["ECPay:HashKey"];
+        string HashIV = Configuration["ECPay:HashIV"];
+
+        SortedDictionary<string, string> PostCollection = new SortedDictionary<string, string>();
+        PostCollection.Add("MerchantID", MerchantID);
+        PostCollection.Add("MerchantTradeNo", DateTime.Now.ToString("yyyyMMddHHmmss"));//Âª†ÂïÜË®ÇÂñÆÁ∑®Ëôü
+        PostCollection.Add("MerchantTradeDate", DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss"));//Âª†ÂïÜË®ÇÂñÆÊó•Êúü
+        PostCollection.Add("PaymentType", "aio");//Âõ∫ÂÆöÂ∏∂aio
+        PostCollection.Add("TotalAmount", (Quantity * 150).ToString());
+        PostCollection.Add("TradeDesc", "‰∫§ÊòìÊèèËø∞:InvolverÁöÑECPayË®ÇÂñÆ");
+        PostCollection.Add("ItemName", "InvolverÂØ¶È´îInÂπ£");
+        PostCollection.Add("ReturnURL", "https://involver.tw/api/CheckOutFeedback");//Âª†ÂïÜÈÄöÁü•‰ªòÊ¨æÁµêÊûúAPI
+        PostCollection.Add("ChoosePayment", "ALL");//ÈÅ∏ÊìáÈ†êË®≠‰ªòÊ¨æÊñπÂºè   
+        PostCollection.Add("OrderResultURL", ""); //Â∞éÂõûÈ†ÅÈù¢
+        PostCollection.Add("EncryptType", "1");//Âõ∫ÂÆö
+        PostCollection.Add("StoreID", ""); //ÁâπÂ∫óÊóó‰∏ãÂ∫óËàñ‰ª£Ëôü
+        PostCollection.Add("CustomField1", UserID); //ÊúÉÂì°ID
+
+        //Â£ìÁ¢º
+        string str = string.Empty;
+        string str_pre = string.Empty;
+        foreach (var item in PostCollection)
+        {
+            str += string.Format("&{0}={1}", item.Key, item.Value);
+        }
+
+        str_pre += string.Format("HashKey={0}" + str + "&HashIV={1}", HashKey, HashIV);
+
+        string urlEncodeStrPost = HttpUtility.UrlEncode(str_pre);
+        string ToLower = urlEncodeStrPost.ToLower();
+        string sCheckMacValue = _CommonService.GetSHA256(ToLower);
+        PostCollection.Add("CheckMacValue", sCheckMacValue);
+
+        //### Form Post To ECPay
+        string ParameterString = string.Join("&", PostCollection.Select(p => p.Key + "=" + p.Value));
+
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        sb.Append("<html><body>").AppendLine();
+        sb.Append("<form name='ECPayAIO'  id='ECPayAIO' action='" + PostURL + "' method='POST'>").AppendLine();
+        foreach (var aa in PostCollection)
+        {
+            sb.Append("<input type='hidden' name='" + aa.Key + "' value='" + aa.Value + "'>").AppendLine();
+        }
+
+        sb.Append("</form>").AppendLine();
+        sb.Append("<script> var theForm = document.forms['ECPayAIO'];  if (!theForm) { theForm = document.ECPayAIO; } theForm.submit(); </script>").AppendLine();
+        sb.Append("<html><body>").AppendLine();
+
+        TempData["PostForm"] = sb.ToString();
+
+        //use http client
+        //var formData = new FormUrlEncodedContent(PostCollection);
+
+        //using var response = await client.PostAsync(PostURL, formData);
+
+        //if (response.IsSuccessStatusCode)
+        //{
+        //    using var responseStream = await response.Content.ReadAsStreamAsync();
+        //    string TempStr = await response.Content.ReadAsStringAsync();
+        //    TempData["PostForm"] = await response.Content.ReadAsStringAsync();
+        //}
+        //else
+        //{
+
+        //}
+
+        return Page();
     }
 }

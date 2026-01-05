@@ -3,90 +3,81 @@ using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.Feedbacks
+namespace Involver.Pages.Feedbacks;
+
+[AllowAnonymous]
+public class IndexModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    [AllowAnonymous]
-    public class IndexModel : DI_BasePageModel
+    public string SearchType { get; set; }
+
+    public string CurrentType { get; set; }
+
+    public string CurrentFilter { get; set; }
+
+    public PaginatedList<Article> Feedbacks { get; set; }
+
+    public async Task OnGetAsync(
+        string currentType,
+        string searchType,
+        string currentFilter,
+        string searchString,
+        int? PageIndex)
     {
-        public IndexModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+        if (searchString != null)
         {
+            PageIndex = 1;
         }
-
-        public string SearchType { get; set; }
-
-        public string CurrentType { get; set; }
-
-        public string CurrentFilter { get; set; }
-
-        public PaginatedList<Article> Feedbacks { get; set; }
-
-        public async Task OnGetAsync(
-            string currentType,
-            string searchType,
-            string currentFilter,
-            string searchString,
-            int? PageIndex)
+        else
         {
-            if (searchString != null)
+            searchString = currentFilter;
+            searchType = currentType;
+        }
+        CurrentFilter = searchString;
+        CurrentType = searchType;
+
+        var feedbacks = Context.Articles
+                    .Include(f => f.Profile)
+                    .Where(f => f.Type == ArticleType.Feedback);
+
+        if (!String.IsNullOrEmpty(searchString))
+        {
+            if (searchType == "OwnerName")
             {
-                PageIndex = 1;
+                feedbacks = feedbacks.Where(f => f.Profile.UserName.Contains(searchString));
             }
             else
             {
-                searchString = currentFilter;
-                searchType = currentType;
-            }
-            CurrentFilter = searchString;
-            CurrentType = searchType;
-
-            var feedbacks = _context.Articles
-                        .Include(f => f.Profile)
-                        .Where(f => f.Type == ArticleType.Feedback);
-
-            if (!String.IsNullOrEmpty(searchString))
-            {
-                if (searchType == "OwnerName")
-                {
-                    feedbacks = feedbacks.Where(f => f.Profile.UserName.Contains(searchString));
-                }
-                else
-                {
-                    feedbacks = feedbacks.Where(f => f.Title.Contains(searchString));
-                }
-            }
-
-            feedbacks = feedbacks.OrderByDescending(f => f.UpdateTime);
-
-            var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
-                           User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
-
-            var currentUserId = _userManager.GetUserId(User);
-
-            // Only approved contacts are shown UNLESS you're authorized to see them
-            // or you are the owner.
-            if (!isAuthorized)
-            {
-                feedbacks = feedbacks.Where(f => f.Block == false
-                                            || f.ProfileID == currentUserId);
-            }
-
-
-            Feedbacks = await PaginatedList<Article>.CreateAsync(
-                feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
-
-            if (!string.IsNullOrEmpty(ToastsJson))
-            {
-                Toasts = System.Text.Json.JsonSerializer.Deserialize<List<Toast>>(ToastsJson);
+                feedbacks = feedbacks.Where(f => f.Title.Contains(searchString));
             }
         }
+
+        feedbacks = feedbacks.OrderByDescending(f => f.UpdateTime);
+
+        var isAuthorized = User.IsInRole(Authorization.Article.Articles.ArticleManagersRole) ||
+                       User.IsInRole(Authorization.Article.Articles.ArticleAdministratorsRole);
+
+        var currentUserId = UserManager.GetUserId(User);
+
+        // Only approved contacts are shown UNLESS you're authorized to see them
+        // or you are the owner.
+        if (!isAuthorized)
+        {
+            feedbacks = feedbacks.Where(f => f.Block == false
+                                        || f.ProfileID == currentUserId);
+        }
+
+
+        Feedbacks = await PaginatedList<Article>.CreateAsync(
+            feedbacks.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
     }
 }

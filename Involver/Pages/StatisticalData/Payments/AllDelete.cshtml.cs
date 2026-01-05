@@ -3,65 +3,62 @@ using DataAccess.Models.StatisticalData;
 
 using Involver.Authorization.Payment;
 using Involver.Common;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Involver.Pages.StatisticalData.Payments
+namespace Involver.Pages.StatisticalData.Payments;
+
+public class AllDeleteModel(
+ApplicationDbContext context,
+IAuthorizationService authorizationService,
+UserManager<InvolverUser> userManager,
+IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public class AllDeleteModel : DI_BasePageModel
+    public IList<Payment> Payments { get; set; }
+
+    public async Task<IActionResult> OnGetAsync()
     {
-        public AllDeleteModel(
-        ApplicationDbContext context,
-        IAuthorizationService authorizationService,
-        UserManager<InvolverUser> userManager)
-        : base(context, authorizationService, userManager)
+
+        Payments = await Context.Payments.ToListAsync();
+
+        if (Payments.Count == 0)
         {
-        }
-        public IList<Payment> Payments { get; set; }
-
-        public async Task<IActionResult> OnGetAsync()
-        {
-
-            Payments = await _context.Payments.ToListAsync();
-
-            if (Payments.Count == 0)
-            {
-                return Content("µL¸ê®Æ");
-            }
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Payments[0],
-                                                 PaymentOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            return Page();
+            return Content("ç„¡è³‡æ–™");
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Payments[0],
+                                             PaymentOperations.Delete);
+        if (!isAuthorized.Succeeded)
         {
-            Payments = await _context.Payments.ToListAsync();
-
-            var isAuthorized = await _authorizationService.AuthorizeAsync(
-                                                 User, Payments[0],
-                                                 PaymentOperations.Delete);
-            if (!isAuthorized.Succeeded)
-            {
-                return Forbid();
-            }
-
-            if (Payments != null)
-            {
-                _context.Payments.RemoveRange(Payments);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index");
+            return Forbid();
         }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync()
+    {
+        Payments = await Context.Payments.ToListAsync();
+
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(
+                                             User, Payments[0],
+                                             PaymentOperations.Delete);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
+        if (Payments != null)
+        {
+            Context.Payments.RemoveRange(Payments);
+            await Context.SaveChangesAsync();
+        }
+
+        return RedirectToPage("./Index");
     }
 }
