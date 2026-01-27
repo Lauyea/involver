@@ -9,53 +9,138 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalLabel">@Model.Title - 過去30日觀看紀錄</h5>
+                <button type="button" id="toggleChartView" class="btn btn-sm btn-outline-secondary ms-auto me-2">切換檢視</button>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <canvas id="viewRecordChart"></canvas>
+                <div id="combinedChartContainer">
+                    <canvas id="combinedViewChart"></canvas>
+                </div>
+                <div id="separateChartsContainer" style="display: none;">
+                    <canvas id="dailyViewChart"></canvas>
+                    <hr />
+                    <canvas id="cumulativeViewChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+    // --- Data & State Preparation ---
     var labels = @Html.AntiXssRaw(Model.DateArrJson);
+    var dailyViewData = @Html.AntiXssRaw(Model.ViewCountArrJson);
+    var cumulativeViewData = @Html.AntiXssRaw(Model.CumulativeViewCountArrJson);
+    
+    let isCombinedView = true;
+    let activeCharts = [];
 
-    var data = {
-        labels: labels,
-        datasets: [{
-            label: '每日觀看數',
-            backgroundColor: 'rgba(255, 200, 132, 0.5)',
-            borderColor: 'rgb(255, 200, 132)',
-            data: @Html.AntiXssRaw(Model.ViewCountArrJson),
-            tension: 0.1,
-            fill: true
-        }]
-    };
+    // --- Chart Configurations ---
 
-    var config = {
-        type: 'line',
-        data: data,
+    // Config for Combined Chart (View 1)
+    const combinedConfig = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                type: 'bar',
+                label: '每日觀看數',
+                backgroundColor: 'rgba(255, 200, 132, 0.5)',
+                borderColor: 'rgb(255, 200, 132)',
+                data: dailyViewData,
+                yAxisID: 'y'
+            }, {
+                type: 'line',
+                label: '累積觀看數',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: cumulativeViewData,
+                tension: 0.1,
+                fill: false,
+                yAxisID: 'y1'
+            }]
+        },
         options: {
             scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0
-                    }
-                }
+                y: { type: 'linear', display: true, position: 'left', beginAtZero: true, ticks: { precision: 0 }, title: { display: true, text: '每日觀看數' } },
+                y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, ticks: { precision: 0 }, title: { display: true, text: '累積觀看數' } }
             }
         }
     };
 
-    // Ensure old chart is destroyed before creating a new one if needed, though loading into a clean div should prevent this.
-    var existingChart = Chart.getChart("viewRecordChart");
-    if (existingChart) {
-        existingChart.destroy();
+    // Config for Daily Chart (View 2, Part 1)
+    const dailyConfig = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '每日觀看數',
+                backgroundColor: 'rgba(255, 200, 132, 0.5)',
+                borderColor: 'rgb(255, 200, 132)',
+                data: dailyViewData,
+                fill: true
+            }]
+        },
+        options: {
+            plugins: { title: { display: true, text: '每日觀看數' } },
+            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+    };
+
+    // Config for Cumulative Chart (View 2, Part 2)
+    const cumulativeConfig = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: '累積觀看數',
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: cumulativeViewData,
+                tension: 0.1,
+                fill: true
+            }]
+        },
+        options: {
+            plugins: { title: { display: true, text: '累積觀看數' } },
+            scales: { y: { beginAtZero: false, ticks: { precision: 0 } } }
+        }
+    };
+
+    // --- Rendering Functions ---
+
+    function destroyActiveCharts() {
+        activeCharts.forEach(chart => chart.destroy());
+        activeCharts = [];
     }
 
-    var viewRecordChart = new Chart(
-        document.getElementById('viewRecordChart'),
-        config
-    );
+    function renderCombinedChart() {
+        document.getElementById('separateChartsContainer').style.display = 'none';
+        document.getElementById('combinedChartContainer').style.display = 'block';
+        destroyActiveCharts();
+        const combinedChart = new Chart(document.getElementById('combinedViewChart'), combinedConfig);
+        activeCharts.push(combinedChart);
+    }
+
+    function renderSeparateCharts() {
+        document.getElementById('combinedChartContainer').style.display = 'none';
+        document.getElementById('separateChartsContainer').style.display = 'block';
+        destroyActiveCharts();
+        const dailyChart = new Chart(document.getElementById('dailyViewChart'), dailyConfig);
+        const cumulativeChart = new Chart(document.getElementById('cumulativeViewChart'), cumulativeConfig);
+        activeCharts.push(dailyChart, cumulativeChart);
+    }
+
+    // --- Initial Load & Event Listener ---
+
+    renderCombinedChart(); // Initial view is combined
+
+    document.getElementById('toggleChartView').addEventListener('click', () => {
+        isCombinedView = !isCombinedView;
+        if (isCombinedView) {
+            renderCombinedChart();
+        } else {
+            renderSeparateCharts();
+        }
+    });
 </script>

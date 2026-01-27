@@ -24,18 +24,21 @@ namespace Involver.Pages.StatisticalData
 
         public string DateArrJson { get; set; }
         public string ViewCountArrJson { get; set; }
+        public string CumulativeViewCountArrJson { get; set; }
         public string Title { get; set; }
 
         public async Task<IActionResult> OnGetViewRecordAsync(string type, int id)
         {
             var daysAgo = DateTime.UtcNow.AddDays(Parameters.ViewRecordDays);
             List<DailyView> dailyViews;
+            long totalViews = 0;
 
             if (type == "novel")
             {
                 var novel = await _context.Novels.FindAsync(id);
                 if (novel == null) return NotFound();
                 Title = novel.Title;
+                totalViews = novel.TotalViews;
 
                 dailyViews = await _context.Views
                     .Where(v => v.NovelId == id && v.CreateTime >= daysAgo)
@@ -49,6 +52,7 @@ namespace Involver.Pages.StatisticalData
                 var article = await _context.Articles.FindAsync(id);
                 if (article == null) return NotFound();
                 Title = article.Title;
+                totalViews = article.TotalViews;
 
                 dailyViews = await _context.Views
                     .Where(v => v.ArticleId == id && v.CreateTime >= daysAgo)
@@ -79,6 +83,17 @@ namespace Involver.Pages.StatisticalData
 
             var viewCountArr = viewsWithAllDates.Select(r => r.Count).ToArray();
             ViewCountArrJson = JsonSerializer.Serialize(viewCountArr);
+
+            var cumulativeViewCountArr = new long[viewCountArr.Length];
+            if (cumulativeViewCountArr.Length > 0)
+            {
+                cumulativeViewCountArr[cumulativeViewCountArr.Length - 1] = totalViews;
+                for (int i = cumulativeViewCountArr.Length - 2; i >= 0; i--)
+                {
+                    cumulativeViewCountArr[i] = cumulativeViewCountArr[i + 1] - viewCountArr[i + 1];
+                }
+            }
+            CumulativeViewCountArrJson = JsonSerializer.Serialize(cumulativeViewCountArr);
 
             return Page();
         }
