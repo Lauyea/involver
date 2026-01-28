@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using DataAccess.Common;
 using DataAccess.Data;
@@ -34,7 +35,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(50)]
+    [MaxLength(200)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
@@ -75,9 +76,26 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         #region 設定Tags
-        var tagArr = TagString?.Split(",").Select(t => t.Trim()).ToArray();
+        var tagArr = Array.Empty<string>();
 
-        if (tagArr?.Length > Parameters.TagSize)
+        if (!string.IsNullOrEmpty(TagString))
+        {
+            try
+            {
+                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
+                if (tagObjects != null)
+                {
+                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
+                }
+            }
+            catch (JsonException)
+            {
+                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
+                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+            }
+        }
+
+        if (tagArr.Length > Parameters.TagSize)
         {
             ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
             return Page();
@@ -98,7 +116,12 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
             foreach (var tag in tagArr)
             {
-                var existingTag = await Context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+                if (string.IsNullOrEmpty(tag))
+                {
+                    continue;
+                }
+
+                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tag.ToUpper());
 
                 if (existingTag != null)
                 {
@@ -106,11 +129,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 }
                 else
                 {
-                    ArticleTag newTag = new ArticleTag
+                    ArticleTag newTag = new()
                     {
                         Name = tag
                     };
-
+                    
                     articleTags.Add(newTag);
                 }
             }
@@ -119,7 +142,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         #endregion
 
         Article emptyArticle =
-            new Article
+            new()
             {
                 Title = "temp",
                 Content = "temp content post here.",
@@ -162,4 +185,10 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         return Page();
     }
+}
+
+internal class TagifyTag
+{
+    [JsonPropertyName("value")]
+    public string Value { get; set; }
 }

@@ -30,7 +30,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(50)]
+    [MaxLength(200)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
@@ -57,27 +57,13 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        SetTagString();
+        var tags = Article.ArticleTags.Select(t => new { value = t.Name });
+        TagString = JsonSerializer.Serialize(tags);
 
         return Page();
     }
 
-    private void SetTagString()
-    {
-        string temp = string.Empty;
 
-        foreach (var tag in Article.ArticleTags)
-        {
-            temp = tag.Name + ",";
-            TagString += temp;
-        }
-
-        //移除最後一個頓號
-        if (TagString != null)
-        {
-            TagString = TagString.Remove(TagString.Length - 1);
-        }
-    }
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
@@ -113,47 +99,66 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         #region 設定Tags
-        var tagArr = TagString?.Split(",").Select(t => t.Trim()).ToArray();
+        var tagArr = Array.Empty<string>();
 
-        if (tagArr?.Length > Parameters.TagSize)
+        if (!string.IsNullOrEmpty(TagString))
+        {
+            try
+            {
+                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
+                if (tagObjects != null)
+                {
+                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
+                }
+            }
+            catch (JsonException)
+            {
+                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
+                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+            }
+        }
+
+        if (tagArr.Length > Parameters.TagSize)
         {
             ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            Article = articleToUpdate; // Re-assign for the view
             return Page();
         }
 
-        List<ArticleTag> articleTags = [];
-
-        if (!tagArr.IsNullOrEmpty())
+        foreach (var tag in tagArr)
         {
-            foreach (var tag in tagArr)
+            if (tag.Length > Parameters.TagNameMaxLength)
             {
-                if (tag.Length > Parameters.TagNameMaxLength)
-                {
-                    ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                    return Page();
-                }
-            }
-
-            foreach (var tag in tagArr)
-            {
-                var existingTag = await Context.ArticleTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
-
-                if (existingTag != null)
-                {
-                    articleTags.Add(existingTag);
-                }
-                else
-                {
-                    ArticleTag newTag = new ArticleTag
-                    {
-                        Name = tag
-                    };
-
-                    articleTags.Add(newTag);
-                }
+                ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                Article = articleToUpdate; // Re-assign for the view
+                return Page();
             }
         }
 
+        var updatedTags = new List<ArticleTag>();
+        if (!tagArr.IsNullOrEmpty())
+        {
+            foreach (var tagName in tagArr)
+            {
+                if (string.IsNullOrEmpty(tagName))
+                {
+                    continue;
+                }
+
+                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tagName.ToUpper());
+
+                if (existingTag != null)
+                {
+                    updatedTags.Add(existingTag);
+                }
+                else
+                {
+                    var newTag = new ArticleTag { Name = tagName };
+                    Context.ArticleTags.Add(newTag); // Add to context to be saved
+                    updatedTags.Add(newTag);
+                }
+            }
+        }
         #endregion
 
         if (await TryUpdateModelAsync<Article>(
@@ -163,7 +168,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             articleToUpdate.UpdateTime = DateTime.Now;
 
-            articleToUpdate.ArticleTags = articleTags;
+            articleToUpdate.ArticleTags = updatedTags;
 
             try
             {
@@ -183,7 +188,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
             var toasts = await AchievementService.FirstTimeEditAsync(Article.ProfileID);
 
-            if (articleTags.Count > 0)
+            if (updatedTags.Count > 0)
             {
                 toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Article.ProfileID));
             }

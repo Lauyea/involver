@@ -8,6 +8,10 @@
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
+@section Styles {
+    <link href="https://cdn.jsdelivr.net/npm/@@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+}
+
 <div class="row justify-content-center">
     <div class="col-lg-8 col-md-10">
         <div class="card">
@@ -51,7 +55,7 @@
                         <input asp-for="TagString" class="form-control" />
                         <span asp-validation-for="TagString" class="text-danger"></span>
                         <small class="form-text text-body-secondary">
-                            請用半形逗號 (,) 分隔每個標籤，例如：標籤1,標籤2,標籤3。<br />
+                            新增標籤請按 Enter，或貼上以逗號分隔的標籤。<br />
                             最多 @Parameters.TagSize 個標籤，每個標籤長度不超過 @Parameters.TagNameMaxLength 個字。
                         </small>
                     </div>
@@ -76,6 +80,54 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/@@yaireo/tagify"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+    <script>
+        // 找到要被 Tagify 取代的 input 元素
+        var input = document.querySelector('input[name="TagString"]');
+
+        // Tagify 的設定
+        var tagifySettings = {
+            maxTags: @Parameters.TagSize,
+            dropdown: {
+                maxItems: 20,           // 建議選單中最多顯示的項目數量
+                classname: "tags-look", // 自訂建議選單的 CSS class
+                enabled: 0,             // 輸入框 focus 時就顯示建議
+                closeOnSelect: false    // 選擇後不關閉建議選單
+            },
+            // 新增標籤時的提醒
+            hooks: {
+                add: function(e) {
+                    if (e.detail.isNew) {
+                        // 您可以在這裡加入更友善的提示，例如使用 Toast 通知
+                        console.log('新標籤已加入:', e.detail.data.value);
+                    }
+                }
+            }
+        };
+
+        // 異步載入白名單 (whitelist)
+        async function loadWhitelist() {
+            try {
+                const response = await fetch('/api/tags/search?type=article');
+                const whitelist = await response.json();
+                
+                // 將載入的白名單加入設定中
+                tagifySettings.whitelist = whitelist;
+
+                // 初始化 Tagify
+                new Tagify(input, tagifySettings);
+
+            } catch (error) {
+                console.error('無法載入標籤白名單:', error);
+                // 即使載入失敗，也初始化 Tagify (只是沒有建議列表)
+                new Tagify(input, tagifySettings);
+            }
+        }
+
+        // 執行載入與初始化
+        loadWhitelist();
+    </script>
     <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
     @{
         ViewData["EditorId"] = "editor";
