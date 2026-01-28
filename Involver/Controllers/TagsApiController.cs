@@ -6,14 +6,8 @@ namespace Involver.Controllers
 {
     [Route("api/tags")]
     [ApiController]
-    public class TagsApiController : ControllerBase
+    public class TagsApiController(ApplicationDbContext context) : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-
-        public TagsApiController(ApplicationDbContext context)
-        {
-            _context = context;
-        }
 
         /// <summary>
         /// 搜尋標籤
@@ -29,7 +23,7 @@ namespace Involver.Controllers
             if (type.Equals("novel", StringComparison.OrdinalIgnoreCase))
             {
                 // 取得所有小說標籤
-                tags = await _context.NovelTags
+                tags = await context.NovelTags
                     .AsNoTracking()
                     .Select(t => t.Name)
                     .Distinct()
@@ -38,7 +32,7 @@ namespace Involver.Controllers
             else if (type.Equals("article", StringComparison.OrdinalIgnoreCase))
             {
                 // 取得所有文章標籤
-                tags = await _context.ArticleTags
+                tags = await context.ArticleTags
                     .AsNoTracking()
                     .Select(t => t.Name)
                     .Distinct()
@@ -47,7 +41,7 @@ namespace Involver.Controllers
             else
             {
                 // 如果類型不符，回傳空列表
-                tags = Enumerable.Empty<string>();
+                tags = [];
             }
 
             // Tagify 需要 { "value": "tagname" } 格式的物件

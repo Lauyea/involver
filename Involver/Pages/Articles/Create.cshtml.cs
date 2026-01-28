@@ -142,7 +142,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         #endregion
 
         Article emptyArticle =
-            new Article
+            new()
             {
                 Title = "temp",
                 Content = "temp content post here.",
