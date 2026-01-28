@@ -85,7 +85,24 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         #region 設定Tags
-        var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+        var tagArr = Array.Empty<string>();
+
+        if (!string.IsNullOrEmpty(TagString))
+        {
+            try
+            {
+                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
+                if (tagObjects != null)
+                {
+                    tagArr = tagObjects.Select(t => t.value.Trim()).ToArray();
+                }
+            }
+            catch (JsonException)
+            {
+                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
+                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+            }
+        }
 
         if (tagArr.Length > Parameters.TagSize)
         {
@@ -106,7 +123,12 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         foreach (var tag in tagArr)
         {
-            var existingTag = await Context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+            if(string.IsNullOrEmpty(tag))
+            {
+                continue;
+            }
+            
+            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name == tag);
 
             if (existingTag != null)
             {
@@ -118,7 +140,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 {
                     Name = tag
                 };
-
+                
                 novelTags.Add(newTag);
             }
         }
@@ -188,4 +210,9 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         return Page();
     }
+}
+
+internal class TagifyTag
+{
+    public string value { get; set; }
 }
