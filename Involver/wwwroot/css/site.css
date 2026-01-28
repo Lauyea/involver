@@ -583,6 +583,22 @@ h6:hover .anchor-link {
     border: 0;
 }
 
+/* --- Tagify 編輯模式的最終修正 --- */
+/* 1. 確保可編輯標籤的內部 div 容器也能伸展 */
+.tagify__tag--editable > div {
+    max-width: none;
+}
+
+/* 2. 用最高優先級強制重置可編輯文字區塊的所有相關屬性 */
+.tagify__tag--editable .tagify__tag-text[contenteditable="true"] {
+    position: static !important;
+    width: auto !important; /* 寬度由內容自動決定 */
+    max-width: none !important; /* 解除最大寬度限制 */
+    overflow: visible !important; /* 內容溢出時直接顯示，不要隱藏 */
+    text-overflow: clip !important; /* 強制裁剪溢出內容，而不是顯示 ... */
+    white-space: nowrap !important; /* 強制不換行 */
+    color: var(--text-color);
+}
 
 /* ==============================================
     9. 通用類別 (Utility Classes)
