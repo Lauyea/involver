@@ -39,7 +39,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(50)]
+    [MaxLength(200)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
