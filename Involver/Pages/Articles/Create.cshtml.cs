@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using DataAccess.Common;
 using DataAccess.Data;
@@ -84,7 +85,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
                 if (tagObjects != null)
                 {
-                    tagArr = tagObjects.Select(t => t.value.Trim()).ToArray();
+                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
                 }
             }
             catch (JsonException)
@@ -188,5 +189,6 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
 internal class TagifyTag
 {
-    public string value { get; set; }
+    [JsonPropertyName("value")]
+    public string Value { get; set; }
 }
