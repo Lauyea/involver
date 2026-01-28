@@ -129,7 +129,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 continue;
             }
             
-            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name == tag);
+            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tag.ToUpper());
 
             if (existingTag != null)
             {
