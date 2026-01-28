@@ -72,27 +72,13 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        SetTagString();
+        var tags = Novel.NovelTags.Select(t => new { value = t.Name });
+        TagString = JsonSerializer.Serialize(tags);
 
         return Page();
     }
 
-    private void SetTagString()
-    {
-        string temp = string.Empty;
 
-        foreach (var tag in Novel.NovelTags)
-        {
-            temp = tag.Name + ",";
-            TagString += temp;
-        }
-
-        //移除最後一個頓號
-        if (TagString != null)
-        {
-            TagString = TagString.Remove(TagString.Length - 1);
-        }
-    }
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
@@ -123,11 +109,29 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         #region 設定Tags
-        var tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+        var tagArr = Array.Empty<string>();
+
+        if (!string.IsNullOrEmpty(TagString))
+        {
+            try
+            {
+                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
+                if (tagObjects != null)
+                {
+                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
+                }
+            }
+            catch (JsonException)
+            {
+                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
+                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
+            }
+        }
 
         if (tagArr.Length > Parameters.TagSize)
         {
             ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            Novel = novelToUpdate; // Re-assign for the view
             return Page();
         }
 
@@ -136,28 +140,30 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             if (tag.Length > Parameters.TagNameMaxLength)
             {
                 ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
+                Novel = novelToUpdate; // Re-assign for the view
                 return Page();
             }
         }
 
-        List<NovelTag> novelTags = new();
-
-        foreach (var tag in tagArr)
+        var updatedTags = new List<NovelTag>();
+        foreach (var tagName in tagArr)
         {
-            var existingTag = await Context.NovelTags.Where(t => t.Name == tag).FirstOrDefaultAsync();
+            if (string.IsNullOrEmpty(tagName))
+            {
+                continue;
+            }
+
+            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tagName.ToUpper());
 
             if (existingTag != null)
             {
-                novelTags.Add(existingTag);
+                updatedTags.Add(existingTag);
             }
             else
             {
-                NovelTag newTag = new NovelTag
-                {
-                    Name = tag
-                };
-
-                novelTags.Add(newTag);
+                var newTag = new NovelTag { Name = tagName };
+                Context.NovelTags.Add(newTag); // Add to context to be saved
+                updatedTags.Add(newTag);
             }
         }
         #endregion
@@ -174,7 +180,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             //}
             novelToUpdate.UpdateTime = DateTime.Now;
 
-            novelToUpdate.NovelTags = novelTags;
+            novelToUpdate.NovelTags = updatedTags;
 
             try
             {
@@ -194,7 +200,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
             var toasts = await AchievementService.FirstTimeEditAsync(Novel.ProfileID);
 
-            if (novelTags.Count > 0)
+            if (updatedTags.Count > 0)
             {
                 toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Novel.ProfileID));
             }
