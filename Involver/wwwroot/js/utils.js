@@ -183,7 +183,20 @@ document.addEventListener('click', async function (e) {
 document.addEventListener('hidden.bs.modal', function (e) {
     // 檢查觸發此事件的是否為 #viewRecordModal
     if (e.target.id === 'viewRecordModal') {
-        // e.target 就是 modal 元素本人
-        e.target.remove();
+        // First, destroy the Chart.js instances using the globally exposed function
+        if (typeof window.destroyPartialCharts === 'function') {
+            window.destroyPartialCharts();
+            window.destroyPartialCharts = null; // Clean up the global scope
+        }
+
+        const modalElement = e.target;
+        // 從元素獲取 Bootstrap Modal 實例
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            // 使用 Bootstrap API 銷毀實例，這會處理事件和 backdrop
+            modalInstance.dispose();
+        }
+        // 從 DOM 中移除 modal 的 HTML
+        modalElement.remove();
     }
 });
