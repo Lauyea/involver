@@ -32,13 +32,13 @@
     var dailyViewData = @Html.AntiXssRaw(Model.ViewCountArrJson);
     var cumulativeViewData = @Html.AntiXssRaw(Model.CumulativeViewCountArrJson);
     
-    let isCombinedView = true;
-    let activeCharts = [];
+    var isCombinedView = true;
+    var activeCharts = [];
 
     // --- Chart Configurations ---
 
     // Config for Combined Chart (View 1)
-    const combinedConfig = {
+    var combinedConfig = {
         type: 'bar',
         data: {
             labels: labels,
@@ -69,7 +69,7 @@
     };
 
     // Config for Daily Chart (View 2, Part 1)
-    const dailyConfig = {
+    var dailyConfig = {
         type: 'line',
         data: {
             labels: labels,
@@ -88,7 +88,7 @@
     };
 
     // Config for Cumulative Chart (View 2, Part 2)
-    const cumulativeConfig = {
+    var cumulativeConfig = {
         type: 'line',
         data: {
             labels: labels,
@@ -113,12 +113,14 @@
         activeCharts.forEach(chart => chart.destroy());
         activeCharts = [];
     }
+    window.destroyPartialCharts = destroyActiveCharts; // Expose to global scope
 
     function renderCombinedChart() {
         document.getElementById('separateChartsContainer').style.display = 'none';
         document.getElementById('combinedChartContainer').style.display = 'block';
         destroyActiveCharts();
-        const combinedChart = new Chart(document.getElementById('combinedViewChart'), combinedConfig);
+
+        var combinedChart = new Chart(document.getElementById('combinedViewChart'), combinedConfig);
         activeCharts.push(combinedChart);
     }
 
@@ -126,8 +128,8 @@
         document.getElementById('combinedChartContainer').style.display = 'none';
         document.getElementById('separateChartsContainer').style.display = 'block';
         destroyActiveCharts();
-        const dailyChart = new Chart(document.getElementById('dailyViewChart'), dailyConfig);
-        const cumulativeChart = new Chart(document.getElementById('cumulativeViewChart'), cumulativeConfig);
+        var dailyChart = new Chart(document.getElementById('dailyViewChart'), dailyConfig);
+        var cumulativeChart = new Chart(document.getElementById('cumulativeViewChart'), cumulativeConfig);
         activeCharts.push(dailyChart, cumulativeChart);
     }
 
