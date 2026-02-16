@@ -9,24 +9,24 @@
         ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
     }
 
-    string TitleSub = "";
+    // string TitleSub = "";
     string RecentBtnStyle, MonthlyBtnStyle, TotalTimeBtnStyle;
     RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
     var timeSpan = Model.PageViewModel.TimeSpan;
 
     if (timeSpan == "TotalTime")
     {
-        TitleSub = "總共（按程度排序）";
+        // TitleSub = "總共（按程度排序）";
         TotalTimeBtnStyle = "btn-info disabled";
     }
     else if (timeSpan == "Monthly")
     {
-        TitleSub = "每月（按程度排序）";
+        // TitleSub = "每月（按程度排序）";
         MonthlyBtnStyle = "btn-info disabled";
     }
     else
     {
-        TitleSub = "最近（按時間排序）";
+        // TitleSub = "最近（按時間排序）";
         RecentBtnStyle = "btn-info disabled";
     }
 }
