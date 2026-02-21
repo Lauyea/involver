@@ -24,6 +24,19 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "ASPNETCORE_HOSTINGSTARTUPASSEMBLIES": "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       }
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_HTTPS_PORTS": "8081",
+        "ASPNETCORE_HTTP_PORTS": "8080",
+        "ConnectionStrings__ConnectionStrings": "Server=host.docker.internal;Database=Involver;User Id=dbuser;Password=password1234;TrustServerCertificate=true;MultipleActiveResultSets=true"
+      },
+      "publishAllPorts": true,
+      "useSSL": true
     }
   }
 }

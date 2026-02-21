@@ -8,7 +8,7 @@
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Register">
+        <form asp-route-returnUrl="@Model.ReturnUrl" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="Register">
             <h4>創建新帳號</h4>
             <hr />
             <div asp-validation-summary="All" class="text-danger"></div>
@@ -145,5 +145,5 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
 }

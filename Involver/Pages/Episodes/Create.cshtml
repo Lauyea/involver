@@ -18,7 +18,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="CreateEpisode">
+                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="CreateEpisode">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     <input type="hidden" asp-for="Novel.NovelID" />
 
@@ -45,7 +45,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
     @{
         ViewData["EditorId"] = "editor";
         ViewData["WordCountDivId"] = "word-count";

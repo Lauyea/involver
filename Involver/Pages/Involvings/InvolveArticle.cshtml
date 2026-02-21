@@ -22,7 +22,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Involve 這篇文章</h5>
                     <small class="card-text text-body-secondary">您的Involve是對創作者最大的鼓勵。</small>
-                    <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="Involve">
+                    <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="Involve">
                         <div asp-validation-summary="All" class="text-danger mb-3"></div>
                         <div class="mb-3">
                             <label asp-for="Involving.Value" class="form-label">In幣數量</label>
@@ -69,5 +69,5 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
 }

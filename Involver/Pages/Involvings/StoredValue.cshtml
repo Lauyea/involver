@@ -50,7 +50,7 @@
                 </div>
                 <div class="card-body d-flex flex-column">
                     <p class="text-muted">此功能目前已停用。</p>
-                    <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="StoredValue">
+                    <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="StoredValue">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         
                         <label asp-for="Quantity" class="form-label">購買數量</label>
@@ -79,7 +79,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
     <script>
         // Optional: Script to auto-submit the ECPay form if it exists
         document.addEventListener("DOMContentLoaded", function() {

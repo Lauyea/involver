@@ -17,7 +17,7 @@
 </div>
 
 <div>
-    <form id="delete-user" method="post" class="mb-3 needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="DeletePersonalData">
+    <form id="delete-user" method="post" class="mb-3 needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="DeletePersonalData">
         <div asp-validation-summary="All" class="text-danger"></div>
         @if (Model.RequirePassword)
         {

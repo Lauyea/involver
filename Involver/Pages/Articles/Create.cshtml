@@ -27,7 +27,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="CreateArticle">
+                <form method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="CreateArticle">
                     <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
                     @if (Model.ErrorMessage != null)
                     {
@@ -71,7 +71,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@@yaireo/tagify"></script>
     <script src="https://cdn.jsdelivr.net/npm/@@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
     <script>
