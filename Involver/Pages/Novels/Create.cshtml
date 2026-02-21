@@ -21,7 +21,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA-SiteKey"]" data-action="CreateNovel">
+                <form enctype="multipart/form-data" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="CreateNovel">
                     <div class="alert alert-danger" role="alert">
                         <strong>注意！</strong> 使用被版權保護的二次創作不能獲得收益，平台不負任何侵權責任。
                     </div>
@@ -132,5 +132,5 @@
         // 執行載入與初始化
         loadWhitelist();
     </script>
-    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA-SiteKey"]" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>
 }
