@@ -5,6 +5,8 @@
     <UserSecretsId>aspnet-Involver-4F280556-4BC1-4782-AAEC-2496E3953401</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..</DockerfileContext>
+    <!-- 產生 reference assemblies，解決其他專案在引用時找不到 obj\..\ref\*.dll 的情況 -->
+    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AngleSharp" Version="1.7.1" />
@@ -37,8 +39,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="10.0.2" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="4.0.0" />
-    <PackageReference Include="SixLabors.ImageSharp.Drawing" Version="3.0.0" />
+    <PackageReference Include="SkiaSharp" Version="4.151.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.151.1" />
     <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
   </ItemGroup>
   <ItemGroup>
@@ -53,6 +55,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\**\*.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- 更新已存在的 wwwroot 字體項目，設為複製到輸出目錄 -->
+    <Content Update="wwwroot\fonts\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio><UserProperties /></VisualStudio>

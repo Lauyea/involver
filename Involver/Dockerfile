@@ -2,6 +2,8 @@
 
 # 此階段用於以快速模式從 VS 執行時 (偵錯設定的預設值)
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+# 安裝字型相關系統函式庫，確保 SkiaSharp 在容器中可正確渲染字體
+RUN apt-get update && apt-get install -y --no-install-recommends libfontconfig1 libfreetype6 && rm -rf /var/lib/apt/lists/*
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080

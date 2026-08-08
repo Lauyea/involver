@@ -73,18 +73,18 @@ namespace Involver.Pages.Functions
             try
             {
                 // 3. 執行封面製作
-                var maker = new CoverMaker(fontPath, fontPath); // 主標題和副標題使用相同字體
+                using var maker = new CoverMaker(fontPath, fontPath); // 主標題和副標題使用相同字體
                 maker.Generate(tempBgImagePath, BrandText, Title, processedSubTitle, outputFilePath);
 
-                // 4. 將產生的圖檔讀取為 byte array，準備回傳給使用者
+                // 4. 將產生的圖檔讀取為 byte array，準備回傳給使用者作為檔案下載
                 var fileBytes = await System.IO.File.ReadAllBytesAsync(outputFilePath);
-                var fileContents = Convert.ToBase64String(fileBytes);
 
                 // 5. 清理伺服器上的暫存檔案
-                System.IO.File.Delete(tempBgImagePath);
-                System.IO.File.Delete(outputFilePath);
+                if (System.IO.File.Exists(tempBgImagePath)) System.IO.File.Delete(tempBgImagePath);
+                if (System.IO.File.Exists(outputFilePath)) System.IO.File.Delete(outputFilePath);
 
-                return new JsonResult(new { success = true, fileName = outputFileName, fileContents });
+                // 直接回傳檔案供下載
+                return File(fileBytes, "image/png", outputFileName);
             }
             catch (Exception ex)
             {
@@ -92,7 +92,8 @@ namespace Involver.Pages.Functions
                 if (System.IO.File.Exists(tempBgImagePath)) System.IO.File.Delete(tempBgImagePath);
                 if (System.IO.File.Exists(outputFilePath)) System.IO.File.Delete(outputFilePath);
 
-                return new JsonResult(new { success = false, error = $"產生封面時發生錯誤: {ex.Message}" });
+                // 回傳 400 與錯誤訊息
+                return BadRequest($"產生封面時發生錯誤: {ex.Message}");
             }
         }
     }
