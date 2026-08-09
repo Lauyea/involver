@@ -1,5 +1,27 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
+    // Helper: 當使用 programmatic submit() 時，瀏覽器不會自動送出被點擊的 button 的 name/value。
+    // 因此在 submit 前，若按鈕有 name 屬性，建立隱藏欄位以保留該值。
+    function appendClickedButtonValue(button, form) {
+        try {
+            if (!button || !form) return;
+            var name = button.getAttribute('name');
+            if (!name) return; // 沒有 name 就不需處理
+
+            // 移除先前自動產生的同名欄位，避免重複
+            var existing = form.querySelector('input[data-generated-for="' + name + '"]');
+            if (existing) existing.parentNode.removeChild(existing);
+
+            var hidden = document.createElement('input');
+            hidden.setAttribute('type', 'hidden');
+            hidden.setAttribute('name', name);
+            hidden.setAttribute('value', button.value || '');
+            hidden.setAttribute('data-generated-for', name);
+            form.appendChild(hidden);
+        } catch (e) {
+            console.error('appendClickedButtonValue error', e);
+        }
+    }
+
     // 尋找頁面上所有的提交按鈕
     var submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
 
@@ -58,6 +80,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 form.action = submissionUrl;
 
                 // 如果是標準表單
+                // 由於我們使用 programmatic submit()，必須保留被點擊按鈕的 name/value
+                appendClickedButtonValue(button, form);
                 form.submit(); // 直接提交
             } else {
                 // 如果是 reCAPTCHA v3 表單
@@ -89,9 +113,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             // 將表單的 action 指向指定的 URL
                             form.action = submissionUrl;
-                            
+
                             // 手動提交表單。因為是非同步去執行，需要等 reCAPTCHA 回應才能去 submit，
-                            // submit 不能統一寫在 if 之後，只能在 function 裡面判斷完之後才能submit。
+                            // 在使用 programmatic submit() 前，保留被點擊按鈕的 name/value
+                            appendClickedButtonValue(button, form);
                             form.submit();
 
                         })
