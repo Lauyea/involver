@@ -48,11 +48,12 @@ namespace Involver.Pages.Functions
             }
 
             // 1. 處理上傳的圖片，並儲存到伺服器暫存區
-            var tempFileName = $"{Guid.NewGuid()}{Path.GetExtension(Upload.FileName)}";
-            var tempBgImagePath = Path.Combine(_environment.WebRootPath, "temp", tempFileName);
+            // 使用系統臨時目錄以避免在受限的 WebRoot/容器檔案系統寫入失敗
+            var tempDir = Path.Combine(Path.GetTempPath(), "InvolverTemp");
+            Directory.CreateDirectory(tempDir);
 
-            // 確保暫存資料夾存在
-            Directory.CreateDirectory(Path.GetDirectoryName(tempBgImagePath));
+            var tempFileName = $"{Guid.NewGuid()}{Path.GetExtension(Upload.FileName)}";
+            var tempBgImagePath = Path.Combine(tempDir, tempFileName);
 
             using (var stream = new FileStream(tempBgImagePath, FileMode.Create))
             {
@@ -68,7 +69,7 @@ namespace Involver.Pages.Functions
 
             var processedSubTitle = (SubTitle ?? string.Empty).Replace("\\n", Environment.NewLine);
             var outputFileName = $"cover_{DateTime.Now:yyyyMMddHHmmss}.png";
-            var outputFilePath = Path.Combine(_environment.WebRootPath, "temp", outputFileName);
+            var outputFilePath = Path.Combine(tempDir, outputFileName);
 
             try
             {
