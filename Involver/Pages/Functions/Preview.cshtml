@@ -1,0 +1,214 @@
+﻿@page
+@model Involver.Pages.Functions.PreviewModel
+@using Involver.Common
+
+@{
+    ViewData["Title"] = "小說試閱";
+    Layout = "~/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        @if (Model.IsCreated)
+        {
+            <div class="card border-success shadow-sm mb-4">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0"><i class="fas fa-check-circle"></i> 小說試閱已成功建立！</h4>
+                </div>
+                <div class="card-body">
+                    <p class="lead text-body-secondary mb-4">請妥善保管並將以下連結與閱讀密碼提供給您的讀者：</p>
+
+                    <div class="mb-4">
+                        <label for="previewUrlInput" class="form-label fw-bold">
+                            <i class="fas fa-link text-primary"></i> 試閱連結：
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="previewUrlInput" class="form-control font-monospace" value="@Model.PreviewUrl" readonly />
+                            <button class="btn btn-outline-primary" type="button" id="copyUrlBtn">
+                                <i class="fas fa-copy"></i> 複製連結
+                            </button>
+                            <a href="@Model.PreviewUrl" target="_blank" class="btn btn-outline-secondary">
+                                <i class="fas fa-external-link-alt"></i> 開啟
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="previewPasswordInput" class="form-label fw-bold">
+                            <i class="fas fa-key text-warning"></i> 閱讀密碼：
+                        </label>
+                        <div class="input-group">
+                            <input type="text" id="previewPasswordInput" class="form-control font-monospace" value="@Model.ReadPasswordDisplay" readonly />
+                            <button class="btn btn-outline-secondary" type="button" id="copyPasswordBtn">
+                                <i class="fas fa-copy"></i> 複製密碼
+                            </button>
+                        </div>
+                        <div class="form-text">讀者每次開啟頁面時皆需輸入此密碼方可閱讀內容。</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center mb-1">
+                            <i class="fas fa-clock me-2"></i>
+                            <strong>有效期限至：</strong><span class="ms-1">@Model.ExpiresAtDisplay</span>
+                        </div>
+                        <small class="text-body-secondary">超過有效期限後，此連結將自動失效且無法再透過 API 取得內容。</small>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="fas fa-shield-alt"></i> <strong>安全說明：</strong>
+                        <ul class="mb-0 mt-1">
+                            <li>閱讀密碼請僅提供給允許試閱的對象。</li>
+                            <li><strong>撤銷密碼</strong>僅供您日後提前關閉試閱使用，請<strong>切勿</strong>交給閱覽者。</li>
+                            <li>若欲提前終止試閱，請開啟該試閱頁面並點擊「撤銷試閱」輸入撤銷密碼即可。</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-page="./Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> 回到工具箱
+                        </a>
+                        <a asp-page="./Preview" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> 建立另一篇試閱
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="h4 mb-0"><i class="fas fa-user-shield text-primary"></i> 建立小說試閱</h1>
+                        <a asp-page="./Index" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-toolbox"></i> 工具箱
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        您可以設定閱讀密碼與有效期限，建立一組隨機加密的試閱網址。讀者每次開啟頁面時必須輸入密碼，由伺服器驗證後才取得內容。
+                    </p>
+                    <form method="post" id="previewCreateForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.Title" class="form-label fw-bold"></label>
+                            <input asp-for="Input.Title" class="form-control" placeholder="請輸入小說試閱標題..." />
+                            <span asp-validation-for="Input.Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Input.ContentHtml" class="form-label fw-bold"></label>
+                            <textarea asp-for="Input.ContentHtml" id="editor" class="form-control" rows="14" placeholder="在這裡貼上或撰寫小說試閱內容..."></textarea>
+                            <div id="word-count" class="text-end text-body-secondary mt-1"></div>
+                            <span asp-validation-for="Input.ContentHtml" class="text-danger"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Input.ReadPassword" class="form-label fw-bold">
+                                    <i class="fas fa-key text-warning"></i> 閱讀密碼
+                                </label>
+                                <input asp-for="Input.ReadPassword" class="form-control" autocomplete="new-password" placeholder="讀者閱讀時所需密碼" />
+                                <div class="form-text">這組密碼將提供給讀者輸入。</div>
+                                <span asp-validation-for="Input.ReadPassword" class="text-danger"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Input.RevokePassword" class="form-label fw-bold">
+                                    <i class="fas fa-lock text-danger"></i> 撤銷密碼
+                                </label>
+                                <input asp-for="Input.RevokePassword" class="form-control" autocomplete="new-password" placeholder="作者撤銷時所需密碼" />
+                                <div class="form-text">請與閱讀密碼不同，避免閱覽者撤銷試閱。</div>
+                                <span asp-validation-for="Input.RevokePassword" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Input.ExpiresAt" class="form-label fw-bold">
+                                <i class="fas fa-calendar-alt text-info"></i> 有效期限
+                            </label>
+                            <div class="input-group mb-2">
+                                <input asp-for="Input.ExpiresAt" id="expiresAtInput" class="form-control" type="datetime-local" />
+                            </div>
+                            <div class="btn-group btn-group-sm" role="group" aria-label="期限快捷按鈕">
+                                <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(1)">+1 天</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(3)">+3 天</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(7)">+7 天</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(14)">+14 天</button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(30)">+30 天</button>
+                            </div>
+                            <div class="form-text">到達有效期限後將自動失效無法閱讀。</div>
+                            <span asp-validation-for="Input.ExpiresAt" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <a asp-page="./Index" class="btn btn-secondary me-2">取消</a>
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-check"></i> 建立試閱
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        ViewData["EditorId"] = "editor";
+        ViewData["WordCountDivId"] = "word-count";
+        ViewData["MaxLength"] = Parameters.ArticleLength;
+        await Html.RenderPartialAsync("_ClassicEditorPartial");
+    }
+
+    <script>
+        function setExpiryDays(days) {
+            const now = new Date();
+            now.setDate(now.getDate() + days);
+            const pad = (n) => n.toString().padStart(2, '0');
+            const year = now.getFullYear();
+            const month = pad(now.getMonth() + 1);
+            const day = pad(now.getDate());
+            const hours = pad(now.getHours());
+            const minutes = pad(now.getMinutes());
+            const formatted = `${year}-${month}-${day}T${hours}:${minutes}`;
+            const input = document.getElementById('expiresAtInput');
+            if (input) {
+                input.value = formatted;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const copyUrlBtn = document.getElementById('copyUrlBtn');
+            if (copyUrlBtn) {
+                copyUrlBtn.addEventListener('click', function () {
+                    const input = document.getElementById('previewUrlInput');
+                    if (input && navigator.clipboard) {
+                        navigator.clipboard.writeText(input.value).then(() => {
+                            const original = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i> 已複製';
+                            setTimeout(() => { this.innerHTML = original; }, 2000);
+                        });
+                    }
+                });
+            }
+
+            const copyPasswordBtn = document.getElementById('copyPasswordBtn');
+            if (copyPasswordBtn) {
+                copyPasswordBtn.addEventListener('click', function () {
+                    const input = document.getElementById('previewPasswordInput');
+                    if (input && navigator.clipboard) {
+                        navigator.clipboard.writeText(input.value).then(() => {
+                            const original = this.innerHTML;
+                            this.innerHTML = '<i class="fas fa-check"></i> 已複製';
+                            setTimeout(() => { this.innerHTML = original; }, 2000);
+                        });
+                    }
+                });
+            }
+        });
+    </script>
+}
