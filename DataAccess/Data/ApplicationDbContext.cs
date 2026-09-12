@@ -47,6 +47,7 @@ namespace DataAccess.Data
         public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<View> Views { get; set; }
+        public DbSet<Preview> Previews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -173,6 +174,12 @@ namespace DataAccess.Data
                 .HasIndex(i => i.MonthlyValue);
             modelBuilder.Entity<Involving>()
                 .HasIndex(i => i.LastTime);
+
+            modelBuilder.Entity<Preview>(p =>
+            {
+                p.HasIndex(e => e.Token).IsUnique();
+                p.HasIndex(e => e.ExpiresAt);
+            });
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.

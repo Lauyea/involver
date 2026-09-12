@@ -34,6 +34,13 @@ namespace Involver.Pages.Functions
                     Description = "將 Markdown 語法轉換為 HTML，並提供即時預覽。",
                     Url = "./MarkdownToHtml",
                     IconClass = "fa-solid fa-code"
+                },
+                new ToolInfo
+                {
+                    Title = "建立小說試閱",
+                    Description = "設定閱讀密碼與有效期限，建立專屬的受保護小說試閱連結。",
+                    Url = "./Preview",
+                    IconClass = "fa-solid fa-lock"
                 }
             };
         }

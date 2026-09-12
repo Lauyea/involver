@@ -54,6 +54,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @RenderSection("Styles", required: false)
+    @RenderSection("Head", required: false)
     <style>
         .video-container {
             position: relative;
@@ -153,6 +154,7 @@
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownTools">
                                 <li><a class="dropdown-item" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-page="/Functions/MarkdownToHtml">Markdown轉換器</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/Preview">建立小說試閱</a></li>
                             </ul>
                         </li>
                         <li class="nav-item">

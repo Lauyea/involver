@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.RateLimiting;
 using WebPWrecover.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -83,6 +85,22 @@ services.AddControllers(config =>
 ServiceExtension.AddAuthorizationHandlers(services);
 
 services.AddScoped<IAchievementService, AchievementService>();
+services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
+
+services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("preview-auth", httpContext =>
+    {
+        var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 15,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+});
 
 services.Configure<IdentityOptions>(options =>
 {
@@ -188,6 +206,8 @@ app.UseStaticFiles();
 app.UseCookiePolicy();
 
 app.UseRouting();
+
+app.UseRateLimiter();
 
 app.UseResponseCaching();
 
