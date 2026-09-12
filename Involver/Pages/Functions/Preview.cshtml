@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Involver.Pages.Functions.PreviewModel
 @using Involver.Common
 
@@ -130,7 +130,7 @@
                                 <i class="fas fa-calendar-alt text-info"></i> 有效期限
                             </label>
                             <div class="input-group mb-2">
-                                <input asp-for="Input.ExpiresAt" id="expiresAtInput" class="form-control" type="datetime-local" />
+                                <input asp-for="Input.ExpiresAt" id="expiresAtInput" class="form-control" type="datetime-local" step="60" />
                             </div>
                             <div class="btn-group btn-group-sm" role="group" aria-label="期限快捷按鈕">
                                 <button type="button" class="btn btn-outline-secondary" onclick="setExpiryDays(1)">+1 天</button>
@@ -178,6 +178,9 @@
             const input = document.getElementById('expiresAtInput');
             if (input) {
                 input.value = formatted;
+                input.setCustomValidity('');
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
             }
         }
 

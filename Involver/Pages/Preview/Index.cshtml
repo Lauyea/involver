@@ -1,4 +1,4 @@
-﻿@page "{token?}"
+@page "{token?}"
 @model Involver.Pages.Preview.IndexModel
 @{
     ViewData["Title"] = "小說試閱";
@@ -112,7 +112,7 @@
                         <div>{{ error }}</div>
                     </div>
 
-                    <form @@submit.prevent="submitPassword">
+                    <form @@submit.prevent="submitPassword" onsubmit="return false;">
                         <div class="mb-3">
                             <label for="readingPasswordInput" class="form-label fw-bold">
                                 <i class="fas fa-key text-warning"></i> 閱讀密碼
@@ -122,8 +122,9 @@
                                    v-model="password"
                                    class="form-control"
                                    placeholder="請輸入閱讀密碼"
-                                   autocomplete="off"
+                                   autocomplete="current-password"
                                    :disabled="isLoading"
+                                   @@keyup.enter="submitPassword"
                                    ref="passwordInput" />
                         </div>
 
@@ -131,7 +132,7 @@
                             <button type="button" class="btn btn-link text-muted p-0 text-decoration-none" @@click="showRevokeModal = true">
                                 <small><i class="fas fa-undo"></i> 撤銷此試閱？</small>
                             </button>
-                            <button type="submit" class="btn btn-primary" :disabled="isLoading || !password">
+                            <button type="button" @@click="submitPassword" class="btn btn-primary" :disabled="isLoading || !password">
                                 <span v-if="isLoading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                                 <i v-else class="fas fa-unlock me-1"></i>
                                 閱讀小說

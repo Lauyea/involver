@@ -62,13 +62,15 @@ namespace Involver.Pages.Functions
 
             [Required(ErrorMessage = "請設定有效期限")]
             [Display(Name = "有效期限")]
+            [DisplayFormat(DataFormatString = "{0:yyyy-MM-ddTHH:mm}", ApplyFormatInEditMode = true)]
             public DateTime ExpiresAt { get; set; }
         }
 
         public void OnGet()
         {
             if (ViewData != null) ViewData["Title"] = "小說試閱";
-            Input.ExpiresAt = DateTime.Now.AddDays(7);
+            var now = DateTime.Now;
+            Input.ExpiresAt = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, 0, DateTimeKind.Local).AddDays(7);
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -84,7 +86,8 @@ namespace Involver.Pages.Functions
                 ? DateTime.SpecifyKind(Input.ExpiresAt, DateTimeKind.Local)
                 : Input.ExpiresAt;
 
-            DateTime expiresAtUtc = localExpiry.ToUniversalTime();
+            DateTime cleanLocalExpiry = new DateTime(localExpiry.Year, localExpiry.Month, localExpiry.Day, localExpiry.Hour, localExpiry.Minute, 0, DateTimeKind.Local);
+            DateTime expiresAtUtc = cleanLocalExpiry.ToUniversalTime();
 
             if (expiresAtUtc <= DateTime.UtcNow)
             {

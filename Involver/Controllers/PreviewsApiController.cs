@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using DataAccess.Data;
@@ -15,6 +15,7 @@ namespace Involver.Controllers
     [Route("api/v1/previews")]
     [ApiController]
     [AllowAnonymous]
+    [IgnoreAntiforgeryToken]
     [EnableRateLimiting("preview-auth")]
     public class PreviewsApiController : ControllerBase
     {
@@ -45,12 +46,15 @@ namespace Involver.Controllers
         /// 驗證密碼並取得小說試閱內容
         /// </summary>
         [HttpPost("{token}/content")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetContentAsync(string token, [FromBody] PreviewContentRequest request)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return BadRequest(new { message = "Token 不可為空。" });
             }
+
+            token = Uri.UnescapeDataString(token).Trim();
 
             var preview = await _context.Previews.FirstOrDefaultAsync(p => p.Token == token);
             if (preview == null)
@@ -92,12 +96,15 @@ namespace Involver.Controllers
         /// 驗證撤銷密碼並撤銷試閱
         /// </summary>
         [HttpPost("{token}/revoke")]
+        [AllowAnonymous]
         public async Task<IActionResult> RevokeAsync(string token, [FromBody] PreviewRevokeRequest request)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return BadRequest(new { message = "Token 不可為空。" });
             }
+
+            token = Uri.UnescapeDataString(token).Trim();
 
             var preview = await _context.Previews.FirstOrDefaultAsync(p => p.Token == token);
             if (preview == null)
@@ -136,12 +143,15 @@ namespace Involver.Controllers
         /// 查詢試閱基本狀態（不包含內容與機密資訊）
         /// </summary>
         [HttpGet("{token}/status")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetStatusAsync(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
                 return BadRequest(new { message = "Token 不可為空。" });
             }
+
+            token = Uri.UnescapeDataString(token).Trim();
 
             var preview = await _context.Previews.AsNoTracking().FirstOrDefaultAsync(p => p.Token == token);
             if (preview == null)
