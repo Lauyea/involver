@@ -231,8 +231,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             return Forbid();
         }
+        // article 已被追蹤，SaveChanges 只會寫入 Block；呼叫 Update 會整列寫回，蓋掉期間累積的 In 幣
         article.Block = block;
-        Context.Articles.Update(article);
         await Context.SaveChangesAsync();
 
         return RedirectToPage("./Index");

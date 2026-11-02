@@ -19,7 +19,8 @@ public class InvolveArticleModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ICoinService coinService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Involving Involving { get; set; }
@@ -81,21 +82,15 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return NotFound();
         }
 
-        Profile Creator = await Context.Profiles
-        .Where(p => p.ProfileID == Article.ProfileID)
-        .FirstOrDefaultAsync();
+        await using var transaction = await Context.Database.BeginTransactionAsync();
 
-        if (Involver.RealCoins < Involving.Value)
+        if (!await coinService.TrySpendAsync(UserID, Involving.Value))
         {
             ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
             return Page();
         }
-        Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//文章直接贊助，作者得50%分潤
-        Involver.RealCoins -= Involving.Value;
-        Involver.UsedCoins += Involving.Value;
-
-        Article.MonthlyCoins += Involving.Value;
-        Article.TotalCoins += Involving.Value;
+        await coinService.AddCreatorIncomeAsync(Article.ProfileID, Involving.Value * 0.5m);//文章直接贊助，作者得50%分潤
+        await coinService.AddArticleCoinsAsync(ArticleID, Involving.Value);
 
         Involving ExistingInvolving = await Context.Involvings
             .Where(i => i.ArticleID == ArticleID)
@@ -123,6 +118,10 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             Context.Involvings.Add(newInvolving);
         }
         await Context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        // In 幣是直接以 SQL 更新，重新載入才會拿到最新的已使用 In 幣供成就計算
+        await Context.Entry(Involver).ReloadAsync();
 
         var toasts = await AchievementService.UseCoinsCountAsync(Involver.ProfileID, Involver.UsedCoins);
 

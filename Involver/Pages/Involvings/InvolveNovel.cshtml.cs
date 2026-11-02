@@ -19,7 +19,8 @@ public class InvolveNovelModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ICoinService coinService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Involving Involving { get; set; }
@@ -39,6 +40,15 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         Involver = await Context.Profiles
             .Where(p => p.ProfileID == UserID)
             .FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// In 幣是直接以 SQL 更新，追蹤中的實體仍是舊值，重新載入後頁面與成就計算才會拿到最新的餘額
+    /// </summary>
+    private async Task ReloadAfterCoinsChangedAsync()
+    {
+        await Context.Entry(Involver).ReloadAsync();
+        await Context.Entry(Novel).ReloadAsync();
     }
 
     public async Task<IActionResult> OnGetAsync(int id)
@@ -80,24 +90,15 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return NotFound();
         }
 
-        Profile Involver = await Context.Profiles
-            .Where(p => p.ProfileID == UserID)
-            .FirstOrDefaultAsync();
-        Profile Creator = await Context.Profiles
-        .Where(p => p.ProfileID == Novel.ProfileID)
-        .FirstOrDefaultAsync();
+        await using var transaction = await Context.Database.BeginTransactionAsync();
 
-        if (Involver.RealCoins < Involving.Value)
+        if (!await coinService.TrySpendAsync(UserID, Involving.Value))
         {
             ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
             return Page();
         }
-        Creator.MonthlyCoins += (decimal)(Involving.Value * 0.5);//創作直接贊助，作者得50%分潤
-        Involver.RealCoins -= Involving.Value;
-        Involver.UsedCoins += Involving.Value;
-
-        Novel.MonthlyCoins += Involving.Value;
-        Novel.TotalCoins += Involving.Value;
+        await coinService.AddCreatorIncomeAsync(Novel.ProfileID, Involving.Value * 0.5m);//創作直接贊助，作者得50%分潤
+        await coinService.AddNovelCoinsAsync(NovelID, Involving.Value);
 
         Involving ExistingInvolving = await Context.Involvings
             .Where(i => i.NovelID == NovelID)
@@ -125,6 +126,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             Context.Involvings.Add(newInvolving);
         }
         await Context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        await ReloadAfterCoinsChangedAsync();
         StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
 
         var toasts = await AchievementService.UseCoinsCountAsync(Involver.ProfileID, Involver.UsedCoins);
@@ -147,6 +150,20 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Challenge();
         }
 
+        if (Novel == null)
+        {
+            return NotFound();
+        }
+
+        await using var transaction = await Context.Database.BeginTransactionAsync();
+
+        // 先扣款：扣款會鎖住付款人的資料列直到交易結束，之後讀到的 Follow 才不會因重複送出而重複扣款
+        if (!await coinService.TrySpendAsync(UserID, InvolveValue))
+        {
+            StatusMessage = "Error: 帳戶餘額不足";
+            return Page();
+        }
+
         Follow existingFollow = await Context.Follows
             .Where(f => f.NovelID == NovelID)
             .Where(f => f.FollowerID == UserID)
@@ -167,6 +184,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             if (existingFollow.NovelMonthlyInvolver)
             {
+                // 交易沒有提交，剛才的扣款會一併還原
                 StatusMessage = "已經Involve過了，如要繼續Involve，可以使用直接Involve的功能";
                 return Page();
             }
@@ -174,21 +192,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             existingFollow.UpdateTime = DateTime.Now;
         }
 
-        Profile Creator = await Context.Profiles
-        .Where(p => p.ProfileID == Novel.ProfileID)
-        .FirstOrDefaultAsync();
-
-        if (Involver.RealCoins < InvolveValue)
-        {
-            StatusMessage = "Error: 帳戶餘額不足";
-            return Page();
-        }
-        Creator.MonthlyCoins += (decimal)(InvolveValue * 0.6);//創作每月Involve，作者得60%分潤
-        Involver.RealCoins -= InvolveValue;
-        Involver.UsedCoins += InvolveValue;
-
-        Novel.MonthlyCoins += InvolveValue;
-        Novel.TotalCoins += InvolveValue;
+        await coinService.AddCreatorIncomeAsync(Novel.ProfileID, InvolveValue * 0.6m);//創作每月Involve，作者得60%分潤
+        await coinService.AddNovelCoinsAsync(NovelID, InvolveValue);
 
         Involving ExistingInvolving = await Context.Involvings
             .Where(i => i.NovelID == NovelID)
@@ -217,6 +222,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         await Context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        await ReloadAfterCoinsChangedAsync();
 
         StatusMessage = "每月Involve成功，感謝以實體行動鼓勵創作";
 

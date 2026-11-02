@@ -89,8 +89,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             return Forbid();
         }
+        // feedback 已被追蹤，SaveChanges 只會寫入 Block；呼叫 Update 會整列寫回，蓋掉期間累積的 In 幣
         feedback.Block = block;
-        Context.Articles.Update(feedback);
         await Context.SaveChangesAsync();
 
         return RedirectToPage("./Index");
@@ -115,7 +115,6 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
         feedback.Accept = true;
-        Context.Articles.Update(feedback);
         profile.VirtualCoins += 50;//回報錯誤與採納意見獲得虛擬In幣50枚
         await Context.SaveChangesAsync();
 

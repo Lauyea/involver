@@ -138,7 +138,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <button v-if="!voting.voted && !voting.end" @@click="castVoteAsync(voting.votingID)" :disabled="!selectedOptions[voting.votingID]" class="btn btn-sm btn-primary">
+                            <button v-if="!voting.voted && !voting.end" @@click="castVoteAsync(voting.votingID)" :disabled="!selectedOptions[voting.votingID] || castingVotings[voting.votingID]" class="btn btn-sm btn-primary">
                                 <i class="fas fa-vote-yea"></i> 投票
                             </button>
                             <span v-else class="badge bg-secondary">{{ voting.end ? '投票已結束' : '您已投票' }}</span>
