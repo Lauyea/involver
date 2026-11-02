@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -13,6 +14,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Pages;
+using Involver.Services;
 using Involver.Services.ECPay;
 
 using Microsoft.AspNetCore.Authorization;
@@ -30,11 +32,19 @@ namespace Involver.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<IndexModel> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly ICoinService _coinService;
 
-        public CheckOutFeedbackController(ApplicationDbContext context, ILogger<IndexModel> logger)
+        public CheckOutFeedbackController(
+            ApplicationDbContext context,
+            ILogger<IndexModel> logger,
+            IConfiguration configuration,
+            ICoinService coinService)
         {
             _context = context;
             _logger = logger;
+            _configuration = configuration;
+            _coinService = coinService;
         }
 
         // GET api/CheckOutFeedback/version
@@ -50,6 +60,13 @@ namespace Involver.Controllers
         [HttpPost]
         public async Task<ContentResult> PostCheckOutFeedbackAsync([FromForm] Feedback feedback)
         {
+            // 綠界的測試金鑰是公開的，未正式啟用前，任何人都能用它偽造付款成功的通知來加值
+            if (!_configuration.GetValue<bool>("ECPay:Enabled"))
+            {
+                _logger.LogWarning("站內儲值未啟用，拒絕付款通知。來源 IP: {RemoteIp}", HttpContext?.Connection.RemoteIpAddress);
+                return Content("0|ECPay disabled");
+            }
+
             List<string> enErrors = new List<string>();
             Hashtable htFeedback = null;
             /* 支付後的回傳的基本參數 */
@@ -95,8 +112,9 @@ namespace Involver.Controllers
             {
                 using (Payment oPayment = new Payment(_logger))
                 {
-                    oPayment.HashKey = "5294y06JbISpM5x9";//ECPay 提供的 HashKey
-                    oPayment.HashIV = "v77hoKGq4kWxNNIS";//ECPay 提供的 HashIV
+                    // 與建立訂單的 StoredValue 使用同一組設定，金鑰不可寫死在公開的原始碼裡
+                    oPayment.HashKey = _configuration["ECPay:HashKey"];//ECPay 提供的 HashKey
+                    oPayment.HashIV = _configuration["ECPay:HashIV"];//ECPay 提供的 HashIV
                     /* 取回付款結果 */
                     enErrors.AddRange(oPayment.CheckOutFeedback(ref htFeedback, Request, ref QueryString));
                 }
@@ -158,15 +176,31 @@ namespace Involver.Controllers
 
             string ReturnString = "";
 
+            // Serializable：同一筆訂單的重複通知同時進來時，只有一個能通過下面的重複加值檢查
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
             // 回覆成功訊息。
             if (enErrors.Count() == 0)
             {
                 ReturnString = "1|OK";
                 if (szSimulatePaid == "0" && szRtnCode == "1" && CustomField1 != "")
                 {
+                    // 綠界沒收到 1|OK 時會重送通知，同一筆訂單只能加值一次
+                    bool alreadyCredited = await _context.Payments.AnyAsync(p =>
+                        p.MerchantTradeNo == szMerchantTradeNo
+                        && p.RtnCode == 1
+                        && p.SimulatePaid == 0
+                        && p.ReturnString == "1|OK");
+
+                    if (alreadyCredited)
+                    {
+                        _logger.LogWarning("重複的付款通知，略過加值。MerchantTradeNo: {MerchantTradeNo}", szMerchantTradeNo);
+                    }
                     //用戶資料增加 RealCoins
-                    Profile profile = await _context.Profiles.Where(p => p.ProfileID == CustomField1).FirstOrDefaultAsync();
-                    profile.RealCoins += decimal.Parse(szTradeAmt);
+                    else if (!await _coinService.AddRealCoinsAsync(CustomField1, decimal.Parse(szTradeAmt)))
+                    {
+                        _logger.LogError("付款通知找不到用戶，未加值。InvolverID: {InvolverID}, MerchantTradeNo: {MerchantTradeNo}", CustomField1, szMerchantTradeNo);
+                    }
                 }
 
             }
@@ -208,6 +242,7 @@ namespace Involver.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return Content(ReturnString);
         }

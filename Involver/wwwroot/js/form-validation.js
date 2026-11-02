@@ -22,6 +22,30 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // 防止連點：表單送出後鎖住，直到頁面跳轉。後端仍有交易保護，這裡只是避免使用者送出重複請求
+    function lockForm(form, button) {
+        // 開在新分頁的表單不會離開本頁，鎖住的話按鈕會一直停用
+        if (form.target === '_blank' || button.formTarget === '_blank') return;
+
+        form.dataset.submitting = 'true';
+        button.disabled = true;
+        button.dataset.lockedBySubmit = 'true';
+    }
+
+    function unlockForm(form) {
+        delete form.dataset.submitting;
+        form.querySelectorAll('[data-locked-by-submit]').forEach(function (button) {
+            button.disabled = false;
+            delete button.dataset.lockedBySubmit;
+        });
+    }
+
+    // 使用者按「上一頁」時，瀏覽器可能從快取還原出仍被鎖住的表單，需要解鎖
+    window.addEventListener('pageshow', function (event) {
+        if (!event.persisted) return;
+        document.querySelectorAll('form[data-submitting]').forEach(unlockForm);
+    });
+
     // 尋找頁面上所有的提交按鈕
     var submitButtons = document.querySelectorAll('button[type="submit"], input[type="submit"]');
 
@@ -35,6 +59,10 @@ document.addEventListener("DOMContentLoaded", function () {
             const form = button.closest('form'); // 找到這個按鈕所屬的表單
             if (!form) {
                 return; // 如果按鈕不在表單中，不做任何事
+            }
+
+            if (form.dataset.submitting === 'true') {
+                return; // 表單送出中，忽略重複點擊
             }
 
             const needsRecaptcha = form.classList.contains('needs-recaptcha');
@@ -82,6 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // 如果是標準表單
                 // 由於我們使用 programmatic submit()，必須保留被點擊按鈕的 name/value
                 appendClickedButtonValue(button, form);
+                lockForm(form, button);
                 form.submit(); // 直接提交
             } else {
                 // 如果是 reCAPTCHA v3 表單
@@ -98,7 +127,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.error("表單缺少 'data-sitekey' 屬性。");
                     return;
                 }
-                
+
+                // reCAPTCHA 驗證是非同步的，等待期間就要先鎖住，否則連點會送出多次
+                lockForm(form, button);
+
                 // 執行 v3 驗證
                 grecaptcha.ready(function() {
                     grecaptcha.execute(siteKey, { action: action }).then(function(token) {                            
@@ -124,6 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             // 捕捉 execute 過程中的錯誤
                             console.error("reCAPTCHA v3 執行失敗: ", error);
                             alert("reCAPTCHA 驗證失敗，請檢查您的網路連線或稍後再試。");
+                            unlockForm(form);
                         });
                 });
             }

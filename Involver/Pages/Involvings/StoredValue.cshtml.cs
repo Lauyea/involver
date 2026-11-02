@@ -40,6 +40,13 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
     // more details see https://aka.ms/RazorPagesCRUD.
     public IActionResult OnPostAsync()
     {
+        // 按鈕只在前端停用，直接送出 POST 仍會進到這裡，伺服器端也要擋下
+        if (!Configuration.GetValue<bool>("ECPay:Enabled"))
+        {
+            ModelState.AddModelError(string.Empty, "站內儲值目前暫停。");
+            return Page();
+        }
+
         if (!ModelState.IsValid)
         {
             return Page();

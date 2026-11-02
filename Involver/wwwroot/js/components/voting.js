@@ -8,6 +8,7 @@ const app = createApp({
             error: null,
             selectedOptions: {},
             voteSettings: {},
+            castingVotings: {}, // 投票請求進行中的 votingID，用來防止連點
             newVoting: {
                 title: '',
                 policy: 0,
@@ -97,6 +98,10 @@ const app = createApp({
             }
         },
         async castVoteAsync(votingId) {
+            if (this.castingVotings[votingId]) {
+                return; // 上一次投票還在處理中，忽略重複點擊
+            }
+
             const optionId = this.selectedOptions[votingId];
             if (!optionId) {
                 alert('請選擇一個選項');
@@ -119,6 +124,8 @@ const app = createApp({
                 value: value,
                 isVirtual: settings.isVirtual
             };
+
+            this.castingVotings[votingId] = true;
 
             try {
                 const response = await fetch('/api/v1/votings/cast', {
@@ -149,6 +156,8 @@ const app = createApp({
                 this.error = err.message;
                 console.error(err);
                 alert(`發生錯誤: ${err.message}`);
+            } finally {
+                this.castingVotings[votingId] = false;
             }
         },
         async createVotingAsync() {
