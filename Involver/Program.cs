@@ -20,7 +20,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Call AddOpenTelemetry() to add OpenTelemetry to your ServiceCollection.
 // Call UseAzureMonitor() to fully configure OpenTelemetry.
-builder.Services.AddOpenTelemetry().UseAzureMonitor();
+// 本機開發（含容器）沒有 Application Insights 連線字串時略過，避免啟動失敗
+if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+{
+    builder.Services.AddOpenTelemetry().UseAzureMonitor();
+}
 
 if (builder.Environment.IsProduction())
 {
@@ -154,17 +158,30 @@ services.ConfigureApplicationCookie(options =>
     };
 });
 
-services.AddAuthentication()
-    .AddGoogle(options =>
+// 本機開發沒有外部登入金鑰時略過該 provider，避免 OAuth 選項驗證失敗
+var authenticationBuilder = services.AddAuthentication();
+
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    authenticationBuilder.AddGoogle(options =>
     {
-        options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-    })
-    .AddFacebook(facebookOptions =>
-    {
-        facebookOptions.AppId = builder.Configuration["Authentication:Facebook:AppId"];
-        facebookOptions.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
     });
+}
+
+var facebookAppId = builder.Configuration["Authentication:Facebook:AppId"];
+var facebookAppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+if (!string.IsNullOrEmpty(facebookAppId) && !string.IsNullOrEmpty(facebookAppSecret))
+{
+    authenticationBuilder.AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = facebookAppId;
+        facebookOptions.AppSecret = facebookAppSecret;
+    });
+}
 
 services.AddDistributedMemoryCache();
 
