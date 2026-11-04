@@ -16,8 +16,8 @@ const HOLDING_CLASS = 'story-hero--holding';
 /** 世界座標的高度，畫布高度永遠對應到這個值，讓樹在不同尺寸下比例一致 */
 const WORLD_HEIGHT = 1000;
 const SEGMENT_LENGTH = 7;
-const BASE_SPEED = 10;
-const GUIDED_SPEED = 70;
+const BASE_SPEED = 30;
+const GUIDED_SPEED = 210;
 /** 次要枝梢受引導的比例，避免所有枝梢擠向同一點 */
 const SECONDARY_GUIDANCE = 0.3;
 /** 擁擠度網格的格子大小與上限，讓枝枒自然錯開、長成樹冠 */
