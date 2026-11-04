@@ -5,36 +5,18 @@
 }
 <partial name="_StatusMessage" model="Model.StatusMessage" />
 
-@section Styles{
-    <style>
-        .hero-section {
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.2)), url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=2070&auto=format&fit=crop");
-            background-size: cover;
-            background-position: center;
-            padding: 16rem 5rem;
-            border-radius: 0.5rem;
-            color: white;
-            margin-bottom: 2rem;
-        }
+@section Styles {
+    @if (Model.UserProfile == null)
+    {
+        <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+    }
+}
 
-            .hero-section h1 {
-                font-size: 3.5rem;
-                font-weight: bold;
-            }
-
-            .hero-section p {
-                font-size: 1.25rem;
-                max-width: 600px;
-            }
-
-        .section-title {
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-            border-bottom: 3px solid #0d6efd;
-            padding-bottom: 0.5rem;
-            display: inline-block;
-        }
-    </style>
+@section Scripts {
+    @if (Model.UserProfile == null)
+    {
+        <script type="module" src="~/js/home-hero.js" asp-append-version="true"></script>
+    }
 }
 
 @if (Model.UserProfile != null)
@@ -94,11 +76,70 @@
 }
 else
 {
-    <div class="hero-section text-start">
-        <h1 class="display-4">Welcome to Involver!</h1>
-        <p class="lead">在這裡找到喜歡的作品，並參與創作吧！</p>
-        <a asp-area="" asp-page="/Novels/Index" class="btn btn-outline-warning btn-lg">立即參與創作<i class="fas fa-arrow-right ms-2"></i></a>
-    </div>
+    <section id="story-hero" class="story-hero" aria-labelledby="story-hero-title">
+        <canvas class="story-hero__canvas" aria-hidden="true"></canvas>
+        <div class="story-hero__veil"></div>
+        <div class="story-hero__content">
+            <p class="story-hero__eyebrow">INVOLVER · 讀者參與的創作平台</p>
+            <h1 id="story-hero-title" class="story-hero__title">
+                <span class="story-hero__line">你的選擇，</span>
+                <span class="story-hero__line">決定故事的<span class="story-hero__highlight">下一頁</span>。</span>
+            </h1>
+            <p class="story-hero__lead">
+                在 Involver，讀者不只是讀者。為劇情投下關鍵一票、在留言區和作者討論，
+                和喜歡的創作者一起把故事推向你想看的方向。
+            </p>
+            <div class="story-hero__actions">
+                <a asp-area="" asp-page="/Novels/Index" class="btn btn-lg home-button home-button--primary">
+                    開始探索故事<i class="fas fa-arrow-right ms-2"></i>
+                </a>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-lg home-button home-button--ghost">
+                    免費加入
+                </a>
+            </div>
+            <p class="story-hero__hint" aria-hidden="true">
+                <i class="fas fa-seedling"></i>
+                <span class="story-hero__hint-pointer">按住滑鼠，引導光之樹往那裡生長</span>
+                <span class="story-hero__hint-touch">按住畫面，引導光之樹往那裡生長</span>
+            </p>
+        </div>
+    </section>
+
+    <section class="home-section" aria-labelledby="home-steps-title">
+        <header class="home-section__header">
+            <h2 id="home-steps-title" class="home-section__title">故事怎麼往下走？</h2>
+            <p class="home-section__subtitle">在這裡，每一位讀者手上都握著一支筆。</p>
+        </header>
+        <ol class="home-steps">
+            <li class="home-step">
+                <span class="home-step__number" aria-hidden="true">01</span>
+                <span class="home-step__icon" aria-hidden="true"><i class="fas fa-book-open"></i></span>
+                <h3 class="home-step__title">走進一個故事</h3>
+                <p class="home-step__text">從奇幻、懸疑到日常，挑一部喜歡的連載，跟著作者一章一章讀下去。</p>
+            </li>
+            <li class="home-step">
+                <span class="home-step__number" aria-hidden="true">02</span>
+                <span class="home-step__icon" aria-hidden="true"><i class="fas fa-code-branch"></i></span>
+                <h3 class="home-step__title">投下你的選擇</h3>
+                <p class="home-step__text">作者會在章節裡設下投票，讓讀者決定角色的下一步。投入 In 幣，讓你支持的走向更有機會勝出。</p>
+            </li>
+            <li class="home-step">
+                <span class="home-step__number" aria-hidden="true">03</span>
+                <span class="home-step__icon" aria-hidden="true"><i class="fas fa-feather-pointed"></i></span>
+                <h3 class="home-step__title">一起寫下去</h3>
+                <p class="home-step__text">在留言區討論劇情，或 Involve 支持作者，讓你期待的下一頁更快到來。</p>
+            </li>
+        </ol>
+    </section>
+
+    <section class="home-section home-cta" aria-labelledby="home-cta-title">
+        <h2 id="home-cta-title" class="home-cta__title">下一頁，由你決定。</h2>
+        <p class="home-cta__text">免費註冊，參與你的第一個故事。</p>
+        <div class="home-cta__actions">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-lg home-button home-button--primary">免費加入 Involver</a>
+            <a asp-area="" asp-page="/Novels/Index" class="btn btn-lg home-button home-button--outline">先逛逛作品</a>
+        </div>
+    </section>
 }
 
 <p></p>
