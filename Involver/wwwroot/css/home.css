@@ -1,0 +1,342 @@
+/* ==============================================
+    首頁 (Home)：只在 Pages/Index 未登入時載入
+==============================================
+*/
+
+/* Story Hero：3D 故事樹 + 市場口號 */
+.story-hero {
+    align-items: center;
+    background:
+        radial-gradient(ellipse at 72% 35%, rgba(232, 159, 89, 0.26), transparent 55%),
+        radial-gradient(ellipse at 15% 95%, rgba(140, 70, 30, 0.32), transparent 60%),
+        #120d0a;
+    border-radius: 1.25rem;
+    color: #fdf6ee;
+    display: flex;
+    isolation: isolate;
+    cursor: crosshair;
+    margin-bottom: 4.5rem;
+    min-height: min(82vh, 760px);
+    overflow: hidden;
+    position: relative;
+    /* 保留直向捲動，讓手機上按住不動時可以引導、拖曳時仍能捲動頁面 */
+    touch-action: pan-y;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+.story-hero a,
+.story-hero button {
+    cursor: pointer;
+}
+
+.story-hero__canvas {
+    display: block;
+    height: 100%;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    transition: opacity 1.4s ease;
+    width: 100%;
+    z-index: 0;
+}
+
+.story-hero--ready .story-hero__canvas {
+    opacity: 1;
+}
+
+.story-hero__veil {
+    background: linear-gradient(90deg, rgba(18, 13, 10, 0.88) 0%, rgba(18, 13, 10, 0.45) 42%, transparent 68%);
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+}
+
+.story-hero__content {
+    max-width: 38rem;
+    padding: 3rem clamp(1.5rem, 5vw, 4.5rem);
+    position: relative;
+    z-index: 2;
+}
+
+.story-hero__eyebrow {
+    color: #e89f59;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.24em;
+    margin-bottom: 1.25rem;
+}
+
+.story-hero__title {
+    font-size: clamp(2rem, 4.6vw, 3.6rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+}
+
+.story-hero__line {
+    display: block;
+    white-space: nowrap;
+}
+
+.story-hero__highlight {
+    -webkit-background-clip: text;
+    background: linear-gradient(90deg, #ffc27a, #e8743b);
+    background-clip: text;
+    color: transparent;
+}
+
+.story-hero__lead {
+    color: rgba(253, 246, 238, 0.78);
+    font-size: 1.125rem;
+    line-height: 1.85;
+    margin-bottom: 2.25rem;
+}
+
+.story-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.story-hero__hint {
+    align-items: center;
+    color: rgba(253, 246, 238, 0.55);
+    display: flex;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    margin-top: 2.25rem;
+    transition: opacity 0.4s ease;
+}
+
+.story-hero--holding .story-hero__hint {
+    opacity: 0;
+}
+
+.story-hero__hint-touch {
+    display: none;
+}
+
+/* 首頁按鈕 */
+.home-button {
+    border-radius: 999px;
+    font-weight: 500;
+    padding: 0.75rem 1.75rem;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.home-button:hover,
+.home-button:focus-visible {
+    transform: translateY(-2px);
+}
+
+.home-button--primary {
+    background: linear-gradient(90deg, #f0a35e, #d9702f);
+    border: none;
+    box-shadow: 0 0.5rem 1.5rem rgba(217, 112, 47, 0.35);
+    color: #1d140e;
+}
+
+.home-button--primary:hover,
+.home-button--primary:focus-visible {
+    box-shadow: 0 0.75rem 2rem rgba(217, 112, 47, 0.5);
+    color: #1d140e;
+}
+
+.home-button--ghost {
+    border: 1px solid rgba(253, 246, 238, 0.4);
+    color: #fdf6ee;
+}
+
+.home-button--ghost:hover,
+.home-button--ghost:focus-visible {
+    background-color: rgba(253, 246, 238, 0.1);
+    border-color: rgba(253, 246, 238, 0.7);
+    color: #fdf6ee;
+}
+
+.home-button--outline {
+    border: 1px solid var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+.home-button--outline:hover,
+.home-button--outline:focus-visible {
+    background-color: var(--primary-accent);
+    color: var(--bg-color);
+}
+
+/* 區段標題 */
+.home-section {
+    margin-bottom: 4.5rem;
+}
+
+.home-section__header {
+    margin: 0 auto 2.5rem;
+    max-width: 36rem;
+    text-align: center;
+}
+
+.home-section__title {
+    font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.home-section__subtitle {
+    color: var(--bs-secondary-color);
+    font-size: 1.05rem;
+    margin-bottom: 0;
+}
+
+/* 參與流程步驟 */
+.home-steps {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.home-step {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    overflow: hidden;
+    padding: 2rem 1.75rem;
+    position: relative;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.home-step:hover {
+    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-4px);
+}
+
+.home-step__number {
+    color: var(--primary-accent);
+    font-size: 3.5rem;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.15;
+    position: absolute;
+    right: 1.25rem;
+    top: 1rem;
+}
+
+.home-step__icon {
+    align-items: center;
+    background-color: color-mix(in srgb, var(--primary-accent) 15%, transparent);
+    border-radius: 0.75rem;
+    color: var(--primary-accent);
+    display: inline-flex;
+    font-size: 1.25rem;
+    height: 3rem;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    width: 3rem;
+}
+
+.home-step__title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.home-step__text {
+    color: var(--bs-secondary-color);
+    line-height: 1.8;
+    margin-bottom: 0;
+}
+
+/* 結尾行動呼籲 */
+.home-cta {
+    background: var(--theme-gradient);
+    border-radius: 1.25rem;
+    color: #3b2a1c;
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+}
+
+.home-cta__title {
+    font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.home-cta__text {
+    margin-bottom: 1.75rem;
+    opacity: 0.8;
+}
+
+.home-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.home-cta .home-button--outline {
+    border-color: #8a4b1f;
+    color: #8a4b1f;
+}
+
+.home-cta .home-button--outline:hover,
+.home-cta .home-button--outline:focus-visible {
+    background-color: #8a4b1f;
+    color: #fff6ea;
+}
+
+@media (hover: none) {
+    .story-hero__hint-pointer {
+        display: none;
+    }
+
+    .story-hero__hint-touch {
+        display: inline;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .story-hero {
+        align-items: flex-end;
+        min-height: 88vh;
+    }
+
+    /* 手機上樹長在文字後方，遮罩只壓文字區、改用文字陰影維持可讀性，讓枝枒透得出來 */
+    .story-hero__veil {
+        background: linear-gradient(0deg, rgba(18, 13, 10, 0.7) 0%, rgba(18, 13, 10, 0.35) 40%, transparent 62%);
+    }
+
+    .story-hero__content {
+        padding: 2rem 1.5rem;
+        text-shadow: 0 1px 2px rgba(18, 13, 10, 0.9), 0 0 18px rgba(18, 13, 10, 0.85);
+    }
+
+    /* 漸層文字是透明的，text-shadow 會從字裡透出來，改用 drop-shadow */
+    .story-hero__highlight {
+        filter: drop-shadow(0 0 10px rgba(18, 13, 10, 0.85));
+        text-shadow: none;
+    }
+
+    .story-hero__lead {
+        font-size: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .story-hero__canvas,
+    .home-button,
+    .home-step {
+        transition: none;
+    }
+
+    .story-hero__hint {
+        display: none;
+    }
+}

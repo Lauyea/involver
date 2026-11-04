@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "involver",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "Involver/Involver.csproj", "--launch-profile", "Involver"],
+      "env": {
+        "ConnectionStrings__ConnectionStrings": "Server=.\\SQLEXPRESS;Database=Involver;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+      },
+      "port": 5000
+    }
+  ]
+}
