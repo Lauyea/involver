@@ -1,0 +1,164 @@
+name: Deploy to production
+
+# 只允許手動觸發：Actions → Deploy to production → Run workflow
+on:
+  workflow_dispatch:
+    inputs:
+      run_migration:
+        description: '套用資料庫 migration（有 schema 變更時才勾選）'
+        type: boolean
+        default: false
+      deploy_web:
+        description: '部署網站 (involver-docker)'
+        type: boolean
+        default: true
+      deploy_functions:
+        description: '部署排程工作 (InvolverRoutineWork)'
+        type: boolean
+        default: true
+
+# 同一時間只允許一個部署在跑，後來的會排隊而不是取消前一個
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  DOTNET_VERSION: 10.0.x
+  AZURE_RESOURCE_GROUP: Involver
+  ACR_NAME: involver
+  IMAGE_NAME: involver
+  WEBAPP_NAME: involver-docker
+  FUNCTIONAPP_NAME: InvolverRoutineWork
+  # 連線字串來源：involver-docker 的 Connection strings，與 app 讀的是同一筆
+  CONNECTION_STRING_NAME: ConnectionStrings
+
+jobs:
+  build:
+    name: Build, test and package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v5
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore dependencies
+      run: |
+        dotnet restore
+        dotnet tool restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    # idempotent：每個 migration 都會先檢查 __EFMigrationsHistory，只補跑正式 DB 缺少的部分
+    - name: Generate migration SQL
+      if: ${{ inputs.run_migration }}
+      run: >
+        dotnet ef migrations script
+        --idempotent
+        --no-build
+        --project DataAccess
+        --startup-project Involver
+        --output artifacts/migration.sql
+    # 部署前可以在這次執行的頁面下載這份 SQL 來檢查
+    - name: Upload migration SQL
+      if: ${{ inputs.run_migration }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: migration-sql
+        path: artifacts/migration.sql
+
+    - name: Publish Functions
+      if: ${{ inputs.deploy_functions }}
+      run: dotnet publish InvolverRoutineWork --configuration Release --output artifacts/functions
+    - name: Upload Functions package
+      if: ${{ inputs.deploy_functions }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: functions
+        path: artifacts/functions
+        include-hidden-files: true
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    # production Environment 設有 required reviewer，會在這裡暫停等核准
+    environment: production
+    permissions:
+      contents: read
+      id-token: write # OIDC 登入 Azure 需要
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Azure login (OIDC)
+      uses: azure/login@v3
+      with:
+        client-id: ${{ vars.AZURE_CLIENT_ID }}
+        tenant-id: ${{ vars.AZURE_TENANT_ID }}
+        subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+    # 先把 image 建好推上去，build 失敗就不會動到資料庫
+    - name: Build and push image
+      if: ${{ inputs.deploy_web }}
+      run: |
+        az acr login --name "$ACR_NAME"
+        image="$ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}"
+        docker build --file Involver/Dockerfile --tag "$image" .
+        docker push "$image"
+
+    - name: Download migration SQL
+      if: ${{ inputs.run_migration }}
+      uses: actions/download-artifact@v8
+      with:
+        name: migration-sql
+        path: artifacts
+    # 直接從 App Service 讀連線字串，不另外存一份在 GitHub
+    - name: Read connection string from App Service
+      if: ${{ inputs.run_migration }}
+      run: |
+        conn=$(az webapp config connection-string list \
+          --resource-group "$AZURE_RESOURCE_GROUP" \
+          --name "$WEBAPP_NAME" \
+          --output json \
+          | jq -r --arg name "$CONNECTION_STRING_NAME" \
+            '.[] | select(.name == $name) | (.value | if type == "object" then .value else . end)')
+        if [ -z "$conn" ]; then
+          echo "::error::在 $WEBAPP_NAME 的 Connection strings 找不到 $CONNECTION_STRING_NAME"
+          exit 1
+        fi
+        echo "::add-mask::$conn"
+        echo "SQL_CONNECTION_STRING=$conn" >> "$GITHUB_ENV"
+    # 已經 azure/login，sql-action 連不上時會自動為 runner IP 加暫時的防火牆規則，跑完再移除
+    - name: Apply migration
+      if: ${{ inputs.run_migration }}
+      uses: azure/sql-action@v2.4
+      with:
+        connection-string: ${{ env.SQL_CONNECTION_STRING }}
+        path: artifacts/migration.sql
+        arguments: '-b' # SQL 發生錯誤時讓這個步驟失敗
+
+    - name: Deploy web app
+      if: ${{ inputs.deploy_web }}
+      uses: azure/webapps-deploy@v3
+      with:
+        app-name: ${{ env.WEBAPP_NAME }}
+        images: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+    - name: Download Functions package
+      if: ${{ inputs.deploy_functions }}
+      uses: actions/download-artifact@v8
+      with:
+        name: functions
+        path: artifacts/functions
+    - name: Deploy Functions
+      if: ${{ inputs.deploy_functions }}
+      uses: azure/functions-action@v1
+      with:
+        app-name: ${{ env.FUNCTIONAPP_NAME }}
+        package: artifacts/functions
