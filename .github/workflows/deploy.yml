@@ -9,11 +9,11 @@ on:
         type: boolean
         default: false
       deploy_web:
-        description: '部署網站 (involver-docker)'
+        description: '部署網站'
         type: boolean
         default: true
       deploy_functions:
-        description: '部署排程工作 (InvolverRoutineWork)'
+        description: '部署排程工作 (Azure Functions)'
         type: boolean
         default: true
 
@@ -24,12 +24,8 @@ concurrency:
 
 env:
   DOTNET_VERSION: 10.0.x
-  AZURE_RESOURCE_GROUP: Involver
-  ACR_NAME: involver
   IMAGE_NAME: involver
-  WEBAPP_NAME: involver-docker
-  FUNCTIONAPP_NAME: InvolverRoutineWork
-  # 連線字串來源：involver-docker 的 Connection strings，與 app 讀的是同一筆
+  # 連線字串來源：網站 App Service 的 Connection strings，與 app 讀的是同一筆
   CONNECTION_STRING_NAME: ConnectionStrings
 
 jobs:
@@ -92,23 +88,48 @@ jobs:
     permissions:
       contents: read
       id-token: write # OIDC 登入 Azure 需要
+    # Azure 資源名稱放在 production Environment 的 variables，不寫在 repo 裡
+    env:
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+      WEBAPP_NAME: ${{ vars.WEBAPP_NAME }}
+      FUNCTIONAPP_NAME: ${{ vars.FUNCTIONAPP_NAME }}
 
     steps:
+    - name: Check environment settings
+      run: |
+        missing=0
+        for name in AZURE_RESOURCE_GROUP ACR_LOGIN_SERVER WEBAPP_NAME FUNCTIONAPP_NAME; do
+          if [ -z "${!name}" ]; then
+            echo "::error::production Environment 缺少 variable：$name"
+            missing=1
+          fi
+        done
+        exit $missing
+
     - uses: actions/checkout@v5
 
+    # 登入用的 ID 放在 production Environment 的 secrets，log 裡會顯示成 ***
     - name: Azure login (OIDC)
       uses: azure/login@v3
       with:
-        client-id: ${{ vars.AZURE_CLIENT_ID }}
-        tenant-id: ${{ vars.AZURE_TENANT_ID }}
-        subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     # 先把 image 建好推上去，build 失敗就不會動到資料庫
     - name: Build and push image
       if: ${{ inputs.deploy_web }}
       run: |
-        az acr login --name "$ACR_NAME"
-        image="$ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}"
+        # 部署身分只有 AcrPush，查不到 registry 資源本身，所以要自己給完整的 login server。
+        # login server 帶有網域名稱標籤時（name-xxxx.azurecr.io），要用 --suffix 指定後綴。
+        registry="${ACR_LOGIN_SERVER%%.*}"
+        if [[ "$registry" == *-* ]]; then
+          az acr login --name "${registry%%-*}" --suffix "${registry#*-}"
+        else
+          az acr login --name "$registry"
+        fi
+        image="$ACR_LOGIN_SERVER/$IMAGE_NAME:${{ github.sha }}"
         docker build --file Involver/Dockerfile --tag "$image" .
         docker push "$image"
 
@@ -148,7 +169,7 @@ jobs:
       uses: azure/webapps-deploy@v3
       with:
         app-name: ${{ env.WEBAPP_NAME }}
-        images: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        images: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
     - name: Download Functions package
       if: ${{ inputs.deploy_functions }}
