@@ -387,6 +387,17 @@ button.accept-policy {
     padding: 4px 8px;
 }
 
+/* Secret Input (試閱密碼) */
+/* 用 type="text" 搭配遮蔽字元，避免 Chrome 密碼管理員把試閱通關碼當成登入密碼並觸發外洩警告 */
+.secret-input {
+    -webkit-text-security: disc;
+    font-family: monospace;
+}
+
+.secret-input::placeholder {
+    font-family: var(--bs-body-font-family);
+}
+
 /* Tag Cloud */
 .tag-cloud-container {
     background-color: var(--tag-container-bg);

@@ -117,12 +117,14 @@
                             <label for="readingPasswordInput" class="form-label fw-bold">
                                 <i class="fas fa-key text-warning"></i> 閱讀密碼
                             </label>
-                            <input type="password"
+                            <input type="text"
                                    id="readingPasswordInput"
                                    v-model="password"
-                                   class="form-control"
+                                   class="form-control secret-input"
                                    placeholder="請輸入閱讀密碼"
-                                   autocomplete="current-password"
+                                   autocomplete="off"
+                                   autocapitalize="off"
+                                   spellcheck="false"
                                    :disabled="isLoading"
                                    @@keyup.enter="submitPassword"
                                    ref="passwordInput" />
@@ -173,12 +175,14 @@
                             <label for="revokePasswordInput" class="form-label fw-bold">
                                 <i class="fas fa-lock text-danger"></i> 請輸入撤銷密碼
                             </label>
-                            <input type="password"
+                            <input type="text"
                                    id="revokePasswordInput"
                                    v-model="revokePassword"
-                                   class="form-control"
+                                   class="form-control secret-input"
                                    placeholder="輸入建立時設定的撤銷密碼"
                                    autocomplete="off"
+                                   autocapitalize="off"
+                                   spellcheck="false"
                                    :disabled="isRevoking"
                                    @@keyup.enter="submitRevoke" />
                             <div class="form-text">提示：此密碼為建立試閱時由作者設定的撤銷專用密碼。</div>

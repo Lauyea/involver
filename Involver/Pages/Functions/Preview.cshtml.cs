@@ -50,13 +50,11 @@ namespace Involver.Pages.Functions
 
             [Required(ErrorMessage = "請設定閱讀密碼")]
             [StringLength(100, ErrorMessage = "{0} 長度至少為 {2} 個字元", MinimumLength = 4)]
-            [DataType(DataType.Password)]
             [Display(Name = "閱讀密碼")]
             public string ReadPassword { get; set; } = string.Empty;
 
             [Required(ErrorMessage = "請設定撤銷密碼")]
             [StringLength(100, ErrorMessage = "{0} 長度至少為 {2} 個字元", MinimumLength = 4)]
-            [DataType(DataType.Password)]
             [Display(Name = "撤銷密碼")]
             public string RevokePassword { get; set; } = string.Empty;
 
