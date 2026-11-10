@@ -31,7 +31,8 @@ public class DetailsModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IViewCountService viewCountService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Article Article { get; set; }
     public List<TocItem> Toc { get; set; }
@@ -47,7 +48,6 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         Article = await Context.Articles
             .Include(a => a.Profile)
             .Include(a => a.ArticleTags)
-            .Include(n => n.Views)
             .Include(n => n.Viewers)
             .FirstOrDefaultAsync(m => m.ArticleID == id);
 
@@ -78,7 +78,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         Toc = TableOfContentsHelper.Generate(content, out string processedContent);
         ProcessedContent = processedContent;
 
-        await AddViewRecordAsync();
+        var isNewView = await AddViewRecordAsync();
 
         if (currentUserId != null)
         {
@@ -89,7 +89,17 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         try
         {
+            // 觀看紀錄與觀看數放在同一個交易，避免只寫入其中一邊
+            await using var transaction = await Context.Database.BeginTransactionAsync();
+
             await Context.SaveChangesAsync();
+
+            if (isNewView)
+            {
+                await viewCountService.AddArticleViewAsync(Article);
+            }
+
+            await transaction.CommitAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -137,7 +147,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
     }
 
-    private async Task AddViewRecordAsync()
+    /// <summary>
+    /// 新增一筆觀看紀錄到 DbContext（尚未存檔）。一小時內同一使用者或工作階段已看過則不新增。
+    /// </summary>
+    /// <returns>有新增觀看紀錄回傳 true</returns>
+    private async Task<bool> AddViewRecordAsync()
     {
         var sessionCookie = Request.Cookies["ViewSession"];
         var sessionId = "";
@@ -171,7 +185,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         if (recentViewExists)
         {
-            return; // A recent view was found, so don't record another one.
+            return false; // A recent view was found, so don't record another one.
         }
 
         var view = new View
@@ -184,8 +198,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         Context.Views.Add(view);
 
-        Article.TotalViews++;
-        Article.DailyView++;
+        // 觀看數在存檔後由 IViewCountService 原子累加，避免併發時「讀出、改值、存回」掉計數
+        return true;
     }
 
     private async Task CheckMissionWatchArticle()

@@ -18,7 +18,8 @@ public class IndexModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IViewCountService viewCountService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public DataAccess.Models.Profile Profile { get; set; }
     public string UserID { get; set; }
@@ -52,8 +53,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         await LoadAsync(id);
         if (Profile != null)
         {
-            Profile.Views++;
-            await Context.SaveChangesAsync();
+            // 觀看數以原子更新累加，避免併發時「讀出、改值、存回」掉計數
+            await viewCountService.AddProfileViewAsync(Profile);
 
             var toasts = await AchievementService.GetCoinsCountAsync(Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
 

@@ -25,7 +25,8 @@ public class DetailsModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IViewCountService viewCountService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Article Announcement { get; set; }
 
@@ -45,23 +46,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return NotFound();
         }
 
-        Announcement.TotalViews++;
-
-        try
-        {
-            await Context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!AnnouncementExists(Announcement.ArticleID))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
+        // 觀看數以原子更新累加，避免併發時「讀出、改值、存回」掉計數；公告不計每日觀看數，與原本行為一致
+        await viewCountService.AddArticleViewAsync(Announcement, countDaily: false);
 
         var profileId = UserManager.GetUserId(User);
 
@@ -73,10 +59,5 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         return Page();
-    }
-
-    private bool AnnouncementExists(int id)
-    {
-        return Context.Articles.Any(e => e.ArticleID == id);
     }
 }
