@@ -90,6 +90,7 @@ ServiceExtension.AddAuthorizationHandlers(services);
 
 services.AddScoped<IAchievementService, AchievementService>();
 services.AddScoped<ICoinService, CoinService>();
+services.AddScoped<IViewCountService, ViewCountService>();
 services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
 
 services.AddRateLimiter(options =>

@@ -31,7 +31,8 @@ public class DetailsModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IViewCountService viewCountService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Episode Episode { get; set; }
 
@@ -126,8 +127,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             }
         }
 
-        //Add views
-        Episode.Views++;
+        // 觀看數以原子更新累加，避免併發時「讀出、改值、存回」掉計數
+        await viewCountService.AddEpisodeViewAsync(Episode);
 
         await CheckMissionWatchArticle();
 
