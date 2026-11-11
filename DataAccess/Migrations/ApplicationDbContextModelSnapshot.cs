@@ -17,7 +17,7 @@ namespace DataAccess.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.10")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -1056,6 +1056,119 @@ namespace DataAccess.Migrations
                     b.ToTable("Profiles");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinMonthlyBalance", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("ClosingBalance")
+                        .HasColumnType("money");
+
+                    b.Property<byte>("CoinType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Credits")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("Debits")
+                        .HasColumnType("money");
+
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("OpeningBalance")
+                        .HasColumnType("money");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TransactionCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Month");
+
+                    b.HasIndex("ProfileId", "CoinType", "Month")
+                        .IsUnique();
+
+                    b.ToTable("CoinMonthlyBalances");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinTransaction", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("BalanceAfter")
+                        .HasColumnType("money");
+
+                    b.Property<byte>("CoinType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CounterpartyProfileId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdempotencyKey")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ReferenceId")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<short?>("ReferenceType")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("TransactionType")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique()
+                        .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+                    b.HasIndex("ProfileId", "CreatedAt")
+                        .IsDescending(false, true);
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ProfileId", "CreatedAt"), new[] { "CoinType", "TransactionType", "Amount", "BalanceAfter" });
+
+                    b.ToTable("CoinTransactions");
+                });
+
             modelBuilder.Entity("DataAccess.Models.StatisticalData.Payment", b =>
                 {
                     b.Property<int>("PaymentID")
@@ -1616,6 +1729,24 @@ namespace DataAccess.Migrations
                         .IsRequired();
 
                     b.Navigation("Episode");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinMonthlyBalance", b =>
+                {
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinTransaction", b =>
+                {
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataAccess.Models.View", b =>

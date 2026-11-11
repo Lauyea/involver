@@ -2,6 +2,7 @@ using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.NovelModel;
+using DataAccess.Models.StatisticalData;
 
 using Involver.Extensions;
 using Involver.Helpers;
@@ -31,7 +32,8 @@ public class VotingsApiController(
     ApplicationDbContext context,
     UserManager<InvolverUser> userManager,
     IAchievementService achievementService,
-    ICoinService coinService) : ControllerBase
+    ICoinService coinService,
+    IMissionService missionService) : ControllerBase
 {
     [HttpPost("cast")]
     public async Task<IActionResult> CastVote(CastVoteApiViewModel voteVM)
@@ -106,7 +108,12 @@ public class VotingsApiController(
         await using var transaction = await context.Database.BeginTransactionAsync();
 
         // Deduct coins
-        if (!await coinService.TrySpendAsync(userId, voteValue, voteVM.IsVirtual))
+        var voteInfo = new CoinTransactionInfo(
+            CoinTransactionType.Vote,
+            CoinReferenceType.Voting,
+            voting.VotingID.ToString(),
+            CounterpartyProfileId: novel.ProfileID);
+        if (!await coinService.TrySpendAsync(userId, voteValue, voteInfo, voteVM.IsVirtual))
         {
             return BadRequest(voteVM.IsVirtual ? "虛擬In幣餘額不足。" : "實體In幣餘額不足。");
         }
@@ -129,25 +136,11 @@ public class VotingsApiController(
         };
         context.Votes.Add(newVote);
 
-        // Mission check
-        var originalVirtualCoins = voter.VirtualCoins;
+        // Mission check：任務旗標與獎勵由任務服務原子更新，不經過 voter 的追蹤實體
         var missionMessage = string.Empty;
-        if (voter.Missions.Vote != true)
+        if (await missionService.CompleteAsync(userId, MissionType.Vote))
         {
-            voter.Missions.Vote = true;
-            voter.AwardCoins();
             missionMessage = "每週任務：投一次票 已完成，獲得5 虛擬In幣。";
-        }
-
-        // 檢查是否完成所有任務，若完成會自動加獎勵幣
-        voter.Missions.CheckCompletion(voter);
-
-        // 任務獎勵改用原子更新：若讓 SaveChanges 寫回 voter 的餘額，會用讀取時的舊值蓋掉剛才的扣款
-        var missionAward = voter.VirtualCoins - originalVirtualCoins;
-        context.Entry(voter).Property(p => p.VirtualCoins).IsModified = false;
-        if (missionAward > 0)
-        {
-            await coinService.AddVirtualCoinsAsync(userId, missionAward);
         }
 
         // Update totals
@@ -167,7 +160,15 @@ public class VotingsApiController(
         if (!voteVM.IsVirtual)
         {
             decimal shareRatio = (voting.Policy == PolicyType.Liberty) ? Parameters.LibertyShareRatio : Parameters.EqualityShareRatio;
-            await coinService.AddCreatorIncomeAsync(novel.ProfileID, voteValue * shareRatio);
+            await coinService.AddCreatorIncomeAsync(
+                novel.ProfileID,
+                voteValue * shareRatio,
+                new CoinTransactionInfo(
+                    CoinTransactionType.RevenueShare,
+                    CoinReferenceType.Voting,
+                    voting.VotingID.ToString(),
+                    CounterpartyProfileId: userId,
+                    Note: "投票分潤"));
         }
 
         // Update Involving

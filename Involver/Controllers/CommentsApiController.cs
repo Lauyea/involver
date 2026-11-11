@@ -25,7 +25,8 @@ public class CommentsApiController(
     UserManager<InvolverUser> userManager,
     IAuthorizationService authorizationService,
     INotificationSetter notificationSetter,
-    IAchievementService achievementService) : ControllerBase
+    IAchievementService achievementService,
+    IMissionService missionService) : ControllerBase
 {
 
     // GET: api/Comments
@@ -266,19 +267,13 @@ public class CommentsApiController(
 
         context.Comments.Add(comment);
 
-        // Mission check
-        var commenterProfile = await context.Profiles.Include(p => p.Missions).FirstOrDefaultAsync(p => p.ProfileID == user.Id);
-        if (commenterProfile != null && commenterProfile.Missions.LeaveComment != true)
-        {
-            commenterProfile.Missions.LeaveComment = true;
-            commenterProfile.AwardCoins();
-            // TODO: Add a way to notify user of mission completion
-        }
-
-        // 檢查是否完成所有任務，若完成會自動加獎勵幣
-        commenterProfile.Missions.CheckCompletion(commenterProfile);
-
         await context.SaveChangesAsync();
+
+        var commenterProfile = await context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == user.Id);
+
+        // Mission check：任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+        // TODO: Add a way to notify user of mission completion
+        await missionService.CompleteAsync(user.Id, MissionType.LeaveComment);
 
         //Set notification
         var url = $"{Request.Scheme}://{Request.Host}/{createDto.From}/Details/?id={createDto.FromID}#comment-{comment.CommentID}";
@@ -442,21 +437,14 @@ public class CommentsApiController(
             if (comment.ProfileID != currentUserID)
             {
                 var ownerProfile = await context.Profiles
-                    .Include(p => p.Missions)
                     .FirstOrDefaultAsync(p => p.ProfileID == comment.ProfileID);
 
                 if (ownerProfile != null)
                 {
-                    if (ownerProfile.Missions.BeAgreed != true)
-                    {
-                        ownerProfile.Missions.BeAgreed = true;
-                        ownerProfile.AwardCoins();
-                    }
+                    await context.SaveChangesAsync(); // Save agree first
 
-                    // 檢查是否完成所有任務，若完成會自動加獎勵幣
-                    ownerProfile.Missions.CheckCompletion(ownerProfile);
-
-                    await context.SaveChangesAsync(); // Save mission changes first
+                    // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+                    await missionService.CompleteAsync(ownerProfile.ProfileID, MissionType.BeAgreed);
 
                     var toasts = await achievementService.GetAgreeCountAsync(ownerProfile.ProfileID);
 

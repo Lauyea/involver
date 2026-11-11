@@ -65,7 +65,7 @@ namespace InvolverTest.Controllers
             var result = await controller.PostCheckOutFeedbackAsync(new Feedback());
 
             Assert.That(result.Content, Is.EqualTo("0|ECPay disabled"));
-            await coinService.DidNotReceiveWithAnyArgs().AddRealCoinsAsync(default!, default);
+            await coinService.DidNotReceiveWithAnyArgs().AddRealCoinsAsync(default!, default, default!);
         }
     }
 }

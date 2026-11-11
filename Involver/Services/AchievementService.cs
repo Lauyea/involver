@@ -2,12 +2,13 @@ using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
+using DataAccess.Models.StatisticalData;
 using Involver.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Services;
 
-public class AchievementService(ApplicationDbContext context) : IAchievementService
+public class AchievementService(ApplicationDbContext context, ICoinService coinService) : IAchievementService
 {
     public async Task<List<Toast>> BeBetaInvolverAsync(string profileId)
     {
@@ -249,17 +250,39 @@ public class AchievementService(ApplicationDbContext context) : IAchievementServ
                     continue;
                 }
 
+                // 獎勵依成就等級決定，通知上顯示的金額與實際發放的金額必須一致
+                decimal award = GetAward(achievement.Rank);
+
+                // 解鎖成就與發獎勵要一起成功或失敗。
+                // 同一個成就被併發解鎖時，後到的請求存檔會撞到 ProfileAchievements 的主鍵，不會重複領獎勵
+                await using var transaction = context.Database.CurrentTransaction is null
+                    ? await context.Database.BeginTransactionAsync()
+                    : null;
+
                 profile.Achievements.Add(achievement);
+                await context.SaveChangesAsync();
+
+                // 獎勵經過 CoinService 原子加值並寫入流水帳，不改動追蹤中的 profile 餘額
+                await coinService.AddVirtualCoinsAsync(
+                    profileId,
+                    award,
+                    new CoinTransactionInfo(
+                        CoinTransactionType.AchievementReward,
+                        CoinReferenceType.Achievement,
+                        achievement.AchievementID.ToString(),
+                        Note: achievement.Title));
+
+                if (transaction is not null)
+                {
+                    await transaction.CommitAsync();
+                }
+
                 toasts.Add(new Toast
                 {
                     Header = achievement.Title,
                     Body = achievement.Content,
-                    Award = GetAward(achievement.Rank)
+                    Award = award
                 });
-
-                profile.VirtualCoins += item.Award;
-
-                await context.SaveChangesAsync();
             }
         }
 

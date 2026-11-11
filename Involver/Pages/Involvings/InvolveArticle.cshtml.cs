@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using DataAccess.Data;
 using DataAccess.Models;
+using DataAccess.Models.StatisticalData;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
@@ -84,12 +85,20 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
 
         await using var transaction = await Context.Database.BeginTransactionAsync();
 
-        if (!await coinService.TrySpendAsync(UserID, Involving.Value))
+        var spendInfo = new CoinTransactionInfo(
+            CoinTransactionType.InvolveArticle,
+            CoinReferenceType.Article,
+            ArticleID.ToString(),
+            CounterpartyProfileId: Article.ProfileID);
+        if (!await coinService.TrySpendAsync(UserID, Involving.Value, spendInfo))
         {
             ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
             return Page();
         }
-        await coinService.AddCreatorIncomeAsync(Article.ProfileID, Involving.Value * 0.5m);//文章直接贊助，作者得50%分潤
+        await coinService.AddCreatorIncomeAsync(
+            Article.ProfileID,
+            Involving.Value * 0.5m,//文章直接贊助，作者得50%分潤
+            spendInfo with { Type = CoinTransactionType.RevenueShare, CounterpartyProfileId = UserID, Note = "文章直接贊助分潤" });
         await coinService.AddArticleCoinsAsync(ArticleID, Involving.Value);
 
         Involving ExistingInvolving = await Context.Involvings

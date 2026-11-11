@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using DataAccess.Data;
 using DataAccess.Models;
+using DataAccess.Models.StatisticalData;
 
 using Involver.Common;
 using Involver.Services;
@@ -82,12 +83,16 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
 
         await using var transaction = await Context.Database.BeginTransactionAsync();
 
-        if (!await coinService.TrySpendAsync(UserID, Involving.Value))
+        var spendInfo = new CoinTransactionInfo(CoinTransactionType.InvolveCreator, CounterpartyProfileId: ProfileID);
+        if (!await coinService.TrySpendAsync(UserID, Involving.Value, spendInfo))
         {
             ModelState.AddModelError(Involving.Value.ToString(), "帳戶餘額不足");
             return Page();
         }
-        await coinService.AddCreatorIncomeAsync(ProfileID, Involving.Value * 0.5m);//創作者直接贊助，作者得50%分潤
+        await coinService.AddCreatorIncomeAsync(
+            ProfileID,
+            Involving.Value * 0.5m,//創作者直接贊助，作者得50%分潤
+            spendInfo with { Type = CoinTransactionType.RevenueShare, CounterpartyProfileId = UserID, Note = "創作者直接贊助分潤" });
 
         Involving ExistingInvolving = await Context.Involvings
             .Where(i => i.ProfileID == ProfileID)
@@ -147,7 +152,8 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
         await using var transaction = await Context.Database.BeginTransactionAsync();
 
         // 先扣款：扣款會鎖住付款人的資料列直到交易結束，之後讀到的 Follow 才不會因重複送出而重複扣款
-        if (!await coinService.TrySpendAsync(UserID, InvolveValue))
+        var spendInfo = new CoinTransactionInfo(CoinTransactionType.MonthlyInvolveCreator, CounterpartyProfileId: ProfileID);
+        if (!await coinService.TrySpendAsync(UserID, InvolveValue, spendInfo))
         {
             StatusMessage = "Error: 帳戶餘額不足";
             return Page();
@@ -181,7 +187,10 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
             existingFollow.UpdateTime = DateTime.Now;
         }
 
-        await coinService.AddCreatorIncomeAsync(ProfileID, InvolveValue * 0.6m);//創作者每月Involve，作者得60%分潤
+        await coinService.AddCreatorIncomeAsync(
+            ProfileID,
+            InvolveValue * 0.6m,//創作者每月Involve，作者得60%分潤
+            spendInfo with { Type = CoinTransactionType.RevenueShare, CounterpartyProfileId = UserID, Note = "創作者每月贊助分潤" });
 
         Involving ExistingInvolving = await Context.Involvings
             .Where(i => i.ProfileID == ProfileID)

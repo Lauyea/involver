@@ -22,7 +22,8 @@ public class MessagesApiController(
     IAuthorizationService authorizationService,
     UserManager<InvolverUser> userManager,
     INotificationSetter notificationSetter,
-    IAchievementService achievementService) : ControllerBase
+    IAchievementService achievementService,
+    IMissionService missionService) : ControllerBase
 {
 
     // GET: api/MessagesApi/ByComment/5
@@ -216,18 +217,12 @@ public class MessagesApiController(
 
         Profile authorProfile = await context.Profiles
             .Where(p => p.ProfileID == authorId)
-            .Include(p => p.Missions)
             .FirstOrDefaultAsync();
 
         if (authorProfile == null) return;
 
-        if (authorProfile.Missions.BeAgreed != true)
-        {
-            authorProfile.Missions.BeAgreed = true;
-            authorProfile.AwardCoins();
-        }
-        // Check if all missions are completed, which also awards coins
-        authorProfile.Missions.CheckCompletion(authorProfile);
+        // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+        await missionService.CompleteAsync(authorProfile.ProfileID, MissionType.BeAgreed);
 
         var toasts = await achievementService.GetAgreeCountAsync(authorProfile.ProfileID);
 

@@ -49,6 +49,16 @@ namespace DataAccess.Data
         public DbSet<View> Views { get; set; }
         public DbSet<Preview> Previews { get; set; }
 
+        /// <summary>
+        /// In 幣交易紀錄（流水帳）
+        /// </summary>
+        public DbSet<CoinTransaction> CoinTransactions { get; set; }
+
+        /// <summary>
+        /// In 幣月結
+        /// </summary>
+        public DbSet<CoinMonthlyBalance> CoinMonthlyBalances { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Profile>(p =>
@@ -179,6 +189,41 @@ namespace DataAccess.Data
             {
                 p.HasIndex(e => e.Token).IsUnique();
                 p.HasIndex(e => e.ExpiresAt);
+            });
+
+            modelBuilder.Entity<CoinTransaction>(t =>
+            {
+                // 最主要的查詢：某人的交易明細，依時間倒序
+                t.HasIndex(e => new { e.ProfileId, e.CreatedAt })
+                    .IsDescending(false, true)
+                    .IncludeProperties(e => new { e.CoinType, e.TransactionType, e.Amount, e.BalanceAfter });
+
+                // 月排程依時間範圍彙總
+                t.HasIndex(e => e.CreatedAt);
+
+                t.HasIndex(e => e.CorrelationId);
+
+                // 金流商重送付款通知時，由資料庫擋掉重複入帳
+                t.HasIndex(e => e.IdempotencyKey)
+                    .IsUnique()
+                    .HasFilter("[IdempotencyKey] IS NOT NULL");
+
+                // 帳務紀錄不能因為刪除使用者而被連帶刪除
+                t.HasOne<Profile>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ProfileId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<CoinMonthlyBalance>(b =>
+            {
+                b.HasIndex(e => new { e.ProfileId, e.CoinType, e.Month }).IsUnique();
+                b.HasIndex(e => e.Month);
+
+                b.HasOne<Profile>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ProfileId)
+                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             base.OnModelCreating(modelBuilder);

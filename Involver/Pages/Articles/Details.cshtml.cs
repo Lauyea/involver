@@ -32,7 +32,8 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-IViewCountService viewCountService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IViewCountService viewCountService,
+IMissionService missionService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Article Article { get; set; }
     public List<TocItem> Toc { get; set; }
@@ -208,19 +209,11 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
         string UserID = UserManager.GetUserId(User);
         if (UserID != null)
         {
-            Profile userProfile = await Context.Profiles
-            .Where(p => p.ProfileID == UserID)
-            .Include(p => p.Missions)
-            .FirstOrDefaultAsync();
-            if (userProfile.Missions.WatchArticle != true)
+            // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+            if (await missionService.CompleteAsync(UserID, MissionType.WatchArticle))
             {
-                userProfile.Missions.WatchArticle = true;
-                userProfile.AwardCoins();
                 StatusMessage = "每週任務：看一篇文章 已完成，獲得5 虛擬In幣。";
             }
-
-            // 檢查是否完成所有任務，若完成會自動加獎勵幣
-            userProfile.Missions.CheckCompletion(userProfile);
         }
     }
 
