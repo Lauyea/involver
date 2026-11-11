@@ -24,7 +24,8 @@ public class IndexModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IMissionService missionService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     //private readonly ILogger<IndexModel> _logger;
 
@@ -64,14 +65,20 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         if (UserProfile != null)
         {
-            if (!UserProfile.Missions.DailyLogin)
+            // 每日登入任務：旗標與獎勵由任務服務原子更新
+            bool rewarded = await missionService.CompleteAsync(UserProfile.ProfileID, MissionType.DailyLogin);
+            if (rewarded)
             {
                 UserProfile.LastTimeLogin = DateTime.Now;//登入時間
-                UserProfile.Missions.DailyLogin = true;//每日登入任務
-                UserProfile.VirtualCoins += 5;
                 StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
             }
             await Context.SaveChangesAsync();
+
+            if (rewarded)
+            {
+                // 讀回剛發的獎勵，下面的成就檢查才會算到
+                await Context.Entry(UserProfile).ReloadAsync();
+            }
         }
 
         var toasts = await AchievementService.GetCoinsCountAsync(userId, UserProfile.VirtualCoins + UserProfile.RealCoins);

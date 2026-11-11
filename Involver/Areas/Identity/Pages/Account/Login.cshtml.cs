@@ -25,7 +25,8 @@ namespace Involver.Areas.Identity.Pages.Account;
 public class LoginModel(SignInManager<InvolverUser> signInManager,
     ILogger<LoginModel> logger,
     ApplicationDbContext context,
-    IAchievementService achievementService) : PageModel
+    IAchievementService achievementService,
+    IMissionService missionService) : PageModel
 {
     [BindProperty]
     public InputModel Input { get; set; }
@@ -124,10 +125,9 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
         if (userProfile != null)
         {
             userProfile.LastTimeLogin = DateTime.Now;//登入時間
-            if (!userProfile.Missions.DailyLogin)
+            // 每日登入任務：旗標與獎勵由任務服務原子更新
+            if (await missionService.CompleteAsync(userProfile.ProfileID, MissionType.DailyLogin))
             {
-                userProfile.Missions.DailyLogin = true;//每日登入任務
-                userProfile.VirtualCoins += 5;
                 StatusMessage = "每日登入 已完成，獲得5 虛擬In幣。";
             }
 

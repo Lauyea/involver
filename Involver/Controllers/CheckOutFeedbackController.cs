@@ -17,6 +17,8 @@ using Involver.Pages;
 using Involver.Services;
 using Involver.Services.ECPay;
 
+using PaymentProvider = DataAccess.Models.StatisticalData.PaymentProvider;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -197,7 +199,13 @@ namespace Involver.Controllers
                         _logger.LogWarning("重複的付款通知，略過加值。MerchantTradeNo: {MerchantTradeNo}", szMerchantTradeNo);
                     }
                     //用戶資料增加 RealCoins
-                    else if (!await _coinService.AddRealCoinsAsync(CustomField1, decimal.Parse(szTradeAmt)))
+                    else if (!await _coinService.AddRealCoinsAsync(
+                        CustomField1,
+                        decimal.Parse(szTradeAmt),
+                        CoinTransactionInfo.ForTopUp(
+                            PaymentProvider.ECPay,
+                            szMerchantTradeNo,
+                            $"綠界交易編號 {szTradeNo}")))
                     {
                         _logger.LogError("付款通知找不到用戶，未加值。InvolverID: {InvolverID}, MerchantTradeNo: {MerchantTradeNo}", CustomField1, szMerchantTradeNo);
                     }

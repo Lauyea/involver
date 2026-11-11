@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using DataAccess.Common;
+using DataAccess.Models.StatisticalData;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.ArticleModel;
@@ -28,7 +29,8 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 INotificationSetter notificationSetter,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ICoinService coinService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Article Feedback { get; set; }
     public string UserID { get; set; }
@@ -101,8 +103,6 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         var feedback = await Context.Articles
             .FirstOrDefaultAsync(m => m.ArticleID == id);
 
-        Profile profile = await Context.Profiles.FirstOrDefaultAsync(p => p.ProfileID == feedback.ProfileID);
-
         if (feedback == null)
         {
             return NotFound();
@@ -114,9 +114,25 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             return Forbid();
         }
+        bool alreadyAccepted = feedback.Accept == true;
         feedback.Accept = true;
-        profile.VirtualCoins += 50;//回報錯誤與採納意見獲得虛擬In幣50枚
+
+        await using var transaction = await Context.Database.BeginTransactionAsync();
         await Context.SaveChangesAsync();
+
+        // 回報錯誤與採納意見獲得虛擬In幣50枚，同一則回饋只發一次
+        if (!alreadyAccepted)
+        {
+            await coinService.AddVirtualCoinsAsync(
+                feedback.ProfileID,
+                50,
+                new CoinTransactionInfo(
+                    CoinTransactionType.FeedbackReward,
+                    CoinReferenceType.Article,
+                    feedback.ArticleID.ToString(),
+                    Note: "意見回饋被採納"));
+        }
+        await transaction.CommitAsync();
 
         var toasts = await AchievementService.AcceptCountAsync(feedback.ProfileID);
 

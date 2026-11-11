@@ -1,8 +1,8 @@
 using DataAccess.Data;
 using DataAccess.Models;
 
-using Involver.Extensions;
 using Involver.Helpers;
+using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -18,13 +18,16 @@ namespace Involver.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<InvolverUser> _userManager;
+        private readonly IMissionService _missionService;
 
         public SharesApiController(
             ApplicationDbContext context,
-            UserManager<InvolverUser> userManager)
+            UserManager<InvolverUser> userManager,
+            IMissionService missionService)
         {
             _context = context;
             _userManager = userManager;
+            _missionService = missionService;
         }
 
         public class ShareRequest
@@ -41,20 +44,8 @@ namespace Involver.Controllers
 
             if (userID != null)
             {
-                Profile userProfile = await _context.Profiles
-                .Where(p => p.ProfileID == userID)
-                .Include(p => p.Missions)
-                .FirstOrDefaultAsync();
-                if (userProfile != null && userProfile.Missions.ShareCreation != true)
-                {
-                    userProfile.Missions.ShareCreation = true;
-                    userProfile.AwardCoins();
-                }
-
-                // 檢查是否完成所有任務，若完成會自動加獎勵幣
-                userProfile.Missions.CheckCompletion(userProfile);
-
-                await _context.SaveChangesAsync();
+                // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+                await _missionService.CompleteAsync(userID, MissionType.ShareCreation);
             }
 
             return Ok();

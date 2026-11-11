@@ -26,7 +26,8 @@ public class IndexModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+IMissionService missionService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public PaginatedList<Article> Announcements { get; set; }
     public string CurrentFilter { get; set; }
@@ -75,21 +76,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         string UserID = UserManager.GetUserId(User);
         if (UserID != null)
         {
-            Profile userProfile = await Context.Profiles
-            .Where(p => p.ProfileID == UserID)
-            .Include(p => p.Missions)
-            .FirstOrDefaultAsync();
-            if (userProfile.Missions.ViewAnnouncement != true)
+            // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+            if (await missionService.CompleteAsync(UserID, MissionType.ViewAnnouncement))
             {
-                userProfile.Missions.ViewAnnouncement = true;
-                userProfile.AwardCoins();
                 StatusMessage = "每週任務：瀏覽公告 已完成，獲得5 虛擬In幣。";
             }
-
-            // 檢查是否完成所有任務，若完成會自動加獎勵幣
-            userProfile.Missions.CheckCompletion(userProfile);
-
-            await Context.SaveChangesAsync();
         }
     }
 }

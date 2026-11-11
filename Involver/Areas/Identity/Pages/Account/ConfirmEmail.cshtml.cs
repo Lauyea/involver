@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
+using DataAccess.Models.StatisticalData;
+
+using Involver.Services;
+
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -22,11 +26,13 @@ namespace Involver.Areas.Identity.Pages.Account
     {
         private readonly UserManager<InvolverUser> _userManager;
         private readonly ApplicationDbContext Context;
+        private readonly ICoinService _coinService;
 
-        public ConfirmEmailModel(UserManager<InvolverUser> userManager, ApplicationDbContext context)
+        public ConfirmEmailModel(UserManager<InvolverUser> userManager, ApplicationDbContext context, ICoinService coinService)
         {
             _userManager = userManager;
             Context = context;
+            _coinService = coinService;
         }
 
         [TempData]
@@ -54,7 +60,7 @@ namespace Involver.Areas.Identity.Pages.Account
                 ProfileID = user.Id,
                 UserName = user.UserName,
                 RealCoins = 0,
-                VirtualCoins = 300,
+                VirtualCoins = 0,
                 EnrollmentDate = DateTime.Now,
                 LastTimeLogin = DateTime.Now,
                 Professional = false,
@@ -65,8 +71,16 @@ namespace Involver.Areas.Identity.Pages.Account
                 CanChangeUserName = user.PasswordHash == null
             };
 
+            await using var transaction = await Context.Database.BeginTransactionAsync();
             Context.Profiles.Add(profile);
             await Context.SaveChangesAsync();
+
+            // 註冊獎勵經過 CoinService，才會留下流水帳
+            await _coinService.AddVirtualCoinsAsync(
+                profile.ProfileID,
+                300,
+                new CoinTransactionInfo(CoinTransactionType.SignUpBonus, Note: "註冊獎勵"));
+            await transaction.CommitAsync();
 
             return Page();
         }
