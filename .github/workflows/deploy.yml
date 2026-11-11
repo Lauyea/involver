@@ -34,11 +34,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      actions: read # 產 migration-review.sql 時要查之前的部署紀錄
 
     steps:
     - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0 # 要讀上次部署那個 commit 的 migration 清單
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v6
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     - name: Restore dependencies
@@ -67,6 +70,80 @@ jobs:
       with:
         name: migration-sql
         path: artifacts/migration.sql
+
+    # 只給人審查用：上次成功套用 migration 之後新增的部分。實際執行的仍是上面的 migration.sql
+    - name: Generate migration review SQL
+      if: ${{ inputs.run_migration }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        out=artifacts/migration-review.sql
+
+        # 列出某個 commit 裡的 migration（排除 Designer.cs 與 Snapshot），依時間排序
+        list_migrations() {
+          git ls-tree --name-only "$1" DataAccess/Migrations/ \
+            | sed 's#.*/##' \
+            | { grep -E '^[0-9]{14}_[^.]+\.cs$' || true; } \
+            | sed 's/\.cs$//' \
+            | sort
+        }
+
+        # 上次成功且有勾 run_migration 的部署：該次執行會留下 migration-sql artifact
+        base_sha=""
+        for run in $(gh run list --workflow deploy.yml --status success --limit 50 \
+            --json databaseId,headSha --jq '.[] | "\(.databaseId):\(.headSha)"'); do
+          found=$(gh api "repos/${{ github.repository }}/actions/runs/${run%%:*}/artifacts" \
+            --jq '.artifacts[] | select(.name == "migration-sql") | .name')
+          if [ -n "$found" ]; then
+            base_sha="${run#*:}"
+            break
+          fi
+        done
+
+        latest=$(list_migrations HEAD | tail -n1)
+        if [ -n "$base_sha" ] && git cat-file -e "$base_sha^{commit}" 2>/dev/null; then
+          from=$(list_migrations "$base_sha" | tail -n1)
+          base_note="上次成功套用 migration 的部署 commit：$base_sha"
+        else
+          echo "::warning::找不到上次成功套用 migration 的部署紀錄，migration-review.sql 會包含全部 migration"
+          from=""
+          base_note="找不到上次成功套用 migration 的部署紀錄，以下為全部 migration"
+        fi
+
+        # migration 名稱以時間戳開頭，字串比較即可找出比基準新的
+        new_migrations=$(list_migrations HEAD | awk -v from="$from" '$0 > from')
+
+        {
+          echo "-- 審查用，不會被執行。實際套用的是 migration.sql（idempotent，會略過正式 DB 已執行過的 migration）"
+          echo "-- $base_note"
+          echo "-- 若正式 DB 曾手動調整、或上次部署中途失敗，實際補跑的範圍可能比這份多"
+          echo
+        } > "$out"
+
+        {
+          echo "### Migration 審查"
+          echo "$base_note"
+          echo
+        } >> "$GITHUB_STEP_SUMMARY"
+
+        if [ -z "$new_migrations" ]; then
+          echo "-- 沒有新的 migration" >> "$out"
+          echo "沒有新的 migration" >> "$GITHUB_STEP_SUMMARY"
+        else
+          echo "$new_migrations" | sed 's/^/- /' >> "$GITHUB_STEP_SUMMARY"
+          dotnet ef migrations script "${from:-0}" "$latest" \
+            --no-build \
+            --project DataAccess \
+            --startup-project Involver \
+            --output artifacts/review-body.sql
+          cat artifacts/review-body.sql >> "$out"
+        fi
+    - name: Upload migration review SQL
+      if: ${{ inputs.run_migration }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: migration-review
+        path: artifacts/migration-review.sql
 
     - name: Publish Functions
       if: ${{ inputs.deploy_functions }}
