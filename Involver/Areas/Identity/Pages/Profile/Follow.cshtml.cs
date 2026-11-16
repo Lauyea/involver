@@ -3,6 +3,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
+using Involver.Models.ViewModels;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,10 @@ public class FollowModel(
     IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public DataAccess.Models.Profile Profile { get; set; }
-    public List<Follow> Follows { get; set; }
+    /// <summary>
+    /// 追蹤中的創作（含最新一集）
+    /// </summary>
+    public List<FollowedNovelViewModel> Follows { get; set; }
 
     public async Task<IActionResult> OnGetAsync(string id)
     {
@@ -31,13 +35,8 @@ public class FollowModel(
             return NotFound();
         }
 
-        Follows = await Context.Follows
-            .Include(f => f.Novel)
-                .ThenInclude(n => n.Episodes)
-            .Include(f => f.Novel)
-                .ThenInclude(n => n.Profile)
-            .Where(f => f.FollowerID == id)
-            .OrderByDescending(f => f.Novel.UpdateTime)
+        Follows = await FollowedNovelViewModel
+            .QueryByFollower(Context.Follows, id)
             .Take(Parameters.PageSize)
             .AsNoTracking()
             .ToListAsync();
@@ -47,13 +46,8 @@ public class FollowModel(
 
     public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
     {
-        var follows = await Context.Follows
-            .Include(f => f.Novel)
-                .ThenInclude(n => n.Episodes)
-            .Include(f => f.Novel)
-                .ThenInclude(n => n.Profile)
-            .Where(f => f.FollowerID == id)
-            .OrderByDescending(f => f.Novel.UpdateTime)
+        var follows = await FollowedNovelViewModel
+            .QueryByFollower(Context.Follows, id)
             .Skip((pageIndex - 1) * Parameters.PageSize)
             .Take(Parameters.PageSize)
             .AsNoTracking()

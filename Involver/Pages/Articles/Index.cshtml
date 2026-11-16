@@ -70,7 +70,7 @@
                                     <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
                                 </a>
                                 <div>
-                                    <small class="me-2"><i class="far fa-comment"></i> @item.Comments.Count()</small>
+                                    <small class="me-2"><i class="far fa-comment"></i> @Model.CommentCounts.GetValueOrDefault(item.ArticleID)</small>
                                     <small><i class="far fa-eye"></i> 
                                         <a href="#" class="view-chart-trigger" data-type="article" data-id="@item.ArticleID">
                                             @Html.DisplayFor(modelItem => item.TotalViews)

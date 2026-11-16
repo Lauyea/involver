@@ -34,39 +34,35 @@
     <div>
         @if (Model.Follows != null)
         {
-            @foreach (Follow follow in Model.Follows)
+            @foreach (var follow in Model.Follows)
             {
-                @if (follow.Novel == null)
-                {
-                    continue;
-                }
-                if (follow.Novel.Episodes.Count() == 0)
+                if (follow.LatestEpisodeID == null)
                 {
                     continue;
                 }
                 <div class="row">
                     <div class="col-md-5">
                         <a asp-page="/Episodes/Details"
-               asp-route-id="@follow.Novel.Episodes.LastOrDefault().EpisodeID">
-                            @Html.DisplayFor(modelItem => follow.Novel.Episodes.LastOrDefault().Title)
+               asp-route-id="@follow.LatestEpisodeID">
+                            @follow.LatestEpisodeTitle
                         </a>
                     </div>
                     <div class="col-md-4 text-body-secondary">
-                        <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@Html.DisplayFor(modelItem => follow.Novel.Title)</a>
+                        <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@follow.NovelTitle</a>
                         @if (follow.NovelMonthlyInvolver)
                         {
                             <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
                         }
                     </div>
-                    <div class="col-md-3 text-body-secondary" title="@follow.Novel.UpdateTime">
+                    <div class="col-md-3 text-body-secondary" title="@follow.NovelUpdateTime">
                         @*<p>
                             <a asp-area="Identity"
                    asp-page="/Profile/Index"
-                   asp-route-id="@follow.Novel.Profile.ProfileID">
-                                <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small>
+                   asp-route-id="@follow.AuthorID">
+                                <small>@follow.AuthorUserName</small>
                             </a>
                         </p>*@
-                        @TimePeriodHelper.Get(follow.Novel.UpdateTime)
+                        @TimePeriodHelper.Get(follow.NovelUpdateTime)
                     </div>
                 </div>
                 <hr />

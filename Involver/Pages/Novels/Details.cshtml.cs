@@ -32,9 +32,19 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
 {
     public Novel Novel { get; set; }
     public Profile Writer { get; set; }
-    public PaginatedList<Episode> Episodes { get; set; }
+
+    /// <summary>
+    /// 章節總頁數，供前端分頁使用（章節列表本身由 EpisodeList View Component 載入）
+    /// </summary>
+    public int EpisodeTotalPages { get; set; }
+
     public List<Novel> RecommendNovels { get; set; }
     public bool Followed { get; set; } = false;
+
+    /// <summary>
+    /// 追蹤這部小說的人數
+    /// </summary>
+    public int FollowCount { get; set; }
 
     public string UserId { get; set; }
 
@@ -47,9 +57,7 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
 
         Novel = await Context.Novels
             .Include(n => n.Profile)
-            .Include(n => n.Follows)
             .Include(n => n.NovelTags)
-            .Include(n => n.Viewers)
             .FirstOrDefaultAsync(m => m.NovelID == id);
 
         if (Novel == null)
@@ -72,15 +80,12 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
 
         Writer = Novel.Profile;
 
-        IQueryable<Episode> episodes = from e in Context.Episodes
-                                       select e;
-        episodes = episodes
+        // 只需要總頁數，不必載入章節全文
+        var episodeCount = await Context.Episodes
             .Where(e => e.NovelID == id)
-            .OrderByDescending(e => e.EpisodeID);
+            .CountAsync();
 
-
-        Episodes = await PaginatedList<Episode>.CreateAsync(
-            episodes, pageIndexEpisode ?? 1, Parameters.EpisodePageSize);
+        EpisodeTotalPages = (int)Math.Ceiling(episodeCount / (double)Parameters.EpisodePageSize);
 
         var tagArr = Novel.NovelTags.ToArray();
 
@@ -115,13 +120,17 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
             .OrderByDescending(n => n.UpdateTime)
             .AsNoTracking();
 
-        RecommendNovels = recommendNovels.ToList();
+        RecommendNovels = await recommendNovels.ToListAsync();
 
-        Follow existingFollow = Novel.Follows
-            .Where(f => f.FollowerID == UserId)
-            .FirstOrDefault();
+        FollowCount = await Context.Follows
+            .Where(f => f.NovelID == id)
+            .CountAsync();
 
-        Followed = existingFollow != null;
+        if (UserId != null)
+        {
+            Followed = await Context.Follows
+                .AnyAsync(f => f.NovelID == id && f.FollowerID == UserId);
+        }
 
         var isNewView = await AddViewRecordAsync();
 
@@ -167,25 +176,27 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
     }
 
     /// <summary>
-    /// AddViewer
+    /// 記錄目前使用者看過這部小說：已有紀錄就更新觀看時間，沒有就新增一筆（尚未存檔）。
+    /// 直接以 (ProfileID, NovelID) 查 NovelViewers 那一筆，不載入所有看過的人。
     /// </summary>
-    /// <returns></returns>
     /// TODO: 之後可能要與 AddView 合併
     private async Task AddViewer()
     {
-        var userAsViewer = Novel.Viewers.Where(v => v.ProfileID == UserId).FirstOrDefault();
+        var novelViewer = await Context.Set<NovelViewer>()
+            .FirstOrDefaultAsync(v => v.ProfileID == UserId && v.NovelID == Novel.NovelID);
 
-        if (userAsViewer != null)
+        if (novelViewer != null)
         {
-            var novelViewer = userAsViewer.NovelViewers.Where(v => v.ProfileID == UserId && v.NovelID == Novel.NovelID).FirstOrDefault();
-
             novelViewer.ViewDate = DateTime.Now;
         }
         else
         {
-            var userProfile = await Context.Profiles.Where(p => p.ProfileID == UserId).FirstOrDefaultAsync();
-
-            Novel.Viewers.Add(userProfile);
+            Context.Set<NovelViewer>().Add(new NovelViewer
+            {
+                ProfileID = UserId,
+                NovelID = Novel.NovelID,
+                ViewDate = DateTime.Now
+            });
         }
     }
 

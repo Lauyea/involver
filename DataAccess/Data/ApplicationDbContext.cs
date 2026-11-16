@@ -226,10 +226,140 @@ namespace DataAccess.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            ConfigureIssue219(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
+        }
+
+        /// <summary>
+        /// 產生「剛好填一個」的 CHECK 條件，例如 (CASE WHEN [A] IS NULL THEN 0 ELSE 1 END + ...) = 1
+        /// </summary>
+        /// <param name="columns">多種父表共用的外鍵欄位</param>
+        /// <returns>SQL Server 與 SQLite 都能用的 CHECK 條件</returns>
+        private static string ExactlyOneNotNull(params string[] columns)
+        {
+            var terms = columns.Select(c => $"CASE WHEN [{c}] IS NULL THEN 0 ELSE 1 END");
+            return $"({string.Join(" + ", terms)}) = 1";
+        }
+
+        /// <summary>
+        /// Issue #219：多父表外鍵的 CHECK 約束、Unique 約束與查詢用的複合索引
+        /// </summary>
+        /// <param name="modelBuilder">Model builder</param>
+        private static void ConfigureIssue219(ModelBuilder modelBuilder)
+        {
+            // 多種父表共用外鍵欄位：資料庫保證剛好填一個
+            modelBuilder.Entity<Comment>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_Comments_ExactlyOneParent",
+                    ExactlyOneNotNull(nameof(Comment.NovelID), nameof(Comment.EpisodeID), nameof(Comment.ArticleID))));
+
+            modelBuilder.Entity<Involving>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_Involvings_ExactlyOneTarget",
+                    ExactlyOneNotNull(nameof(Involving.ProfileID), nameof(Involving.NovelID), nameof(Involving.ArticleID))));
+
+            modelBuilder.Entity<Follow>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_Follows_ExactlyOneTarget",
+                    ExactlyOneNotNull(nameof(Follow.ProfileID), nameof(Follow.NovelID))));
+
+            modelBuilder.Entity<Agree>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_Agrees_ExactlyOneTarget",
+                    ExactlyOneNotNull(nameof(Agree.CommentID), nameof(Agree.MessageID))));
+
+            modelBuilder.Entity<View>()
+                .ToTable(t => t.HasCheckConstraint(
+                    "CK_Views_ExactlyOneTarget",
+                    ExactlyOneNotNull(nameof(View.ArticleId), nameof(View.NovelId))));
+
+            // 通知下拉選單：某人最新的通知與未讀數
+            modelBuilder.Entity<Notification>()
+                .HasIndex(n => new { n.ProfileID, n.CreatedDate })
+                .IncludeProperties(n => n.IsRead);
+
+            // 觀看紀錄：去重檢查、統計圖表；日結刪除用既有的 CreateTime 單欄索引
+            modelBuilder.Entity<View>(v =>
+            {
+                v.HasIndex(e => new { e.NovelId, e.CreateTime });
+                v.HasIndex(e => new { e.ArticleId, e.CreateTime });
+                v.HasIndex(e => e.CreateTime);
+            });
+
+            // 是否已追蹤；同一人對同一對象只能有一筆
+            modelBuilder.Entity<Follow>(f =>
+            {
+                f.HasIndex(e => new { e.ProfileID, e.FollowerID })
+                    .IsUnique()
+                    .HasFilter("[ProfileID] IS NOT NULL");
+                f.HasIndex(e => new { e.NovelID, e.FollowerID })
+                    .IsUnique()
+                    .HasFilter("[NovelID] IS NOT NULL");
+            });
+
+            // 是否已按讚；同一人對同一則留言／回覆只能有一筆
+            modelBuilder.Entity<Agree>(a =>
+            {
+                a.HasIndex(e => new { e.CommentID, e.ProfileID })
+                    .IsUnique()
+                    .HasFilter("[CommentID] IS NOT NULL");
+                a.HasIndex(e => new { e.MessageID, e.ProfileID })
+                    .IsUnique()
+                    .HasFilter("[MessageID] IS NOT NULL");
+            });
+
+            // 瀏覽紀錄分頁
+            modelBuilder.Entity<ArticleViewer>()
+                .HasIndex(v => new { v.ProfileID, v.ViewDate });
+            modelBuilder.Entity<NovelViewer>()
+                .HasIndex(v => new { v.ProfileID, v.ViewDate });
+
+            // 公告、意見回饋列表
+            modelBuilder.Entity<Article>()
+                .HasIndex(a => new { a.Type, a.UpdateTime });
+
+            // 登入、註冊以用戶名查詢；資料庫層防止同名帳號
+            modelBuilder.Entity<Profile>()
+                .HasIndex(p => p.UserName)
+                .IsUnique();
+
+            // 標籤名稱不重複（SQL Server 預設定序不分大小寫）
+            modelBuilder.Entity<NovelTag>()
+                .HasIndex(t => t.Name)
+                .IsUnique();
+            modelBuilder.Entity<ArticleTag>()
+                .HasIndex(t => t.Name)
+                .IsUnique();
+
+            // 付款回呼在 Serializable 交易裡以 MerchantTradeNo 查詢（綠界規格最長 20 字元）
+            modelBuilder.Entity<Payment>(p =>
+            {
+                p.Property(e => e.MerchantTradeNo).HasMaxLength(64);
+                p.HasIndex(e => e.MerchantTradeNo);
+                p.Property(e => e.InvolverID).HasMaxLength(450);
+                p.HasIndex(e => e.InvolverID);
+            });
+
+            // Owner 欄位：成就計數等查詢依擁有者篩選
+            modelBuilder.Entity<Episode>(e =>
+            {
+                e.Property(x => x.OwnerID).HasMaxLength(450);
+                e.HasIndex(x => x.OwnerID);
+            });
+            modelBuilder.Entity<Voting>(v =>
+            {
+                v.Property(x => x.OwnerID).HasMaxLength(450);
+                v.HasIndex(x => x.OwnerID);
+            });
+            modelBuilder.Entity<Vote>(v =>
+            {
+                v.Property(x => x.OwnerID).HasMaxLength(450);
+                v.HasIndex(x => x.OwnerID);
+            });
         }
     }
 }

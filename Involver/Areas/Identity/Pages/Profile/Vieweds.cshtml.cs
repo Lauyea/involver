@@ -38,24 +38,32 @@ public class ViewesModel(
             return new List<ViewedNovelViewModel>(); // Or handle as an error
         }
 
-        Profile = await Context.Profiles
-            .Where(p => p.ProfileID == id)
-            .Include(p => p.ViewedNovels)
-            .FirstOrDefaultAsync();
-
-        var novels = Profile.ViewedNovels
-            .OrderByDescending(n => n.NovelViewers.FirstOrDefault()?.ViewDate)
-            .Select(n => new ViewedNovelViewModel
-            {
-                NovelID = n.NovelID,
-                Title = n.Title,
-                Introduction = n.Introduction.Length < Parameters.ContentLength 
-                    ? n.Introduction 
-                    : n.Introduction.Substring(0, Parameters.ContentLength) + "...",
-                ViewDate = (DateTime)(n.NovelViewers.FirstOrDefault()?.ViewDate)
-            })
+        // 在資料庫端排序、分頁，只取列表需要的欄位
+        var rows = await Context.Set<NovelViewer>()
+            .Where(nv => nv.ProfileID == id)
+            .OrderByDescending(nv => nv.ViewDate)
             .Skip((pageIndex - 1) * Parameters.PageSize)
             .Take(Parameters.PageSize)
+            .Select(nv => new
+            {
+                nv.NovelID,
+                nv.Novel.Title,
+                nv.Novel.Introduction,
+                nv.ViewDate,
+            })
+            .AsNoTracking()
+            .ToListAsync();
+
+        var novels = rows
+            .Select(r => new ViewedNovelViewModel
+            {
+                NovelID = r.NovelID,
+                Title = r.Title,
+                Introduction = r.Introduction.Length < Parameters.ContentLength
+                    ? r.Introduction
+                    : r.Introduction.Substring(0, Parameters.ContentLength) + "...",
+                ViewDate = r.ViewDate,
+            })
             .ToList();
 
         return novels;

@@ -27,31 +27,23 @@ public class BecomeProfessionalModel(
     private async Task LoadAsync(string id)
     {
         Profile = await Context.Profiles
-            .Include(p => p.Followers)
-            .Include(p => p.Achievements)
-            .Include(p => p.Novels)
-                .ThenInclude(n => n.Follows)
             .Where(p => p.ProfileID == id)
             .FirstOrDefaultAsync();
         if (Profile != null)
         {
-            foreach (Follow follower in Profile.Followers)
-            {
-                if (follower.ProfileMonthlyInvolver)
-                {
-                    Involvers++;
-                }
-            }
-            foreach (Novel novel in Profile.Novels)
-            {
-                foreach (Follow follow in novel.Follows)
-                {
-                    if (follow.NovelMonthlyInvolver)
-                    {
-                        Involvers++;
-                    }
-                }
-            }
+            // 對此創作者本人的月贊助者：被追蹤的對象是 Follow.ProfileID。
+            // （原本用 Profile.Followers，那是 FollowerID == 本人，也就是「本人追蹤別人」的方向，算反了）
+            var profileInvolvers = await Context.Follows
+                .CountAsync(f => f.ProfileID == id && f.ProfileMonthlyInvolver);
+
+            // 對此創作者作品的月贊助者
+            var novelInvolvers = await Context.Follows
+                .CountAsync(f => f.NovelID != null
+                    && f.Novel.ProfileID == id
+                    && f.NovelMonthlyInvolver);
+
+            Involvers = profileInvolvers + novelInvolvers;
+
             if (Involvers > 100 && Profile.MonthlyCoins > 1000)
             {
                 CanBeProfessional = true;
@@ -80,11 +72,20 @@ public class BecomeProfessionalModel(
 
     public async Task<IActionResult> OnPostAsync(string id)
     {
+        // 只能為自己申請成為特約作家
+        if (id == null || id != UserManager.GetUserId(User))
+        {
+            return Forbid();
+        }
+
         ProfileID = id;
         await LoadAsync(id);
         if (CanBeProfessional)
         {
             Profile.Professional = true;
+
+            // 明確存檔；成就服務在成就已取得時不會呼叫 SaveChanges
+            await Context.SaveChangesAsync();
 
             List<Toast> toasts = await AchievementService.BeProfessionalAsync(ProfileID);
 

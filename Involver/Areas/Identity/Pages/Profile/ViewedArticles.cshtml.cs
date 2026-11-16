@@ -28,6 +28,11 @@ public class ViewedArticlesModel(
         public DateTime ViewDate { get; set; }
     }
 
+    /// <summary>
+    /// 摘要只需要內文開頭幾十個字；取一段夠長的前綴即可，避免載入整篇全文（可能含 base64 圖片）
+    /// </summary>
+    private const int ContentPrefixLength = 4000;
+
     public DataAccess.Models.Profile Profile { get; set; }
     public List<ViewedArticleViewModel> Articles { get; set; }
 
@@ -39,29 +44,65 @@ public class ViewedArticlesModel(
             return new List<ViewedArticleViewModel>(); // Or handle as an error
         }
 
-        Profile = await Context.Profiles
-            .Where(p => p.ProfileID == id)
-            .Include(p => p.ViewedArticles)
-            .FirstOrDefaultAsync();
-
-        var articles = Profile.ViewedArticles
-            .OrderByDescending(v => v.ArticleViewers.FirstOrDefault()?.ViewDate)
-            .Select(v => new ViewedArticleViewModel
-            {
-                ArticleID = v.ArticleID,
-                Title = v.Title.Length < Parameters.SmallContentLength
-                    ? v.Title
-                    : v.Title.Substring(0, Parameters.SmallContentLength) + "...",
-                Content = v.Content.StripHTML().Length < Parameters.ContentLength
-                    ? v.Content.StripHTML()
-                    : v.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...",
-                ViewDate = (DateTime)(v.ArticleViewers.FirstOrDefault()?.ViewDate)
-            })
+        // 在資料庫端排序、分頁，且只取內文開頭一段做摘要，不載入全文
+        var rows = await Context.Set<ArticleViewer>()
+            .Where(av => av.ProfileID == id)
+            .OrderByDescending(av => av.ViewDate)
             .Skip((pageIndex - 1) * Parameters.PageSize)
             .Take(Parameters.PageSize)
+            .Select(av => new
+            {
+                av.ArticleID,
+                av.Article.Title,
+                ContentPrefix = av.Article.Content.Substring(0, ContentPrefixLength),
+                av.ViewDate,
+            })
+            .AsNoTracking()
+            .ToListAsync();
+
+        var articles = rows
+            .Select(r =>
+            {
+                var content = StripHtmlPrefix(r.ContentPrefix);
+
+                return new ViewedArticleViewModel
+                {
+                    ArticleID = r.ArticleID,
+                    Title = r.Title.Length < Parameters.SmallContentLength
+                        ? r.Title
+                        : r.Title.Substring(0, Parameters.SmallContentLength) + "...",
+                    Content = content.Length < Parameters.ContentLength
+                        ? content
+                        : content.Substring(0, Parameters.ContentLength) + "...",
+                    ViewDate = r.ViewDate,
+                };
+            })
             .ToList();
 
         return articles;
+    }
+
+    /// <summary>
+    /// 去除 HTML 標籤；前綴可能在標籤中間被截斷，一併去掉結尾未閉合的標籤
+    /// </summary>
+    /// <param name="prefix">內文前綴</param>
+    /// <returns>純文字</returns>
+    private static string StripHtmlPrefix(string prefix)
+    {
+        if (string.IsNullOrEmpty(prefix))
+        {
+            return string.Empty;
+        }
+
+        var text = prefix.StripHTML();
+        var lastOpen = text.LastIndexOf('<');
+
+        if (lastOpen >= 0 && text.IndexOf('>', lastOpen) < 0)
+        {
+            text = text[..lastOpen];
+        }
+
+        return text;
     }
 
     public async Task<IActionResult> OnGetAsync(string id)

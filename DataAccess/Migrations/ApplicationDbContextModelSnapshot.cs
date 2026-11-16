@@ -195,15 +195,22 @@ namespace DataAccess.Migrations
 
                     b.HasKey("AgreeID");
 
-                    b.HasIndex("CommentID");
-
-                    b.HasIndex("MessageID");
-
                     b.HasIndex("ProfileID");
 
                     b.HasIndex("UpdateTime");
 
-                    b.ToTable("Agrees");
+                    b.HasIndex("CommentID", "ProfileID")
+                        .IsUnique()
+                        .HasFilter("[CommentID] IS NOT NULL");
+
+                    b.HasIndex("MessageID", "ProfileID")
+                        .IsUnique()
+                        .HasFilter("[MessageID] IS NOT NULL");
+
+                    b.ToTable("Agrees", t =>
+                        {
+                            t.HasCheckConstraint("CK_Agrees_ExactlyOneTarget", "(CASE WHEN [CommentID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [MessageID] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("DataAccess.Models.ArticleModel.Article", b =>
@@ -273,6 +280,8 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("UpdateTime");
 
+                    b.HasIndex("Type", "UpdateTime");
+
                     b.ToTable("Articles");
                 });
 
@@ -290,6 +299,9 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(15)");
 
                     b.HasKey("TagId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("ArticleTags");
                 });
@@ -323,6 +335,8 @@ namespace DataAccess.Migrations
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
 
                     b.HasIndex("ViewDate");
+
+                    b.HasIndex("ProfileID", "ViewDate");
 
                     b.ToTable("ArticleViewer");
                 });
@@ -371,7 +385,10 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("UpdateTime");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", t =>
+                        {
+                            t.HasCheckConstraint("CK_Comments_ExactlyOneParent", "(CASE WHEN [NovelID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [EpisodeID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [ArticleID] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("DataAccess.Models.Follow", b =>
@@ -405,13 +422,20 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("FollowerID");
 
-                    b.HasIndex("NovelID");
-
-                    b.HasIndex("ProfileID");
-
                     b.HasIndex("UpdateTime");
 
-                    b.ToTable("Follows");
+                    b.HasIndex("NovelID", "FollowerID")
+                        .IsUnique()
+                        .HasFilter("[NovelID] IS NOT NULL");
+
+                    b.HasIndex("ProfileID", "FollowerID")
+                        .IsUnique()
+                        .HasFilter("[ProfileID] IS NOT NULL");
+
+                    b.ToTable("Follows", t =>
+                        {
+                            t.HasCheckConstraint("CK_Follows_ExactlyOneTarget", "(CASE WHEN [ProfileID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [NovelID] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("DataAccess.Models.Involving", b =>
@@ -463,7 +487,10 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("TotalValue");
 
-                    b.ToTable("Involvings");
+                    b.ToTable("Involvings", t =>
+                        {
+                            t.HasCheckConstraint("CK_Involvings_ExactlyOneTarget", "(CASE WHEN [ProfileID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [NovelID] IS NULL THEN 0 ELSE 1 END + CASE WHEN [ArticleID] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("DataAccess.Models.Message", b =>
@@ -575,7 +602,9 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("CreatedDate");
 
-                    b.HasIndex("ProfileID");
+                    b.HasIndex("ProfileID", "CreatedDate");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ProfileID", "CreatedDate"), new[] { "IsRead" });
 
                     b.ToTable("Notifications");
                 });
@@ -667,7 +696,8 @@ namespace DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("OwnerID")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -683,6 +713,8 @@ namespace DataAccess.Migrations
                     b.HasKey("EpisodeID");
 
                     b.HasIndex("NovelID");
+
+                    b.HasIndex("OwnerID");
 
                     b.ToTable("Episodes");
                 });
@@ -807,6 +839,9 @@ namespace DataAccess.Migrations
 
                     b.HasKey("TagId");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("NovelTags");
                 });
 
@@ -840,6 +875,8 @@ namespace DataAccess.Migrations
 
                     b.HasIndex("ViewDate");
 
+                    b.HasIndex("ProfileID", "ViewDate");
+
                     b.ToTable("NovelViewer");
                 });
 
@@ -858,7 +895,8 @@ namespace DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("OwnerID")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<decimal>("Value")
                         .HasColumnType("money");
@@ -868,6 +906,8 @@ namespace DataAccess.Migrations
                     b.HasIndex("BiddingOptionID");
 
                     b.HasIndex("NormalOptionID");
+
+                    b.HasIndex("OwnerID");
 
                     b.ToTable("Votes");
                 });
@@ -908,7 +948,8 @@ namespace DataAccess.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("OwnerID")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Policy")
                         .HasColumnType("int");
@@ -930,6 +971,8 @@ namespace DataAccess.Migrations
                     b.HasKey("VotingID");
 
                     b.HasIndex("EpisodeID");
+
+                    b.HasIndex("OwnerID");
 
                     b.ToTable("Votings");
                 });
@@ -1052,6 +1095,9 @@ namespace DataAccess.Migrations
                         .IsUnique();
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("SeqNo"));
+
+                    b.HasIndex("UserName")
+                        .IsUnique();
 
                     b.ToTable("Profiles");
                 });
@@ -1178,10 +1224,12 @@ namespace DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentID"));
 
                     b.Property<string>("InvolverID")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MerchantTradeNo")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
 
                     b.Property<string>("PaymentDate")
                         .HasColumnType("nvarchar(max)");
@@ -1211,6 +1259,10 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PaymentID");
+
+                    b.HasIndex("InvolverID");
+
+                    b.HasIndex("MerchantTradeNo");
 
                     b.ToTable("Payments");
                 });
@@ -1265,11 +1317,16 @@ namespace DataAccess.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ArticleId");
+                    b.HasIndex("CreateTime");
 
-                    b.HasIndex("NovelId");
+                    b.HasIndex("ArticleId", "CreateTime");
 
-                    b.ToTable("Views");
+                    b.HasIndex("NovelId", "CreateTime");
+
+                    b.ToTable("Views", t =>
+                        {
+                            t.HasCheckConstraint("CK_Views_ExactlyOneTarget", "(CASE WHEN [ArticleId] IS NULL THEN 0 ELSE 1 END + CASE WHEN [NovelId] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1543,7 +1600,7 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("DataAccess.Models.Follow", b =>
                 {
                     b.HasOne("DataAccess.Models.Profile", "Follower")
-                        .WithMany("Followers")
+                        .WithMany("Follows")
                         .HasForeignKey("FollowerID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1553,7 +1610,7 @@ namespace DataAccess.Migrations
                         .HasForeignKey("NovelID");
 
                     b.HasOne("DataAccess.Models.Profile", "Profile")
-                        .WithMany("Follows")
+                        .WithMany("Followers")
                         .HasForeignKey("ProfileID");
 
                     b.Navigation("Follower");

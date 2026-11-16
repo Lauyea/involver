@@ -28,14 +28,17 @@ User.IsInRole(Authorization.Payment.Payments.PaymentAdministratorsRole))
 </div>
 <hr />
 @*<h1>尚未完成</h1>*@
-<h4>總用戶數：@Model.Profiles.Count()</h4>
+<h4>總用戶數：@Model.TotalCount</h4>
 
-@foreach(var profile in Model.Profiles)
+@if (Model.Profiles != null)
 {
-    <p>
-        <a asp-area="Identity"
-           asp-page="/Profile/Index"
-           asp-route-id="@profile.ProfileID"
-           target="_blank">@Html.DisplayFor(modelItem => profile.UserName)</a>
-    </p>
+    foreach (var profile in Model.Profiles)
+    {
+        <p>
+            <a asp-area="Identity"
+               asp-page="/Profile/Index"
+               asp-route-id="@profile.ProfileID"
+               target="_blank">@profile.UserName</a>
+        </p>
+    }
 }

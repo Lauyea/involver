@@ -3,6 +3,7 @@ using System.Text.Json;
 using DataAccess.Data;
 using DataAccess.Models;
 
+using Involver.Authorization.Profile;
 using Involver.Common;
 using Involver.Services;
 
@@ -27,6 +28,11 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
     public bool Followed { get; set; } = false;
     public InvolverUser InvolverUser { get; set; }
 
+    /// <summary>
+    /// 追蹤此使用者的人數
+    /// </summary>
+    public int FollowerCount { get; set; }
+
     private async Task LoadAsync(string id)
     {
         UserID = UserManager.GetUserId(User);
@@ -36,15 +42,16 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
         }
         InvolverUser = await Context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
         Profile = await Context.Profiles
-            .Include(p => p.Follows)
             .Where(p => p.ProfileID == id)
             .FirstOrDefaultAsync();
         if (Profile != null)
         {
-            Follow existingFollow = Profile.Follows
-            .Where(f => f.FollowerID == UserID)
-            .FirstOrDefault();
-            Followed = existingFollow != null;
+            // 被追蹤的對象是 Follow.ProfileID，追蹤者是 Follow.FollowerID；只需要計數與是否已追蹤，不載入整個集合
+            FollowerCount = await Context.Follows
+                .CountAsync(f => f.ProfileID == id);
+
+            Followed = UserID != null && await Context.Follows
+                .AnyAsync(f => f.ProfileID == id && f.FollowerID == UserID);
         }
     }
 
@@ -76,6 +83,18 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
     public async Task<IActionResult> OnPostAsync(string id)
     {
         await LoadAsync(id);
+        if (Profile == null || InvolverUser == null)
+        {
+            return NotFound();
+        }
+
+        // 畫面只對有權限的人顯示按鈕，伺服器端也必須檢查，否則任何人都能直接 POST 封鎖別人
+        var isAuthorized = await AuthorizationService.AuthorizeAsync(User, Profile, ProfileOperations.Ban);
+        if (!isAuthorized.Succeeded)
+        {
+            return Forbid();
+        }
+
         if (Profile.Banned)
         {
             InvolverUser.Banned = false;

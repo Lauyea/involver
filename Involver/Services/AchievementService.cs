@@ -217,9 +217,21 @@ public class AchievementService(ApplicationDbContext context, ICoinService coinS
 
     public async Task<List<Toast>> GetAgreeCountAsync(string profileId)
     {
-        var totalCount = await context.Agrees
-            .Where(a => (a.Comment.ProfileID == profileId || a.Message.ProfileID == profileId) && a.ProfileID != profileId)
+        // 每筆 Agree 只會屬於一則留言或一則回覆（有 CHECK 約束），分開計數再相加，
+        // 才能各自走 Comments/Messages 的 ProfileID 索引與 Agrees 的外鍵索引，不必全表掃描 Agrees
+        var commentAgreeCount = await context.Comments
+            .Where(c => c.ProfileID == profileId)
+            .SelectMany(c => c.Agrees)
+            .Where(a => a.ProfileID != profileId)
             .CountAsync();
+
+        var messageAgreeCount = await context.Messages
+            .Where(m => m.ProfileID == profileId)
+            .SelectMany(m => m.Agrees)
+            .Where(a => a.ProfileID != profileId)
+            .CountAsync();
+
+        var totalCount = commentAgreeCount + messageAgreeCount;
         List<Toast> list = [];
         if (totalCount > 0) list.Add(new Toast { Header = AchievementNames.GetAgree1 });
         if (totalCount > 29) list.Add(new Toast { Header = AchievementNames.GetAgree30 });
@@ -229,61 +241,83 @@ public class AchievementService(ApplicationDbContext context, ICoinService coinS
         return await GetToasts(profileId, list);
     }
 
+    /// <summary>
+    /// 解鎖尚未取得的成就並發放獎勵
+    /// </summary>
+    /// <param name="profileId">使用者 ID；未登入時為 null</param>
+    /// <param name="list">符合條件的成就（以 <see cref="Toast.Header"/> 放成就代碼）</param>
+    /// <returns>這次新解鎖的成就通知</returns>
     private async Task<List<Toast>> GetToasts(string profileId, List<Toast> list)
     {
         List<Toast> toasts = [];
-        Profile profile = await GetProfileWithAchievements(profileId);
-        if (profile == null)
+        if (profileId == null || list.Count == 0)
         {
             return toasts;
         }
 
-        foreach (var item in list)
+        var codes = list.Select(t => t.Header).ToList();
+
+        // 大部分呼叫的成就都已經取得過，只查這幾個代碼，不載入使用者的全部成就
+        var ownedCodes = await context.Set<ProfileAchievement>()
+            .Where(pa => pa.ProfileID == profileId && codes.Contains(pa.Achievement.Code))
+            .Select(pa => pa.Achievement.Code)
+            .ToListAsync();
+
+        var newCodes = codes.Except(ownedCodes).ToList();
+        if (newCodes.Count == 0)
         {
-            if (profile.Achievements.FirstOrDefault(a => a.Code == item.Header) == null)
+            return toasts;
+        }
+
+        if (!await context.Profiles.AnyAsync(p => p.ProfileID == profileId))
+        {
+            return toasts;
+        }
+
+        var achievements = await context.Achievements
+            .Where(a => newCodes.Contains(a.Code))
+            .ToListAsync();
+
+        // 依呼叫端給的順序發放，通知顯示順序不變
+        foreach (var achievement in achievements.OrderBy(a => newCodes.IndexOf(a.Code)))
+        {
+            // 獎勵依成就等級決定，通知上顯示的金額與實際發放的金額必須一致
+            decimal award = GetAward(achievement.Rank);
+
+            // 解鎖成就與發獎勵要一起成功或失敗。
+            // 同一個成就被併發解鎖時，後到的請求存檔會撞到 ProfileAchievements 的主鍵，不會重複領獎勵
+            await using var transaction = context.Database.CurrentTransaction is null
+                ? await context.Database.BeginTransactionAsync()
+                : null;
+
+            context.Set<ProfileAchievement>().Add(new ProfileAchievement
             {
-                Achievement achievement = await context.Achievements
-                    .FirstOrDefaultAsync(a => a.Code == item.Header);
+                ProfileID = profileId,
+                AchievementID = achievement.AchievementID
+            });
+            await context.SaveChangesAsync();
 
-                if (achievement == null)
-                {
-                    continue;
-                }
+            // 獎勵經過 CoinService 原子加值並寫入流水帳，不改動追蹤中的 profile 餘額
+            await coinService.AddVirtualCoinsAsync(
+                profileId,
+                award,
+                new CoinTransactionInfo(
+                    CoinTransactionType.AchievementReward,
+                    CoinReferenceType.Achievement,
+                    achievement.AchievementID.ToString(),
+                    Note: achievement.Title));
 
-                // 獎勵依成就等級決定，通知上顯示的金額與實際發放的金額必須一致
-                decimal award = GetAward(achievement.Rank);
-
-                // 解鎖成就與發獎勵要一起成功或失敗。
-                // 同一個成就被併發解鎖時，後到的請求存檔會撞到 ProfileAchievements 的主鍵，不會重複領獎勵
-                await using var transaction = context.Database.CurrentTransaction is null
-                    ? await context.Database.BeginTransactionAsync()
-                    : null;
-
-                profile.Achievements.Add(achievement);
-                await context.SaveChangesAsync();
-
-                // 獎勵經過 CoinService 原子加值並寫入流水帳，不改動追蹤中的 profile 餘額
-                await coinService.AddVirtualCoinsAsync(
-                    profileId,
-                    award,
-                    new CoinTransactionInfo(
-                        CoinTransactionType.AchievementReward,
-                        CoinReferenceType.Achievement,
-                        achievement.AchievementID.ToString(),
-                        Note: achievement.Title));
-
-                if (transaction is not null)
-                {
-                    await transaction.CommitAsync();
-                }
-
-                toasts.Add(new Toast
-                {
-                    Header = achievement.Title,
-                    Body = achievement.Content,
-                    Award = award
-                });
+            if (transaction is not null)
+            {
+                await transaction.CommitAsync();
             }
+
+            toasts.Add(new Toast
+            {
+                Header = achievement.Title,
+                Body = achievement.Content,
+                Award = award
+            });
         }
 
         return toasts;
@@ -297,13 +331,5 @@ public class AchievementService(ApplicationDbContext context, ICoinService coinS
             2 => Parameters.SilverBadgeAward,
             _ => Parameters.GoldBadgeAward,
         };
-    }
-
-    private async Task<Profile> GetProfileWithAchievements(string profileId)
-    {
-        return await context.Profiles
-            .Where(p => p.ProfileID == profileId)
-            .Include(p => p.Achievements)
-            .FirstOrDefaultAsync();
     }
 }

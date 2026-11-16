@@ -1,19 +1,15 @@
-@model IEnumerable<DataAccess.Models.Follow>
+@model IEnumerable<Involver.Models.ViewModels.FollowedNovelViewModel>
 
-@foreach (Follow follow in Model)
+@foreach (var follow in Model)
 {
-    if(follow.Novel == null)
-    {
-        continue;
-    }
     <div class="row">
         <div class="col-md-5">
             <a asp-page="/Episodes/Details" 
-               asp-route-id="@follow.Novel.Episodes.LastOrDefault()?.EpisodeID">
-            @Html.DisplayFor(modelItem => follow.Novel.Episodes.LastOrDefault().Title)</a>
+               asp-route-id="@follow.LatestEpisodeID">
+            @follow.LatestEpisodeTitle</a>
         </div>
         <div class="col-md-4">
-            <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@Html.DisplayFor(modelItem => follow.Novel.Title)</a>
+            <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@follow.NovelTitle</a>
             @if (follow.NovelMonthlyInvolver)
             {
                 <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
@@ -22,10 +18,10 @@
         <div class="col-md-3">
             <p>
                 <a asp-page="./Index"
-                   asp-route-id="@follow.Novel.Profile.ProfileID">
-                <small>@Html.DisplayFor(modelItem => follow.Novel.Profile.UserName)</small></a>
+                   asp-route-id="@follow.AuthorID">
+                <small>@follow.AuthorUserName</small></a>
             </p>
-            <small title="@follow.Novel.UpdateTime">@Involver.Helpers.TimePeriodHelper.Get(follow.Novel.UpdateTime)</small>
+            <small title="@follow.NovelUpdateTime">@Involver.Helpers.TimePeriodHelper.Get(follow.NovelUpdateTime)</small>
         </div>
     </div>
     <hr />

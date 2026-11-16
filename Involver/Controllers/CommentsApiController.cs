@@ -36,40 +36,43 @@ public class CommentsApiController(
     {
         IQueryable<Comment> commentsQuery = context.Comments
             .Include(c => c.Profile)
-            .Include(c => c.Agrees)
             .Include(c => c.Dices);
 
         bool isCommentOrderFixed = false;
 
+        // 留言所屬小說，用來查留言作者對這部小說的 Involve 資訊（文章留言不顯示）
+        int? involvingNovelId = null;
+
+        // 只取需要的欄位，不載入文章或章節全文
         switch (from.ToLower())
         {
             case "articles":
-                var article = await context.Articles.FindAsync(fromID);
-                if (article != null)
-                {
-                    isCommentOrderFixed = article.IsCommentOrderFixed;
-                }
+                isCommentOrderFixed = await context.Articles
+                    .Where(a => a.ArticleID == fromID)
+                    .Select(a => a.IsCommentOrderFixed)
+                    .FirstOrDefaultAsync();
                 commentsQuery = commentsQuery.Where(c => c.ArticleID == fromID);
                 break;
             case "novels":
-                var novel = await context.Novels.FindAsync(fromID);
-                if (novel != null)
-                {
-                    isCommentOrderFixed = novel.IsCommentOrderFixed;
-                }
-                commentsQuery = commentsQuery
-                    .Include(c => c.Novel.Involvers)
-                    .Where(c => c.NovelID == fromID);
+                isCommentOrderFixed = await context.Novels
+                    .Where(n => n.NovelID == fromID)
+                    .Select(n => n.IsCommentOrderFixed)
+                    .FirstOrDefaultAsync();
+                involvingNovelId = fromID;
+                commentsQuery = commentsQuery.Where(c => c.NovelID == fromID);
                 break;
             case "episodes":
-                var episode = await context.Episodes.FindAsync(fromID);
+                var episode = await context.Episodes
+                    .Where(e => e.EpisodeID == fromID)
+                    .Select(e => new { e.IsCommentOrderFixed, e.NovelID })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
                 if (episode != null)
                 {
                     isCommentOrderFixed = episode.IsCommentOrderFixed;
+                    involvingNovelId = episode.NovelID;
                 }
-                commentsQuery = commentsQuery
-                    .Include(c => c.Episode.Novel.Involvers)
-                    .Where(c => c.EpisodeID == fromID);
+                commentsQuery = commentsQuery.Where(c => c.EpisodeID == fromID);
                 break;
             default:
                 return BadRequest("Invalid 'from' parameter.");
@@ -104,7 +107,45 @@ public class CommentsApiController(
             .Select(g => new { CommentId = g.Key, Count = g.Count() })
             .ToDictionaryAsync(x => x.CommentId, x => x.Count);
 
+        // 按讚數在資料庫端計算，不載入整個 Agrees 集合
+        var agreeCounts = await context.Agrees
+            .Where(a => a.CommentID != null && commentIds.Contains(a.CommentID.Value))
+            .GroupBy(a => a.CommentID.Value)
+            .Select(g => new { CommentId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.CommentId, x => x.Count);
+
         var currentUserID = userManager.GetUserId(User);
+
+        var agreedCommentIds = new HashSet<int>();
+
+        if (currentUserID != null)
+        {
+            var agreedIds = await context.Agrees
+                .Where(a => a.ProfileID == currentUserID
+                    && a.CommentID != null
+                    && commentIds.Contains(a.CommentID.Value))
+                .Select(a => a.CommentID.Value)
+                .ToListAsync();
+
+            agreedCommentIds = [.. agreedIds];
+        }
+
+        // 只查這一頁留言作者對這部小說的 Involve 紀錄，不載入整部小說的所有 Involver
+        var involverInfos = new Dictionary<string, Involving>();
+
+        if (involvingNovelId != null)
+        {
+            var involvings = await context.Involvings
+                .Where(i => i.NovelID == involvingNovelId && profileIds.Contains(i.InvolverID))
+                .OrderBy(i => i.InvolvingID)
+                .AsNoTracking()
+                .ToListAsync();
+
+            foreach (var involving in involvings)
+            {
+                involverInfos.TryAdd(involving.InvolverID, involving);
+            }
+        }
 
         var commentDtos = new List<CommentDto>();
 
@@ -116,18 +157,8 @@ public class CommentsApiController(
             var canBlock = (await authorizationService.AuthorizeAsync(User, comment, CommentOperations.Block)).Succeeded;
 
             string involverInfoString = null;
-            Involving involverInfo = null;
 
-            if (comment.EpisodeID != null && comment.Episode?.Novel?.Involvers != null)
-            {
-                involverInfo = comment.Episode.Novel.Involvers.FirstOrDefault(i => i.InvolverID == comment.ProfileID);
-            }
-            else if (comment.NovelID != null && comment.Novel?.Involvers != null)
-            {
-                involverInfo = comment.Novel.Involvers.FirstOrDefault(i => i.InvolverID == comment.ProfileID);
-            }
-
-            if (involverInfo != null)
+            if (involverInfos.TryGetValue(comment.ProfileID, out var involverInfo))
             {
                 involverInfoString = $"月 Involve: {involverInfo.MonthlyValue} In幣 | 總 Involve: {involverInfo.TotalValue} In幣";
             }
@@ -148,8 +179,8 @@ public class CommentsApiController(
                 InvolverInfo = involverInfoString,
                 Dices = comment.Dices?.Select(d => new { d.Value, d.Sides }).ToList<object>() ?? [],
                 MessagesCount = messageCounts.TryGetValue(comment.CommentID, out var count) ? count : 0,
-                AgreesCount = comment.Agrees.Count,
-                IsAgreedByCurrentUser = currentUserID != null && comment.Agrees.Any(a => a.ProfileID == currentUserID),
+                AgreesCount = agreeCounts.TryGetValue(comment.CommentID, out var agreeCount) ? agreeCount : 0,
+                IsAgreedByCurrentUser = agreedCommentIds.Contains(comment.CommentID),
                 CanEdit = canEdit,
                 CanDelete = canDelete,
                 CanBlock = canBlock,
@@ -394,8 +425,17 @@ public class CommentsApiController(
             return Forbid();
         }
 
+        // Agrees 對留言與回覆的 FK 是 NO ACTION（避免與 Profile 形成多重串聯刪除路徑），
+        // 要先刪掉這則留言及其回覆的按讚，否則有人按過讚的留言會刪除失敗
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        await context.Agrees
+            .Where(a => a.CommentID == id || a.Message.CommentID == id)
+            .ExecuteDeleteAsync();
+
         context.Comments.Remove(comment);
         await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return NoContent();
     }
@@ -410,8 +450,6 @@ public class CommentsApiController(
         }
 
         var comment = await context.Comments
-            .Include(c => c.Profile)
-            .Include(c => c.Agrees)
             .FirstOrDefaultAsync(c => c.CommentID == id);
 
         if (comment == null)
@@ -419,64 +457,76 @@ public class CommentsApiController(
             return NotFound();
         }
 
-        List<Toast> userToasts = [];
+        // 只查自己那一筆，不載入這則留言的全部 Agree
+        var existingAgree = await context.Agrees
+            .FirstOrDefaultAsync(a => a.CommentID == id && a.ProfileID == currentUserID);
 
-        var existingAgree = comment.Agrees.FirstOrDefault(a => a.ProfileID == currentUserID);
-
-        if (existingAgree == null)
-        {
-            // Agree
-            context.Agrees.Add(new Agree
-            {
-                CommentID = id,
-                ProfileID = currentUserID,
-                UpdateTime = System.DateTime.Now
-            });
-
-            // Check mission and achievements for the comment owner
-            if (comment.ProfileID != currentUserID)
-            {
-                var ownerProfile = await context.Profiles
-                    .FirstOrDefaultAsync(p => p.ProfileID == comment.ProfileID);
-
-                if (ownerProfile != null)
-                {
-                    await context.SaveChangesAsync(); // Save agree first
-
-                    // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
-                    await missionService.CompleteAsync(ownerProfile.ProfileID, MissionType.BeAgreed);
-
-                    var toasts = await achievementService.GetAgreeCountAsync(ownerProfile.ProfileID);
-
-                    // Set notification
-                    var from = GetCommentSource(comment);
-                    var fromId = GetCommentSourceId(comment);
-                    var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#comment-{comment.CommentID}";
-                    await notificationSetter.ForCommentBeAgreedAsync(comment.Content, ownerProfile.ProfileID, url, toasts);
-                }
-            }
-
-            // Check achievements for user
-            var userProfile = await context.Profiles
-                    .FirstOrDefaultAsync(p => p.ProfileID == currentUserID);
-
-            userToasts = achievementService.AgreeCountAsync(userProfile.ProfileID).Result;
-        }
-        else
+        if (existingAgree != null)
         {
             // Un-agree
             context.Agrees.Remove(existingAgree);
+            await context.SaveChangesAsync();
+
+            return Ok(new { agreesCount = await CountAgreesAsync(id), Toasts = new List<Toast>() });
         }
+
+        // Agree
+        var agree = new Agree
+        {
+            CommentID = id,
+            ProfileID = currentUserID,
+            UpdateTime = System.DateTime.Now
+        };
+        context.Agrees.Add(agree);
+
+        try
+        {
+            await context.SaveChangesAsync(); // Save agree first
+        }
+        catch (DbUpdateException)
+        {
+            // 連點時另一個請求已經先按讚，Unique 索引擋下重複的那筆，結果仍是「已按讚」
+            context.Entry(agree).State = EntityState.Detached;
+            return Ok(new { agreesCount = await CountAgreesAsync(id), Toasts = new List<Toast>() });
+        }
+
+        // Check mission and achievements for the comment owner
+        if (comment.ProfileID != currentUserID)
+        {
+            var ownerExists = await context.Profiles
+                .AnyAsync(p => p.ProfileID == comment.ProfileID);
+
+            if (ownerExists)
+            {
+                // 任務旗標與獎勵由任務服務原子更新，完成所有任務時會自動加獎勵幣
+                await missionService.CompleteAsync(comment.ProfileID, MissionType.BeAgreed);
+
+                var toasts = await achievementService.GetAgreeCountAsync(comment.ProfileID);
+
+                // Set notification
+                var from = GetCommentSource(comment);
+                var fromId = GetCommentSourceId(comment);
+                var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#comment-{comment.CommentID}";
+                await notificationSetter.ForCommentBeAgreedAsync(comment.Content, comment.ProfileID, url, toasts);
+            }
+        }
+
+        // Check achievements for user
+        List<Toast> userToasts = await achievementService.AgreeCountAsync(currentUserID);
 
         await context.SaveChangesAsync();
 
-        var response = new
-        {
-            agreesCount = context.Agrees.Count(a => a.CommentID == id),
-            Toasts = userToasts
-        };
+        return Ok(new { agreesCount = await CountAgreesAsync(id), Toasts = userToasts });
+    }
 
-        return Ok(response);
+    /// <summary>
+    /// 計算留言的按讚數
+    /// </summary>
+    /// <param name="commentId">CommentID</param>
+    /// <returns>按讚數</returns>
+    private Task<int> CountAgreesAsync(int commentId)
+    {
+        return context.Agrees.CountAsync(a => a.CommentID == commentId);
     }
 
     [HttpPost("{id}/block")]

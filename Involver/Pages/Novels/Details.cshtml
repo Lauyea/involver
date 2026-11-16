@@ -95,7 +95,7 @@
                                 </div>
                                 <div>
                                     <div class="fw-bold">
-                                        <a asp-page="/Follows/Followers" asp-route-id="@Model.Novel.NovelID">@Model.Novel.Follows.Count()</a>
+                                        <a asp-page="/Follows/Followers" asp-route-id="@Model.Novel.NovelID">@Model.FollowCount</a>
                                     </div>
                                     <small class="text-body-secondary">追蹤數</small>
                                 </div>
@@ -190,7 +190,7 @@
             const listContainer = document.getElementById('episodeListContainer');
 
             // 從 Model 獲取後端傳來的總頁數和 ID
-            const totalPages = @Model.Episodes.TotalPages;
+            const totalPages = @Model.EpisodeTotalPages;
             const novelId = @Model.Novel.NovelID;
 
             // 如果總頁數小於或等於1，則不需要顯示分頁

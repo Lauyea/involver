@@ -19,7 +19,7 @@ namespace DataAccess.Models
         /// Reference navigation to Follower
         /// </summary>
         [ForeignKey("FollowerID")]
-        [InverseProperty("Followers")]
+        [InverseProperty(nameof(Models.Profile.Follows))]
         public Profile? Follower { get; set; }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace DataAccess.Models
         /// Reference navigation to being followed one
         /// </summary>
         [ForeignKey("ProfileID")]
-        [InverseProperty("Follows")]
+        [InverseProperty(nameof(Models.Profile.Followers))]
         public Profile? Profile { get; set; }
 
         /// <summary>

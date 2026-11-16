@@ -55,8 +55,6 @@ public class CreateModel(
             return Page();
         }
 
-        await SetOtherEpisodesNotLast(id);
-
         Episode.OwnerID = UserManager.GetUserId(User);
 
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
@@ -86,9 +84,19 @@ public class CreateModel(
             emptyEpisode.IsLast = true;
             emptyEpisode.Views = 0;
             emptyEpisode.HasVoting = true;
-            Context.Episodes.Add(emptyEpisode);
-            Novel.UpdateTime = DateTime.Now;
-            await Context.SaveChangesAsync();
+
+            // 「其他章節改為非最後一集」與「新增章節」放在同一個交易，新增失敗時不會讓所有章節都不是最後一集。
+            // 也移到授權檢查之後，未授權的請求不會改到章節。
+            await using (var transaction = await Context.Database.BeginTransactionAsync())
+            {
+                await SetOtherEpisodesNotLastAsync(id);
+
+                Context.Episodes.Add(emptyEpisode);
+                Novel.UpdateTime = DateTime.Now;
+                await Context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
 
             var toasts = await AchievementService.EpisodeCountAsync(Novel.ProfileID);
 
@@ -102,10 +110,14 @@ public class CreateModel(
         return Page();
     }
 
-    private async Task SetOtherEpisodesNotLast(int fromID)
+    /// <summary>
+    /// 將小說既有的章節都設為非最後一集（直接在資料庫更新，不載入章節全文）
+    /// </summary>
+    /// <param name="novelId">小說 ID</param>
+    private async Task SetOtherEpisodesNotLastAsync(int novelId)
     {
-        List<Episode> episodes = Context.Episodes.Where(e => e.NovelID == fromID).ToList();
-        episodes.ForEach(e => e.IsLast = false);
-        await Context.SaveChangesAsync();
+        await Context.Episodes
+            .Where(e => e.NovelID == novelId && e.IsLast)
+            .ExecuteUpdateAsync(s => s.SetProperty(e => e.IsLast, false));
     }
 }
