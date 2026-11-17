@@ -26,8 +26,13 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
     ILogger<LoginModel> logger,
     ApplicationDbContext context,
     IAchievementService achievementService,
-    IMissionService missionService) : PageModel
+    IMissionService missionService,
+    IWebHostEnvironment environment) : PageModel
 {
+    /// <summary>
+    /// 是否為開發環境；只有開發環境才會顯示並接受「以使用者 ID 登入」。
+    /// </summary>
+    public bool IsDevelopment => environment.IsDevelopment();
     [BindProperty]
     public InputModel Input { get; set; }
 
@@ -93,7 +98,7 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
             if (result.Succeeded)
             {
                 logger.LogInformation("User logged in.");
-                await ProfileOperation();
+                await ProfileOperation(Input.Username);
                 return LocalRedirect(returnUrl);
             }
             if (result.RequiresTwoFactor)
@@ -118,19 +123,56 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
         return Page();
     }
 
-    private async Task ProfileOperation()
+    /// <summary>
+    /// 僅限開發環境：以使用者 ID（UUID）直接登入，不需密碼，方便本機測試。
+    /// 非開發環境一律回傳 404。
+    /// </summary>
+    /// <param name="devUserId">要登入的使用者 ID。</param>
+    /// <param name="returnUrl">登入後導回的網址。</param>
+    public async Task<IActionResult> OnPostDevLoginAsync([FromForm] string devUserId, string returnUrl = null)
+    {
+        if (!IsDevelopment)
+        {
+            return NotFound();
+        }
+
+        returnUrl = Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/");
+
+        // 這個 handler 不使用帳密欄位，避免其驗證錯誤混入
+        ModelState.Clear();
+
+        InvolverUser user = Guid.TryParse(devUserId?.Trim(), out Guid userGuid)
+            ? await signInManager.UserManager.FindByIdAsync(userGuid.ToString())
+            : null;
+
+        if (user == null)
+        {
+            ModelState.AddModelError(string.Empty, "[DEV] 找不到此使用者 ID。");
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ReturnUrl = returnUrl;
+            return Page();
+        }
+
+        await signInManager.SignInAsync(user, isPersistent: false);
+        logger.LogWarning("[DEV] User {UserId} logged in by ID without password.", user.Id);
+        await ProfileOperation(user.UserName);
+        return LocalRedirect(returnUrl);
+    }
+
+    private async Task ProfileOperation(string userName)
     {
         DataAccess.Models.Profile userProfile = await context
                                 .Profiles
-                                .Where(p => p.UserName == Input.Username)
+                                .Where(p => p.UserName == userName)
                                 .Include(p => p.Achievements)
                                 .Include(p => p.Missions)
                                 .FirstOrDefaultAsync();
-        //確認成就表的存在，若無則建一個給Profile
-        userProfile.Achievements ??= [];
 
         if (userProfile != null)
         {
+            //確認成就表的存在，若無則建一個給Profile
+            userProfile.Achievements ??= [];
+
             userProfile.LastTimeLogin = DateTime.Now;//登入時間
             // 每日登入任務：旗標與獎勵由任務服務原子更新
             if (await missionService.CompleteAsync(userProfile.ProfileID, MissionType.DailyLogin))
