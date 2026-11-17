@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 using DataAccess.Data;
 
+using Involver.Services;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Involver.Areas.Identity.Pages.Account.Manage
@@ -18,18 +19,18 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<InvolverUser> _userManager;
         private readonly SignInManager<InvolverUser> _signInManager;
         private readonly ILogger<DeletePersonalDataModel> _logger;
-        private readonly ApplicationDbContext _context;
+        private readonly IUserAccountService _userAccountService;
 
         public DeletePersonalDataModel(
             UserManager<InvolverUser> userManager,
             SignInManager<InvolverUser> signInManager,
             ILogger<DeletePersonalDataModel> logger,
-            ApplicationDbContext context)
+            IUserAccountService userAccountService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _context = context;
+            _userAccountService = userAccountService;
         }
 
         [BindProperty]
@@ -74,30 +75,17 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                 }
             }
 
-            var result = await _userManager.DeleteAsync(user);
             var userId = await _userManager.GetUserIdAsync(user);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException($"Unexpected error occurred deleting user with ID '{userId}'.");
-            }
+
+            // 不實際刪除資料列：作品、留言與 In 幣流水帳都關聯到這個帳號，流水帳依規定必須保留。
+            // 改為清除個人資料並鎖定帳號，之後無法再登入
+            await _userAccountService.AnonymizeAsync(user);
 
             await _signInManager.SignOutAsync();
 
-            _logger.LogInformation("User with ID '{UserId}' deleted themselves.", userId);
-
-            await DeleteProfile(userId);
+            _logger.LogInformation("User with ID '{UserId}' deleted (anonymized) themselves.", userId);
 
             return Redirect("~/");
-        }
-
-        private async Task DeleteProfile(string userId)
-        {
-            DataAccess.Models.Profile ProfileToBeDeleted = await _context
-                .Profiles
-                .Where(p => p.ProfileID == userId)
-                .FirstOrDefaultAsync();
-            _context.Remove(ProfileToBeDeleted);
-            await _context.SaveChangesAsync();
         }
     }
 }

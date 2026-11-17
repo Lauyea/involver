@@ -49,6 +49,14 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         return Page();
     }
 
+    /// <summary>
+    /// 刪除意見回饋（軟刪除）
+    /// </summary>
+    /// <remarks>
+    /// 與文章一致改用 IsDeleted。硬刪除會因為留言的按讚、觀看紀錄、Involve 等
+    /// NO ACTION 外鍵而失敗，且觀看與贊助紀錄不應連帶消失。
+    /// </remarks>
+    /// <param name="id">ArticleID</param>
     public async Task<IActionResult> OnPostAsync(int? id)
     {
         if (id == null)
@@ -56,11 +64,12 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return NotFound();
         }
 
-        Feedback = await Context.Articles.Include(f => f.Comments).FirstOrDefaultAsync(f => f.ArticleID == id);
+        Feedback = await Context.Articles.FindAsync(id);
 
-        var comments = from c in Context.Comments
-                       where c.ArticleID == id
-                       select c;
+        if (Feedback == null)
+        {
+            return NotFound();
+        }
 
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
                                              User, Feedback,
@@ -70,12 +79,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        if (Feedback != null)
-        {
-            Context.Comments.RemoveRange(comments);
-            Context.Articles.Remove(Feedback);
-            await Context.SaveChangesAsync();
-        }
+        Feedback.IsDeleted = true;
+        await Context.SaveChangesAsync();
 
         var toasts = await AchievementService.FirstTimeDeleteAsync(Feedback.ProfileID);
 

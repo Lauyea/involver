@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
+using Involver.Models.ViewModels;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -31,7 +32,10 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
 
     public Profile UserProfile;
 
-    public ICollection<Follow> Follows { get; set; }
+    /// <summary>
+    /// 追蹤中的創作（含最新一集）
+    /// </summary>
+    public List<FollowedNovelViewModel> Follows { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -53,14 +57,11 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
             return Page();
         }
 
-        Follows = await Context.Follows
-            .Include(f => f.Novel)
-                .ThenInclude(n => n.Episodes)
-             .Include(f => f.Novel)
-                .ThenInclude(n => n.Profile)
-            .Where(f => f.FollowerID == userId)
-            .OrderByDescending(f => f.Novel.UpdateTime)
+        // 只取最新一集的 ID 與標題，不載入章節全文
+        Follows = await FollowedNovelViewModel
+            .QueryByFollower(Context.Follows, userId)
             .Take(10)
+            .AsNoTracking()
             .ToListAsync();
 
         if (UserProfile != null)

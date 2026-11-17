@@ -1,7 +1,6 @@
-@using DataAccess.Data
-@model InvolverUser
+@model bool
 
-@if (Model == null || !Model.Prime)
+@if (!Model)
 {
     //Google AdSense
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3010246710169742"

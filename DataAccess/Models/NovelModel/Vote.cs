@@ -20,7 +20,7 @@ namespace DataAccess.Models.NovelModel
         /// </summary>
         //[DataType(DataType.Currency)]
         [Column(TypeName = "money")]
-        public int Value { get; set; }
+        public decimal Value { get; set; }
 
         /// <summary>
         /// FK to BiddingOption

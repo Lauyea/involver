@@ -113,10 +113,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 NovelsIQ = NovelsIQ.OrderBy(s => s.UpdateTime);
                 break;
             case "Incoin_desc":
-                NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins).OrderByDescending(s => s.TotalCoins);
+                // 先比月收入，同分再比總收入（原本連續兩個 OrderBy，第一個排序會被蓋掉）
+                NovelsIQ = NovelsIQ.OrderByDescending(s => s.MonthlyCoins).ThenByDescending(s => s.TotalCoins);
                 break;
             case "Incoin":
-                NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins).OrderBy(s => s.TotalCoins);
+                NovelsIQ = NovelsIQ.OrderBy(s => s.MonthlyCoins).ThenBy(s => s.TotalCoins);
                 break;
             case "View_desc":
                 NovelsIQ = NovelsIQ.OrderByDescending(s => s.TotalViews);

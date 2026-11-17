@@ -93,7 +93,7 @@ public class MessagesApiController(
         {
             return Unauthorized();
         }
-        if (user.Banned)
+        if (await context.IsBannedAsync(user.Id))
         {
             return Forbid();
         }
@@ -159,7 +159,6 @@ public class MessagesApiController(
         }
 
         var message = await context.Messages
-            .Include(m => m.Agrees)
             .Include(m => m.Profile) // Needed for mission check
             .Include(m => m.Comment) // Needed for notification URL
             .FirstOrDefaultAsync(m => m.MessageID == id);
@@ -169,41 +168,56 @@ public class MessagesApiController(
             return NotFound();
         }
 
-        var existingAgree = message.Agrees.FirstOrDefault(a => a.ProfileID == userId);
+        // 只查自己那一筆，不載入這則回覆的全部 Agree
+        var existingAgree = await context.Agrees
+            .FirstOrDefaultAsync(a => a.MessageID == id && a.ProfileID == userId);
 
         if (existingAgree != null)
         {
             // User has agreed, so disagree
             context.Agrees.Remove(existingAgree);
+            await context.SaveChangesAsync();
+
+            return Ok(new { agreesCount = await CountAgreesAsync(id) });
         }
-        else
+
+        // User has not agreed, so agree
+        var agree = new Agree
         {
-            // User has not agreed, so agree
-            var agree = new Agree
-            {
-                MessageID = id,
-                ProfileID = userId,
-                UpdateTime = DateTime.Now
-            };
-            context.Agrees.Add(agree);
+            MessageID = id,
+            ProfileID = userId,
+            UpdateTime = DateTime.Now
+        };
+        context.Agrees.Add(agree);
 
-            // Check missions only when a new agree is added
+        try
+        {
             await context.SaveChangesAsync(); // Save the agree first to get accurate count
-            await CheckMissionsAsync(message, userId);
-            // The second SaveChanges is inside CheckMissionsAsync
-
-            // Check achievements for user
-            var userProfile = await context.Profiles
-                    .FirstOrDefaultAsync(p => p.ProfileID == userId);
-
-            List<Toast> userToasts = await achievementService.AgreeCountAsync(userProfile.ProfileID);
-
-            return Ok(new { agreesCount = message.Agrees.Count, Toasts = userToasts });
+        }
+        catch (DbUpdateException)
+        {
+            // 連點時另一個請求已經先按讚，Unique 索引擋下重複的那筆，結果仍是「已按讚」
+            context.Entry(agree).State = EntityState.Detached;
+            return Ok(new { agreesCount = await CountAgreesAsync(id) });
         }
 
-        await context.SaveChangesAsync();
+        // Check missions only when a new agree is added
+        await CheckMissionsAsync(message, userId);
+        // The second SaveChanges is inside CheckMissionsAsync
 
-        return Ok(new { agreesCount = message.Agrees.Count });
+        // Check achievements for user
+        List<Toast> userToasts = await achievementService.AgreeCountAsync(userId);
+
+        return Ok(new { agreesCount = await CountAgreesAsync(id), Toasts = userToasts });
+    }
+
+    /// <summary>
+    /// 計算回覆的按讚數
+    /// </summary>
+    /// <param name="messageId">MessageID</param>
+    private Task<int> CountAgreesAsync(int messageId)
+    {
+        return context.Agrees.CountAsync(a => a.MessageID == messageId);
     }
 
     private async Task CheckMissionsAsync(Message message, string agreerId)
@@ -250,8 +264,16 @@ public class MessagesApiController(
             return Forbid();
         }
 
+        // Agrees 對回覆的 FK 是 NO ACTION，要先刪掉按讚，否則有人按過讚的回覆會刪除失敗
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        await context.Agrees
+            .Where(a => a.MessageID == id)
+            .ExecuteDeleteAsync();
+
         context.Messages.Remove(message);
         await context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return NoContent();
     }

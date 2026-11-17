@@ -49,8 +49,6 @@ public class VotingsApiController(
             .FirstOrDefaultAsync(p => p.ProfileID == userId);
 
         var voting = await context.Votings
-            .Include(v => v.NormalOptions)
-                .ThenInclude(o => o.Votes)
             .FirstOrDefaultAsync(v => v.VotingID == voteVM.VotingId);
 
         if (voter == null || voting == null)
@@ -63,7 +61,9 @@ public class VotingsApiController(
             return BadRequest("投票已經結束了。");
         }
 
-        bool alreadyVoted = voting.NormalOptions.Any(o => o.Votes.Any(v => v.OwnerID == userId));
+        // 只查自己有沒有投過，不載入這個投票的所有選票
+        bool alreadyVoted = await context.Votes
+            .AnyAsync(v => v.OwnerID == userId && v.NormalOption.VotingID == voting.VotingID);
         if (alreadyVoted)
         {
             return BadRequest("您已經投過票了。");
@@ -336,15 +336,44 @@ public class VotingsApiController(
 
         var votings = await context.Votings
             .Include(v => v.NormalOptions)
-                .ThenInclude(o => o.Votes)
             .Where(v => v.EpisodeID == episodeId)
             .OrderByDescending(v => v.VotingID)
+            .AsNoTracking()
             .ToListAsync();
 
         if (votings == null || votings.Count == 0)
         {
             return NotFound();
         }
+
+        var optionIds = votings
+            .SelectMany(v => v.NormalOptions)
+            .Select(o => o.NormalOptionID)
+            .ToList();
+
+        // 票數在資料庫端計算，不載入每一張票
+        var voteCounts = await context.Votes
+            .Where(vote => vote.NormalOptionID != null && optionIds.Contains(vote.NormalOptionID.Value))
+            .GroupBy(vote => vote.NormalOptionID.Value)
+            .Select(g => new { OptionId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.OptionId, x => x.Count);
+
+        var votedOptionIds = new HashSet<int>();
+
+        if (userId != null)
+        {
+            var votedIds = await context.Votes
+                .Where(vote => vote.OwnerID == userId
+                    && vote.NormalOptionID != null
+                    && optionIds.Contains(vote.NormalOptionID.Value))
+                .Select(vote => vote.NormalOptionID.Value)
+                .Distinct()
+                .ToListAsync();
+
+            votedOptionIds = [.. votedIds];
+        }
+
+        int GetVotesCount(int optionId) => voteCounts.TryGetValue(optionId, out var count) ? count : 0;
 
         var result = votings.Select(v => new
         {
@@ -358,15 +387,15 @@ public class VotingsApiController(
             v.DeadLine,
             v.End,
             TotalCoins = v.NormalOptions.Sum(o => o.TotalCoins),
-            TotalNumber = v.NormalOptions.Sum(o => o.Votes.Count()),
+            TotalNumber = v.NormalOptions.Sum(o => GetVotesCount(o.NormalOptionID)),
             Options = v.NormalOptions.Select(o => new
             {
                 o.NormalOptionID,
                 o.Content,
                 TotalCoins = o.TotalCoins,
-                VotesCount = o.Votes.Count()
+                VotesCount = GetVotesCount(o.NormalOptionID)
             }),
-            Voted = v.NormalOptions.Any(o => o.Votes.Any(vote => vote.OwnerID == userId))
+            Voted = v.NormalOptions.Any(o => votedOptionIds.Contains(o.NormalOptionID))
         });
 
         return Ok(result);

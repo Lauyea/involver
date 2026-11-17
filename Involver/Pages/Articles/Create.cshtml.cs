@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Involver.Extensions;
 
 namespace Involver.Pages.Articles;
 
@@ -60,7 +61,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         //}
 
         var user = await UserManager.GetUserAsync(User);
-        if (user.Banned)
+        if (await Context.IsBannedAsync(user.Id))
         {
             return Forbid();
         }
@@ -121,7 +122,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                     continue;
                 }
 
-                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tag.ToUpper());
+                // SQL Server 預設定序不分大小寫，直接比對才用得到索引
+                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name == tag);
 
                 if (existingTag != null)
                 {

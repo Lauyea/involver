@@ -145,7 +145,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                     continue;
                 }
 
-                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name.ToUpper() == tagName.ToUpper());
+                // SQL Server 預設定序不分大小寫，直接比對才用得到索引
+                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name == tagName);
 
                 if (existingTag != null)
                 {

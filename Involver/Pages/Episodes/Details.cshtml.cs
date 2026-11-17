@@ -59,14 +59,16 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
         }
 
         Episode = await Context.Episodes
-            .Include(e => e.Novel).FirstOrDefaultAsync(m => m.EpisodeID == id);
+            .Include(e => e.Novel)
+            .FirstOrDefaultAsync(m => m.EpisodeID == id);
 
-        Novel = Episode.Novel;
-
+        // 章節不存在時要先回 404，再讀 Episode.Novel
         if (Episode == null)
         {
             return NotFound();
         }
+
+        Novel = Episode.Novel;
 
         PreviousEpisode = await Context.Episodes
             .Where(e => e.NovelID == Novel.NovelID)
@@ -83,8 +85,16 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
         Votings = await Context.Votings
             .Where(v => v.EpisodeID == id)
             .Include(v => v.NormalOptions)
-                .ThenInclude(n => n.Votes)
             .ToListAsync();
+
+        // 每個投票的總票數在資料庫端計算，不載入每一張票
+        var votingIds = Votings.Select(v => v.VotingID).ToList();
+
+        var voteCounts = await Context.Votes
+            .Where(vote => vote.NormalOptionID != null && votingIds.Contains(vote.NormalOption.VotingID))
+            .GroupBy(vote => vote.NormalOption.VotingID)
+            .Select(g => new { VotingId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.VotingId, x => x.Count);
 
         foreach (Voting voting in Votings)
         {
@@ -107,11 +117,7 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
             if (voting.Limit == LimitType.Number)
             {
                 //限定票數已過，投票結束
-                int TotalVotesCount = 0;
-                foreach (var option in voting.NormalOptions)
-                {
-                    TotalVotesCount += option.Votes.Count();
-                }
+                int TotalVotesCount = voteCounts.TryGetValue(voting.VotingID, out var count) ? count : 0;
                 if (TotalVotesCount > voting.NumberLimit && voting.End == false)
                 {
                     voting.End = true;

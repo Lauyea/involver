@@ -109,7 +109,7 @@
                                                       : Model.TimeSpan == "Monthly" ? involving.MonthlyValue
                                                       : involving.Value;
                                         }
-                                        <span class="fw-bold">@value</span>
+                                        <span class="fw-bold">@value.ToString("0.##")</span>
                                     </td>
                                     <td class="text-end" title="@involving.LastTime">
                                         <small class="text-muted">@TimePeriodHelper.Get(involving.LastTime)</small>

@@ -136,16 +136,24 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
                 string idFromQuery = HttpContext.Request.Query["id"];
                 if (int.TryParse(idFromQuery, out int episodeId))
                 {
-                    var episode = await context.Episodes.AsNoTracking()
-                        .Include(e => e.Novel)
-                        .FirstOrDefaultAsync(e => e.EpisodeID == episodeId);
+                    // 只需要標題，不載入章節與小說的全文
+                    var episode = await context.Episodes
+                        .Where(e => e.EpisodeID == episodeId)
+                        .Select(e => new
+                        {
+                            e.Title,
+                            e.NovelID,
+                            NovelTitle = e.Novel.Title,
+                        })
+                        .AsNoTracking()
+                        .FirstOrDefaultAsync();
 
-                    if (episode != null && episode.Novel != null)
+                    if (episode != null && episode.NovelTitle != null)
                     {
                         // 1. Add "創作"
                         breadcrumbs.Add(new BreadcrumbItemViewModel { Text = _pathTranslations["Novels"], Url = "/Novels/" });
                         // 2. Add Novel Title (linking to Novel Details)
-                        breadcrumbs.Add(new BreadcrumbItemViewModel { Text = episode.Novel.Title, Url = $"/Novels/Details/{episode.NovelID}" });
+                        breadcrumbs.Add(new BreadcrumbItemViewModel { Text = episode.NovelTitle, Url = $"/Novels/Details/{episode.NovelID}" });
                         // 3. Add Episode Title (active)
                         breadcrumbs.Add(new BreadcrumbItemViewModel { Text = episode.Title, Url = null, IsActive = true });
                         i += 2; // Skip 'Episodes' and 'Details' segments
@@ -169,8 +177,11 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
                     var id = path[i + 2];
                     if (int.TryParse(id, out int novelId))
                     {
-                        var novel = await context.Novels.AsNoTracking().FirstOrDefaultAsync(n => n.NovelID == novelId);
-                        title = novel?.Title;
+                        title = await context.Novels
+                            .Where(n => n.NovelID == novelId)
+                            .Select(n => n.Title)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
                         if (title != null) i += 2; // Skip action and id
                     }
                 }
@@ -180,8 +191,11 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
                     string idFromQuery = HttpContext.Request.Query["id"];
                     if (!string.IsNullOrEmpty(idFromQuery) && segment.Equals("Articles", StringComparison.OrdinalIgnoreCase) && int.TryParse(idFromQuery, out int articleId))
                     {
-                        var article = await context.Articles.AsNoTracking().FirstOrDefaultAsync(a => a.ArticleID == articleId);
-                        title = article?.Title;
+                        title = await context.Articles
+                            .Where(a => a.ArticleID == articleId)
+                            .Select(a => a.Title)
+                            .AsNoTracking()
+                            .FirstOrDefaultAsync();
                         if(title != null) i += 1; // Skip action
                     }
                 }

@@ -37,7 +37,7 @@ public class FollowArticlesModel(
 
         Articles = await Context.Articles
             .Include(a => a.Profile)
-            .Where(a => followedProfileIds.Contains(a.ProfileID))
+            .Where(a => followedProfileIds.Contains(a.ProfileID) && !a.IsDeleted)
             .OrderByDescending(a => a.UpdateTime)
             .Take(Parameters.PageSize)
             .AsNoTracking()
@@ -55,7 +55,7 @@ public class FollowArticlesModel(
 
         var articles = await Context.Articles
             .Include(a => a.Profile)
-            .Where(a => followedProfileIds.Contains(a.ProfileID))
+            .Where(a => followedProfileIds.Contains(a.ProfileID) && !a.IsDeleted)
             .OrderByDescending(a => a.UpdateTime)
             .Skip((pageIndex - 1) * Parameters.PageSize)
             .Take(Parameters.PageSize)

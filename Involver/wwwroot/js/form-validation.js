@@ -65,7 +65,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 return; // 表單送出中，忽略重複點擊
             }
 
-            const needsRecaptcha = form.classList.contains('needs-recaptcha');
+            // 沒有設定 reCAPTCHA_SiteKey（例如本機開發）時跳過 reCAPTCHA，照一般表單送出，
+            // 否則按鈕按了會沒有任何反應
+            const siteKey = form.getAttribute('data-sitekey');
+            const needsRecaptcha = form.classList.contains('needs-recaptcha') && !!siteKey;
+            if (form.classList.contains('needs-recaptcha') && !siteKey) {
+                console.warn('表單沒有 reCAPTCHA site key，略過 reCAPTCHA 驗證直接送出。');
+            }
 
             // --- 1. CKEditor 驗證 (優先) ---
             // 解決 "textarea not focusable" 的問題
@@ -120,13 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                const siteKey = form.getAttribute('data-sitekey');
                 const action = form.getAttribute('data-action') || 'submit';
-
-                if (!siteKey) {
-                    console.error("表單缺少 'data-sitekey' 屬性。");
-                    return;
-                }
 
                 // reCAPTCHA 驗證是非同步的，等待期間就要先鎖住，否則連點會送出多次
                 lockForm(form, button);

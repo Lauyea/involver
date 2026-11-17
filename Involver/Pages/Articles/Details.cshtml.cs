@@ -49,7 +49,6 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
         Article = await Context.Articles
             .Include(a => a.Profile)
             .Include(a => a.ArticleTags)
-            .Include(n => n.Viewers)
             .FirstOrDefaultAsync(m => m.ArticleID == id);
 
         if (Article == null)
@@ -125,26 +124,28 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
     }
 
     /// <summary>
-    /// AddViewer
+    /// 記錄目前使用者看過這篇文章：已有紀錄就更新觀看時間，沒有就新增一筆（尚未存檔）。
+    /// 直接以 (ProfileID, ArticleID) 查 ArticleViewers 那一筆，不載入所有看過的人。
     /// </summary>
-    /// <param name="currentUserId"></param>
-    /// <returns></returns>
+    /// <param name="currentUserId">目前使用者 ID</param>
     /// TODO: 之後可能要與 AddView 合併
     private async Task AddViewer(string currentUserId)
     {
-        var userAsViewer = Article.Viewers.Where(v => v.ProfileID == currentUserId).FirstOrDefault();
+        var articleViewer = await Context.Set<ArticleViewer>()
+            .FirstOrDefaultAsync(v => v.ProfileID == currentUserId && v.ArticleID == Article.ArticleID);
 
-        if (userAsViewer != null)
+        if (articleViewer != null)
         {
-            var articleViewer = userAsViewer.ArticleViewers.Where(v => v.ProfileID == currentUserId && v.ArticleID == Article.ArticleID).FirstOrDefault();
-
             articleViewer.ViewDate = DateTime.Now;
         }
         else
         {
-            var userProfile = await Context.Profiles.Where(p => p.ProfileID == currentUserId).FirstOrDefaultAsync();
-
-            Article.Viewers.Add(userProfile);
+            Context.Set<ArticleViewer>().Add(new ArticleViewer
+            {
+                ProfileID = currentUserId,
+                ArticleID = Article.ArticleID,
+                ViewDate = DateTime.Now
+            });
         }
     }
 

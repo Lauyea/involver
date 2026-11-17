@@ -49,7 +49,8 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
 
         var announcements = Context.Articles
             .Include(a => a.Profile)
-            .Where(a => a.Type == ArticleType.Announcement);
+            .Where(a => a.Type == ArticleType.Announcement)
+            .Where(a => a.IsDeleted == false);
 
         //Announcements = await Context.Announcements
         //    .OrderBy(a => a.UpdateTime)

@@ -21,6 +21,12 @@
             @Html.DisplayFor(model => model.Payment.InvolverID)
         </dd>
         <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Payment.PaymentTime)
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.Payment.PaymentTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? Model.Payment.PaymentDate)
+        </dd>
+        <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Payment.PaymentDate)
         </dt>
         <dd class="col-sm-10">
@@ -49,6 +55,12 @@
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Payment.TradeAmt)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Payment.TradeTime)
+        </dt>
+        <dd class="col-sm-10">
+            @(Model.Payment.TradeTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? Model.Payment.TradeDate)
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Payment.TradeDate)

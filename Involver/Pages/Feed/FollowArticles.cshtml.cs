@@ -38,7 +38,7 @@ namespace Involver.Pages.Feed
             UserProfileID = id;
             Follows = await Context.Follows
                 .Include(f => f.Profile)
-                    .ThenInclude(p => p.Articles)
+                    .ThenInclude(p => p.Articles.Where(a => a.IsDeleted == false))
                 .Where(f => f.FollowerID == id)
                 .ToListAsync();
             foreach (Follow follow in Follows)

@@ -26,9 +26,9 @@ public class InvolversModel(
         public string ProfileID { get; set; }
         public string UserName { get; set; }
         public string ImageUrl { get; set; }
-        public int RecentValue { get; set; }
-        public int MonthlyValue { get; set; }
-        public int TotalValue { get; set; }
+        public decimal RecentValue { get; set; }
+        public decimal MonthlyValue { get; set; }
+        public decimal TotalValue { get; set; }
         public DateTime LastTime { get; set; }
     }
 

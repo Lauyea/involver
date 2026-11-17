@@ -31,6 +31,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
     public string CurrentFilter { get; set; }
     public string CurrentSort { get; set; }
 
+    /// <summary>
+    /// 本頁各文章的留言數（ArticleID → 留言數）
+    /// </summary>
+    public Dictionary<int, int> CommentCounts { get; set; } = [];
+
     public async Task OnGetAsync(
         string sortOrder,
         string currentFilter,
@@ -52,7 +57,6 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         CurrentFilter = searchString;
 
         var articles = Context.Articles
-            .Include(a => a.Comments)
             .Include(a => a.Profile)
             .Include(a => a.ArticleTags)
             .Where(a => a.Type == ArticleType.General)
@@ -103,5 +107,14 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         Articles = await PaginatedList<Article>.CreateAsync(
             articles.AsNoTracking(), PageIndex ?? 1, Parameters.ArticlePageSize);
+
+        // 只為了顯示留言數，改在資料庫端計數，不載入整個留言集合
+        var articleIds = Articles.Select(a => a.ArticleID).ToList();
+
+        CommentCounts = await Context.Comments
+            .Where(c => c.ArticleID != null && articleIds.Contains(c.ArticleID.Value))
+            .GroupBy(c => c.ArticleID.Value)
+            .Select(g => new { ArticleId = g.Key, Count = g.Count() })
+            .ToDictionaryAsync(x => x.ArticleId, x => x.Count);
     }
 }
