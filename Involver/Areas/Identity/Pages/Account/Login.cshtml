@@ -39,6 +39,20 @@
                         <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">註冊為新用戶</a>
                     </div>
                 </form>
+
+                @if (Model.IsDevelopment)
+                {
+                    @* 僅開發環境顯示：以使用者 ID 免密碼登入 *@
+                    <form id="dev-login" method="post" asp-page-handler="DevLogin" asp-route-returnUrl="@Model.ReturnUrl"
+                          class="border border-warning rounded mt-4 p-3 text-start">
+                        <div class="small fw-bold text-warning mb-2">開發模式：以使用者 ID 登入</div>
+                        <div class="input-group">
+                            <input name="devUserId" class="form-control" autocomplete="off" required
+                                   placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" aria-label="使用者 ID" />
+                            <button class="btn btn-warning" type="submit">登入</button>
+                        </div>
+                    </form>
+                }
             </main>
         </div>
     </div>
