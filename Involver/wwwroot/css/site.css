@@ -629,6 +629,70 @@ h6:hover .anchor-link {
     color: var(--text-color);
 }
 
+/* CKEditor 5 主題 */
+/* 使用 :root[data-bs-theme] 提高權重，覆寫 ckeditor5-*.css 在 :root 宣告的預設變數（不受 CSS 載入順序影響） */
+/* 內容排版沿用網站字體與文字顏色（編輯區與文章顯示頁共用 .ck-content） */
+:root[data-bs-theme] {
+    --ck-content-font-color: var(--text-color);
+    --ck-content-font-family: var(--font-main);
+    --ck-content-font-size: 1rem;
+}
+
+/* 深色模式：CKEditor 49 的 UI 顏色皆衍生自 --ck-color-base-* 語意變數 */
+:root[data-bs-theme="dark"] {
+    /* 編輯器 UI */
+    --ck-color-base-action: var(--primary-accent);
+    --ck-color-base-action-disabled: #8a6a4b;
+    --ck-color-base-action-hover: var(--primary-accent-hover);
+    --ck-color-base-action-muted: rgba(var(--primary-accent-rgb), 0.15);
+    --ck-color-base-active: var(--primary-accent);
+    --ck-color-base-active-focus: var(--primary-accent-hover);
+    --ck-color-base-background: var(--card-bg-color);
+    --ck-color-base-border: var(--border-color);
+    --ck-color-base-border-light: #4a443d;
+    --ck-color-base-error-shadow: #5c2a2a;
+    --ck-color-base-focus: var(--primary-accent);
+    --ck-color-base-focus-shadow: rgba(var(--primary-accent-rgb), 0.25);
+    --ck-color-base-focus-shadow-faded: rgba(var(--primary-accent-rgb), 0.1);
+    --ck-color-base-foreground: #312c27;
+    --ck-color-base-hover: #463f38;
+    --ck-color-base-hover-strong: #514941;
+    --ck-color-base-selected: rgba(var(--primary-accent-rgb), 0.18);
+    --ck-color-base-selected-hover: rgba(var(--primary-accent-rgb), 0.28);
+    --ck-color-base-text: var(--text-color);
+    --ck-color-base-text-light: #a89f93;
+    --ck-color-interactive-disabled-surface: #2f2a25;
+    --ck-color-link-default: var(--primary-accent);
+    --ck-color-media-embed-placeholder-url-text: #a89f93;
+    --ck-color-shadow-drop: rgba(0, 0, 0, 0.4);
+    --ck-color-shadow-drop-active: rgba(0, 0, 0, 0.5);
+    --ck-color-shadow-inner: rgba(0, 0, 0, 0.2);
+    --ck-color-surface-skeleton: #4a443d;
+    --ck-color-surface-skeleton-highlight: #5a534a;
+    --ck-color-text-placeholder: #8f877c;
+    --ck-color-upload-placeholder-loader: #a89f93;
+    /* 內容 (編輯區與文章顯示頁) */
+    --ck-content-block-quote-border-color: var(--border-color);
+    --ck-content-code-block-background: #2f2a25;
+    --ck-content-code-block-border-color: var(--border-color);
+    --ck-content-code-block-text-color: var(--text-color);
+    --ck-content-color-image-caption-background: #312c27;
+    --ck-content-color-image-caption-text: #c2b9ad;
+    --ck-content-color-table-caption-background: #312c27;
+    --ck-content-color-table-caption-text: #c2b9ad;
+    --ck-content-horizontal-line-background: var(--border-color);
+    --ck-content-inline-code-background-color: rgba(255, 255, 255, 0.1);
+    --ck-content-table-border-color: #6b6359;
+    --ck-content-table-cell-border-color: #6b6359;
+    --ck-content-table-header-background: rgba(255, 255, 255, 0.05);
+}
+
+/* CKEditor 以 <figure class="table"> 包住表格，會誤套 Bootstrap .table 的背景色 (--bs-body-bg)，在深色模式下特別明顯 */
+.ck-content figure.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--ck-content-font-color);
+}
+
 /* ==============================================
     9. 通用類別 (Utility Classes)
 ==============================================

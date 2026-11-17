@@ -1,32 +1,25 @@
 /**
- * 檢查通知
+ * 檢查通知（僅登入者）
  */
 function fetchNotifications() {
-    // 找到儲存資料的容器元素
+    // 找到儲存資料的容器元素；未登入時 _LoginPartial 不會輸出通知容器，直接略過
     const container = document.getElementById('notification-container');
     const notificationElement = document.getElementById('notification');
 
-    // 檢查元素是否存在
     if (!container || !notificationElement) {
-        console.error('必要元素 (notification-container 或 notification) 不存在。');
         return;
     }
 
-    // 從 Data Attributes 讀取 URL 和 User ID
     // data-notification-url 會對應到 dataset.notificationUrl (注意駝峰命名法)
+    // 後端以登入身分查詢通知，不需要傳 userId
     const url = container.dataset.notificationUrl;
-    // data-user-id 會對應到 dataset.userId
-    const userId = container.dataset.userId;
 
-    if (!url || !userId) {
-        console.error('缺少必要的 Data Attribute (notification-url 或 user-id)。');
-        //notificationElement.innerHTML = '<p style="color: red;">設定錯誤：無法載入通知。</p>'; // 沒有登入的情況，不顯示通知icon就好
+    if (!url) {
+        console.error('缺少必要的 Data Attribute (notification-url)。');
         return;
     }
 
-    const fullUrl = `${url}?userId=${userId}`;
-
-    fetch(fullUrl, {
+    fetch(url, {
         method: 'GET'
     })
         .then(response => {

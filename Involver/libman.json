@@ -21,6 +21,18 @@
       "files": [
         "vue.global.min.js"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "ckeditor5@49.1.0",
+      "destination": "wwwroot/lib/ckeditor5/",
+      "files": [
+        "LICENSE.md",
+        "dist/browser/ckeditor5.js",
+        "dist/browser/ckeditor5-content.css",
+        "dist/browser/ckeditor5-editor.css",
+        "dist/translations/zh.js"
+      ]
     }
   ]
 }
