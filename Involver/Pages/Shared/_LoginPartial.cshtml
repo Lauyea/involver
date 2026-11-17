@@ -53,15 +53,15 @@
             <span class="d-sm-none ms-2" id="bd-theme-text">GitHub 原始碼</span>
         </a>
     </li>
-    <li class="nav-item dropdown">
-        <div id="notification-container"
-             data-notification-url="@Url.Page("/Feed/Notifications")"
-             data-user-id="@UserManager.GetUserId(User)">
-            <div class="dropdown" id="notification"></div>
-        </div>
-    </li>
     @if (SignInManager.IsSignedIn(User))
     {
+        @* 通知只對登入者顯示；後端以登入身分查詢通知，不需要由前端傳 user id *@
+        <li class="nav-item dropdown">
+            <div id="notification-container"
+                 data-notification-url="@Url.Page("/Feed/Notifications")">
+                <div class="dropdown" id="notification"></div>
+            </div>
+        </li>
         <li class="nav-item dropdown">
             <button type="button" class="nav-link btn btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 @UserManager.GetUserName(User)

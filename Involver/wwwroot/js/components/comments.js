@@ -1,5 +1,17 @@
 const { createApp, markRaw } = Vue;
 
+/**
+ * 延遲載入 CKEditor 並建立編輯器：只有使用者真的開啟留言編輯器時才下載 CKEditor，
+ * 避免單純閱讀留言的訪客也要等待約 2MB 的編輯器腳本。
+ * @param {HTMLElement} element - 要轉換成編輯器的元素
+ * @param {Object} options - 傳給 createClassicEditorAsync 的選項
+ * @returns {Promise<Object>} 建立完成的 CKEditor 實體
+ */
+const createClassicEditorAsync = async (element, options) => {
+    const { createClassicEditorAsync: createEditorAsync } = await import('/js/ckeditor-setup.js');
+    return createEditorAsync(element, options);
+};
+
 const app = createApp({
     data() {
         return {
@@ -13,6 +25,7 @@ const app = createApp({
             authorOnly: false,
             isOrderFixed: false,
             mainEditor: null, // For the modal
+            isMainEditorLoading: false, // True while CKEditor is being lazily loaded for the modal
             inlineEditors: {}, // For inline editing, keyed by commentID
             newCommentDice: {
                 rollTimes: 0,
@@ -112,56 +125,38 @@ const app = createApp({
         const commentModalEl = document.getElementById('commentModal');
         if (commentModalEl) {
             commentModalEl.addEventListener('shown.bs.modal', () => {
-                if (!this.mainEditor) {
-                    ClassicEditor
-                    .create(document.querySelector('#comment-editor'), this.getEditorConfig()) // Use shared config
+                if (this.mainEditor) {
+                    this.mainEditor.setData('');
+                } else if (!this.isMainEditorLoading) {
+                    // CKEditor 為延遲載入，下載期間再次開啟 modal 不應重複建立編輯器
+                    this.isMainEditorLoading = true;
+                    createClassicEditorAsync(document.querySelector('#comment-editor'), this.getEditorOptions('comment-word-count'))
                         .then(editor => {
                             this.mainEditor = markRaw(editor);
-                            const wordCountPlugin = editor.plugins.get('WordCount');
-                            const wordCountWrapper = document.getElementById('comment-word-count');
-                            if (wordCountPlugin && wordCountWrapper) {
-                                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-                            }
                         })
                         .catch(error => {
                             console.error('Error creating main CKEditor instance:', error);
+                        })
+                        .finally(() => {
+                            this.isMainEditorLoading = false;
                         });
-                } else {
-                    this.mainEditor.setData('');
                 }
             });
         }
     },
     methods: {
         /**
-         * Initializes the correct CKEditor configuration.
-         * @returns {Object} CKEditor configuration object.
+         * Builds the options passed to the shared CKEditor factory (ckeditor-setup.js).
+         * @param {string} wordCountContainerId - The id of the element that hosts the word count.
+         * @returns {Object} Options for createClassicEditorAsync.
          */
-        getEditorConfig() {
+        getEditorOptions(wordCountContainerId) {
             return {
-                toolbar: {
-                    items: [
-                        'heading', '|', 'bold', 'italic', 'underline', 'strikethrough',
-                        'fontBackgroundColor', 'fontColor', 'removeFormat', 'findAndReplace', '|',
-                        'alignment', 'bulletedList', 'numberedList', 'outdent', 'indent',
-                        'horizontalLine', '|', 'link', 'imageInsert', 'blockQuote', 'insertTable',
-                        'mediaEmbed', 'sourceEditing', 'undo', 'redo'
-                    ],
-                    shouldNotGroupWhenFull: false
+                maxLength: this.maxLength,
+                onLimitExceeded: characters => {
+                    console.warn(`Character limit exceeded: ${characters}/${this.maxLength}`);
                 },
-                link: { addTargetToExternalLinks: true },
-                image: { toolbar: ['imageTextAlternative', 'imageStyle:inline', 'imageStyle:block', 'imageStyle:side'] },
-                table: { contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'] },
-                licenseKey: '',
-                mediaEmbed: { previewsInData: true },
-                wordCount: {
-                    displayWords: false,
-                    onUpdate: stats => {
-                        if (stats.characters > this.maxLength) {
-                            console.warn(`Character limit exceeded: ${stats.characters}/${this.maxLength}`);
-                        }
-                    }
-                }
+                wordCountContainer: document.getElementById(wordCountContainerId)
             };
         },
         /**
@@ -545,16 +540,12 @@ const app = createApp({
             if (comment.isEditing) {
                 // Entering edit mode
                 this.$nextTick(() => {
-                    ClassicEditor
-                        .create(document.querySelector(`#editor-${comment.commentID}`), this.getEditorConfig()) // Use shared config
+                    createClassicEditorAsync(
+                        document.querySelector(`#editor-${comment.commentID}`),
+                        this.getEditorOptions(`word-count-${comment.commentID}`))
                         .then(editor => {
                             this.inlineEditors[comment.commentID] = markRaw(editor);
                             editor.setData(comment.content);
-                            const wordCountPlugin = editor.plugins.get('WordCount');
-                            const wordCountWrapper = document.getElementById(`word-count-${comment.commentID}`);
-                            if (wordCountPlugin && wordCountWrapper) {
-                                wordCountWrapper.appendChild(wordCountPlugin.wordCountContainer);
-                            }
                         })
                         .catch(error => {
                             console.error(`Error creating inline editor for comment ${comment.commentID}:`, error);

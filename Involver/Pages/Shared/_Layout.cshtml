@@ -1,4 +1,5 @@
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Mvc.ViewFeatures.IFileVersionProvider FileVersionProvider
 <!DOCTYPE html>
 <html lang="zh-TW" data-bs-theme="auto">
 <head>
@@ -14,6 +15,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Involver - @ViewData["Title"]</title>
+    @* Import map 必須出現在任何 type="module" 腳本之前，對應表定義在 ImportMapHelper *@
+    <script type="importmap" asp-importmap="@ImportMapHelper.Create(FileVersionProvider, Context.Request.PathBase)"></script>
     @{
         // 判斷是否為生產環境
         bool isProduction = WebHostEnvironment.IsProduction();
@@ -46,7 +49,8 @@
               asp-fallback-test-value="absolute"
               integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous" />
     </environment>
-    <link rel="stylesheet" href="~/lib/ckeditor5/CKContent.css" />
+    <link rel="stylesheet" href="~/lib/ckeditor5/dist/browser/ckeditor5-content.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/ckeditor5/dist/browser/ckeditor5-editor.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="stylesheet" asp-append-version="true" href="~/css/site.css" />
@@ -207,7 +211,6 @@
     </environment>
     <script src="~/js/notifications.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/lib/ckeditor5/build/ckeditor.js"></script>
     <script src="https://www.google.com/recaptcha/api.js"></script>
     <script src="~/js/form-validation.js" asp-append-version="true"></script>
 
