@@ -67,23 +67,23 @@ namespace InvolverTest.Data
         }
 
         [Test]
-        public void SaveChanges_WhenCommentHasNoParent_ThrowsDbUpdateException()
+        public async Task SaveChanges_WhenCommentHasNoParent_ThrowsDbUpdateException()
         {
             using var context = CreateContext();
             context.Comments.Add(new Comment { Content = "沒有父表", ProfileID = UserId });
 
-            Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
 
         [Test]
-        public void SaveChanges_WhenAgreeHasBothCommentAndMessage_ThrowsDbUpdateException()
+        public async Task SaveChanges_WhenAgreeHasBothCommentAndMessage_ThrowsDbUpdateException()
         {
             using var context = CreateContext();
             context.Messages.Add(new Message { MessageID = 1, Content = "回覆", CommentID = 1, ProfileID = UserId });
             context.SaveChanges();
             context.Agrees.Add(new Agree { CommentID = 1, MessageID = 1, ProfileID = OtherId });
 
-            Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace InvolverTest.Data
             using (var context = CreateContext())
             {
                 context.Agrees.Add(new Agree { CommentID = 1, ProfileID = OtherId });
-                Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
             }
         }
 
@@ -114,7 +114,7 @@ namespace InvolverTest.Data
             using (var context = CreateContext())
             {
                 context.Follows.Add(new Follow { ProfileID = UserId, FollowerID = OtherId });
-                Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
             }
         }
 
@@ -131,13 +131,13 @@ namespace InvolverTest.Data
         }
 
         [Test]
-        public void SaveChanges_WhenUserNameAlreadyTaken_ThrowsDbUpdateException()
+        public async Task SaveChanges_WhenUserNameAlreadyTaken_ThrowsDbUpdateException()
         {
             using var context = CreateContext();
             context.Users.Add(new InvolverUser { Id = "third", UserName = "third" });
             context.Profiles.Add(new Profile { ProfileID = "third", UserName = UserId, SeqNo = 3 });
 
-            Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
         }
     }
 }
