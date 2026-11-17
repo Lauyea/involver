@@ -137,7 +137,7 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
         await Context.SaveChangesAsync();
         await transaction.CommitAsync();
         await ReloadAfterCoinsChangedAsync();
-        StatusMessage = "Involve成功，總共" + Involving.Value + " In幣，感謝以實體行動鼓勵創作";
+        StatusMessage = $"Involve成功，總共{Involving.Value:0.##} In幣，感謝以實體行動鼓勵創作";
 
         var toasts = await AchievementService.UseCoinsCountAsync(Involver.ProfileID, Involver.UsedCoins);
 

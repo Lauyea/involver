@@ -34,7 +34,9 @@ namespace InvolverTest.Data
             using var context = CreateContext();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new InvolverUser { Id = UserId, UserName = UserId });
             context.Profiles.Add(new Profile { ProfileID = UserId, UserName = UserId, SeqNo = 1 });
+            context.Users.Add(new InvolverUser { Id = OtherId, UserName = OtherId });
             context.Profiles.Add(new Profile { ProfileID = OtherId, UserName = OtherId, SeqNo = 2 });
             context.Articles.Add(new Article { ArticleID = 1, Title = "測試文章", Content = "內容", ProfileID = UserId });
             context.Comments.Add(new Comment { CommentID = 1, Content = "留言", ArticleID = 1, ProfileID = UserId });
@@ -132,6 +134,7 @@ namespace InvolverTest.Data
         public void SaveChanges_WhenUserNameAlreadyTaken_ThrowsDbUpdateException()
         {
             using var context = CreateContext();
+            context.Users.Add(new InvolverUser { Id = "third", UserName = "third" });
             context.Profiles.Add(new Profile { ProfileID = "third", UserName = UserId, SeqNo = 3 });
 
             Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());

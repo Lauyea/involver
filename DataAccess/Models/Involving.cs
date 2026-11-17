@@ -35,14 +35,15 @@ namespace DataAccess.Models
 
         [Required(ErrorMessage = "必填欄位。")]
         [Range(1, 1048576, ErrorMessage = "數值不可為 0。")]
+        [RegularExpression(@"^[0-9]+$", ErrorMessage = "In 幣只能是整數。")]
         [Column(TypeName = "money")]
-        public int Value { get; set; }
+        public decimal Value { get; set; }
 
         [Column(TypeName = "money")]
-        public int MonthlyValue { get; set; }
+        public decimal MonthlyValue { get; set; }
 
         [Column(TypeName = "money")]
-        public int TotalValue { get; set; }
+        public decimal TotalValue { get; set; }
 
         /// <summary>
         /// 最新的參與時間

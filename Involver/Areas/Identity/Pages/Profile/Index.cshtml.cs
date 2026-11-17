@@ -26,7 +26,6 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
     public string UserID { get; set; }
     public bool ProfileOwner { get; set; } = false;
     public bool Followed { get; set; } = false;
-    public InvolverUser InvolverUser { get; set; }
 
     /// <summary>
     /// 追蹤此使用者的人數
@@ -40,7 +39,6 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
         {
             ProfileOwner = true;
         }
-        InvolverUser = await Context.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
         Profile = await Context.Profiles
             .Where(p => p.ProfileID == id)
             .FirstOrDefaultAsync();
@@ -83,7 +81,7 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
     public async Task<IActionResult> OnPostAsync(string id)
     {
         await LoadAsync(id);
-        if (Profile == null || InvolverUser == null)
+        if (Profile == null)
         {
             return NotFound();
         }
@@ -95,15 +93,14 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
             return Forbid();
         }
 
+        // 封鎖狀態以 Profiles.Banned 為唯一來源
         if (Profile.Banned)
         {
-            InvolverUser.Banned = false;
             Profile.Banned = false;
             StatusMessage = "You unbanned this user successfully.";
         }
         else
         {
-            InvolverUser.Banned = true;
             Profile.Banned = true;
             StatusMessage = "You banned this user successfully.";
         }

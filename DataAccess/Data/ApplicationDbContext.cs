@@ -227,6 +227,7 @@ namespace DataAccess.Data
             });
 
             ConfigureIssue219(modelBuilder);
+            ConfigureAccountOwnership(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
@@ -360,6 +361,42 @@ namespace DataAccess.Data
                 v.Property(x => x.OwnerID).HasMaxLength(450);
                 v.HasIndex(x => x.OwnerID);
             });
+        }
+
+        /// <summary>
+        /// Issue #219：Profile 與 AspNetUsers 的 1:1 關聯，以及擁有者欄位的外鍵
+        /// </summary>
+        /// <remarks>
+        /// 帳號刪除改為匿名化，Profile 與 AspNetUsers 都不會被刪除，因此一律用 Restrict，
+        /// 避免誤刪帳號時連帶刪掉作品或 In 幣流水帳。
+        /// </remarks>
+        /// <param name="modelBuilder">Model builder</param>
+        private static void ConfigureAccountOwnership(ModelBuilder modelBuilder)
+        {
+            // Profile.ProfileID 就是 AspNetUsers.Id
+            modelBuilder.Entity<Profile>()
+                .HasOne<InvolverUser>()
+                .WithOne()
+                .HasForeignKey<Profile>(p => p.ProfileID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Episode>()
+                .HasOne<Profile>()
+                .WithMany()
+                .HasForeignKey(e => e.OwnerID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Voting>()
+                .HasOne<Profile>()
+                .WithMany()
+                .HasForeignKey(v => v.OwnerID)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Vote>()
+                .HasOne<Profile>()
+                .WithMany()
+                .HasForeignKey(v => v.OwnerID)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -45,12 +45,6 @@ namespace DataAccess.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("BankAccount")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Banned")
-                        .HasColumnType("bit");
-
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
@@ -83,9 +77,6 @@ namespace DataAccess.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("Prime")
                         .HasColumnType("bit");
 
                     b.Property<string>("SecurityStamp")
@@ -1234,6 +1225,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("PaymentDate")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("PaymentTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("RequestBody")
                         .HasColumnType("nvarchar(max)");
 
@@ -1258,6 +1252,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("TradeNo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("TradeTime")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("PaymentID");
 
                     b.HasIndex("InvolverID");
@@ -1274,9 +1271,6 @@ namespace DataAccess.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProfitSharingID"));
-
-                    b.Property<string>("CreditCard")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("InvolverID")
                         .HasColumnType("nvarchar(max)");
@@ -1718,6 +1712,11 @@ namespace DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Novel");
                 });
 
@@ -1772,6 +1771,11 @@ namespace DataAccess.Migrations
                         .WithMany("Votes")
                         .HasForeignKey("NormalOptionID");
 
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("BiddingOption");
 
                     b.Navigation("NormalOption");
@@ -1785,7 +1789,21 @@ namespace DataAccess.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Episode");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Profile", b =>
+                {
+                    b.HasOne("DataAccess.Data.InvolverUser", null)
+                        .WithOne()
+                        .HasForeignKey("DataAccess.Models.Profile", "ProfileID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinMonthlyBalance", b =>

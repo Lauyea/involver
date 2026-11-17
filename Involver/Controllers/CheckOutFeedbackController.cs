@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -226,9 +227,11 @@ namespace Involver.Controllers
                 {
                     InvolverID = CustomField1,
                     PaymentDate = szPaymentDate,
+                    PaymentTime = ParseEcpayDate(szPaymentDate, nameof(DataAccess.Models.StatisticalData.Payment.PaymentDate), szMerchantTradeNo),
                     RtnMsg = szRtnMsg,
                     TradeAmt = int.Parse(szTradeAmt),
                     TradeDate = szTradeDate,
+                    TradeTime = ParseEcpayDate(szTradeDate, nameof(DataAccess.Models.StatisticalData.Payment.TradeDate), szMerchantTradeNo),
                     TradeNo = szTradeNo,
                     ReturnString = ReturnString,
                     RequestBody = QueryString,
@@ -240,10 +243,13 @@ namespace Involver.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.ToString());
+                var now = DateTime.Now;
                 _context.Payments.Add(
                 new DataAccess.Models.StatisticalData.Payment
                 {
-                    PaymentDate = DateTime.Now.ToString(),
+                    // 固定格式，不隨伺服器文化設定輸出「下午」等字樣
+                    PaymentDate = now.ToString(EcpayDateFormat, CultureInfo.InvariantCulture),
+                    PaymentTime = now,
                     ReturnString = ReturnString,
                     RequestBody = QueryString
                 });
@@ -253,6 +259,34 @@ namespace Involver.Controllers
             await transaction.CommitAsync();
 
             return Content(ReturnString);
+        }
+
+        /// <summary>
+        /// 綠界回傳的日期格式
+        /// </summary>
+        private const string EcpayDateFormat = "yyyy/MM/dd HH:mm:ss";
+
+        /// <summary>
+        /// 解析綠界回傳的日期字串；格式不符時回傳 null，不讓付款回呼因日期格式失敗
+        /// </summary>
+        /// <param name="value">綠界回傳的日期字串</param>
+        /// <param name="fieldName">欄位名稱（記錄用）</param>
+        /// <param name="merchantTradeNo">特店交易編號（記錄用）</param>
+        /// <returns>解析後的時間；空值或格式不符時為 null</returns>
+        private DateTime? ParseEcpayDate(string value, string fieldName, string merchantTradeNo)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
+
+            if (DateTime.TryParseExact(value, EcpayDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
+            {
+                return result;
+            }
+
+            _logger.LogWarning("綠界回傳的 {FieldName} 格式無法解析：{Value}，MerchantTradeNo: {MerchantTradeNo}", fieldName, value, merchantTradeNo);
+            return null;
         }
 
         private async Task<string> GetRequestBodyAsync(HttpRequest Request)

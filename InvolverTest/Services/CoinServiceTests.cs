@@ -43,7 +43,9 @@ namespace InvolverTest.Services
             using var context = CreateContext();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new InvolverUser { Id = PayerId, UserName = PayerId });
             context.Profiles.Add(new Profile { ProfileID = PayerId, UserName = PayerId, SeqNo = 1, RealCoins = 100, VirtualCoins = 50 });
+            context.Users.Add(new InvolverUser { Id = CreatorId, UserName = CreatorId });
             context.Profiles.Add(new Profile { ProfileID = CreatorId, UserName = CreatorId, SeqNo = 2 });
             context.Novels.Add(new Novel { NovelID = NovelId, Title = "測試創作", Introduction = "介紹", ProfileID = CreatorId });
             context.Articles.Add(new Article { ArticleID = ArticleId, Title = "測試文章", Content = "內容", ProfileID = CreatorId });

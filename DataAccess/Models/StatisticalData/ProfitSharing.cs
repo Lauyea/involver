@@ -16,9 +16,6 @@ namespace DataAccess.Models.StatisticalData
         [Display(Name = "用戶ID")]
         public string? InvolverID { get; set; }
 
-        [Display(Name = "用戶銀行帳戶")]
-        public string? CreditCard { get; set; }
-
         [Display(Name = "分潤總額")]
         public int SharingValue { get; set; }
 

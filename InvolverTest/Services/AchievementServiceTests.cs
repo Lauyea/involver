@@ -35,6 +35,7 @@ namespace InvolverTest.Services
             using var context = CreateContext();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new InvolverUser { Id = UserId, UserName = UserId });
             context.Profiles.Add(new Profile { ProfileID = UserId, UserName = UserId, SeqNo = 1, VirtualCoins = 10 });
             context.Achievements.Add(new Achievement { AchievementID = 1, Code = AchievementNames.BetaInvolver, Title = "Beta 用戶", Rank = 1 });
             context.Achievements.Add(new Achievement { AchievementID = 2, Code = AchievementNames.Professional, Title = "專業創作者", Rank = 2 });
@@ -159,6 +160,7 @@ namespace InvolverTest.Services
         private void SeedAgrees(ApplicationDbContext context, string[] commentAgreerIds, string[] messageAgreerIds)
         {
             const string OtherId = "other";
+            context.Users.Add(new InvolverUser { Id = OtherId, UserName = OtherId });
             context.Profiles.Add(new Profile { ProfileID = OtherId, UserName = OtherId, SeqNo = 2 });
             context.Achievements.Add(new Achievement { AchievementID = 4, Code = AchievementNames.GetAgree1, Title = "被按讚", Rank = 1 });
             context.Articles.Add(new Article { ArticleID = 1, Title = "測試文章", Content = "內容", ProfileID = UserId });

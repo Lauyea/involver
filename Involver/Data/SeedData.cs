@@ -69,8 +69,7 @@ namespace Involver.Data
                 {
                     UserName = UserName,
                     Email = UserName,
-                    EmailConfirmed = true,
-                    Prime = true
+                    EmailConfirmed = true
                 };
                 await userManager.CreateAsync(user, testUserPw);
             }

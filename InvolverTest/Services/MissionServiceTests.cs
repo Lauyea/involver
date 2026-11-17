@@ -32,6 +32,7 @@ namespace InvolverTest.Services
             using var context = CreateContext();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new InvolverUser { Id = UserId, UserName = UserId });
             context.Profiles.Add(new Profile
             {
                 ProfileID = UserId,

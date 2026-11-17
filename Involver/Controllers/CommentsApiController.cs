@@ -160,7 +160,7 @@ public class CommentsApiController(
 
             if (involverInfos.TryGetValue(comment.ProfileID, out var involverInfo))
             {
-                involverInfoString = $"月 Involve: {involverInfo.MonthlyValue} In幣 | 總 Involve: {involverInfo.TotalValue} In幣";
+                involverInfoString = $"月 Involve: {involverInfo.MonthlyValue:0.##} In幣 | 總 Involve: {involverInfo.TotalValue:0.##} In幣";
             }
 
             users.TryGetValue(comment.ProfileID, out var user);
@@ -210,7 +210,7 @@ public class CommentsApiController(
         {
             return Unauthorized();
         }
-        if (user.Banned)
+        if (await context.IsBannedAsync(user.Id))
         {
             return Forbid();
         }

@@ -27,7 +27,7 @@
                         <div class="mb-3">
                             <label asp-for="Involving.Value" class="form-label">In幣數量</label>
                             <div class="input-group">
-                                <input asp-for="Involving.Value" class="form-control" placeholder="輸入數量" />
+                                <input asp-for="Involving.Value" type="number" min="1" step="1" inputmode="numeric" class="form-control" placeholder="輸入數量" />
                                 <span class="input-group-text">幣</span>
                             </div>
                             <span asp-validation-for="Involving.Value" class="text-danger"></span>

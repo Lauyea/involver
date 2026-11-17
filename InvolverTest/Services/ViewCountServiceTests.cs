@@ -34,6 +34,7 @@ namespace InvolverTest.Services
             using var context = CreateContext();
             context.Database.EnsureCreated();
 
+            context.Users.Add(new InvolverUser { Id = CreatorId, UserName = CreatorId });
             context.Profiles.Add(new Profile { ProfileID = CreatorId, UserName = CreatorId, SeqNo = 1, Views = 10 });
             context.Novels.Add(new Novel { NovelID = NovelId, Title = "測試創作", Introduction = "介紹", ProfileID = CreatorId, TotalViews = 10, DailyView = 3 });
             context.Articles.Add(new Article { ArticleID = ArticleId, Title = "測試文章", Content = "內容", ProfileID = CreatorId, TotalViews = 10, DailyView = 3 });

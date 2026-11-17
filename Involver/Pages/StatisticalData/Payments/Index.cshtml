@@ -44,7 +44,7 @@ User.IsInRole(Authorization.Payment.Payments.PaymentAdministratorsRole))
                 @Html.DisplayNameFor(model => model.Payments[0].TradeNo)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Payments[0].PaymentDate)
+                @Html.DisplayNameFor(model => model.Payments[0].PaymentTime)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Payments[0].ReturnString)
@@ -73,7 +73,7 @@ User.IsInRole(Authorization.Payment.Payments.PaymentAdministratorsRole))
                     <a asp-page="./Details" asp-route-id="@item.PaymentID">@Html.DisplayFor(modelItem => item.TradeNo)</a>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PaymentDate)
+                    @(item.PaymentTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? item.PaymentDate)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.ReturnString)

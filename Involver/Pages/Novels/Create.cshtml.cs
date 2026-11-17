@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 using Type = DataAccess.Common.Type;
+using Involver.Extensions;
 
 namespace Involver.Pages.Novels;
 
@@ -70,7 +71,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         var user = await UserManager.GetUserAsync(User);
-        if (user.Banned)
+        if (await Context.IsBannedAsync(user.Id))
         {
             return Forbid();
         }

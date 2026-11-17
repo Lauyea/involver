@@ -47,7 +47,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         var feedbacks = Context.Articles
                     .Include(f => f.Profile)
-                    .Where(f => f.Type == ArticleType.Feedback);
+                    .Where(f => f.Type == ArticleType.Feedback)
+                    .Where(f => f.IsDeleted == false);
 
         if (!String.IsNullOrEmpty(searchString))
         {

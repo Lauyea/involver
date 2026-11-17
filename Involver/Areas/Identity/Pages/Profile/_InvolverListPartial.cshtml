@@ -16,15 +16,15 @@
         <div class="col-md-2">
             @if (Model.TimeSpan == "TotalTime")
             {
-                @involver.TotalValue
+                @involver.TotalValue.ToString("0.##")
             }
             else if (Model.TimeSpan == "Monthly")
             {
-                @involver.MonthlyValue
+                @involver.MonthlyValue.ToString("0.##")
             }
             else
             {
-                @involver.RecentValue
+                @involver.RecentValue.ToString("0.##")
             }
             In幣
         </div>

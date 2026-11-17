@@ -19,13 +19,13 @@ namespace DataAccess.Models.NovelModel
         /// 競標金額
         /// </summary>
         [Column(TypeName = "money")]
-        public int BiddingCoins { get; set; }
+        public decimal BiddingCoins { get; set; }
 
         /// <summary>
         /// 總額
         /// </summary>
         [Column(TypeName = "money")]
-        public int TotalCoins { get; set; }
+        public decimal TotalCoins { get; set; }
 
         [DataType(DataType.DateTime)]
         [Display(Name = "Create Time")]

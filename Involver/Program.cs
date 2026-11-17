@@ -92,6 +92,7 @@ services.AddScoped<IAchievementService, AchievementService>();
 services.AddScoped<ICoinService, CoinService>();
 services.AddScoped<IMissionService, MissionService>();
 services.AddScoped<IViewCountService, ViewCountService>();
+services.AddScoped<IUserAccountService, UserAccountService>();
 services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
 
 services.AddRateLimiter(options =>

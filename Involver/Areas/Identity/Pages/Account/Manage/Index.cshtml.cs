@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 using DataAccess.Data;
 
+using Involver.Services;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,15 +21,18 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<InvolverUser> _userManager;
         private readonly SignInManager<InvolverUser> _signInManager;
         private readonly ApplicationDbContext Context;
+        private readonly IUserAccountService _userAccountService;
 
         public IndexModel(
             UserManager<InvolverUser> userManager,
             SignInManager<InvolverUser> signInManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IUserAccountService userAccountService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             Context = context;
+            _userAccountService = userAccountService;
         }
 
         public string Username { get; set; }
@@ -51,21 +56,17 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "手機號碼")]
             public string PhoneNumber { get; set; }
-            [Display(Name = "銀行帳號")]
-            public string BankAccount { get; set; }
         }
 
         private async Task LoadAsync(InvolverUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            var bankAccount = user.BankAccount;
 
             Input = new InputModel
             {
                 UserName = userName,
-                PhoneNumber = phoneNumber,
-                BankAccount = bankAccount
+                PhoneNumber = phoneNumber
             };
         }
 
@@ -90,6 +91,12 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
+            Profile = await Context.Profiles.Where(p => p.ProfileID == user.Id).FirstOrDefaultAsync();
+            if (Profile == null)
+            {
+                return NotFound($"Unable to load profile with ID '{user.Id}'.");
+            }
+
             if (!ModelState.IsValid)
             {
                 await LoadAsync(user);
@@ -99,20 +106,19 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
             var userName = await _userManager.GetUserNameAsync(user);
             if (Input.UserName != userName && Input.UserName != null)
             {
-                var SameNameProfile = await Context.Profiles.Where(p => p.UserName == Input.UserName).FirstOrDefaultAsync();
-                Profile = await Context.Profiles.Where(p => p.ProfileID == user.Id).FirstOrDefaultAsync();
-                if (SameNameProfile != null)
+                // 畫面只在可改名時開放輸入，伺服器端也要檢查，避免直接 POST 改名
+                if (!Profile.CanChangeUserName)
                 {
-                    ModelState.AddModelError("Input.UserName", "已有重複的用戶名");
+                    ModelState.AddModelError("Input.UserName", "用戶名只能變更一次");
                     return Page();
                 }
-                Profile.UserName = Input.UserName;
-                Profile.CanChangeUserName = false;
-                var setNameResult = await _userManager.SetUserNameAsync(user, Input.UserName);
-                if (!setNameResult.Succeeded)
+
+                // AspNetUsers 與 Profiles 的用戶名一律經由同一個服務一起變更
+                var error = await _userAccountService.ChangeUserNameAsync(user, Input.UserName);
+                if (error != null)
                 {
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    throw new InvalidOperationException($"Unexpected error occurred setting user's name for user with ID '{userId}'.");
+                    ModelState.AddModelError("Input.UserName", error);
+                    return Page();
                 }
             }
 
@@ -126,14 +132,6 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                     throw new InvalidOperationException($"Unexpected error occurred setting phone number for user with ID '{userId}'.");
                 }
             }
-
-            if (Input.BankAccount != user.BankAccount)
-            {
-                user.BankAccount = Input.BankAccount;
-            }
-            await _userManager.UpdateAsync(user);
-
-            await Context.SaveChangesAsync();
 
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "你的個人資料已經更新";

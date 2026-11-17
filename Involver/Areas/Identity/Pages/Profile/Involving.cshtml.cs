@@ -28,9 +28,9 @@ public class InvolvingModel(
         public string ImageUrl { get; set; }
         public string LinkPage { get; set; }
         public string LinkID { get; set; }
-        public int RecentValue { get; set; }
-        public int MonthlyValue { get; set; }
-        public int TotalValue { get; set; }
+        public decimal RecentValue { get; set; }
+        public decimal MonthlyValue { get; set; }
+        public decimal TotalValue { get; set; }
         public DateTime LastTime { get; set; }
     }
 

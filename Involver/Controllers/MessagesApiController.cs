@@ -93,7 +93,7 @@ public class MessagesApiController(
         {
             return Unauthorized();
         }
-        if (user.Banned)
+        if (await context.IsBannedAsync(user.Id))
         {
             return Forbid();
         }

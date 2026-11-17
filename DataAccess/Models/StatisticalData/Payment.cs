@@ -18,10 +18,28 @@ namespace DataAccess.Models.StatisticalData
         public string? TradeNo { get; set; }
         [Display(Name = "交易金額")]
         public int TradeAmt { get; set; }
-        [Display(Name = "付款時間")]
+        /// <summary>
+        /// 綠界回傳的付款時間原始字串（金流紀錄留存，不做轉換）
+        /// </summary>
+        [Display(Name = "付款時間（原始）")]
         public string? PaymentDate { get; set; }
-        [Display(Name = "訂單成立時間")]
+        /// <summary>
+        /// 綠界回傳的訂單成立時間原始字串（金流紀錄留存，不做轉換）
+        /// </summary>
+        [Display(Name = "訂單成立時間（原始）")]
         public string? TradeDate { get; set; }
+        /// <summary>
+        /// 付款時間；由 <see cref="PaymentDate"/> 解析而來，格式無法解析時為 null
+        /// </summary>
+        [DataType(DataType.DateTime)]
+        [Display(Name = "付款時間")]
+        public DateTime? PaymentTime { get; set; }
+        /// <summary>
+        /// 訂單成立時間；由 <see cref="TradeDate"/> 解析而來，格式無法解析時為 null
+        /// </summary>
+        [DataType(DataType.DateTime)]
+        [Display(Name = "訂單成立時間")]
+        public DateTime? TradeTime { get; set; }
         [Display(Name = "回應字串")]
         public string? ReturnString { get; set; }
         [Display(Name = "用戶ID")]
