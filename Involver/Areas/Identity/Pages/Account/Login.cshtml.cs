@@ -57,8 +57,14 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
         public bool RememberMe { get; set; }
     }
 
-    public async Task OnGetAsync(string returnUrl = null)
+    public async Task<IActionResult> OnGetAsync(string returnUrl = null)
     {
+        // 已登入者不需再看到登入表單，直接導回原頁（或首頁）
+        if (signInManager.IsSignedIn(User))
+        {
+            return LocalRedirect(Url.IsLocalUrl(returnUrl) ? returnUrl : Url.Content("~/"));
+        }
+
         if (!string.IsNullOrEmpty(ErrorMessage))
         {
             ModelState.AddModelError(string.Empty, ErrorMessage);
@@ -72,6 +78,7 @@ public class LoginModel(SignInManager<InvolverUser> signInManager,
         ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
         ReturnUrl = returnUrl;
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string returnUrl = null)
