@@ -97,10 +97,7 @@
                 </article>
 
                 <div>
-                    @foreach (var tag in Model.Article.ArticleTags)
-                    {
-                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge bg-info me-1">@tag.Name</a>
-                    }
+                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = Model.Article.Tags, CssClass = "badge me-1" }' />
                 </div>
             </div>
             <div class="card-footer">

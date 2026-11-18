@@ -1,0 +1,42 @@
+@model Involver.Models.ViewModels.TagInputViewModel
+@using Involver.Services
+
+@*
+    小說、文章 Create/Edit 共用的標籤輸入框。
+    頁面需要在 Scripts 區段載入 Tagify 與 ~/js/components/tag-input.js，並在 Styles 區段載入 tagify.css。
+*@
+<div class="mb-3 tag-input"
+     data-tag-type="@Model.TargetName"
+     data-max-tags="@Model.MaxTags"
+     data-can-create="@(Model.CanCreateDirectly ? "true" : "false")">
+    <label for="@Model.FieldName" class="form-label">標籤</label>
+    <input id="@Model.FieldName" name="@Model.FieldName" value="@Model.Value" class="form-control tag-input__field" @(Model.Level == TagAuthorLevel.Banned ? "readonly" : null) />
+
+    @if (Model.Level == TagAuthorLevel.Author)
+    {
+        <div class="input-group input-group-sm mt-2 tag-input__request">
+            <input type="text" class="form-control tag-input__request-name" maxlength="@Parameters.TagNameMaxLength" placeholder="找不到合適的標籤？輸入新標籤名稱" aria-label="新標籤名稱" />
+            <button type="button" class="btn btn-outline-secondary tag-input__request-button">
+                <i class="fas fa-plus"></i> 申請新標籤
+            </button>
+        </div>
+    }
+
+    <div class="tag-input__hint mt-2" aria-live="polite"></div>
+
+    <small class="form-text text-body-secondary">
+        @switch (Model.Level)
+        {
+            case TagAuthorLevel.Trusted:
+                <text>新增標籤請按 Enter，或貼上以逗號分隔的標籤。<br /></text>
+                break;
+            case TagAuthorLevel.Author:
+                <text>請從現有標籤中選擇。找不到合適的標籤時可以申請新標籤，新標籤會先成為「待審」：會顯示在作品上，但要被 @Parameters.TagAutoApproveAuthorCount 位作者使用或經管理員核准後，才會出現在建議清單與標籤雲。<br /></text>
+                break;
+            default:
+                <text>帳號已被封鎖，不能變更標籤。<br /></text>
+                break;
+        }
+        最多 @Model.MaxTags 個標籤，每個標籤長度不超過 @Parameters.TagNameMaxLength 個字。
+    </small>
+</div>

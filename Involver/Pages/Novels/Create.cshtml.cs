@@ -1,15 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 using DataAccess.Common;
 using DataAccess.Data;
-using DataAccess.Models;
 using DataAccess.Models.NovelModel;
 
 using Involver.Authorization.Novel;
 using Involver.Common;
-using Involver.Helpers;
+using Involver.Models.ViewModels;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -27,23 +25,42 @@ public class CreateModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
-    public IActionResult OnGet()
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
-        //ViewData["ProfileID"] = new SelectList(Context.Profiles, "ProfileID", "ProfileID");
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
         return Page();
     }
 
     [BindProperty]
     public Novel Novel { get; set; }
 
+    /// <summary>
+    /// Tagify 送出的標籤（JSON）
+    /// </summary>
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(200)]
+    [MaxLength(2000)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
+
+    /// <summary>
+    /// 使用者在標籤上的權限等級，決定標籤輸入框能不能直接新增標籤
+    /// </summary>
+    public TagAuthorLevel TagAuthorLevel { get; set; }
+
+    /// <summary>
+    /// 標籤輸入框
+    /// </summary>
+    public TagInputViewModel TagInput => new()
+    {
+        Value = TagString,
+        Target = TagTarget.Novel,
+        Level = TagAuthorLevel,
+    };
 
     // Use for upload file
     //[BindProperty]
@@ -63,20 +80,22 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        var userId = UserManager.GetUserId(User);
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+
         if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        var user = await UserManager.GetUserAsync(User);
-        if (await Context.IsBannedAsync(user.Id))
+        if (await Context.IsBannedAsync(userId, cancellationToken))
         {
             return Forbid();
         }
 
-        Novel.ProfileID = UserManager.GetUserId(User);
+        Novel.ProfileID = userId;
 
         var isAuthorized = await AuthorizationService.AuthorizeAsync(
                                                     User, Novel,
@@ -86,68 +105,13 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        #region 設定Tags
-        var tagArr = Array.Empty<string>();
-
-        if (!string.IsNullOrEmpty(TagString))
+        var tagResult = await tagService.ResolveTagsAsync(
+            TagString, TagTarget.Novel, userId, TagAuthorLevel, cancellationToken: cancellationToken);
+        if (!tagResult.Succeeded)
         {
-            try
-            {
-                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
-                if (tagObjects != null)
-                {
-                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
-                }
-            }
-            catch (JsonException)
-            {
-                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
-                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
-            }
-        }
-
-        if (tagArr.Length > Parameters.TagSize)
-        {
-            ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            ErrorMessage = tagResult.ErrorMessage;
             return Page();
         }
-
-        foreach (var tag in tagArr)
-        {
-            if (tag.Length > Parameters.TagNameMaxLength)
-            {
-                ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                return Page();
-            }
-        }
-
-        List<NovelTag> novelTags = [];
-
-        foreach (var tag in tagArr)
-        {
-            if(string.IsNullOrEmpty(tag))
-            {
-                continue;
-            }
-            
-            // SQL Server 預設定序不分大小寫，直接比對才用得到索引
-            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name == tag);
-
-            if (existingTag != null)
-            {
-                novelTags.Add(existingTag);
-            }
-            else
-            {
-                NovelTag newTag = new()
-                {
-                    Name = tag
-                };
-                
-                novelTags.Add(newTag);
-            }
-        }
-        #endregion
 
         Novel emptyNovel =
             new()
@@ -191,14 +155,16 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
             //emptyNovel.ProfileID = Novel.ProfileID;
 
-            emptyNovel.NovelTags = novelTags;
+            emptyNovel.Tags = tagResult.Tags;
 
             Context.Novels.Add(emptyNovel);
-            await Context.SaveChangesAsync();
+            await Context.SaveChangesAsync(cancellationToken);
+
+            await tagService.PromotePendingTagsAsync(tagResult.Tags.Select(t => t.TagId), cancellationToken);
 
             var toasts = await AchievementService.NovelCountAsync(Novel.ProfileID);
 
-            if (novelTags.Count > 0)
+            if (tagResult.Tags.Count > 0)
             {
                 toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Novel.ProfileID));
             }
@@ -213,10 +179,4 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         return Page();
     }
-}
-
-internal class TagifyTag
-{
-    [JsonPropertyName("value")]
-    public string Value { get; set; }
 }

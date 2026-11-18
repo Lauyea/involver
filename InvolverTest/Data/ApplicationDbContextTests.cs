@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using DataAccess.Data;
 using DataAccess.Models;
@@ -128,6 +129,45 @@ namespace InvolverTest.Data
             await context.SaveChangesAsync();
 
             Assert.That(await context.Follows.CountAsync(), Is.EqualTo(2));
+        }
+
+        [Test]
+        public async Task SaveChanges_WhenTagNormalizedNameDuplicated_ThrowsDbUpdateException()
+        {
+            using (var context = CreateContext())
+            {
+                context.Tags.Add(new Tag { Name = "Fate", NormalizedName = "fate" });
+                await context.SaveChangesAsync();
+            }
+
+            using (var context = CreateContext())
+            {
+                context.Tags.Add(new Tag { Name = "ＦＡＴＥ", NormalizedName = "fate" });
+                await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync());
+            }
+        }
+
+        [Test]
+        public async Task SaveChanges_WhenNovelAndArticleShareTag_Succeeds()
+        {
+            using var context = CreateContext();
+            var tag = new Tag { Name = "奇幻", NormalizedName = "奇幻" };
+            context.Tags.Add(tag);
+            context.Novels.Add(new DataAccess.Models.NovelModel.Novel { Title = "小說", Introduction = "介紹", ProfileID = UserId, Tags = [tag] });
+            var article = await context.Articles.SingleAsync(a => a.ArticleID == 1);
+            article.Tags = [tag];
+
+            await context.SaveChangesAsync();
+
+            var saved = await context.Tags
+                .Where(t => t.NormalizedName == "奇幻")
+                .Select(t => new { Novels = t.Novels!.Count, Articles = t.Articles!.Count })
+                .SingleAsync();
+            Assert.Multiple(() =>
+            {
+                Assert.That(saved.Novels, Is.EqualTo(1));
+                Assert.That(saved.Articles, Is.EqualTo(1));
+            });
         }
 
         [Test]

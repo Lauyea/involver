@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models.NovelModel;
 
 using Involver.Common;
+using Involver.Helpers;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -62,16 +63,21 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         CurrentFilter = searchString;
         CurrentType = searchType;
 
-        IQueryable<Novel> NovelsIQ = from n in Context.Novels.Include("Profile").Include(n => n.NovelTags)
+        IQueryable<Novel> NovelsIQ = from n in Context.Novels.Include("Profile").Include(n => n.Tags)
                                      select n;
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            NovelTag novelTag = await Context.NovelTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
+            // 標籤搜尋只找正式標籤，比對統一格式後的名稱
+            var normalizedSearch = TagNameNormalizer.Normalize(searchString);
+            var tagId = await Context.Tags
+                .Where(t => t.NormalizedName == normalizedSearch && t.Status == TagStatus.Approved)
+                .Select(t => (int?)t.TagId)
+                .FirstOrDefaultAsync();
 
             NovelsIQ = NovelsIQ.Where(n => n.Profile.UserName.Contains(searchString)
                                    || n.Title.Contains(searchString)
-                                   || n.NovelTags.Contains(novelTag));
+                                   || (tagId != null && n.Tags.Any(t => t.TagId == tagId)));
         }
 
         if (!String.IsNullOrEmpty(searchType))

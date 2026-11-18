@@ -1,11 +1,16 @@
+using DataAccess.Common;
 using DataAccess.Data;
 
 using Involver.Models.ViewModels;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Views.Shared.Components.TagCloud
 {
+    /// <summary>
+    /// 標籤雲。只列正式標籤，使用次數小說、文章分開算，並排除軟刪除的作品。
+    /// </summary>
     public class TagCloudViewComponent : ViewComponent
     {
         private readonly ApplicationDbContext _context;
@@ -15,35 +20,44 @@ namespace Involver.Views.Shared.Components.TagCloud
             _context = context;
         }
 
+        /// <summary>
+        /// 產生標籤雲
+        /// </summary>
+        /// <param name="tagType">Novel 或 Article</param>
         public async Task<IViewComponentResult> InvokeAsync(string tagType)
         {
             List<TagCloudItemViewModel> tags;
 
-            string targetPage = ""; // 宣告目標頁面變數
+            string targetPage = ""; // 標籤連結的目標頁面
+
+            var approvedTags = _context.Tags
+                .Where(t => t.Status == TagStatus.Approved);
 
             if (tagType == "Article")
             {
-                targetPage = "/Articles/Index"; // 如果是 Article，設定路徑
+                targetPage = "/Articles/Index";
 
-                tags = await _context.ArticleTags
+                tags = await approvedTags
                     .Select(tag => new TagCloudItemViewModel
                     {
                         TagName = tag.Name,
-                        Count = tag.Articles!.Count()
+                        Count = tag.Articles!.Count(a => !a.IsDeleted)
                     })
+                    .Where(t => t.Count > 0)
                     .AsNoTracking()
                     .ToListAsync();
             }
             else if (tagType == "Novel")
             {
-                targetPage = "/Novels/Index"; // 如果是 Novel，設定路徑
+                targetPage = "/Novels/Index";
 
-                tags = await _context.NovelTags
+                tags = await approvedTags
                     .Select(tag => new TagCloudItemViewModel
                     {
                         TagName = tag.Name,
-                        Count = tag.Novels!.Count()
+                        Count = tag.Novels!.Count(n => !n.IsDeleted)
                     })
+                    .Where(t => t.Count > 0)
                     .AsNoTracking()
                     .ToListAsync();
             }
@@ -52,7 +66,7 @@ namespace Involver.Views.Shared.Components.TagCloud
                 tags = new List<TagCloudItemViewModel>();
             }
 
-            // 計算權重，用於決定字體大小
+            // 依使用次數決定字體大小
             if (tags.Count != 0)
             {
                 double maxCount = tags.Max(t => t.Count);
@@ -68,11 +82,11 @@ namespace Involver.Views.Shared.Components.TagCloud
                 }
             }
 
-            // 隨機排序，讓視覺效果更好
+            // 隨機排序，讓視覺更自然
             var random = new Random();
             var model = tags.OrderBy(t => random.Next());
 
-            ViewBag.TargetPage = targetPage; // 將路徑存入 ViewBag
+            ViewBag.TargetPage = targetPage; // 將路徑傳給 View
 
             return View(model);
         }

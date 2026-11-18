@@ -83,10 +83,7 @@
                         <div class="card-footer">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center flex-wrap">
-                                    @foreach (var tag in item.ArticleTags)
-                                    {
-                                        <a asp-page="./Index" asp-route-currentFilter="@tag.Name" class="badge bg-info me-1 mb-1">@tag.Name</a>
-                                    }
+                                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, CssClass = "badge me-1 mb-1" }' />
                                 </div>
 
                                 <div class="d-flex align-items-center">

@@ -48,7 +48,7 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
 
         Article = await Context.Articles
             .Include(a => a.Profile)
-            .Include(a => a.ArticleTags)
+            .Include(a => a.Tags)
             .FirstOrDefaultAsync(m => m.ArticleID == id);
 
         if (Article == null)

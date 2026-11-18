@@ -69,8 +69,10 @@ namespace DataAccess.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            // 先確認現有資料可以安全修改，不符合就中止，不自動修改或刪除資料
-            migrationBuilder.Sql(PreconditionCheckSql);
+            // 先確認現有資料可以安全修改，不符合就中止，不自動修改或刪除資料。
+            // 用 EXEC 包起來：這段參照了本 migration 會刪掉的 AspNetUsers.Prime/Banned 等欄位，
+            // 套用過之後，部署產生的 idempotent script 仍會編譯這個 batch，直接寫會因欄位不存在而失敗（Issue #234）
+            migrationBuilder.Sql($"EXEC(N'{PreconditionCheckSql.Replace("'", "''")}');");
 
             migrationBuilder.DropColumn(
                 name: "CreditCard",

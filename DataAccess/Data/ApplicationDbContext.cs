@@ -40,9 +40,10 @@ namespace DataAccess.Data
 
         public DbSet<Achievement> Achievements { get; set; }
 
-        public DbSet<NovelTag> NovelTags { get; set; }
-
-        public DbSet<ArticleTag> ArticleTags { get; set; }
+        /// <summary>
+        /// 標籤（小說與文章共用）
+        /// </summary>
+        public DbSet<Tag> Tags { get; set; }
 
         public DbSet<Notification> Notifications { get; set; }
 
@@ -131,15 +132,32 @@ namespace DataAccess.Data
                     j.HasIndex(v => v.SeqNo).IsUnique().IsClustered();
                 });
 
+            // 小說、文章共用 Tags 表，但各自保留一張關聯表，兩邊都有真正的 FK
             modelBuilder.Entity<Article>()
-                .HasMany(a => a.ArticleTags)
+                .HasMany(a => a.Tags)
                 .WithMany(t => t.Articles)
-                .UsingEntity(j => j.ToTable("ArticleTaggings"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "ArticleTaggings",
+                    j => j.HasOne<Tag>().WithMany().HasForeignKey("TagId"),
+                    j => j.HasOne<Article>().WithMany().HasForeignKey("ArticleID"),
+                    j =>
+                    {
+                        j.HasKey("ArticleID", "TagId");
+                        j.HasIndex("TagId");
+                    });
 
             modelBuilder.Entity<Novel>()
-                .HasMany(a => a.NovelTags)
+                .HasMany(n => n.Tags)
                 .WithMany(t => t.Novels)
-                .UsingEntity(j => j.ToTable("NovelTaggings"));
+                .UsingEntity<Dictionary<string, object>>(
+                    "NovelTaggings",
+                    j => j.HasOne<Tag>().WithMany().HasForeignKey("TagId"),
+                    j => j.HasOne<Novel>().WithMany().HasForeignKey("NovelID"),
+                    j =>
+                    {
+                        j.HasKey("NovelID", "TagId");
+                        j.HasIndex("TagId");
+                    });
 
             // 為日期排序功能加上索引
             modelBuilder.Entity<Novel>()
@@ -329,12 +347,19 @@ namespace DataAccess.Data
                 .IsUnique();
 
             // 標籤名稱不重複（SQL Server 預設定序不分大小寫）
-            modelBuilder.Entity<NovelTag>()
-                .HasIndex(t => t.Name)
-                .IsUnique();
-            modelBuilder.Entity<ArticleTag>()
-                .HasIndex(t => t.Name)
-                .IsUnique();
+            modelBuilder.Entity<Tag>(t =>
+            {
+                // 所有比對都用統一格式後的名稱；Name 只用來顯示
+                t.HasIndex(e => e.NormalizedName).IsUnique();
+                // 建議清單、標籤雲只列正式標籤
+                t.HasIndex(e => e.Status);
+                t.Property(e => e.CreateTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                // 帳號不會被實體刪除；不設 cascade，避免和作品的刪除路徑衝突
+                t.HasOne(e => e.CreatorProfile)
+                    .WithMany()
+                    .HasForeignKey(e => e.CreatorProfileID)
+                    .OnDelete(DeleteBehavior.NoAction);
+            });
 
             // 付款回呼在 Serializable 交易裡以 MerchantTradeNo 查詢（綠界規格最長 20 字元）
             modelBuilder.Entity<Payment>(p =>

@@ -22,19 +22,19 @@ namespace DataAccess.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ArticleArticleTag", b =>
+            modelBuilder.Entity("ArticleTaggings", b =>
                 {
-                    b.Property<int>("ArticleTagsTagId")
+                    b.Property<int>("ArticleID")
                         .HasColumnType("int");
 
-                    b.Property<int>("ArticlesArticleID")
+                    b.Property<int>("TagId")
                         .HasColumnType("int");
 
-                    b.HasKey("ArticleTagsTagId", "ArticlesArticleID");
+                    b.HasKey("ArticleID", "TagId");
 
-                    b.HasIndex("ArticlesArticleID");
+                    b.HasIndex("TagId");
 
-                    b.ToTable("ArticleTaggings", (string)null);
+                    b.ToTable("ArticleTaggings");
                 });
 
             modelBuilder.Entity("DataAccess.Data.InvolverUser", b =>
@@ -274,27 +274,6 @@ namespace DataAccess.Migrations
                     b.HasIndex("Type", "UpdateTime");
 
                     b.ToTable("Articles");
-                });
-
-            modelBuilder.Entity("DataAccess.Models.ArticleModel.ArticleTag", b =>
-                {
-                    b.Property<int>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.HasKey("TagId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("ArticleTags");
                 });
 
             modelBuilder.Entity("DataAccess.Models.ArticleModel.ArticleViewer", b =>
@@ -815,27 +794,6 @@ namespace DataAccess.Migrations
                     b.ToTable("Novels");
                 });
 
-            modelBuilder.Entity("DataAccess.Models.NovelModel.NovelTag", b =>
-                {
-                    b.Property<int>("TagId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagId"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
-
-                    b.HasKey("TagId");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("NovelTags");
-                });
-
             modelBuilder.Entity("DataAccess.Models.NovelModel.NovelViewer", b =>
                 {
                     b.Property<string>("ProfileID")
@@ -1286,6 +1244,48 @@ namespace DataAccess.Migrations
                     b.ToTable("ProfitSharings");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Tag", b =>
+                {
+                    b.Property<int>("TagId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagId"));
+
+                    b.Property<DateTime>("CreateTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatorProfileID")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("TagId");
+
+                    b.HasIndex("CreatorProfileID");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.HasIndex("Status");
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("DataAccess.Models.View", b =>
                 {
                     b.Property<int>("Id")
@@ -1460,32 +1460,32 @@ namespace DataAccess.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("NovelNovelTag", b =>
+            modelBuilder.Entity("NovelTaggings", b =>
                 {
-                    b.Property<int>("NovelTagsTagId")
+                    b.Property<int>("NovelID")
                         .HasColumnType("int");
 
-                    b.Property<int>("NovelsNovelID")
+                    b.Property<int>("TagId")
                         .HasColumnType("int");
 
-                    b.HasKey("NovelTagsTagId", "NovelsNovelID");
+                    b.HasKey("NovelID", "TagId");
 
-                    b.HasIndex("NovelsNovelID");
+                    b.HasIndex("TagId");
 
-                    b.ToTable("NovelTaggings", (string)null);
+                    b.ToTable("NovelTaggings");
                 });
 
-            modelBuilder.Entity("ArticleArticleTag", b =>
+            modelBuilder.Entity("ArticleTaggings", b =>
                 {
-                    b.HasOne("DataAccess.Models.ArticleModel.ArticleTag", null)
+                    b.HasOne("DataAccess.Models.ArticleModel.Article", null)
                         .WithMany()
-                        .HasForeignKey("ArticleTagsTagId")
+                        .HasForeignKey("ArticleID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccess.Models.ArticleModel.Article", null)
+                    b.HasOne("DataAccess.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("ArticlesArticleID")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1824,6 +1824,16 @@ namespace DataAccess.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Tag", b =>
+                {
+                    b.HasOne("DataAccess.Models.Profile", "CreatorProfile")
+                        .WithMany()
+                        .HasForeignKey("CreatorProfileID")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("CreatorProfile");
+                });
+
             modelBuilder.Entity("DataAccess.Models.View", b =>
                 {
                     b.HasOne("DataAccess.Models.ArticleModel.Article", "Article")
@@ -1890,17 +1900,17 @@ namespace DataAccess.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("NovelNovelTag", b =>
+            modelBuilder.Entity("NovelTaggings", b =>
                 {
-                    b.HasOne("DataAccess.Models.NovelModel.NovelTag", null)
+                    b.HasOne("DataAccess.Models.NovelModel.Novel", null)
                         .WithMany()
-                        .HasForeignKey("NovelTagsTagId")
+                        .HasForeignKey("NovelID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DataAccess.Models.NovelModel.Novel", null)
+                    b.HasOne("DataAccess.Models.Tag", null)
                         .WithMany()
-                        .HasForeignKey("NovelsNovelID")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

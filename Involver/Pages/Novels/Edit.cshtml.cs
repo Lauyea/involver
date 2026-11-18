@@ -7,6 +7,7 @@ using DataAccess.Models.NovelModel;
 
 using Involver.Authorization.Novel;
 using Involver.Common;
+using Involver.Models.ViewModels;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -23,17 +24,36 @@ public class EditModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Novel Novel { get; set; }
 
+    /// <summary>
+    /// Tagify 送出的標籤（JSON）
+    /// </summary>
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(200)]
+    [MaxLength(2000)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
+
+    /// <summary>
+    /// 使用者在標籤上的權限等級，決定標籤輸入框能不能直接新增標籤
+    /// </summary>
+    public TagAuthorLevel TagAuthorLevel { get; set; }
+
+    /// <summary>
+    /// 標籤輸入框
+    /// </summary>
+    public TagInputViewModel TagInput => new()
+    {
+        Value = TagString,
+        Target = TagTarget.Novel,
+        Level = TagAuthorLevel,
+    };
 
     public List<SelectListItem> Types { get; } = new List<SelectListItem>
     {
@@ -47,7 +67,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         new SelectListItem { Value = Type.Detective.ToString(), Text = "推理" },
     };
 
-    public async Task<IActionResult> OnGetAsync(int? id)
+    public async Task<IActionResult> OnGetAsync(int? id, CancellationToken cancellationToken)
     {
         if (id == null)
         {
@@ -56,8 +76,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         Novel = await Context.Novels
             .Include(n => n.Profile)
-            .Include(n => n.NovelTags)
-            .FirstOrDefaultAsync(m => m.NovelID == id);
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(m => m.NovelID == id, cancellationToken);
 
         if (Novel == null)
         {
@@ -72,8 +92,9 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        var tags = Novel.NovelTags.Select(t => new { value = t.Name });
+        var tags = Novel.Tags.Select(t => new { value = t.Name });
         TagString = JsonSerializer.Serialize(tags);
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
 
         return Page();
     }
@@ -82,8 +103,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
-    public async Task<IActionResult> OnPostAsync(int id)
+    public async Task<IActionResult> OnPostAsync(int id, CancellationToken cancellationToken)
     {
+        var userId = UserManager.GetUserId(User);
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+
         if (!ModelState.IsValid)
         {
             return Page();
@@ -92,8 +116,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         // Fetch data from DB to get OwnerID.
         Novel novelToUpdate = await Context
             .Novels
-            .Include(n => n.NovelTags)
-            .FirstOrDefaultAsync(n => n.NovelID == id);
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(n => n.NovelID == id, cancellationToken);
 
         if (novelToUpdate == null)
         {
@@ -108,66 +132,21 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        #region 設定Tags
-        var tagArr = Array.Empty<string>();
-
-        if (!string.IsNullOrEmpty(TagString))
+        var tagResult = await tagService.ResolveTagsAsync(
+            TagString,
+            TagTarget.Novel,
+            userId,
+            TagAuthorLevel,
+            novelToUpdate.Tags.Select(t => t.TagId).ToList(),
+            cancellationToken);
+        if (!tagResult.Succeeded)
         {
-            try
-            {
-                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
-                if (tagObjects != null)
-                {
-                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
-                }
-            }
-            catch (JsonException)
-            {
-                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
-                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
-            }
-        }
-
-        if (tagArr.Length > Parameters.TagSize)
-        {
-            ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            ErrorMessage = tagResult.ErrorMessage;
             Novel = novelToUpdate; // Re-assign for the view
             return Page();
         }
 
-        foreach (var tag in tagArr)
-        {
-            if (tag.Length > Parameters.TagNameMaxLength)
-            {
-                ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                Novel = novelToUpdate; // Re-assign for the view
-                return Page();
-            }
-        }
-
-        var updatedTags = new List<NovelTag>();
-        foreach (var tagName in tagArr)
-        {
-            if (string.IsNullOrEmpty(tagName))
-            {
-                continue;
-            }
-
-            // SQL Server 預設定序不分大小寫，直接比對才用得到索引
-            var existingTag = await Context.NovelTags.FirstOrDefaultAsync(t => t.Name == tagName);
-
-            if (existingTag != null)
-            {
-                updatedTags.Add(existingTag);
-            }
-            else
-            {
-                var newTag = new NovelTag { Name = tagName };
-                Context.NovelTags.Add(newTag); // Add to context to be saved
-                updatedTags.Add(newTag);
-            }
-        }
-        #endregion
+        var updatedTags = tagResult.Tags;
 
         //Protect from overposting attacks
         if (await TryUpdateModelAsync<Novel>(
@@ -181,11 +160,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             //}
             novelToUpdate.UpdateTime = DateTime.Now;
 
-            novelToUpdate.NovelTags = updatedTags;
+            novelToUpdate.Tags = updatedTags;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await Context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -198,6 +177,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                     throw;
                 }
             }
+
+            await tagService.PromotePendingTagsAsync(updatedTags.Select(t => t.TagId), cancellationToken);
 
             var toasts = await AchievementService.FirstTimeEditAsync(Novel.ProfileID);
 

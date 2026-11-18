@@ -125,9 +125,9 @@ namespace DataAccess.Models.ArticleModel
         public ICollection<Involving>? Involvers { get; set; }
 
         /// <summary>
-        /// Collection navigation to ArticleTags
+        /// Collection navigation to Tags（透過 ArticleTaggings 關聯表）
         /// </summary>
-        public ICollection<ArticleTag>? ArticleTags { get; set; }
+        public ICollection<Tag>? Tags { get; set; }
 
         /// <summary>
         /// Collection navigation to Views

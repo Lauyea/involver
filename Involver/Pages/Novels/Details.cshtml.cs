@@ -57,7 +57,7 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
 
         Novel = await Context.Novels
             .Include(n => n.Profile)
-            .Include(n => n.NovelTags)
+            .Include(n => n.Tags)
             .FirstOrDefaultAsync(m => m.NovelID == id);
 
         if (Novel == null)
@@ -87,31 +87,18 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
 
         EpisodeTotalPages = (int)Math.Ceiling(episodeCount / (double)Parameters.EpisodePageSize);
 
-        var tagArr = Novel.NovelTags.ToArray();
+        var tagIds = Novel.Tags.Select(t => t.TagId).ToList();
 
         var recommendNovels = Context.Novels
             .Where(n => n.Type == Novel.Type)
             .Where(n => n.Block == false)
             .Where(n => n.IsDeleted == false);
 
-        // There is most 3 tags right now
-        if (tagArr.Length > 2)
+        // 有任一個相同標籤的作品
+        if (tagIds.Count > 0)
         {
             recommendNovels = recommendNovels
-                .Where(n => n.NovelTags.Contains(tagArr[0])
-                || n.NovelTags.Contains(tagArr[1])
-                || n.NovelTags.Contains(tagArr[2]));
-        }
-        else if (tagArr.Length > 1)
-        {
-            recommendNovels = recommendNovels
-                .Where(n => n.NovelTags.Contains(tagArr[0])
-                || n.NovelTags.Contains(tagArr[1]));
-        }
-        else if (tagArr.Length > 0)
-        {
-            recommendNovels = recommendNovels
-                .Where(n => n.NovelTags.Contains(tagArr[0]));
+                .Where(n => n.Tags.Any(t => tagIds.Contains(t.TagId)));
         }
 
 

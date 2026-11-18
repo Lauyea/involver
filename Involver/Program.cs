@@ -1,4 +1,4 @@
-using Azure.Identity;
+﻿using Azure.Identity;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 
 using DataAccess.Data;
@@ -93,6 +93,7 @@ services.AddScoped<ICoinService, CoinService>();
 services.AddScoped<IMissionService, MissionService>();
 services.AddScoped<IViewCountService, ViewCountService>();
 services.AddScoped<IUserAccountService, UserAccountService>();
+services.AddScoped<ITagService, TagService>();
 services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
 
 services.AddRateLimiter(options =>
