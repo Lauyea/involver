@@ -14,9 +14,36 @@ namespace DataAccess.Common
 
         public const int VotingOptionContentLength = 15;
 
-        public const int TagSize = 3;
+        /// <summary>
+        /// 每部小說最多的標籤數
+        /// </summary>
+        public const int NovelTagSize = 8;
 
+        /// <summary>
+        /// 每篇文章最多的標籤數
+        /// </summary>
+        public const int ArticleTagSize = 5;
+
+        /// <summary>
+        /// 標籤名稱（作者輸入的寫法）最多的字數
+        /// </summary>
         public const int TagNameMaxLength = 15;
+
+        /// <summary>
+        /// 標籤統一格式後的名稱最多的字數。
+        /// NFKC 可能把一個字展開成多個字（例如「㍻」→「平成」），所以比 <see cref="TagNameMaxLength"/> 長。
+        /// </summary>
+        public const int TagNormalizedNameMaxLength = 64;
+
+        /// <summary>
+        /// 待審標籤被幾位不同作者使用後自動轉正
+        /// </summary>
+        public const int TagAutoApproveAuthorCount = 3;
+
+        /// <summary>
+        /// 一般作者每天最多可以新增（申請）的標籤數
+        /// </summary>
+        public const int TagDailyCreateLimit = 5;
 
         public const int ProfileIntroLength = 256;
 

@@ -8,14 +8,13 @@ using DataAccess.Models.ArticleModel;
 
 using Involver.Authorization.Article;
 using Involver.Common;
-using Involver.Helpers;
+using Involver.Models.ViewModels;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Involver.Pages.Articles;
 
@@ -23,26 +22,47 @@ public class EditModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Article Article { get; set; }
 
+    /// <summary>
+    /// Tagify 送出的標籤（JSON）
+    /// </summary>
     [BindProperty]
     [Display(Name = "標籤")]
-    [MaxLength(200)]
+    [MaxLength(2000)]
     public string TagString { get; set; }
 
     public string ErrorMessage { get; set; }
 
-    public async Task<IActionResult> OnGetAsync(int? id)
+    /// <summary>
+    /// 使用者在標籤上的權限等級，決定標籤輸入框能不能直接新增標籤
+    /// </summary>
+    public TagAuthorLevel TagAuthorLevel { get; set; }
+
+    /// <summary>
+    /// 標籤輸入框
+    /// </summary>
+    public TagInputViewModel TagInput => new()
+    {
+        Value = TagString,
+        Target = TagTarget.Article,
+        Level = TagAuthorLevel,
+    };
+
+    public async Task<IActionResult> OnGetAsync(int? id, CancellationToken cancellationToken)
     {
         if (id == null)
         {
             return NotFound();
         }
 
-        Article = await Context.Articles.Include(a => a.ArticleTags).FirstOrDefaultAsync(a => a.ArticleID == id);
+        Article = await Context.Articles
+            .Include(a => a.Tags)
+            .FirstOrDefaultAsync(a => a.ArticleID == id, cancellationToken);
 
         if (Article == null)
         {
@@ -57,8 +77,9 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        var tags = Article.ArticleTags.Select(t => new { value = t.Name });
+        var tags = Article.Tags.Select(t => new { value = t.Name });
         TagString = JsonSerializer.Serialize(tags);
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
 
         return Page();
     }
@@ -67,8 +88,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
-    public async Task<IActionResult> OnPostAsync(int id)
+    public async Task<IActionResult> OnPostAsync(int id, CancellationToken cancellationToken)
     {
+        var userId = UserManager.GetUserId(User);
+        TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+
         if (Article.Content?.Length > Parameters.ArticleLength)
         {
             return Page();
@@ -82,8 +106,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         // Fetch data from DB to get OwnerID.
         Article articleToUpdate = await Context
             .Articles
-            .Include(a => a.ArticleTags)
-            .FirstOrDefaultAsync(a => a.ArticleID == id);
+            .Include(a => a.Tags)
+            .FirstOrDefaultAsync(a => a.ArticleID == id, cancellationToken);
 
         if (articleToUpdate == null)
         {
@@ -98,69 +122,21 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             return Forbid();
         }
 
-        #region 設定Tags
-        var tagArr = Array.Empty<string>();
-
-        if (!string.IsNullOrEmpty(TagString))
+        var tagResult = await tagService.ResolveTagsAsync(
+            TagString,
+            TagTarget.Article,
+            userId,
+            TagAuthorLevel,
+            articleToUpdate.Tags.Select(t => t.TagId).ToList(),
+            cancellationToken);
+        if (!tagResult.Succeeded)
         {
-            try
-            {
-                var tagObjects = JsonSerializer.Deserialize<List<TagifyTag>>(TagString);
-                if (tagObjects != null)
-                {
-                    tagArr = tagObjects.Select(t => t.Value.Trim()).ToArray();
-                }
-            }
-            catch (JsonException)
-            {
-                // Handle cases where the input is not valid JSON, could be a single tag or comma separated tags
-                tagArr = TagString.Split(",").Select(t => t.Trim()).ToArray();
-            }
-        }
-
-        if (tagArr.Length > Parameters.TagSize)
-        {
-            ErrorMessage = $"設定標籤超過{Parameters.TagSize}個，請重新設定";
+            ErrorMessage = tagResult.ErrorMessage;
             Article = articleToUpdate; // Re-assign for the view
             return Page();
         }
 
-        foreach (var tag in tagArr)
-        {
-            if (tag.Length > Parameters.TagNameMaxLength)
-            {
-                ErrorMessage = $"設定標籤長度超過{Parameters.TagNameMaxLength}個字，請重新設定";
-                Article = articleToUpdate; // Re-assign for the view
-                return Page();
-            }
-        }
-
-        var updatedTags = new List<ArticleTag>();
-        if (!tagArr.IsNullOrEmpty())
-        {
-            foreach (var tagName in tagArr)
-            {
-                if (string.IsNullOrEmpty(tagName))
-                {
-                    continue;
-                }
-
-                // SQL Server 預設定序不分大小寫，直接比對才用得到索引
-                var existingTag = await Context.ArticleTags.FirstOrDefaultAsync(t => t.Name == tagName);
-
-                if (existingTag != null)
-                {
-                    updatedTags.Add(existingTag);
-                }
-                else
-                {
-                    var newTag = new ArticleTag { Name = tagName };
-                    Context.ArticleTags.Add(newTag); // Add to context to be saved
-                    updatedTags.Add(newTag);
-                }
-            }
-        }
-        #endregion
+        var updatedTags = tagResult.Tags;
 
         if (await TryUpdateModelAsync<Article>(
             articleToUpdate,
@@ -169,11 +145,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         {
             articleToUpdate.UpdateTime = DateTime.Now;
 
-            articleToUpdate.ArticleTags = updatedTags;
+            articleToUpdate.Tags = updatedTags;
 
             try
             {
-                await Context.SaveChangesAsync();
+                await Context.SaveChangesAsync(cancellationToken);
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -186,6 +162,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                     throw;
                 }
             }
+
+            await tagService.PromotePendingTagsAsync(updatedTags.Select(t => t.TagId), cancellationToken);
 
             var toasts = await AchievementService.FirstTimeEditAsync(Article.ProfileID);
 

@@ -103,9 +103,9 @@ namespace DataAccess.Models.NovelModel
         public ICollection<Follow>? Follows { get; set; }
 
         /// <summary>
-        /// Collection navigation to NovelTags
+        /// Collection navigation to Tags（透過 NovelTaggings 關聯表）
         /// </summary>
-        public ICollection<NovelTag>? NovelTags { get; set; }
+        public ICollection<Tag>? Tags { get; set; }
 
         /// <summary>
         /// Collection navigation to Views

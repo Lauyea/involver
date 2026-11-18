@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
+using Involver.Helpers;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -58,18 +59,23 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         var articles = Context.Articles
             .Include(a => a.Profile)
-            .Include(a => a.ArticleTags)
+            .Include(a => a.Tags)
             .Where(a => a.Type == ArticleType.General)
             .AsQueryable();
 
         if (!String.IsNullOrEmpty(searchString))
         {
-            ArticleTag articleTag = await Context.ArticleTags.Where(t => t.Name == searchString).FirstOrDefaultAsync();
+            // 標籤搜尋只找正式標籤，比對統一格式後的名稱
+            var normalizedSearch = TagNameNormalizer.Normalize(searchString);
+            var tagId = await Context.Tags
+                .Where(t => t.NormalizedName == normalizedSearch && t.Status == TagStatus.Approved)
+                .Select(t => (int?)t.TagId)
+                .FirstOrDefaultAsync();
 
             articles = articles
                 .Where(a => a.Profile.UserName.Contains(searchString)
                 || a.Title.Contains(searchString)
-                || a.ArticleTags.Contains(articleTag));
+                || (tagId != null && a.Tags.Any(t => t.TagId == tagId)));
         }
 
         switch (sortOrder)
