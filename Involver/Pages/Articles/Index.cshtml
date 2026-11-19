@@ -27,6 +27,16 @@
     <div class="card-body">
         <form asp-page="./Index" method="get" class="mb-4">
             <div class="input-group">
+                @if (Model.Categories.Count > 0)
+                {
+                    <select name="searchType" class="form-select flex-grow-0 w-auto" aria-label="分類">
+                        <option value="">所有分類</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.TagId" selected="@(Model.CurrentType == category.TagId.ToString())">@category.Name</option>
+                        }
+                    </select>
+                }
                 <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" placeholder="搜尋文章..." />
                 <div class="input-group-append">
                     <input type="submit" value="搜尋" class="btn btn-primary" />
@@ -37,8 +47,8 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="btn-group btn-group-sm">
-                <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary @(Model.CurrentSort == Model.DateSort ? "active" : "")">時間 @Html.Raw(arrowDate)</a>
-                <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary @(Model.CurrentSort == Model.ViewSort ? "active" : "")">觀看數 @Html.Raw(arrowView)</a>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.DateSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary @(Model.CurrentSort == Model.DateSort ? "active" : "")">時間 @Html.Raw(arrowDate)</a>
+                <a asp-page="./Index" asp-route-sortOrder="@Model.ViewSort" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="btn btn-outline-primary @(Model.CurrentSort == Model.ViewSort ? "active" : "")">觀看數 @Html.Raw(arrowView)</a>
             </div>
         </div>
 
@@ -80,7 +90,7 @@
                         <div class="card-footer">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="d-flex align-items-center flex-wrap">
-                                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, CssClass = "badge me-1 mb-1" }' />
+                                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, Target = DataAccess.Common.TagTarget.Article, CssClass = "badge me-1 mb-1" }' />
                                 </div>
 
                                 <div class="d-flex align-items-center">
@@ -111,28 +121,29 @@
                 <nav aria-label="Page navigation">
                     <ul class="pagination mb-0">
                         <li class="page-item @prevDisabled">
-                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="1" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-left"></i></a>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="1" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-left"></i></a>
                         </li>
                         <li class="page-item @prevDisabled">
-                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@(Model.Articles.PageIndex - 1)" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-left"></i></a>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@(Model.Articles.PageIndex - 1)" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-left"></i></a>
                         </li>
                         @for (int i = startPage; i <= endPage; i++)
                         {
                             <li class="page-item @(i == Model.Articles.PageIndex ? "active" : "")">
-                                <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@i" asp-route-currentFilter="@Model.CurrentFilter" class="page-link">@i</a>
+                                <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@i" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link">@i</a>
                             </li>
                         }
                         <li class="page-item @nextDisabled">
-                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@(Model.Articles.PageIndex + 1)" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-right"></i></a>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@(Model.Articles.PageIndex + 1)" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-right"></i></a>
                         </li>
                         <li class="page-item @nextDisabled">
-                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@Model.Articles.TotalPages" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-right"></i></a>
+                            <a asp-page="./Index" asp-route-sortOrder="@Model.CurrentSort" asp-route-PageIndex="@Model.Articles.TotalPages" asp-route-currentType="@Model.CurrentType" asp-route-currentFilter="@Model.CurrentFilter" class="page-link"><i class="fas fa-angle-double-right"></i></a>
                         </li>
                     </ul>
                 </nav>
 
                 <form class="d-flex" asp-page="./Index" method="get">
                     <input type="hidden" name="sortOrder" value="@Model.CurrentSort" />
+                    <input type="hidden" name="currentType" value="@Model.CurrentType" />
                     <input type="hidden" name="currentFilter" value="@Model.CurrentFilter" />
                     <div class="input-group ms-2">
                         <input type="number" name="pageIndex" value="@Model.Articles.PageIndex" class="form-control" style="max-width: 75px;" />

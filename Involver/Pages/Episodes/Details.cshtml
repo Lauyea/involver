@@ -72,6 +72,12 @@
                 @Html.AntiXssRaw(Model.Episode.Content.Replace("\r\n", "<br />"))
             }
         </article>
+        @if (Model.UserID != null)
+        {
+            @* 看到這個標記就算讀到結尾（讀完率），由 episode-read.js 回報 *@
+            <div class="episode-end-marker" data-episode-id="@Model.Episode.EpisodeID" aria-hidden="true"></div>
+            @Html.AntiForgeryToken()
+        }
     </div>
     <div class="card-footer">
         @{
@@ -131,6 +137,10 @@
 <div id="fb-root"></div>
 
 @section Scripts{
+    @if (Model.UserID != null)
+    {
+        <script type="module" src="~/js/recommendations/episode-read.js" asp-append-version="true"></script>
+    }
     <script>(function(d, s, id) {
         var js, fjs = d.getElementsByTagName(s)[0];
         if (d.getElementById(id)) return;

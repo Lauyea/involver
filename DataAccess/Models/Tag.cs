@@ -57,8 +57,41 @@ namespace DataAccess.Models
         public DateTime CreateTime { get; set; }
 
         /// <summary>
+        /// 是否為分類標籤。分類由管理員在後台維護，在新增、編輯作品時和一般標籤分開選，不佔一般標籤的名額。
+        /// 一定和 <see cref="CategoryScope"/> 一起設定：是分類時範圍不為 <see cref="CategoryScope.None"/>
+        /// </summary>
+        [Display(Name = "分類")]
+        public bool IsCategory { get; set; }
+
+        /// <summary>
+        /// 分類適用的作品類型（小說、文章或兩者）；不適用的作品上，這個標籤只是一般標籤
+        /// </summary>
+        [Display(Name = "分類適用")]
+        public CategoryScope CategoryScope { get; set; }
+
+        /// <summary>
+        /// 分類的顯示順序（小的在前）；不是分類時不使用
+        /// </summary>
+        [Display(Name = "分類順序")]
+        public int CategoryOrder { get; set; }
+
+        /// <summary>
+        /// 分類的 Font Awesome 圖示（例如 <c>fa-hat-wizard</c>）；沒有時顯示預設圖示
+        /// </summary>
+        [MaxLength(50)]
+        [Display(Name = "分類圖示")]
+        public string? CategoryIcon { get; set; }
+
+        /// <summary>
         /// Collection navigation to Novels
         /// </summary>
+        /// <summary>
+        /// 是否為適用於指定作品類型的分類
+        /// </summary>
+        /// <param name="scope">作品類型</param>
+        /// <returns>是否為適用的分類</returns>
+        public bool IsCategoryFor(CategoryScope scope) => IsCategory && (CategoryScope & scope) != 0;
+
         public ICollection<Novel>? Novels { get; set; }
 
         /// <summary>

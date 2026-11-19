@@ -20,6 +20,8 @@ public static class ImportMapHelper
         ["chart.js"] = "/lib/chart.js/dist/chart.js",
         ["@kurkle/color"] = "/lib/kurkle-color/dist/color.esm.js",
         ["/js/charts/chart-theme.js"] = "/js/charts/chart-theme.js",
+        // 呼叫站內 API（帶 anti-forgery token）
+        ["/js/api-client.js"] = "/js/api-client.js",
     };
 
     /// <summary>

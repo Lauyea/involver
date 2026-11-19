@@ -24,10 +24,6 @@ namespace DataAccess.Models.NovelModel
         [StringLength(Parameters.ImageUrlLength)]
         public string? ImageUrl { get; set; }
 
-        [DisplayFormat(NullDisplayText = "No type")]
-        [Display(Name = "類型")]
-        public Common.Type? Type { get; set; }
-
         [DataType(DataType.DateTime)]
         [Display(Name = "創建時間")]
         public DateTime CreateTime { get; set; }

@@ -25,8 +25,19 @@ public class IndexModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
+    /// <summary>
+    /// 分類篩選的選項
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
+    /// <summary>
+    /// 目前的分類篩選（分類標籤 ID）
+    /// </summary>
+    public string CurrentType { get; set; }
+
     public PaginatedList<Article> Articles { get; set; }
     public string DateSort { get; set; }
     public string ViewSort { get; set; }
@@ -44,24 +55,29 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
     public Dictionary<int, string> Previews { get; set; } = [];
 
     public async Task OnGetAsync(
+        string currentType,
+        string searchType,
         string sortOrder,
         string currentFilter,
         string searchString,
-        int? PageIndex)
+        int? PageIndex,
+        CancellationToken cancellationToken)
     {
         CurrentSort = sortOrder;
         DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
         ViewSort = sortOrder == "View_desc" ? "View" : "View_desc";
 
-        if (searchString != null)
+        if (searchType != null || searchString != null)
         {
             PageIndex = 1;
         }
         else
         {
             searchString = currentFilter;
+            searchType = currentType;
         }
         CurrentFilter = searchString;
+        CurrentType = searchType;
 
         var articles = Context.Articles
             .Include(a => a.Profile)
@@ -82,6 +98,17 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                 .Where(a => a.Profile.UserName.Contains(searchString)
                 || a.Title.Contains(searchString)
                 || (tagId != null && a.Tags.Any(t => t.TagId == tagId)));
+        }
+
+        // 分類篩選：searchType、currentType 是分類標籤 ID
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Article, cancellationToken);
+        if (int.TryParse(searchType, out var categoryId) && Categories.Any(c => c.TagId == categoryId))
+        {
+            articles = articles.Where(a => a.Tags.Any(t => t.TagId == categoryId));
+        }
+        else
+        {
+            CurrentType = null;
         }
 
         switch (sortOrder)

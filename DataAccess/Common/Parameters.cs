@@ -25,6 +25,11 @@ namespace DataAccess.Common
         public const int ArticleTagSize = 5;
 
         /// <summary>
+        /// 每部作品最多的分類數（分類標籤另外計算，不佔 <see cref="NovelTagSize"/>、<see cref="ArticleTagSize"/>）
+        /// </summary>
+        public const int CategoryMaxPerWork = 3;
+
+        /// <summary>
         /// 標籤名稱（作者輸入的寫法）最多的字數
         /// </summary>
         public const int TagNameMaxLength = 15;
@@ -108,5 +113,10 @@ namespace DataAccess.Common
         /// 最小的投票限值
         /// </summary>
         public const int VotingCoinLimitMin = 0;
+
+        /// <summary>
+        /// Feed 曝光與點擊紀錄保留天數（每日排程刪除更早的紀錄）
+        /// </summary>
+        public const int RecommendationImpressionRetentionDays = 90;
     }
 }

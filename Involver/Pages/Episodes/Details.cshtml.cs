@@ -15,6 +15,7 @@ using Involver.Authorization.Voting;
 using Involver.Common;
 using Involver.Extensions;
 using Involver.Services;
+using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -33,7 +34,8 @@ IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
 IViewCountService viewCountService,
-IMissionService missionService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IMissionService missionService,
+IEpisodeReadService episodeReadService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public Episode Episode { get; set; }
 
@@ -153,6 +155,12 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
             {
                 throw;
             }
+        }
+
+        // 章節閱讀紀錄（讀完率）：進入章節記為開始閱讀，讀到結尾由前端另外回報
+        if (UserID != null && !Episode.IsDeleted)
+        {
+            await episodeReadService.RecordOpenAsync(UserID, Episode.EpisodeID);
         }
 
         var toasts = await AchievementService.ReadEpisodeAsync(UserID);

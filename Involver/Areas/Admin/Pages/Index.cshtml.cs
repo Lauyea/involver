@@ -6,6 +6,7 @@ using DataAccess.Services;
 using Involver.Authorization.Admin;
 using Involver.Models.ViewModels.Dashboard;
 using Involver.Services.Admin;
+using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +19,14 @@ namespace Involver.Areas.Admin.Pages;
 /// </summary>
 /// <param name="context">資料庫內容</param>
 /// <param name="authorizationService">授權服務（決定待處理項目能否點進去）</param>
+/// <param name="recommendationSettings">推薦設定（異常警示的門檻）</param>
+/// <param name="anomalyService">短時間暴增的作品</param>
 [Authorize(Policy = AdminPolicies.Access)]
-public class IndexModel(ApplicationDbContext context, IAuthorizationService authorizationService) : AdminPageModel
+public class IndexModel(
+    ApplicationDbContext context,
+    IAuthorizationService authorizationService,
+    IRecommendationSettingsService recommendationSettings,
+    IRecommendationAnomalyService anomalyService) : AdminPageModel
 {
     /// <summary>
     /// 待處理的項目
@@ -214,12 +221,17 @@ public class IndexModel(ApplicationDbContext context, IAuthorizationService auth
 
         var canTags = (await authorizationService.AuthorizeAsync(User, AdminPolicies.Tags)).Succeeded;
         var canContent = (await authorizationService.AuthorizeAsync(User, AdminPolicies.Content)).Succeeded;
+        var canRecommendations = (await authorizationService.AuthorizeAsync(User, AdminPolicies.Administrators)).Succeeded;
+
+        var settings = (await recommendationSettings.GetActiveAsync(cancellationToken)).Settings;
+        var spikes = await anomalyService.GetSpikesAsync(settings, DateTime.Now, cancellationToken);
 
         PendingItems =
         [
             new("待審標籤", pendingTags, canTags ? Url.Page("/Tags/Index") : null, "fa-tags"),
             new("未處理的意見回饋", pendingFeedbacks, Url.Page("/Feedbacks/Index", new { area = "" }), "fa-comment-dots"),
             new("被封鎖的內容", blocked, canContent ? Url.Page("/ContentStats/Index") + "#blocked" : null, "fa-ban"),
+            new("讀者短時間暴增", spikes.Count, canRecommendations ? Url.Page("/Recommendations/Index") + "#spikes" : null, "fa-triangle-exclamation"),
         ];
     }
 

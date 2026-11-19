@@ -90,11 +90,10 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
         var tagIds = Novel.Tags.Select(t => t.TagId).ToList();
 
         var recommendNovels = Context.Novels
-            .Where(n => n.Type == Novel.Type)
             .Where(n => n.Block == false)
             .Where(n => n.IsDeleted == false);
 
-        // 有任一個相同標籤的作品
+        // 有任一個相同標籤（含分類）的作品
         if (tagIds.Count > 0)
         {
             recommendNovels = recommendNovels

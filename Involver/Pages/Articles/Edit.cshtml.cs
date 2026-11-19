@@ -23,7 +23,8 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+ITagService tagService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Article Article { get; set; }
@@ -42,6 +43,27 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     /// 使用者在標籤上的權限等級，決定標籤輸入框能不能直接新增標籤
     /// </summary>
     public TagAuthorLevel TagAuthorLevel { get; set; }
+
+    /// <summary>
+    /// 勾選的分類標籤 ID
+    /// </summary>
+    [BindProperty]
+    public List<int> CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// 可選的分類
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
+    /// <summary>
+    /// 分類選擇（文章可以不選）
+    /// </summary>
+    public CategoryPickerViewModel CategoryPicker => new()
+    {
+        Options = Categories,
+        SelectedIds = CategoryIds,
+        Required = false,
+    };
 
     /// <summary>
     /// 標籤輸入框
@@ -77,9 +99,12 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             return Forbid();
         }
 
-        var tags = Article.Tags.Select(t => new { value = t.Name });
+        // 分類在分類選擇裡顯示，標籤輸入框只放一般標籤
+        var tags = Article.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Article)).Select(t => new { value = t.Name });
+        CategoryIds = Article.Tags.Where(t => t.IsCategoryFor(CategoryScope.Article)).Select(t => t.TagId).ToList();
         TagString = JsonSerializer.Serialize(tags);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Article, cancellationToken);
 
         return Page();
     }
@@ -92,6 +117,7 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     {
         var userId = UserManager.GetUserId(User);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Article, cancellationToken);
 
         if (Article.Content?.Length > Parameters.ArticleLength)
         {
@@ -136,7 +162,16 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             return Page();
         }
 
-        var updatedTags = tagResult.Tags;
+        var categoryResult = await categoryService.SelectAsync(CategoryIds, tagResult.Tags, TagTarget.Article, required: false, cancellationToken);
+        if (!categoryResult.Succeeded)
+        {
+            ErrorMessage = categoryResult.ErrorMessage;
+            Article = articleToUpdate; // Re-assign for the view
+            return Page();
+        }
+
+        // 一般標籤裡的分類已併入分類
+        var updatedTags = tagResult.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Article)).Concat(categoryResult.Categories).ToList();
 
         if (await TryUpdateModelAsync<Article>(
             articleToUpdate,

@@ -15,9 +15,10 @@
 <div class="mb-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.DailyChart })</div>
 
 <div class="row g-3 mb-4">
-    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyVotesChart })</div>
-    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyCoinsChart })</div>
-    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.TypeChart })</div>
+    <div class="col-md-6 col-xl-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.NovelCategoryChart })</div>
+    <div class="col-md-6 col-xl-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.ArticleCategoryChart })</div>
+    <div class="col-md-6 col-xl-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyVotesChart })</div>
+    <div class="col-md-6 col-xl-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyCoinsChart })</div>
 </div>
 
 <section id="blocked" aria-labelledby="blocked-heading">

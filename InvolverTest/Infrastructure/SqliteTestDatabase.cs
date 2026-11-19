@@ -4,6 +4,7 @@ using DataAccess.Data;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
+using DataAccess.Models.NovelModel;
 
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,8 @@ namespace InvolverTest.Infrastructure
                 modelBuilder.Entity<Profile>().Property(p => p.SeqNo).ValueGeneratedNever();
                 modelBuilder.Entity<ProfileAchievement>().Property(p => p.SeqNo).ValueGeneratedNever();
                 modelBuilder.Entity<ProfileAchievement>().HasIndex(p => p.SeqNo).IsUnique(false);
+                modelBuilder.Entity<NovelViewer>().Property(v => v.SeqNo).ValueGeneratedNever();
+                modelBuilder.Entity<ArticleViewer>().Property(v => v.SeqNo).ValueGeneratedNever();
                 // SQLite 沒有 getdate()
                 modelBuilder.Entity<Article>().Property(a => a.CreateTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             }

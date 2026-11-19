@@ -1,0 +1,42 @@
+@model Involver.Models.ViewModels.CategoryPickerViewModel
+
+@*
+    分類選擇（Material Design 的 filter chips）：小說、文章的新增與編輯頁共用。
+    勾選數量上限由 site.js 的 data-max-checked 處理，後端 ICategoryService.SelectAsync 會再檢查一次。
+*@
+@{
+    var hintId = $"{Model.Name}-hint";
+}
+
+<fieldset class="category-picker mb-3" data-max-checked="@Model.Max" aria-describedby="@hintId">
+    <legend class="category-picker__legend">
+        分類
+        @if (Model.Required)
+        {
+            <span class="text-danger" aria-hidden="true">*</span>
+            <span class="visually-hidden">（必選）</span>
+        }
+    </legend>
+    <p id="@hintId" class="category-picker__hint">
+        @(Model.Required ? "至少選 1 個" : "可以不選")，最多 @Model.Max 個。分類不佔標籤的名額。
+    </p>
+    @if (Model.Options.Count == 0)
+    {
+        <p class="category-picker__hint">目前還沒有分類，管理員新增後就可以選。</p>
+    }
+    else
+    {
+        <div class="category-picker__options">
+            @foreach (var option in Model.Options)
+            {
+                var id = $"{Model.Name}-{option.TagId}";
+                <input type="checkbox" class="btn-check" id="@id" name="@Model.Name" value="@option.TagId"
+                       autocomplete="off" checked="@Model.SelectedIds.Contains(option.TagId)" />
+                <label class="category-chip" for="@id">
+                    <i class="fas fa-check category-chip__check" aria-hidden="true"></i>
+                    <i class="fas @option.Icon category-chip__icon" aria-hidden="true"></i>@option.Name
+                </label>
+            }
+        </div>
+    }
+</fieldset>

@@ -33,7 +33,9 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         }
 
         Novel = await Context.Novels
-            .Include(n => n.Profile).FirstOrDefaultAsync(m => m.NovelID == id);
+            .Include(n => n.Profile)
+            .Include(n => n.Tags)
+            .FirstOrDefaultAsync(m => m.NovelID == id);
 
         if (Novel == null)
         {

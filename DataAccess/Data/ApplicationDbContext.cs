@@ -7,6 +7,7 @@ using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
 using DataAccess.Models.Dashboard;
 using DataAccess.Models.NovelModel;
+using DataAccess.Models.Recommendation;
 using DataAccess.Models.StatisticalData;
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -95,6 +96,36 @@ namespace DataAccess.Data
         /// 創作者分潤撥款紀錄
         /// </summary>
         public DbSet<CreatorPayout> CreatorPayouts { get; set; }
+
+        /// <summary>
+        /// 章節閱讀紀錄
+        /// </summary>
+        public DbSet<EpisodeRead> EpisodeReads { get; set; }
+
+        /// <summary>
+        /// 推薦的「不感興趣」
+        /// </summary>
+        public DbSet<RecommendationFeedback> RecommendationFeedbacks { get; set; }
+
+        /// <summary>
+        /// Feed 卡片的曝光與點擊紀錄
+        /// </summary>
+        public DbSet<RecommendationImpression> RecommendationImpressions { get; set; }
+
+        /// <summary>
+        /// 預先算好的個人推薦
+        /// </summary>
+        public DbSet<UserRecommendation> UserRecommendations { get; set; }
+
+        /// <summary>
+        /// 推薦演算法的權重與門檻（版本化）
+        /// </summary>
+        public DbSet<RecommendationSetting> RecommendationSettings { get; set; }
+
+        /// <summary>
+        /// 會員喜歡的主分類（冷啟動）
+        /// </summary>
+        public DbSet<ProfileCategoryPreference> ProfileCategoryPreferences { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -283,6 +314,7 @@ namespace DataAccess.Data
             ConfigureIssue219(modelBuilder);
             ConfigureAccountOwnership(modelBuilder);
             ConfigureDashboard(modelBuilder);
+            ConfigureRecommendation(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
@@ -390,6 +422,8 @@ namespace DataAccess.Data
                 t.HasIndex(e => e.NormalizedName).IsUnique();
                 // 建議清單、標籤雲只列正式標籤
                 t.HasIndex(e => e.Status);
+                // 分類標籤清單依顯示順序列出
+                t.HasIndex(e => new { e.IsCategory, e.CategoryOrder });
                 t.Property(e => e.CreateTime).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 // 帳號不會被實體刪除；不設 cascade，避免和作品的刪除路徑衝突
                 t.HasOne(e => e.CreatorProfile)
@@ -429,6 +463,71 @@ namespace DataAccess.Data
         /// Issue #237：儀表板的每日快照、管理者操作紀錄、KPI 目標、網站支出、撥款紀錄與標籤別名
         /// </summary>
         /// <param name="modelBuilder">Model builder</param>
+        /// <summary>
+        /// Issue #238：章節閱讀紀錄、曝光紀錄、不感興趣、預先算好的推薦與推薦設定
+        /// </summary>
+        /// <param name="modelBuilder">Model builder</param>
+        private static void ConfigureRecommendation(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<EpisodeRead>(r =>
+            {
+                // 每人每章一筆；也用來查「某人讀過哪些章節」
+                r.HasIndex(e => new { e.ProfileId, e.EpisodeId }).IsUnique();
+                // 讀完率依章節彙總
+                r.HasIndex(e => e.EpisodeId).IncludeProperties(e => e.ReachedEnd);
+                // 帳號不會被實體刪除；章節刪除時連帶刪除閱讀紀錄
+                r.HasOne(e => e.Profile)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProfileId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                r.HasOne(e => e.Episode)
+                    .WithMany()
+                    .HasForeignKey(e => e.EpisodeId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RecommendationFeedback>(f =>
+            {
+                f.HasIndex(e => new { e.ProfileId, e.ContentType, e.ContentId }).IsUnique();
+            });
+
+            modelBuilder.Entity<RecommendationImpression>(i =>
+            {
+                // 點擊時以 (FeedRequestId, 內容, 區塊) 找回曝光；同一次載入同一張卡片只記一筆
+                i.HasIndex(e => new { e.FeedRequestId, e.ContentType, e.ContentId, e.Section }).IsUnique();
+                // CTR 報表與日結刪除依時間範圍
+                i.HasIndex(e => e.ShownAt).IncludeProperties(e => new { e.Section, e.SettingVersion, e.ClickedAt });
+            });
+
+            modelBuilder.Entity<UserRecommendation>(r =>
+            {
+                r.HasIndex(e => new { e.ProfileId, e.Rank });
+            });
+
+            modelBuilder.Entity<RecommendationSetting>(s =>
+            {
+                s.HasIndex(e => e.Version).IsUnique();
+                // 同時只有一個版本啟用
+                s.HasIndex(e => e.IsActive)
+                    .IsUnique()
+                    .HasFilter("[IsActive] = 1");
+            });
+
+            modelBuilder.Entity<ProfileCategoryPreference>(p =>
+            {
+                p.HasKey(e => new { e.ProfileId, e.TagId });
+                p.HasOne(e => e.Profile)
+                    .WithMany()
+                    .HasForeignKey(e => e.ProfileId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                // 標籤被合併或刪除時，偏好跟著刪除
+                p.HasOne(e => e.Tag)
+                    .WithMany()
+                    .HasForeignKey(e => e.TagId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+        }
+
         private static void ConfigureDashboard(ModelBuilder modelBuilder)
         {
             // 同一內容每天只有一筆；作品趨勢圖依內容與日期查詢

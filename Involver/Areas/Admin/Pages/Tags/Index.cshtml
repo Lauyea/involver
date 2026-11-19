@@ -15,7 +15,10 @@
 <section class="mb-4" aria-labelledby="pending-heading">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h2 id="pending-heading" class="h6 text-body-secondary mb-0">待審標籤</h2>
-        <a asp-page="./Aliases" class="small">相似標籤與合併 <i class="fa-solid fa-chevron-right"></i></a>
+        <span class="small">
+            <a asp-page="./Categories" class="me-3">分類 <i class="fa-solid fa-chevron-right"></i></a>
+            <a asp-page="./Aliases">相似標籤與合併 <i class="fa-solid fa-chevron-right"></i></a>
+        </span>
     </div>
     <div class="dashboard__card table-responsive">
         <table class="table table-sm align-middle mb-0 dashboard__table">
@@ -90,6 +93,10 @@
                                 else
                                 {
                                     <a asp-area="" asp-page="@(isNovel ? "/Novels/Index" : "/Articles/Index")" asp-route-currentFilter="@tag.Name" target="_blank" rel="noopener">@tag.Name</a>
+                                    @if (tag.IsCategory)
+                                    {
+                                        <span class="badge text-bg-info ms-1">分類</span>
+                                    }
                                 }
                             </span>
                             <span class="badge text-bg-secondary rounded-pill">@(isNovel ? tag.NovelCount : tag.ArticleCount)</span>

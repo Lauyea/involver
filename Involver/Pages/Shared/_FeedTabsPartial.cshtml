@@ -1,0 +1,28 @@
+@model Involver.Models.ViewModels.Feed.FeedTab
+@using Involver.Models.ViewModels.Feed
+
+@*
+    動態頁的分頁標籤（Material Design 的 primary tabs）：首頁、追蹤文章、熱門創作共用。
+    只有登入的會員才有這三頁可以切換，未登入時不顯示。
+*@
+@{
+    var tabs = new (FeedTab Tab, string PagePath, string Icon, string Label)[]
+    {
+        (FeedTab.Home, "/Index", "fa-house", "為你推薦"),
+        (FeedTab.FollowArticles, "/Feed/FollowArticles", "fa-user-check", "追蹤文章"),
+        (FeedTab.Trending, "/Feed/TrendingCreations", "fa-fire", "熱門創作"),
+    };
+}
+
+<nav class="feed-tabs" aria-label="動態">
+    @foreach (var (tab, pagePath, icon, label) in tabs)
+    {
+        var isActive = tab == Model;
+        <a class="feed-tabs__tab @(isActive ? "feed-tabs__tab--active" : null)"
+           asp-area="" asp-page="@pagePath"
+           aria-current="@(isActive ? "page" : null)">
+            <i class="fas @icon feed-tabs__icon" aria-hidden="true"></i>
+            <span class="feed-tabs__label">@label</span>
+        </a>
+    }
+</nav>

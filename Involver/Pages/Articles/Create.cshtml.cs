@@ -23,11 +23,13 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+ITagService tagService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Article, cancellationToken);
         return Page();
     }
 
@@ -50,6 +52,27 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     public TagAuthorLevel TagAuthorLevel { get; set; }
 
     /// <summary>
+    /// 勾選的分類標籤 ID
+    /// </summary>
+    [BindProperty]
+    public List<int> CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// 可選的分類
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
+    /// <summary>
+    /// 分類選擇（文章可以不選）
+    /// </summary>
+    public CategoryPickerViewModel CategoryPicker => new()
+    {
+        Options = Categories,
+        SelectedIds = CategoryIds,
+        Required = false,
+    };
+
+    /// <summary>
     /// 標籤輸入框
     /// </summary>
     public TagInputViewModel TagInput => new()
@@ -65,6 +88,7 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     {
         var userId = UserManager.GetUserId(User);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Article, cancellationToken);
 
         if (Article.Content?.Length > Parameters.ArticleLength)
         {
@@ -99,6 +123,16 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             return Page();
         }
 
+        var categoryResult = await categoryService.SelectAsync(CategoryIds, tagResult.Tags, TagTarget.Article, required: false, cancellationToken);
+        if (!categoryResult.Succeeded)
+        {
+            ErrorMessage = categoryResult.ErrorMessage;
+            return Page();
+        }
+
+        // 一般標籤裡的分類已併入分類
+        var allTags = tagResult.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Article)).Concat(categoryResult.Categories).ToList();
+
         Article emptyArticle =
             new()
             {
@@ -121,12 +155,12 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             emptyArticle.TotalCoins = 0;
             emptyArticle.MonthlyCoins = 0;
 
-            emptyArticle.Tags = tagResult.Tags;
+            emptyArticle.Tags = allTags;
 
             Context.Articles.Add(emptyArticle);
             await Context.SaveChangesAsync(cancellationToken);
 
-            await tagService.PromotePendingTagsAsync(tagResult.Tags.Select(t => t.TagId), cancellationToken);
+            await tagService.PromotePendingTagsAsync(allTags.Select(t => t.TagId), cancellationToken);
 
             var toasts = await AchievementService.ArticleCountAsync(Article.ProfileID);
 

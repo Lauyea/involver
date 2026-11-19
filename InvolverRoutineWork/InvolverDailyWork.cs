@@ -77,6 +77,13 @@ namespace InvolverDailyWork
                 log.LogInformation($"Delete old view records, {deletedViewRows} rows were deleted.");
             });
 
+            await RunStepAsync("Delete old recommendation impressions", failedSteps, log, async () =>
+            {
+                var cutoff = DateTime.UtcNow.AddDays(-DataAccess.Common.Parameters.RecommendationImpressionRetentionDays);
+                int deletedImpressionRows = await DeleteOldImpressionsAsync(cutoff);
+                log.LogInformation($"Delete old recommendation impressions, {deletedImpressionRows} rows were deleted.");
+            });
+
             if (failedSteps.Count > 0)
             {
                 // 讓這次執行在 Azure 上標記為失敗，才看得到問題
@@ -99,6 +106,27 @@ namespace InvolverDailyWork
                 // 插值字串會轉成 SQL 參數，不會有 SQL injection 或日期格式問題
                 deleted = await _context.Database.ExecuteSqlAsync(
                     $"DELETE TOP ({DeleteBatchSize}) FROM [dbo].[Views] WHERE [CreateTime] < {cutoff}");
+                totalDeleted += deleted;
+            }
+            while (deleted == DeleteBatchSize);
+
+            return totalDeleted;
+        }
+
+        /// <summary>
+        /// 分批刪除早於指定時間的 Feed 曝光紀錄，直到沒有可刪的資料為止。
+        /// </summary>
+        /// <param name="cutoff">刪除早於此時間（UTC）的紀錄</param>
+        /// <returns>總共刪除的筆數</returns>
+        private async Task<int> DeleteOldImpressionsAsync(DateTime cutoff)
+        {
+            int totalDeleted = 0;
+            int deleted;
+
+            do
+            {
+                deleted = await _context.Database.ExecuteSqlAsync(
+                    $"DELETE TOP ({DeleteBatchSize}) FROM [dbo].[RecommendationImpressions] WHERE [ShownAt] < {cutoff}");
                 totalDeleted += deleted;
             }
             while (deleted == DeleteBatchSize);

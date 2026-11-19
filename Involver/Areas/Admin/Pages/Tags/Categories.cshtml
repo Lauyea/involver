@@ -1,0 +1,122 @@
+@page
+@model Involver.Areas.Admin.Pages.Tags.CategoriesModel
+@{
+    ViewData["Title"] = "分類";
+}
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "分類數", Value = Model.Rows.Count, Icon = "fa-shapes" } })</div>
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "沒有分類的小說", Value = Model.UncategorizedNovels, Icon = "fa-book", Hint = "小說新增、編輯時必選分類" } })</div>
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "沒有分類的文章", Value = Model.UncategorizedArticles, Icon = "fa-newspaper", Hint = "文章可以不選分類" } })</div>
+</div>
+
+<form method="post" asp-page-handler="Add" class="dashboard__card p-3 mb-4">
+    <h2 class="h6">新增分類</h2>
+    <p class="small text-body-secondary">
+        分類是固定的作品分類，各自設定適用小說、文章或兩者（例如奇幻適用小說，散文、評論適用文章）。
+        作者在新增、編輯作品時只看得到適用的分類，另外選、不佔標籤的名額；新會員也從分類挑選喜歡的內容。
+        已有同名標籤時會直接把它設為分類，作品上原本的標籤不受影響。
+    </p>
+    <div class="row g-2 align-items-end">
+        <div class="col-sm-3">
+            <label asp-for="NewName" class="form-label small">名稱</label>
+            <input asp-for="NewName" class="form-control form-control-sm" maxlength="@Parameters.TagNameMaxLength" required placeholder="例如：散文" />
+        </div>
+        <div class="col-sm-3">
+            <label asp-for="NewIcon" class="form-label small">圖示（Font Awesome 6，可留空）</label>
+            <input asp-for="NewIcon" class="form-control form-control-sm" maxlength="50" placeholder="例如：fa-feather" />
+        </div>
+        <fieldset class="col-sm-3">
+            <legend class="form-label small mb-1 float-none">適用</legend>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="new-scope-novel" name="NewScopes" value="@CategoryScope.Novel" />
+                <label class="form-check-label small" for="new-scope-novel">小說</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="new-scope-article" name="NewScopes" value="@CategoryScope.Article" />
+                <label class="form-check-label small" for="new-scope-article">文章</label>
+            </div>
+        </fieldset>
+        <div class="col-sm-3">
+            <button type="submit" class="btn btn-sm btn-primary w-100">新增</button>
+        </div>
+    </div>
+</form>
+
+<section aria-labelledby="categories-heading">
+    <h2 id="categories-heading" class="h6 text-body-secondary mb-2">分類（依顯示順序）</h2>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-nowrap">順序</th>
+                    <th scope="col">分類</th>
+                    <th scope="col" class="text-end">小說</th>
+                    <th scope="col" class="text-end">文章</th>
+                    <th scope="col" class="text-end" title="新會員在首頁選了這個分類">會員偏好</th>
+                    <th scope="col">圖示與適用</th>
+                    <th scope="col" class="text-end">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Rows.Count; i++)
+                {
+                    var row = Model.Rows[i];
+                    var category = row.Category;
+                    <tr>
+                        <td class="text-nowrap">
+                            <form method="post" asp-page-handler="Move" class="d-inline">
+                                <input type="hidden" name="tagId" value="@category.TagId" />
+                                <input type="hidden" name="offset" value="-1" />
+                                <button type="submit" class="btn btn-sm btn-link px-1" disabled="@(i == 0)" aria-label="把「@category.Name」往前移"><i class="fas fa-arrow-up"></i></button>
+                            </form>
+                            <form method="post" asp-page-handler="Move" class="d-inline">
+                                <input type="hidden" name="tagId" value="@category.TagId" />
+                                <input type="hidden" name="offset" value="1" />
+                                <button type="submit" class="btn btn-sm btn-link px-1" disabled="@(i == Model.Rows.Count - 1)" aria-label="把「@category.Name」往後移"><i class="fas fa-arrow-down"></i></button>
+                            </form>
+                        </td>
+                        <td>
+                            <a asp-area="" asp-page="@(category.AppliesTo(TagTarget.Novel) ? "/Novels/Index" : "/Articles/Index")" asp-route-currentType="@category.TagId" target="_blank" rel="noopener" class="category-badge">
+                                <i class="fas @category.Icon" aria-hidden="true"></i>@category.Name
+                            </a>
+                        </td>
+                        <td class="text-end">@(row.NovelCount?.ToString() ?? "—")</td>
+                        <td class="text-end">@(row.ArticleCount?.ToString() ?? "—")</td>
+                        <td class="text-end">@row.PreferenceCount</td>
+                        <td>
+                            <form method="post" asp-page-handler="Update" class="d-flex flex-wrap align-items-center gap-2">
+                                <input type="hidden" name="tagId" value="@category.TagId" />
+                                <input type="text" name="icon" value="@category.Icon" class="form-control form-control-sm" style="max-width: 10rem;" maxlength="50" aria-label="「@category.Name」的圖示" />
+                                @foreach (var (scope, label) in new[] { (CategoryScope.Novel, "小說"), (CategoryScope.Article, "文章") })
+                                {
+                                    var inputId = $"scope-{category.TagId}-{scope}";
+                                    <div class="form-check form-check-inline me-0">
+                                        <input class="form-check-input" type="checkbox" id="@inputId" name="scopes" value="@scope" checked="@category.Scope.HasFlag(scope)" />
+                                        <label class="form-check-label small" for="@inputId">@label</label>
+                                    </div>
+                                }
+                                <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap">儲存</button>
+                            </form>
+                        </td>
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="Remove" class="d-inline"
+                                  data-confirm="移除後「@category.Name」會變回一般標籤：作品上的標籤保留，但不再出現在分類選擇與篩選裡，選過它的會員偏好會刪除。確定要移除？">
+                                <input type="hidden" name="tagId" value="@category.TagId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger text-nowrap">移除</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Rows.Count == 0)
+                {
+                    <tr><td colspan="7" class="text-center text-body-secondary py-3">還沒有分類</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-body-secondary mt-1">
+        小說、文章各最多 @Parameters.CategoryMaxPerWork 個分類。分類用在不適用的作品上（例如文章標了只適用小說的「奇幻」）時只算一般標籤，數量顯示「—」。
+        要把兩個分類合成一個，請到「合併與別名」合併標籤，保留的標籤會接手成為分類，適用範圍取兩者合併。
+    </p>
+</section>

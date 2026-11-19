@@ -40,11 +40,7 @@
                         <input asp-for="Novel.ImageUrl" class="form-control">
                         <span asp-validation-for="Novel.ImageUrl" class="text-danger"></span>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="Novel.Type" class="form-label"></label>
-                        <select asp-for="Novel.Type" asp-items="Model.Types" class="form-select"></select>
-                        <span asp-validation-for="Novel.Type" class="text-danger"></span>
-                    </div>
+                    <partial name="_CategoryPickerPartial" model="Model.CategoryPicker" />
                     <partial name="_TagInputPartial" model="Model.TagInput" />
                     <span asp-validation-for="TagString" class="text-danger"></span>
                     <div class="mb-3">

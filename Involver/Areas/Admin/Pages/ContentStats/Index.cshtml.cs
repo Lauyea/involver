@@ -49,9 +49,14 @@ public class IndexModel(ApplicationDbContext context) : AdminPageModel
     public ChartPanelViewModel PolicyCoinsChart { get; private set; }
 
     /// <summary>
-    /// 主分類分布
+    /// 小說的分類分布
     /// </summary>
-    public ChartPanelViewModel TypeChart { get; private set; }
+    public ChartPanelViewModel NovelCategoryChart { get; private set; }
+
+    /// <summary>
+    /// 一般文章的分類分布
+    /// </summary>
+    public ChartPanelViewModel ArticleCategoryChart { get; private set; }
 
     /// <summary>
     /// 期間內各項新增的合計
@@ -111,7 +116,7 @@ public class IndexModel(ApplicationDbContext context) : AdminPageModel
         };
 
         await LoadVotingPolicyAsync(cancellationToken);
-        await LoadNovelTypesAsync(cancellationToken);
+        await LoadCategoriesAsync(cancellationToken);
         await LoadBlockedAsync(cancellationToken);
     }
 
@@ -137,21 +142,53 @@ public class IndexModel(ApplicationDbContext context) : AdminPageModel
             [liberty?.Coins ?? 0, equality?.Coins ?? 0]);
     }
 
-    private async Task LoadNovelTypesAsync(CancellationToken cancellationToken)
+    private async Task LoadCategoriesAsync(CancellationToken cancellationToken)
     {
-        var types = await context.Novels
-            .Where(n => !n.IsDeleted)
-            .GroupBy(n => n.Type)
-            .Select(g => new { Type = g.Key, Count = g.Count() })
+        // 分類就是標籤；只算適用該作品類型的分類。一部作品可以有多個分類，所以各區塊加總會大於作品數
+        var counts = await context.Tags
+            .Where(t => t.IsCategory)
+            .Select(t => new
+            {
+                t.Name,
+                t.CategoryOrder,
+                t.CategoryScope,
+                Novels = t.Novels!.Count(n => !n.IsDeleted),
+                Articles = t.Articles!.Count(a => !a.IsDeleted && a.Type == ArticleType.General),
+            })
             .ToListAsync(cancellationToken);
 
-        var names = new NovelTypeDetermination();
-        var ordered = types.OrderByDescending(t => t.Count).ToList();
+        var uncategorizedNovels = await context.Novels
+            .CountAsync(n => !n.IsDeleted && !n.Tags!.Any(t => t.IsCategory && (t.CategoryScope & CategoryScope.Novel) != 0), cancellationToken);
+        var uncategorizedArticles = await context.Articles
+            .CountAsync(a => !a.IsDeleted && a.Type == ArticleType.General && !a.Tags!.Any(t => t.IsCategory && (t.CategoryScope & CategoryScope.Article) != 0), cancellationToken);
 
-        TypeChart = Doughnut("主分類分布", "目前的作品（不含已刪除）",
-            ordered.Select(t => t.Type == null ? "未分類" : names.GetTypeName(t.Type)).ToList(),
+        NovelCategoryChart = CategoryDoughnut("小說的分類分布", "目前的小說（不含已刪除；一部可有多個分類）",
+            counts.Where(c => c.CategoryScope.HasFlag(CategoryScope.Novel)).Select(c => (c.Name, c.CategoryOrder, c.Novels)), uncategorizedNovels);
+        ArticleCategoryChart = CategoryDoughnut("文章的分類分布", "目前的一般文章（不含已刪除；一篇可有多個分類）",
+            counts.Where(c => c.CategoryScope.HasFlag(CategoryScope.Article)).Select(c => (c.Name, c.CategoryOrder, c.Articles)), uncategorizedArticles);
+    }
+
+    private static ChartPanelViewModel CategoryDoughnut(
+        string title,
+        string subtitle,
+        IEnumerable<(string Name, int Order, int Count)> categories,
+        int uncategorized)
+    {
+        var ordered = categories
+            .Where(c => c.Count > 0)
+            .OrderByDescending(c => c.Count)
+            .ThenBy(c => c.Order)
+            .Select(c => (c.Name, c.Count))
+            .ToList();
+        if (uncategorized > 0)
+        {
+            ordered.Add(("未分類", uncategorized));
+        }
+
+        return Doughnut(title, subtitle,
+            ordered.Select(c => c.Name).ToList(),
             ordered.Count > 0,
-            ordered.Select(t => (decimal)t.Count).ToList());
+            ordered.Select(c => (decimal)c.Count).ToList());
     }
 
     private async Task LoadBlockedAsync(CancellationToken cancellationToken)

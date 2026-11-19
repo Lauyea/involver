@@ -1,0 +1,184 @@
+@page
+@model Involver.Areas.Admin.Pages.Recommendations.IndexModel
+@using DataAccess.Models.Recommendation
+@{
+    ViewData["Title"] = "推薦設定";
+    var activeVersion = Model.Active.Version;
+    var hasPrevious = activeVersion is { } current && Model.Versions.Any(v => v.Version < current);
+}
+
+<div class="row g-3">
+    <div class="col-xxl-7">
+        <form method="post" asp-page-handler="Save" asp-route-days="@Model.Days" class="dashboard__card p-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-2">
+                <h2 class="h6 mb-0">權重與門檻</h2>
+                <span class="small text-body-secondary">
+                    目前使用：@(activeVersion is { } v ? $"v{v}" : "程式預設值")
+                </span>
+            </div>
+            <p class="small text-body-secondary">
+                儲存後會新增一個版本並立即啟用，舊版本保留，可以隨時切換。
+                正式數值只存在資料庫，不要寫進程式碼或 migration（repo 是公開的）。
+            </p>
+            <div asp-validation-summary="All" class="text-danger small"></div>
+
+            @foreach (var group in Model.FieldGroups)
+            {
+                <fieldset class="mb-3">
+                    <legend class="h6 small text-body-secondary border-bottom pb-1">@group.Key</legend>
+                    <div class="row g-2">
+                        @foreach (var field in group)
+                        {
+                            var inputId = $"Input_{field.Name}";
+                            <div class="col-sm-6 col-lg-4">
+                                <label for="@inputId" class="form-label small mb-1">@field.Label</label>
+                                <input type="number" class="form-control form-control-sm" id="@inputId" name="Input.@field.Name"
+                                       value="@field.Value" min="@field.Min" max="@field.Max" step="@(field.IsInteger ? "1" : "any")" required />
+                                <div class="form-text">預設 @field.DefaultValue（@field.Min～@field.Max）</div>
+                            </div>
+                        }
+                    </div>
+                </fieldset>
+            }
+
+            <div class="mb-2">
+                <label asp-for="Note" class="form-label small"></label>
+                <input asp-for="Note" class="form-control form-control-sm" placeholder="例如：提高新作曝光" />
+                <span asp-validation-for="Note" class="text-danger small"></span>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">儲存為新版本</button>
+        </form>
+    </div>
+
+    <div class="col-xxl-5">
+        <section class="dashboard__card p-3 mb-3" aria-labelledby="recompute-heading">
+            <h2 id="recompute-heading" class="h6">推薦計算</h2>
+            <p class="small mb-2">
+                排程每小時計算一次。
+                @if (Model.LastComputedAt is { } computedAt)
+                {
+                    <text>最近一次：<span title="@computedAt.ToString("u")">@computedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</span>，@Model.RecommendedUsers.ToString("N0") 位會員有推薦。</text>
+                }
+                else
+                {
+                    <text>目前還沒有計算結果。</text>
+                }
+            </p>
+            <form method="post" asp-page-handler="Recompute" asp-route-days="@Model.Days" data-confirm="用目前啟用的設定立即重新計算所有活躍會員的推薦？">
+                <button type="submit" class="btn btn-sm btn-outline-primary"><i class="fa-solid fa-rotate me-1"></i>立即重新計算</button>
+            </form>
+        </section>
+
+        <section class="mb-3" aria-labelledby="versions-heading">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 id="versions-heading" class="h6 text-body-secondary mb-0">版本</h2>
+                @if (hasPrevious)
+                {
+                    <form method="post" asp-page-handler="Rollback" asp-route-days="@Model.Days" data-confirm="回到上一版？">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-clock-rotate-left me-1"></i>回到上一版</button>
+                    </form>
+                }
+            </div>
+            <div class="dashboard__card table-responsive">
+                <table class="table table-sm align-middle mb-0 dashboard__table">
+                    <thead>
+                        <tr><th>版本</th><th>建立</th><th>說明</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var version in Model.Versions)
+                        {
+                            <tr>
+                                <td class="text-nowrap">
+                                    v@(version.Version)
+                                    @if (version.IsActive) { <span class="badge text-bg-success ms-1">啟用中</span> }
+                                </td>
+                                <td class="small">
+                                    <div class="text-nowrap">@version.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+                                    <div class="text-body-secondary">@(version.CreatedByName ?? version.CreatedBy)</div>
+                                </td>
+                                <td class="small">@version.Note</td>
+                                <td class="text-end">
+                                    @if (!version.IsActive)
+                                    {
+                                        <form method="post" asp-page-handler="Activate" asp-route-version="@version.Version" asp-route-days="@Model.Days" data-confirm="啟用 v@(version.Version)？">
+                                            <button type="submit" class="btn btn-sm btn-link p-0">啟用</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        @if (Model.Versions.Count == 0)
+                        {
+                            <tr><td colspan="4" class="text-center text-body-secondary py-3">還沒有任何版本，目前使用程式預設值</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="row g-3 mt-1">
+    <section class="col-xl-6" aria-labelledby="ctr-heading">
+        <h2 id="ctr-heading" class="h6 text-body-secondary">首頁點擊率（最近 @Model.Days 天）</h2>
+        <div class="dashboard__card table-responsive">
+            <table class="table table-sm align-middle mb-0 dashboard__table">
+                <thead>
+                    <tr><th>區塊</th><th>設定版本</th><th class="text-end">曝光</th><th class="text-end">點擊</th><th class="text-end">CTR</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Ctr)
+                    {
+                        <tr>
+                            <td>@row.Section.GetDisplayName()</td>
+                            <td>@(row.Section == FeedSection.Recommended ? row.SettingVersion is { } sv ? $"v{sv}" : "預設值" : "—")</td>
+                            <td class="text-end">@row.Impressions.ToString("N0")</td>
+                            <td class="text-end">@row.Clicks.ToString("N0")</td>
+                            <td class="text-end">@row.Ctr.ToString("P1")</td>
+                        </tr>
+                    }
+                    @if (Model.Ctr.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-center text-body-secondary py-3">這段期間沒有曝光紀錄</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="col-xl-6" id="spikes" aria-labelledby="spikes-heading">
+        <h2 id="spikes-heading" class="h6 text-body-secondary">
+            異常警示：最近 @Model.Active.Settings.SpikeWindowHours 小時讀者暴增
+        </h2>
+        <div class="dashboard__card table-responsive">
+            <table class="table table-sm align-middle mb-0 dashboard__table">
+                <thead>
+                    <tr><th>內容</th><th>作者</th><th class="text-end">近期讀者</th><th class="text-end">過去平均</th><th class="text-end">倍數</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var spike in Model.Spikes)
+                    {
+                        var isNovel = spike.Content.Type == RecommendationContentType.Novel;
+                        <tr>
+                            <td>
+                                <span class="badge text-bg-secondary me-1">@spike.Content.Type.GetDisplayName()</span>
+                                <a asp-area="" asp-page="@(isNovel ? "/Novels/Details" : "/Articles/Details")" asp-route-id="@spike.Content.Id">@spike.Title</a>
+                            </td>
+                            <td class="small">@spike.AuthorName</td>
+                            <td class="text-end">@spike.RecentReaders.ToString("N0")</td>
+                            <td class="text-end">@spike.BaselineAverage.ToString("N1")</td>
+                            <td class="text-end fw-semibold text-danger">@spike.Ratio.ToString("N1")×</td>
+                        </tr>
+                    }
+                    @if (Model.Spikes.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-center text-body-secondary py-3">沒有異常</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="small text-body-secondary mt-2">
+            不重複讀者（作者本人不計）達 @Model.Active.Settings.SpikeMinReaders 人以上，且為過去 7 天平均的 @Model.Active.Settings.SpikeMultiplier 倍以上時列出。
+        </p>
+    </section>
+</div>

@@ -50,6 +50,7 @@
                         <input asp-for="Article.ImageUrl" class="form-control">
                         <span asp-validation-for="Article.ImageUrl" class="text-danger"></span>
                     </div>
+                    <partial name="_CategoryPickerPartial" model="Model.CategoryPicker" />
                     <partial name="_TagInputPartial" model="Model.TagInput" />
                     <span asp-validation-for="TagString" class="text-danger"></span>
 
