@@ -61,13 +61,17 @@ IViewCountService viewCountService) : DI_BasePageModel(context, authorizationSer
             // 觀看數以原子更新累加，避免併發時「讀出、改值、存回」掉計數
             await viewCountService.AddProfileViewAsync(Profile);
 
-            var toasts = await AchievementService.GetCoinsCountAsync(Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
-
-            toasts.AddRange(await AchievementService.CheckGradeAsync(Profile.ProfileID, Profile.EnrollmentDate));
-
-            if (toasts.Count > 0)
+            // 成就與 Toast 只屬於本人：造訪別人的頁面時不可替對方檢查成就，否則 Toast 會顯示在造訪者畫面上
+            if (ProfileOwner)
             {
-                TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+                var toasts = await AchievementService.GetCoinsCountAsync(Profile.ProfileID, Profile.VirtualCoins + Profile.RealCoins);
+
+                toasts.AddRange(await AchievementService.CheckGradeAsync(Profile.ProfileID, Profile.EnrollmentDate));
+
+                if (toasts.Count > 0)
+                {
+                    TempData["Toasts"] = JsonSerializer.Serialize(toasts, JsonConfig.CamelCase);
+                }
             }
 
             return Page();

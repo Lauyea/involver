@@ -180,11 +180,14 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
 
             await tagService.PromotePendingTagsAsync(updatedTags.Select(t => t.TagId), cancellationToken);
 
-            var toasts = await AchievementService.FirstTimeEditAsync(Novel.ProfileID);
+            // 成就屬於執行操作的人：管理員編輯/刪除別人的內容時，不可替作者跳成就，否則 Toast 會顯示在管理員畫面上
+            var actorId = UserManager.GetUserId(User);
+
+            var toasts = await AchievementService.FirstTimeEditAsync(actorId);
 
             if (updatedTags.Count > 0)
             {
-                toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(Novel.ProfileID));
+                toasts.AddRange(await AchievementService.FirstTimeUseTagsAsync(actorId));
             }
 
             if (toasts.Count > 0)

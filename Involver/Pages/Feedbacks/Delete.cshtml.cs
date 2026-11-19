@@ -82,7 +82,10 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         Feedback.IsDeleted = true;
         await Context.SaveChangesAsync();
 
-        var toasts = await AchievementService.FirstTimeDeleteAsync(Feedback.ProfileID);
+        // 成就屬於執行操作的人：管理員編輯/刪除別人的內容時，不可替作者跳成就，否則 Toast 會顯示在管理員畫面上
+        var actorId = UserManager.GetUserId(User);
+
+        var toasts = await AchievementService.FirstTimeDeleteAsync(actorId);
 
         if (toasts.Count > 0)
         {

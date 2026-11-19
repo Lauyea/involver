@@ -97,7 +97,10 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             }
         }
 
-        var toasts = await AchievementService.FirstTimeEditAsync(Feedback.ProfileID);
+        // 成就屬於執行操作的人：管理員編輯/刪除別人的內容時，不可替作者跳成就，否則 Toast 會顯示在管理員畫面上
+        var actorId = UserManager.GetUserId(User);
+
+        var toasts = await AchievementService.FirstTimeEditAsync(actorId);
 
         if (toasts.Count > 0)
         {
