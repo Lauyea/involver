@@ -4,7 +4,6 @@
 @{
     ViewData["Title"] = "刪除創作";
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    var novelTypeDetermination = new NovelTypeDetermination();
 }
 
 <div class="row justify-content-center">
@@ -24,8 +23,8 @@
                     <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Novel.Introduction)</dt>
                     <dd class="col-sm-9">@Model.Novel.Introduction</dd>
 
-                    <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Novel.Type)</dt>
-                    <dd class="col-sm-9">@novelTypeDetermination.GetTypeName(Model.Novel.Type)</dd>
+                    <dt class="col-sm-3">分類</dt>
+                    <dd class="col-sm-9">@string.Join("、", (Model.Novel.Tags ?? []).Where(t => t.IsCategoryFor(CategoryScope.Novel)).OrderBy(t => t.CategoryOrder).Select(t => t.Name))</dd>
 
                     <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Novel.UpdateTime)</dt>
                     <dd class="col-sm-9">@Model.Novel.UpdateTime.ToLongDateString()</dd>

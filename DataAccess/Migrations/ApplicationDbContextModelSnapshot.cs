@@ -1070,9 +1070,6 @@ namespace DataAccess.Migrations
                     b.Property<int>("TotalViews")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Type")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdateTime")
                         .HasColumnType("datetime2");
 
@@ -1348,6 +1345,229 @@ namespace DataAccess.Migrations
                     b.ToTable("Profiles");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Recommendation.EpisodeRead", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("EpisodeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("FirstReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastReadAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("ReachedEnd")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ReachedEndAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EpisodeId");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("EpisodeId"), new[] { "ReachedEnd" });
+
+                    b.HasIndex("ProfileId", "EpisodeId")
+                        .IsUnique();
+
+                    b.ToTable("EpisodeReads");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.ProfileCategoryPreference", b =>
+                {
+                    b.Property<string>("ProfileId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProfileId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("ProfileCategoryPreferences");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.RecommendationFeedback", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ContentId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("ContentType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId", "ContentType", "ContentId")
+                        .IsUnique();
+
+                    b.ToTable("RecommendationFeedbacks");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.RecommendationImpression", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ClickedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ContentId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("ContentType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<Guid>("FeedRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<byte>("Section")
+                        .HasColumnType("tinyint");
+
+                    b.Property<int?>("SettingVersion")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ShownAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShownAt");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("ShownAt"), new[] { "Section", "SettingVersion", "ClickedAt" });
+
+                    b.HasIndex("FeedRequestId", "ContentType", "ContentId", "Section")
+                        .IsUnique();
+
+                    b.ToTable("RecommendationImpressions");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.RecommendationSetting", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("SettingsJson")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .IsUnique()
+                        .HasFilter("[IsActive] = 1");
+
+                    b.HasIndex("Version")
+                        .IsUnique();
+
+                    b.ToTable("RecommendationSettings");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.UserRecommendation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("ComputedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ContentId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("ContentType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Rank")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<double>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("SettingVersion")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId", "Rank");
+
+                    b.ToTable("UserRecommendations");
+                });
+
             modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinMonthlyBalance", b =>
                 {
                     b.Property<long>("Id")
@@ -1561,6 +1781,16 @@ namespace DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagId"));
 
+                    b.Property<string>("CategoryIcon")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("CategoryOrder")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("CategoryScope")
+                        .HasColumnType("tinyint");
+
                     b.Property<DateTime>("CreateTime")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -1569,6 +1799,9 @@ namespace DataAccess.Migrations
                     b.Property<string>("CreatorProfileID")
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsCategory")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1591,6 +1824,8 @@ namespace DataAccess.Migrations
                         .IsUnique();
 
                     b.HasIndex("Status");
+
+                    b.HasIndex("IsCategory", "CategoryOrder");
 
                     b.ToTable("Tags");
                 });
@@ -2156,6 +2391,44 @@ namespace DataAccess.Migrations
                         .HasForeignKey("DataAccess.Models.Profile", "ProfileID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.EpisodeRead", b =>
+                {
+                    b.HasOne("DataAccess.Models.NovelModel.Episode", "Episode")
+                        .WithMany()
+                        .HasForeignKey("EpisodeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccess.Models.Profile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Episode");
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Recommendation.ProfileCategoryPreference", b =>
+                {
+                    b.HasOne("DataAccess.Models.Profile", "Profile")
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DataAccess.Models.Tag", "Tag")
+                        .WithMany()
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("DataAccess.Models.StatisticalData.CoinMonthlyBalance", b =>

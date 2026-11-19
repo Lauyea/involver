@@ -8,8 +8,9 @@ using DataAccess.Data;
 using DataAccess.Models;
 
 using Involver.Common;
-using Involver.Models.ViewModels;
+using Involver.Models.ViewModels.Feed;
 using Involver.Services;
+using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,18 +27,60 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-IMissionService missionService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IMissionService missionService,
+IHomeFeedService homeFeedService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     //private readonly ILogger<IndexModel> _logger;
 
     public Profile UserProfile;
 
     /// <summary>
-    /// 追蹤中的創作（含最新一集）
+    /// 會員首頁 Feed（未登入時為 null）
     /// </summary>
-    public List<FollowedNovelViewModel> Follows { get; set; }
+    public HomeFeedViewModel Feed { get; set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    /// <summary>
+    /// 未登入首頁的熱門創作
+    /// </summary>
+    public List<ContentCardViewModel> Trending { get; private set; } = [];
+
+    /// <summary>
+    /// 冷啟動時選擇的分類標籤 ID
+    /// </summary>
+    [BindProperty]
+    public List<int> SelectedCategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// 冷啟動最多選幾個分類
+    /// </summary>
+    public int MaxPreferredCategories => HomeFeedService.MaxPreferredCategories;
+
+    /// <summary>
+    /// 儲存喜歡的分類（冷啟動），之後的推薦會以此為起點
+    /// </summary>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>回到首頁</returns>
+    public async Task<IActionResult> OnPostPreferencesAsync(CancellationToken cancellationToken)
+    {
+        var userId = UserManager.GetUserId(User);
+        if (userId == null)
+        {
+            return Challenge();
+        }
+
+        var selected = (SelectedCategoryIds ?? []).Distinct().ToList();
+        if (selected.Count == 0 || selected.Count > HomeFeedService.MaxPreferredCategories)
+        {
+            StatusMessage = $"錯誤：請選擇 1 到 {HomeFeedService.MaxPreferredCategories} 個喜歡的分類。";
+            return RedirectToPage();
+        }
+
+        await homeFeedService.SavePreferredCategoriesAsync(userId, selected, cancellationToken);
+        StatusMessage = "已記下你喜歡的分類，推薦會依此調整。";
+        return RedirectToPage(null, null, "feed-recommended");
+    }
+
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         string userId = UserManager.GetUserId(User);
 
@@ -54,15 +97,11 @@ IMissionService missionService) : DI_BasePageModel(context, authorizationService
 
         if (UserProfile == null)
         {
+            Trending = await homeFeedService.GetTrendingAsync(HomeFeedService.DiscoverCount, cancellationToken);
             return Page();
         }
 
-        // 只取最新一集的 ID 與標題，不載入章節全文
-        Follows = await FollowedNovelViewModel
-            .QueryByFollower(Context.Follows, userId)
-            .Take(10)
-            .AsNoTracking()
-            .ToListAsync();
+        Feed = await homeFeedService.BuildAsync(userId, cancellationToken);
 
         if (UserProfile != null)
         {

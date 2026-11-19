@@ -85,6 +85,18 @@ namespace DataAccess.Models.Dashboard
         [Display(Name = "移除標籤別名")]
         TagAliasRemoved = 44,
 
+        /// <summary>新增分類（把標籤設為分類標籤）</summary>
+        [Display(Name = "新增分類")]
+        CategoryAdded = 45,
+
+        /// <summary>修改分類的圖示或順序</summary>
+        [Display(Name = "修改分類")]
+        CategoryUpdated = 46,
+
+        /// <summary>移除分類（標籤保留，只取消分類）</summary>
+        [Display(Name = "移除分類")]
+        CategoryRemoved = 47,
+
         /// <summary>設定 KPI 目標</summary>
         [Display(Name = "設定 KPI 目標")]
         KpiTargetSaved = 60,
@@ -92,6 +104,18 @@ namespace DataAccess.Models.Dashboard
         /// <summary>刪除 KPI 目標</summary>
         [Display(Name = "刪除 KPI 目標")]
         KpiTargetDeleted = 61,
+
+        /// <summary>儲存推薦設定（新增一個版本）</summary>
+        [Display(Name = "儲存推薦設定")]
+        RecommendationSettingSaved = 80,
+
+        /// <summary>切換啟用的推薦設定版本</summary>
+        [Display(Name = "切換推薦設定版本")]
+        RecommendationSettingActivated = 81,
+
+        /// <summary>立即重新計算推薦</summary>
+        [Display(Name = "重新計算推薦")]
+        RecommendationRecomputed = 82,
     }
 
     /// <summary>

@@ -138,8 +138,14 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
                     <partial name="_LoginPartial" />
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Novels/Index">創作</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownNovels" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                創作
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownNovels">
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Novels/Index">所有創作</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-page="/Feed/TrendingCreations">熱門創作</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Articles/Index">討論</a>
@@ -159,9 +165,6 @@
                                 <li><a class="dropdown-item" asp-area="" asp-page="/Functions/MarkdownToHtml">Markdown轉換器</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-page="/Functions/Preview">建立小說試閱</a></li>
                             </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Descriptions/AboutInvolver">關於 Involver</a>
                         </li>
                         @if (WebHostEnvironment.IsDevelopment())
                         {

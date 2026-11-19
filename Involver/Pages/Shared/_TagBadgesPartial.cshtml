@@ -1,10 +1,18 @@
 @model Involver.Models.ViewModels.TagBadgesViewModel
 
 @*
-    作品上的標籤。正式標籤連到所在頁面的 Index 標籤搜尋；
-    待審標籤只顯示，不出現在標籤搜尋裡，所以不加連結。
+    作品上的標籤。適用這個作品類型的分類標籤排在最前面，用分類樣式，連到所在頁面 Index 的分類篩選
+    （不適用的分類，例如文章上只適用小說的「奇幻」，當作一般標籤）；
+    正式標籤連到所在頁面的 Index 標籤搜尋；待審標籤只顯示，不出現在標籤搜尋裡，所以不加連結。
 *@
-@foreach (var tag in Model.Tags ?? [])
+@{
+    var scope = Model.Target.ToCategoryScope();
+}
+@foreach (var tag in (Model.Tags ?? []).Where(t => t.IsCategoryFor(scope)).OrderBy(t => t.CategoryOrder))
+{
+    <a asp-page="./Index" asp-route-currentType="@tag.TagId" class="category-badge me-1 mb-1" title="分類">@tag.Name</a>
+}
+@foreach (var tag in (Model.Tags ?? []).Where(t => !t.IsCategoryFor(scope)))
 {
     if (tag.Status == TagStatus.Approved)
     {

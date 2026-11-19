@@ -30,19 +30,6 @@ public enum LimitType
     Time, Number, Value
 }
 
-// Novel Enums
-public enum Type
-{
-    Fantasy,
-    History,
-    Love,
-    Real,
-    Modern,
-    Science,
-    Horror,
-    Detective
-}
-
 // 文章類型
 public enum ArticleType
 {
@@ -90,4 +77,49 @@ public enum TagTarget
     /// 文章
     /// </summary>
     Article
+}
+
+/// <summary>
+/// 分類適用的作品類型（可複選）。例如奇幻適用小說，散文、評論只適用文章
+/// </summary>
+[Flags]
+public enum CategoryScope : byte
+{
+    /// <summary>
+    /// 不是分類
+    /// </summary>
+    [Display(Name = "無")]
+    None = 0,
+
+    /// <summary>
+    /// 小說
+    /// </summary>
+    [Display(Name = "小說")]
+    Novel = 1,
+
+    /// <summary>
+    /// 文章
+    /// </summary>
+    [Display(Name = "文章")]
+    Article = 2,
+
+    /// <summary>
+    /// 小說與文章
+    /// </summary>
+    [Display(Name = "小說與文章")]
+    All = Novel | Article,
+}
+
+/// <summary>
+/// <see cref="CategoryScope"/> 的輔助方法
+/// </summary>
+public static class CategoryScopeExtensions
+{
+    /// <summary>
+    /// 作品類型對應的分類範圍
+    /// </summary>
+    /// <param name="target">作品類型</param>
+    /// <returns>分類範圍</returns>
+    public static CategoryScope ToCategoryScope(this TagTarget target) =>
+        target == TagTarget.Novel ? CategoryScope.Novel : CategoryScope.Article;
 }

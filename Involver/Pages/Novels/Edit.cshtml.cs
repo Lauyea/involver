@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-using Type = DataAccess.Common.Type;
 
 namespace Involver.Pages.Novels;
 
@@ -25,7 +24,8 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+ITagService tagService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     [BindProperty]
     public Novel Novel { get; set; }
@@ -46,6 +46,27 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     public TagAuthorLevel TagAuthorLevel { get; set; }
 
     /// <summary>
+    /// 勾選的分類標籤 ID
+    /// </summary>
+    [BindProperty]
+    public List<int> CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// 可選的分類
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
+    /// <summary>
+    /// 分類選擇（小說至少選一個）
+    /// </summary>
+    public CategoryPickerViewModel CategoryPicker => new()
+    {
+        Options = Categories,
+        SelectedIds = CategoryIds,
+        Required = true,
+    };
+
+    /// <summary>
     /// 標籤輸入框
     /// </summary>
     public TagInputViewModel TagInput => new()
@@ -55,17 +76,6 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
         Level = TagAuthorLevel,
     };
 
-    public List<SelectListItem> Types { get; } = new List<SelectListItem>
-    {
-        new SelectListItem { Value = Type.Fantasy.ToString(), Text = "奇幻" },
-        new SelectListItem { Value = Type.History.ToString(), Text = "歷史" },
-        new SelectListItem { Value = Type.Love.ToString(), Text = "愛情" },
-        new SelectListItem { Value = Type.Real.ToString(), Text = "真實" },
-        new SelectListItem { Value = Type.Modern.ToString(), Text = "現代" },
-        new SelectListItem { Value = Type.Science.ToString(), Text = "科幻" },
-        new SelectListItem { Value = Type.Horror.ToString(), Text = "驚悚" },
-        new SelectListItem { Value = Type.Detective.ToString(), Text = "推理" },
-    };
 
     public async Task<IActionResult> OnGetAsync(int? id, CancellationToken cancellationToken)
     {
@@ -92,9 +102,12 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             return Forbid();
         }
 
-        var tags = Novel.Tags.Select(t => new { value = t.Name });
+        // 分類在分類選擇裡顯示，標籤輸入框只放一般標籤
+        var tags = Novel.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Novel)).Select(t => new { value = t.Name });
+        CategoryIds = Novel.Tags.Where(t => t.IsCategoryFor(CategoryScope.Novel)).Select(t => t.TagId).ToList();
         TagString = JsonSerializer.Serialize(tags);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Novel, cancellationToken);
 
         return Page();
     }
@@ -107,6 +120,7 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     {
         var userId = UserManager.GetUserId(User);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Novel, cancellationToken);
 
         if (!ModelState.IsValid)
         {
@@ -146,13 +160,22 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             return Page();
         }
 
-        var updatedTags = tagResult.Tags;
+        var categoryResult = await categoryService.SelectAsync(CategoryIds, tagResult.Tags, TagTarget.Novel, required: true, cancellationToken);
+        if (!categoryResult.Succeeded)
+        {
+            ErrorMessage = categoryResult.ErrorMessage;
+            Novel = novelToUpdate; // Re-assign for the view
+            return Page();
+        }
+
+        // 一般標籤裡的分類已併入分類
+        var updatedTags = tagResult.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Novel)).Concat(categoryResult.Categories).ToList();
 
         //Protect from overposting attacks
         if (await TryUpdateModelAsync<Novel>(
             novelToUpdate,
             "Novel",   // Prefix for form value.
-            n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.End, n => n.ImageUrl))
+            n => n.Introduction, n => n.PrimeRead, n => n.End, n => n.ImageUrl))
         {
             //if (memoryStream.Length != 0)
             //{

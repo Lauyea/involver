@@ -1,0 +1,73 @@
+@model Involver.Models.ViewModels.Feed.ContentCardViewModel
+@using DataAccess.Models.Recommendation
+
+@*
+    作品卡片：首頁 Feed 的各區塊與熱門創作列表共用。
+    Section 有值時（Feed）卡片帶 data-* 屬性，home-feed.js 依此記錄曝光、點擊與「不感興趣」。
+*@
+@{
+    var isNovel = Model.ContentType == RecommendationContentType.Novel;
+    var detailsPage = Model.EpisodeId != null ? "/Episodes/Details" : isNovel ? "/Novels/Details" : "/Articles/Details";
+    var detailsId = Model.EpisodeId ?? Model.ContentId;
+    var tagPage = isNovel ? "/Novels/Index" : "/Articles/Index";
+    var cardClass = Model.Compact ? "content-card content-card--compact" : "content-card";
+    var coverUrl = string.IsNullOrEmpty(Model.ImageUrl)
+        ? $"https://picsum.photos/seed/involver-{(isNovel ? "n" : "a")}{Model.ContentId}/600/400?grayscale"
+        : Model.ImageUrl;
+}
+
+<article class="@cardClass"
+         data-content-type="@((byte)Model.ContentType)"
+         data-content-id="@Model.ContentId"
+         data-section="@(Model.Section is { } section ? ((byte)section).ToString() : null)"
+         data-position="@Model.Position"
+         data-setting-version="@Model.SettingVersion">
+    <a class="content-card__cover" asp-area="" asp-page="@detailsPage" asp-route-id="@detailsId" data-feed-link tabindex="-1" aria-hidden="true">
+        <img src="@coverUrl" alt="" loading="lazy" />
+        @if (!string.IsNullOrEmpty(Model.Badge))
+        {
+            <span class="content-card__badge">@Model.Badge</span>
+        }
+    </a>
+    <div class="content-card__body">
+        <div class="content-card__meta">
+            <span class="content-card__category">@Model.Category</span>
+            <span class="content-card__time" title="@Model.UpdatedAt">@TimePeriodHelper.Get(Model.UpdatedAt)</span>
+        </div>
+        <h3 class="content-card__title">
+            <a asp-area="" asp-page="@detailsPage" asp-route-id="@detailsId" data-feed-link>@Model.Title</a>
+        </h3>
+        @if (!string.IsNullOrEmpty(Model.EpisodeTitle))
+        {
+            <p class="content-card__episode">
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                <span class="visually-hidden">下一集：</span>@Model.EpisodeTitle
+            </p>
+        }
+        <p class="content-card__author">
+            <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.AuthorId">@Model.AuthorName</a>
+        </p>
+        @if (Model.Tags.Count > 0)
+        {
+            <div class="content-card__tags">
+                @foreach (var tag in Model.Tags)
+                {
+                    <a class="content-card__tag" asp-area="" asp-page="@tagPage" asp-route-currentFilter="@tag">#@tag</a>
+                }
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Reason))
+        {
+            <p class="content-card__reason">
+                <i class="fas fa-lightbulb" aria-hidden="true"></i>
+                <span class="visually-hidden">推薦理由：</span>@Model.Reason
+            </p>
+        }
+    </div>
+    @if (Model.Dismissible)
+    {
+        <button type="button" class="content-card__dismiss" data-dismiss-recommendation title="不感興趣" aria-label="不感興趣：@Model.Title">
+            <i class="fas fa-eye-slash" aria-hidden="true"></i>
+        </button>
+    }
+</article>

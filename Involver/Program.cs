@@ -6,6 +6,7 @@ using DataAccess.Data;
 using Involver.Authorization.Admin;
 using Involver.Services;
 using Involver.Services.Admin;
+using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -106,8 +107,14 @@ services.AddScoped<IMissionService, MissionService>();
 services.AddScoped<IViewCountService, ViewCountService>();
 services.AddScoped<IUserAccountService, UserAccountService>();
 services.AddScoped<ITagService, TagService>();
+services.AddScoped<ICategoryService, CategoryService>();
 services.AddScoped<IAdminAuditService, AdminAuditService>();
 services.AddScoped<IPayoutService, PayoutService>();
+services.AddMemoryCache();
+services.AddScoped<IEpisodeReadService, EpisodeReadService>();
+services.AddScoped<IHomeFeedService, HomeFeedService>();
+services.AddScoped<IRecommendationSettingsService, RecommendationSettingsService>();
+services.AddScoped<IRecommendationAnomalyService, RecommendationAnomalyService>();
 services.AddHttpContextAccessor();
 services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
 
@@ -240,12 +247,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 統計資料已搬到管理員後台，舊網址永久轉址（查詢字串會保留）
+// 已搬移或刪除的頁面，舊網址永久轉址（查詢字串會保留）
 app.UseRewriter(new RewriteOptions()
     .AddRedirect("(?i)^StatisticalData(/Index)?/?$", "Admin/Users", StatusCodes.Status301MovedPermanently)
     .AddRedirect("(?i)^StatisticalData/Payments(/Index)?/?$", "Admin/Payments", StatusCodes.Status301MovedPermanently)
     .AddRedirect("(?i)^StatisticalData/Payments/Details/?$", "Admin/Payments/Details", StatusCodes.Status301MovedPermanently)
-    .AddRedirect("(?i)^StatisticalData/ProfitSharings(/.*)?$", "Admin/Payouts", StatusCodes.Status301MovedPermanently));
+    .AddRedirect("(?i)^StatisticalData/ProfitSharings(/.*)?$", "Admin/Payouts", StatusCodes.Status301MovedPermanently)
+    // 「關於 Involver」已刪除，內容由未登入首頁取代
+    .AddRedirect("(?i)^Descriptions/AboutInvolver/?$", "/", StatusCodes.Status301MovedPermanently));
 app.UseStaticFiles();
 app.UseCookiePolicy();
 

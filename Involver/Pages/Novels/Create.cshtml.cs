@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-using Type = DataAccess.Common.Type;
 using Involver.Extensions;
 
 namespace Involver.Pages.Novels;
@@ -26,11 +25,13 @@ ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
 IAchievementService achievementService,
-ITagService tagService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+ITagService tagService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, UserManager.GetUserId(User), cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Novel, cancellationToken);
         return Page();
     }
 
@@ -53,6 +54,27 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     public TagAuthorLevel TagAuthorLevel { get; set; }
 
     /// <summary>
+    /// 勾選的分類標籤 ID
+    /// </summary>
+    [BindProperty]
+    public List<int> CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// 可選的分類
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
+    /// <summary>
+    /// 分類選擇（小說至少選一個）
+    /// </summary>
+    public CategoryPickerViewModel CategoryPicker => new()
+    {
+        Options = Categories,
+        SelectedIds = CategoryIds,
+        Required = true,
+    };
+
+    /// <summary>
     /// 標籤輸入框
     /// </summary>
     public TagInputViewModel TagInput => new()
@@ -66,17 +88,6 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     //[BindProperty]
     //public BufferedSingleFileUploadDb FileUpload { get; set; }
 
-    public List<SelectListItem> Types { get; } =
-    [
-        new() { Value = Type.Fantasy.ToString(), Text = "奇幻" },
-        new() { Value = Type.History.ToString(), Text = "歷史" },
-        new() { Value = Type.Love.ToString(), Text = "愛情" },
-        new() { Value = Type.Real.ToString(), Text = "真實" },
-        new() { Value = Type.Modern.ToString(), Text = "現代" },
-        new() { Value = Type.Science.ToString(), Text = "科幻" },
-        new() { Value = Type.Horror.ToString(), Text = "驚悚" },
-        new() { Value = Type.Detective.ToString(), Text = "推理" },
-    ];
 
     // To protect from overposting attacks, please enable the specific properties you want to bind to, for
     // more details see https://aka.ms/RazorPagesCRUD.
@@ -84,6 +95,7 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
     {
         var userId = UserManager.GetUserId(User);
         TagAuthorLevel = await tagService.GetAuthorLevelAsync(User, userId, cancellationToken);
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Novel, cancellationToken);
 
         if (!ModelState.IsValid)
         {
@@ -112,6 +124,16 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             ErrorMessage = tagResult.ErrorMessage;
             return Page();
         }
+
+        var categoryResult = await categoryService.SelectAsync(CategoryIds, tagResult.Tags, TagTarget.Novel, required: true, cancellationToken);
+        if (!categoryResult.Succeeded)
+        {
+            ErrorMessage = categoryResult.ErrorMessage;
+            return Page();
+        }
+
+        // 一般標籤裡的分類已併入分類
+        var allTags = tagResult.Tags.Where(t => !t.IsCategoryFor(CategoryScope.Novel)).Concat(categoryResult.Categories).ToList();
 
         Novel emptyNovel =
             new()
@@ -144,7 +166,7 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
         if (await TryUpdateModelAsync<Novel>(
             emptyNovel,
             "Novel",   // Prefix for form value.
-            n => n.Title, n => n.Introduction, n => n.Type, n => n.PrimeRead, n => n.Block, n => n.ProfileID, n => n.ImageUrl))
+            n => n.Title, n => n.Introduction, n => n.PrimeRead, n => n.Block, n => n.ProfileID, n => n.ImageUrl))
         {
             //if (memoryStream.Length != 0)
             //{
@@ -155,12 +177,12 @@ ITagService tagService) : DI_BasePageModel(context, authorizationService, userMa
             //var tempUser = await Context.Profiles.FirstOrDefaultAsync(u => u.ProfileID == Novel.ProfileID);
             //emptyNovel.ProfileID = Novel.ProfileID;
 
-            emptyNovel.Tags = tagResult.Tags;
+            emptyNovel.Tags = allTags;
 
             Context.Novels.Add(emptyNovel);
             await Context.SaveChangesAsync(cancellationToken);
 
-            await tagService.PromotePendingTagsAsync(tagResult.Tags.Select(t => t.TagId), cancellationToken);
+            await tagService.PromotePendingTagsAsync(allTags.Select(t => t.TagId), cancellationToken);
 
             var toasts = await AchievementService.NovelCountAsync(Novel.ProfileID);
 

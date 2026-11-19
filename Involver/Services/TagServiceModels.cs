@@ -128,6 +128,11 @@ public class TagSuggestion
     public TagStatus Status { get; init; }
 
     /// <summary>
+    /// 是否為分類標籤
+    /// </summary>
+    public bool IsCategory { get; init; }
+
+    /// <summary>
     /// 使用中的小說數（不含軟刪除）
     /// </summary>
     public int NovelCount { get; init; }

@@ -55,7 +55,7 @@
 
                         <div class="mt-auto">
                             <div class="mb-2">
-                                <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = Model.Novel.Tags, CssClass = "badge me-1" }' />
+                                <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = Model.Novel.Tags, Target = DataAccess.Common.TagTarget.Novel, CssClass = "badge me-1" }' />
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-2 text-body-secondary">

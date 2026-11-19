@@ -42,8 +42,10 @@ public class AdminSidebarViewComponent(IAuthorizationService authorizationServic
         new("金流", "分潤清單", "/Payouts/Index", "fa-hand-holding-dollar", AdminPolicies.Payouts),
         new("內容", "內容統計", "/ContentStats/Index", "fa-chart-column", AdminPolicies.Content),
         new("內容", "標籤", "/Tags/Index", "fa-tags", AdminPolicies.Tags),
+        new("內容", "分類", "/Tags/Categories", "fa-shapes", AdminPolicies.Tags),
         new("內容", "合併與別名", "/Tags/Aliases", "fa-code-merge", AdminPolicies.Tags),
         new("設定", "KPI 目標", "/Targets/Index", "fa-bullseye", AdminPolicies.Administrators),
+        new("設定", "推薦設定", "/Recommendations/Index", "fa-wand-magic-sparkles", AdminPolicies.Administrators),
     ];
 
     /// <summary>

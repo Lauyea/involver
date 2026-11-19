@@ -387,6 +387,284 @@ button.accept-policy {
     8. 自訂功能樣式 (Custom Feature Styles)
 ==============================================
 */
+/* Content Card：作品卡片（_ContentCardPartial），首頁 Feed 與作品列表共用 */
+.content-card {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow .2s ease-out, transform .2s ease-out;
+}
+
+    .content-card:hover,
+    .content-card:focus-within {
+        box-shadow: var(--card-hover-shadow);
+        transform: translateY(-2px);
+    }
+
+.content-card__cover {
+    aspect-ratio: 3 / 2;
+    background-color: var(--tag-item-bg);
+    display: block;
+    overflow: hidden;
+    position: relative;
+}
+
+    .content-card__cover img {
+        display: block;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+.content-card__badge {
+    background-color: var(--primary-accent);
+    border-radius: 999px;
+    bottom: .5rem;
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+    left: .5rem;
+    padding: .15rem .6rem;
+    position: absolute;
+}
+
+.content-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: .25rem;
+    padding: .75rem .85rem .85rem;
+}
+
+.content-card__meta {
+    align-items: center;
+    color: var(--tag-count-color);
+    display: flex;
+    font-size: .75rem;
+    gap: .5rem;
+    justify-content: space-between;
+}
+
+.content-card__category {
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    padding: 0 .5rem;
+}
+
+.content-card__title {
+    display: -webkit-box;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+    .content-card__title a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+        .content-card__title a:hover {
+            color: var(--primary-accent);
+        }
+
+.content-card__episode,
+.content-card__author {
+    font-size: .8125rem;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.content-card__episode {
+    color: var(--primary-accent);
+}
+
+    .content-card__episode i {
+        margin-right: .35rem;
+    }
+
+.content-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .25rem;
+}
+
+.content-card__tag {
+    background-color: var(--tag-item-bg);
+    border-radius: 999px;
+    color: var(--text-color);
+    font-size: .75rem;
+    padding: .05rem .5rem;
+    text-decoration: none;
+}
+
+    .content-card__tag:hover {
+        color: var(--primary-accent);
+    }
+
+.content-card__reason {
+    color: var(--tag-count-color);
+    font-size: .8125rem;
+    margin: auto 0 0;
+    padding-top: .35rem;
+}
+
+    .content-card__reason i {
+        color: var(--primary-accent);
+        margin-right: .35rem;
+    }
+
+.content-card__dismiss {
+    align-items: center;
+    background-color: rgba(0, 0, 0, .55);
+    border: 0;
+    border-radius: 999px;
+    color: #fff;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    position: absolute;
+    right: .5rem;
+    top: .5rem;
+    width: 2rem;
+}
+
+    .content-card__dismiss:hover,
+    .content-card__dismiss:focus-visible {
+        background-color: rgba(0, 0, 0, .8);
+    }
+
+.content-card__dismissed {
+    align-items: center;
+    background-color: var(--card-bg-color);
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    inset: 0;
+    justify-content: center;
+    padding: 1rem;
+    position: absolute;
+    text-align: center;
+}
+
+.content-card--dismissed:hover {
+    transform: none;
+}
+
+.content-card--compact .content-card__cover {
+    aspect-ratio: 16 / 9;
+}
+
+/* 分類選擇（_CategoryPickerPartial）：Material Design 的 filter chips */
+.category-picker {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.category-picker__legend {
+    float: none;
+    font-size: 1rem;
+    margin-bottom: .25rem;
+    width: auto;
+}
+
+.category-picker__hint {
+    color: var(--tag-count-color);
+    font-size: .875rem;
+    margin-bottom: .5rem;
+}
+
+.category-picker__options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.category-chip {
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: .5rem;
+    color: var(--text-color);
+    cursor: pointer;
+    display: inline-flex;
+    font-size: .875rem;
+    font-weight: 500;
+    gap: .4rem;
+    min-height: 2rem;
+    padding: 0 .85rem;
+    transition: background-color .15s ease, border-color .15s ease;
+    user-select: none;
+}
+
+    .category-chip:hover {
+        background-color: rgba(var(--primary-accent-rgb), .08);
+    }
+
+.category-chip__check {
+    display: none;
+}
+
+.btn-check:checked + .category-chip {
+    background-color: rgba(var(--primary-accent-rgb), .18);
+    border-color: transparent;
+    color: var(--text-color);
+}
+
+    .btn-check:checked + .category-chip .category-chip__check {
+        color: var(--primary-accent);
+        display: inline;
+    }
+
+    .btn-check:checked + .category-chip .category-chip__icon {
+        display: none;
+    }
+
+.btn-check:focus-visible + .category-chip {
+    outline: 2px solid var(--primary-accent);
+    outline-offset: 2px;
+}
+
+.btn-check:disabled + .category-chip {
+    cursor: not-allowed;
+    opacity: .45;
+}
+
+/* 分類徽章：作品列表上和一般標籤區分 */
+.category-badge {
+    align-items: center;
+    background-color: rgba(var(--primary-accent-rgb), .15);
+    border-radius: .5rem;
+    color: var(--primary-accent);
+    display: inline-flex;
+    font-size: .75rem;
+    font-weight: 600;
+    gap: .3rem;
+    padding: .2rem .55rem;
+    text-decoration: none;
+}
+
+    a.category-badge:hover {
+        background-color: rgba(var(--primary-accent-rgb), .25);
+        color: var(--primary-accent);
+    }
+
+/* 章節結尾的閱讀標記（episode-read.js 觀察它是否進入畫面） */
+.episode-end-marker {
+    height: 1px;
+}
+
 /* Comment Section */
 .new-comment-highlight {
     animation: highlight-fade 3s ease-out;

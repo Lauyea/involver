@@ -97,7 +97,7 @@
                 </article>
 
                 <div>
-                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = Model.Article.Tags, CssClass = "badge me-1" }' />
+                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = Model.Article.Tags, Target = DataAccess.Common.TagTarget.Article, CssClass = "badge me-1" }' />
                 </div>
             </div>
             <div class="card-footer">

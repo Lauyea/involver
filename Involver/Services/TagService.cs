@@ -10,11 +10,14 @@ using Involver.Authorization.Tag;
 using Involver.Helpers;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Involver.Services;
 
 /// <inheritdoc />
-public class TagService(ApplicationDbContext context) : ITagService
+/// <param name="context">資料庫內容</param>
+/// <param name="cache">快取；合併標籤可能改變分類，要清掉 <see cref="CategoryService.CacheKey"/>（測試可不傳）</param>
+public class TagService(ApplicationDbContext context, IMemoryCache cache = null) : ITagService
 {
     /// <summary>
     /// 相似標籤最多回傳幾筆
@@ -136,8 +139,9 @@ public class TagService(ApplicationDbContext context) : ITagService
             }
         }
 
+        // 分類標籤不佔名額，要等比對完才知道哪些是分類；先擋掉明顯過多的輸入
         var maxTags = GetMaxTags(target);
-        if (requested.Count > maxTags)
+        if (requested.Count > maxTags + Parameters.CategoryMaxPerWork)
         {
             return TagResolveResult.Fail($"設定標籤超過 {maxTags} 個，請重新設定");
         }
@@ -176,6 +180,12 @@ public class TagService(ApplicationDbContext context) : ITagService
             {
                 tags.Add(existing);
             }
+        }
+
+        // 只有適用這個作品類型的分類不佔名額
+        if (tags.Count(t => !t.IsCategoryFor(target.ToCategoryScope())) + newNames.Count > maxTags)
+        {
+            return TagResolveResult.Fail($"設定標籤超過 {maxTags} 個，請重新設定");
         }
 
         if (newNames.Count == 0)
@@ -288,9 +298,20 @@ public class TagService(ApplicationDbContext context) : ITagService
     /// <inheritdoc />
     public async Task<List<TagSuggestion>> GetSuggestionsAsync(TagTarget target, CancellationToken cancellationToken = default)
     {
-        var tags = await QueryTagUsages()
-            .Where(t => t.Status == TagStatus.Approved)
-            .ToListAsync(cancellationToken);
+        // 適用這個作品類型的分類在表單上另外選，不列入標籤輸入框的建議
+        var scope = target.ToCategoryScope();
+        var categoryIds = (await context.Tags
+                .Where(t => t.IsCategory)
+                .Select(t => new { t.TagId, t.CategoryScope })
+                .ToListAsync(cancellationToken))
+            .Where(t => (t.CategoryScope & scope) != 0)
+            .Select(t => t.TagId)
+            .ToList();
+        var tags = (await QueryTagUsages()
+                .Where(t => t.Status == TagStatus.Approved)
+                .ToListAsync(cancellationToken))
+            .Where(t => !categoryIds.Contains(t.TagId))
+            .ToList();
 
         var other = target == TagTarget.Novel ? TagTarget.Article : TagTarget.Novel;
 
@@ -510,6 +531,27 @@ public class TagService(ApplicationDbContext context) : ITagService
             target.Status = TagStatus.Approved;
         }
 
+        // 分類被合併掉時，目標標籤接手成為分類（適用範圍取聯集），會員選過的分類偏好也搬過去
+        if (source.IsCategory)
+        {
+            if (!target.IsCategory)
+            {
+                target.IsCategory = true;
+                target.CategoryOrder = source.CategoryOrder;
+                target.CategoryIcon = source.CategoryIcon;
+                target.Status = TagStatus.Approved;
+            }
+
+            target.CategoryScope |= source.CategoryScope;
+        }
+
+        await context.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO [ProfileCategoryPreferences] ([ProfileId], [TagId], [CreatedAt])
+            SELECT [ProfileId], {targetTagId}, [CreatedAt] FROM [ProfileCategoryPreferences]
+            WHERE [TagId] = {sourceTagId}
+                AND [ProfileId] NOT IN (SELECT [ProfileId] FROM [ProfileCategoryPreferences] WHERE [TagId] = {targetTagId})
+            """, cancellationToken);
+
         context.Tags.Remove(source);
         await context.SaveChangesAsync(cancellationToken);
 
@@ -530,6 +572,11 @@ public class TagService(ApplicationDbContext context) : ITagService
         if (transaction is not null)
         {
             await transaction.CommitAsync(cancellationToken);
+        }
+
+        if (source.IsCategory || target.IsCategory)
+        {
+            cache?.Remove(CategoryService.CacheKey);
         }
 
         return new TagMergeResult
@@ -630,6 +677,7 @@ public class TagService(ApplicationDbContext context) : ITagService
                 Name = t.Name,
                 NormalizedName = t.NormalizedName,
                 Status = t.Status,
+                IsCategory = t.IsCategory,
                 NovelCount = t.Novels!.Count(n => !n.IsDeleted),
                 ArticleCount = t.Articles!.Count(a => !a.IsDeleted),
             })

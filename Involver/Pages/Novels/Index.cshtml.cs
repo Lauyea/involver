@@ -17,8 +17,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-using Type = DataAccess.Common.Type;
-
 namespace Involver.Pages.Novels;
 
 [AllowAnonymous]
@@ -26,8 +24,14 @@ public class IndexModel(
 ApplicationDbContext context,
 IAuthorizationService authorizationService,
 UserManager<InvolverUser> userManager,
-IAchievementService achievementService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
+IAchievementService achievementService,
+ICategoryService categoryService) : DI_BasePageModel(context, authorizationService, userManager, achievementService)
 {
+    /// <summary>
+    /// 分類篩選的選項
+    /// </summary>
+    public IReadOnlyList<CategoryOption> Categories { get; private set; } = [];
+
     public string SearchType { get; set; }
     public string CurrentType { get; set; }
     public string IncoinSort { get; set; }
@@ -43,7 +47,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         string sortOrder,
         string currentFilter,
         string searchString,
-        int? PageIndex)
+        int? PageIndex,
+        CancellationToken cancellationToken)
     {
         CurrentSort = sortOrder;
         DateSort = sortOrder == "Date_desc" ? "Date" : "Date_desc";
@@ -80,37 +85,15 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
                                    || (tagId != null && n.Tags.Any(t => t.TagId == tagId)));
         }
 
-        if (!String.IsNullOrEmpty(searchType))
+        // 分類篩選：searchType、currentType 是分類標籤 ID
+        Categories = await categoryService.GetCategoriesAsync(TagTarget.Novel, cancellationToken);
+        if (int.TryParse(searchType, out var categoryId) && Categories.Any(c => c.TagId == categoryId))
         {
-            switch (searchType)
-            {
-                case "Fantasy":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Fantasy);
-                    break;
-                case "History":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.History);
-                    break;
-                case "Love":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Love);
-                    break;
-                case "Real":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Real);
-                    break;
-                case "Modern":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Modern);
-                    break;
-                case "Science":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Science);
-                    break;
-                case "Horror":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Horror);
-                    break;
-                case "Detective":
-                    NovelsIQ = NovelsIQ.Where(n => n.Type == Type.Detective);
-                    break;
-                default:
-                    break;
-            }
+            NovelsIQ = NovelsIQ.Where(n => n.Tags.Any(t => t.TagId == categoryId));
+        }
+        else
+        {
+            CurrentType = null;
         }
 
         switch (sortOrder)

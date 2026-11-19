@@ -1,45 +1,42 @@
 @page
 @model Involver.Pages.Feed.TrendingCreationsModel
+@using Involver.Models.ViewModels.Feed
+@using Involver.Services.Recommendations
 @{
-    ViewData["Title"] = "屬於每個人的創作";
+    ViewData["Title"] = "熱門創作";
     Layout = "~/Pages/Shared/_Layout.cshtml";
-
-    string navDisabled = Model.UserProfileID != null ? "" : "disabled";
 }
 
-<nav class="nav nav-pills flex-column flex-sm-row" style="border-radius: 0.75rem;">
-    <a asp-page="/Index" class="flex-sm-fill text-sm-center nav-link @navDisabled">追蹤創作</a>
-    <a asp-page="/Feed/FollowArticles"
-       asp-route-id="@Model.UserProfileID" class="flex-sm-fill text-sm-center nav-link @navDisabled">追蹤文章</a>
-    <a asp-page="/Feed/TrendingCreations"
-       asp-route-id="@Model.UserProfileID" class="flex-sm-fill text-sm-center nav-link active">熱門創作</a>
-    <a asp-area="" asp-page="/Novels/Index" class="flex-sm-fill text-sm-center nav-link">最新創作</a>
-    <a asp-area="" asp-page="/Articles/Index" class="flex-sm-fill text-sm-center nav-link">最新文章</a>
-</nav>
-<p></p>
-<div>
-    @if (Model.Novels != null)
-    {
-        @foreach (var novel in Model.Novels)
+@section Styles {
+    <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+}
+
+@if (Model.UserProfileID != null)
+{
+    <partial name="_FeedTabsPartial" model="FeedTab.Trending" />
+    <h1 class="visually-hidden">熱門創作</h1>
+}
+else
+{
+    <h1 class="feed-page-title"><i class="fas fa-fire" aria-hidden="true"></i>熱門創作</h1>
+}
+
+<p class="feed-caption">最近 @HomeFeedService.TrendingDays 天最多讀者在看的作品</p>
+
+@if (Model.Novels.Count > 0)
+{
+    <div class="feed-grid feed-grid--ranked">
+        @foreach (var card in Model.Novels)
         {
-            if (novel.Block != true)
-            {
-                <div class="row">
-                    <div class="col-md-5">
-                        <a asp-page="/Novels/Details"
-               asp-route-id="@novel.NovelID">
-                            @Html.DisplayFor(modelItem => novel.Title)
-                        </a>
-                    </div>
-                    <div class="col-md-4 text-body-secondary">
-                        @Html.DisplayFor(modelItem => novel.Profile.UserName)
-                    </div>
-                    <div class="col-md-3 text-body-secondary" title="@novel.UpdateTime">
-                        @TimePeriodHelper.Get(novel.UpdateTime)
-                    </div>
-                </div>
-                <hr />
-            }
+            <partial name="_ContentCardPartial" model="card" />
         }
-    }
-</div>
+    </div>
+}
+else
+{
+    <div class="feed-empty">
+        <i class="fas fa-book-open feed-empty__icon" aria-hidden="true"></i>
+        <p class="feed-empty__title">目前還沒有作品</p>
+        <a class="btn btn-primary rounded-pill px-4" asp-page="/Novels/Index">看看所有創作</a>
+    </div>
+}

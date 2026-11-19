@@ -6,7 +6,6 @@
 @{
     ViewData["Title"] = "創作";
     Layout = "~/Pages/Shared/_Layout.cshtml";
-    var novelTypeDetermination = new NovelTypeDetermination();
 
     // Arrow logic for sorting
     string arrowIncoin = Model.CurrentSort?.StartsWith("Incoin") ?? false ? (Model.CurrentSort.EndsWith("desc") ? "<i class='fas fa-chevron-down'></i>" : "<i class='fas fa-chevron-up'></i>") : "";
@@ -26,16 +25,12 @@
         <form asp-page="./Index" method="get">
             <div class="input-group">
                 <div class="input-group-prepend">
-                    <select asp-for="SearchType" class="form-select">
-                        <option value="">所有類別</option>
-                        <option value="Fantasy">奇幻</option>
-                        <option value="History">歷史</option>
-                        <option value="Love">愛情</option>
-                        <option value="Real">真實</option>
-                        <option value="Modern">現代</option>
-                        <option value="Science">科幻</option>
-                        <option value="Horror">驚悚</option>
-                        <option value="Detective">推理</option>
+                    <select name="searchType" class="form-select" aria-label="分類">
+                        <option value="">所有分類</option>
+                        @foreach (var category in Model.Categories)
+                        {
+                            <option value="@category.TagId" selected="@(Model.CurrentType == category.TagId.ToString())">@category.Name</option>
+                        }
                     </select>
                 </div>
                 <input type="search" name="searchString" value="@Model.CurrentFilter" class="form-control" placeholder="搜尋小說或作者..." />
@@ -63,7 +58,7 @@
             <table class="table table-hover align-middle">
                 <thead class="table">
                     <tr>
-                        <th style="width:12%;text-align:center;">類型/標籤</th>
+                        <th style="width:12%;text-align:center;">分類/標籤</th>
                         <th style="width:38%;"></th>
                         <th style="width:20%;text-align:center;">In幣</th>
                         <th style="width:15%;text-align:center;">時間</th>
@@ -75,9 +70,8 @@
                     {
                         <tr>
                             <td class="text-center">
-                                <span class="badge bg-secondary">@novelTypeDetermination.GetTypeName(item.Type)</span>
-                                <div class="mt-1">
-                                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, CssClass = "badge rounded-pill" }' />
+                                <div>
+                                    <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, Target = DataAccess.Common.TagTarget.Novel, CssClass = "badge rounded-pill" }' />
                                 </div>
                             </td>
                             <td style="vertical-align:middle;">
@@ -165,8 +159,7 @@
                             <div class="card-footer">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center flex-wrap">
-                                        <span class="badge bg-secondary me-1 mb-1">@novelTypeDetermination.GetTypeName(item.Type)</span>
-                                        <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, CssClass = "badge rounded-pill me-1 mb-1" }' />
+                                        <partial name="_TagBadgesPartial" model='new Involver.Models.ViewModels.TagBadgesViewModel { Tags = item.Tags, Target = DataAccess.Common.TagTarget.Novel, CssClass = "badge rounded-pill me-1 mb-1" }' />
                                     </div>
                                     <div class="d-flex align-items-center">
                                         <div class="me-2" style="width:100px; height:30px;" title="最近觀看趨勢">

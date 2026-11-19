@@ -17,7 +17,7 @@
                         <option value="">選擇標籤</option>
                         @foreach (var tag in Model.AllTags)
                         {
-                            <option value="@tag.TagId">@tag.Name（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
+                            <option value="@tag.TagId">@tag.Name@(tag.IsCategory ? "［分類］" : "")（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
                         }
                     </select>
                 </div>
@@ -27,7 +27,7 @@
                         <option value="">選擇標籤</option>
                         @foreach (var tag in Model.AllTags)
                         {
-                            <option value="@tag.TagId">@tag.Name（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
+                            <option value="@tag.TagId">@tag.Name@(tag.IsCategory ? "［分類］" : "")（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
                         }
                     </select>
                 </div>

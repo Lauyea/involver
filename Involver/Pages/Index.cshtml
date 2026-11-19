@@ -9,6 +9,11 @@
     @if (Model.UserProfile == null)
     {
         <link rel="stylesheet" href="~/css/home.css" asp-append-version="true" />
+        <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
     }
 }
 
@@ -17,57 +22,175 @@
     {
         <script type="module" src="~/js/home-hero.js" asp-append-version="true"></script>
     }
+    else
+    {
+        <script type="module" src="~/js/recommendations/home-feed.js" asp-append-version="true"></script>
+    }
 }
 
 @if (Model.UserProfile != null)
 {
-    <nav class="nav nav-pills flex-column flex-sm-row" style="border-radius: 0.75rem;">
-        <a asp-page="/Index" class="flex-sm-fill text-sm-center nav-link active">追蹤創作</a>
-        <a asp-page="/Feed/FollowArticles"
-       asp-route-id="@Model.UserProfile.ProfileID" class="flex-sm-fill text-sm-center nav-link">追蹤文章</a>
-        <a asp-page="/Feed/TrendingCreations"
-       asp-route-id="@Model.UserProfile.ProfileID" class="flex-sm-fill text-sm-center nav-link">熱門創作</a>
-        <a asp-area="" asp-page="/Novels/Index" class="flex-sm-fill text-sm-center nav-link">最新創作</a>
-        <a asp-area="" asp-page="/Articles/Index" class="flex-sm-fill text-sm-center nav-link">最新文章</a>
-    </nav>
-    <p></p>
-    <div>
-        @if (Model.Follows != null)
-        {
-            @foreach (var follow in Model.Follows)
+    var feed = Model.Feed;
+    var userId = Model.UserProfile.ProfileID;
+
+    <partial name="_FeedTabsPartial" model="Involver.Models.ViewModels.Feed.FeedTab.Home" />
+    <h1 class="visually-hidden">為你推薦</h1>
+
+    <div class="home-feed" id="home-feed" data-feed-request-id="@feed.FeedRequestId">
+        @Html.AntiForgeryToken()
+
+        @* 1. 繼續閱讀：追蹤中有新章節的作品 *@
+        <section class="feed-section" aria-labelledby="feed-continue-title">
+            <header class="feed-section__header">
+                <h2 id="feed-continue-title" class="feed-section__title">
+                    <i class="fas fa-book-bookmark" aria-hidden="true"></i>繼續閱讀
+                </h2>
+                <a class="feed-section__more" asp-area="Identity" asp-page="/Profile/Follow" asp-route-id="@userId">追蹤中的作品</a>
+            </header>
+            @if (feed.ContinueReading.Count > 0)
             {
-                if (follow.LatestEpisodeID == null)
-                {
-                    continue;
-                }
-                <div class="row">
-                    <div class="col-md-5">
-                        <a asp-page="/Episodes/Details"
-               asp-route-id="@follow.LatestEpisodeID">
-                            @follow.LatestEpisodeTitle
-                        </a>
-                    </div>
-                    <div class="col-md-4 text-body-secondary">
-                        <a asp-page="/Novels/Details" asp-route-id="@follow.NovelID">@follow.NovelTitle</a>
-                        @if (follow.NovelMonthlyInvolver)
-                        {
-                            <div class="btn btn-xs btn-outline-danger disabled">Involve</div>
-                        }
-                    </div>
-                    <div class="col-md-3 text-body-secondary" title="@follow.NovelUpdateTime">
-                        @*<p>
-                            <a asp-area="Identity"
-                   asp-page="/Profile/Index"
-                   asp-route-id="@follow.AuthorID">
-                                <small>@follow.AuthorUserName</small>
-                            </a>
-                        </p>*@
-                        @TimePeriodHelper.Get(follow.NovelUpdateTime)
-                    </div>
+                <div class="feed-scroller">
+                    @foreach (var card in feed.ContinueReading)
+                    {
+                        <div class="feed-scroller__item">
+                            <partial name="_ContentCardPartial" model="card" />
+                        </div>
+                    }
                 </div>
-                <hr />
             }
+            else
+            {
+                <p class="feed-section__empty">
+                    @if (feed.HasFollowedNovels)
+                    {
+                        <text>追蹤中的作品都讀完了，有新章節時會出現在這裡。</text>
+                    }
+                    else
+                    {
+                        <text>還沒有追蹤任何作品。在作品頁按「追蹤」，有新章節時就會出現在這裡。</text>
+                    }
+                </p>
+            }
+        </section>
+
+        @* 2. 投票進行中：Involver 最有特色的互動，放在顯眼位置 *@
+        @if (feed.Votings.Count > 0)
+        {
+            <section class="feed-section feed-section--votings" aria-labelledby="feed-votings-title">
+                <header class="feed-section__header">
+                    <h2 id="feed-votings-title" class="feed-section__title">
+                        <i class="fas fa-check-to-slot" aria-hidden="true"></i>投票進行中
+                    </h2>
+                    <a class="feed-section__more" asp-page="/Descriptions/Voting">投票怎麼玩？</a>
+                </header>
+                <ul class="feed-votings">
+                    @foreach (var voting in feed.Votings)
+                    {
+                        <li class="feed-voting @(voting.Urgent ? "feed-voting--urgent" : "")">
+                            <a class="feed-voting__link" asp-page="/Episodes/Details" asp-route-id="@voting.EpisodeId">
+                                <span class="feed-voting__title">@voting.Title</span>
+                                <span class="feed-voting__source">《@voting.NovelTitle》@voting.EpisodeTitle</span>
+                            </a>
+                            <span class="feed-voting__remaining" title="@voting.DeadLine">
+                                <i class="fas @(voting.DeadLine != null ? "fa-hourglass-half" : "fa-users")" aria-hidden="true"></i>@voting.Remaining
+                            </span>
+                        </li>
+                    }
+                </ul>
+            </section>
         }
+
+        @* 3. 為你推薦：卡片網格，每張附推薦理由，可以按「不感興趣」 *@
+        <section class="feed-section" id="feed-recommended" aria-labelledby="feed-recommended-title">
+            <header class="feed-section__header">
+                <h2 id="feed-recommended-title" class="feed-section__title">
+                    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>為你推薦
+                </h2>
+            </header>
+
+            @if (feed.NeedsCategoryPicker || feed.PreferredCategoryIds.Count > 0)
+            {
+                <details class="feed-type-picker" open="@feed.NeedsCategoryPicker">
+                    <summary class="feed-type-picker__summary">
+                        @(feed.NeedsCategoryPicker ? $"選 {Model.MaxPreferredCategories} 個你喜歡的分類，我們從這裡開始推薦" : "調整喜歡的分類")
+                    </summary>
+                    <form method="post" asp-page-handler="Preferences" class="feed-type-picker__form">
+                        <div class="feed-type-picker__options" data-max-checked="@Model.MaxPreferredCategories">
+                            @foreach (var option in feed.CategoryOptions)
+                            {
+                                var inputId = $"preferred-category-{option.TagId}";
+                                <input type="checkbox" class="btn-check" id="@inputId" name="SelectedCategoryIds" value="@option.TagId"
+                                       checked="@feed.PreferredCategoryIds.Contains(option.TagId)" autocomplete="off" />
+                                <label class="category-chip" for="@inputId">
+                                    <i class="fas fa-check category-chip__check" aria-hidden="true"></i>
+                                    <i class="fas @option.Icon category-chip__icon" aria-hidden="true"></i>@option.Name
+                                </label>
+                            }
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3">儲存</button>
+                    </form>
+                </details>
+            }
+
+            @if (feed.Recommended.Count > 0)
+            {
+                <div class="feed-grid">
+                    @foreach (var card in feed.Recommended)
+                    {
+                        <partial name="_ContentCardPartial" model="card" />
+                    }
+                </div>
+            }
+            else if (!feed.NeedsCategoryPicker)
+            {
+                <p class="feed-section__empty">多讀幾部作品、追蹤喜歡的作者，推薦會越來越準。先從下面的熱門與新作逛起吧！</p>
+            }
+        </section>
+
+        @* 4. 熱門／新作：給還沒有行為資料的人逛 *@
+        <section class="feed-section" aria-labelledby="feed-trending-title">
+            <header class="feed-section__header">
+                <h2 id="feed-trending-title" class="feed-section__title">
+                    <i class="fas fa-fire" aria-hidden="true"></i>熱門創作
+                </h2>
+                <a class="feed-section__more" asp-page="/Feed/TrendingCreations">查看更多</a>
+            </header>
+            @if (feed.Trending.Count > 0)
+            {
+                <div class="feed-grid feed-grid--ranked">
+                    @foreach (var card in feed.Trending)
+                    {
+                        <partial name="_ContentCardPartial" model="card" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="feed-section__empty">目前還沒有作品。</p>
+            }
+        </section>
+
+        <section class="feed-section" aria-labelledby="feed-newest-title">
+            <header class="feed-section__header">
+                <h2 id="feed-newest-title" class="feed-section__title">
+                    <i class="fas fa-seedling" aria-hidden="true"></i>新作
+                </h2>
+                <a class="feed-section__more" asp-page="/Novels/Index">查看更多</a>
+            </header>
+            @if (feed.Newest.Count > 0)
+            {
+                <div class="feed-grid">
+                    @foreach (var card in feed.Newest)
+                    {
+                        <partial name="_ContentCardPartial" model="card" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="feed-section__empty">目前還沒有作品。</p>
+            }
+        </section>
     </div>
 }
 else
@@ -100,6 +223,25 @@ else
             </p>
         </div>
     </section>
+
+    @if (Model.Trending.Count > 0)
+    {
+        <section class="home-section" aria-labelledby="home-trending-title">
+            <header class="home-section__header">
+                <h2 id="home-trending-title" class="home-section__title">大家正在讀</h2>
+                <p class="home-section__subtitle">最近 @Involver.Services.Recommendations.HomeFeedService.TrendingDays 天最多讀者在看的作品，不用登入就能讀。</p>
+            </header>
+            <div class="feed-grid feed-grid--ranked">
+                @foreach (var card in Model.Trending)
+                {
+                    <partial name="_ContentCardPartial" model="card" />
+                }
+            </div>
+            <div class="text-center mt-4">
+                <a asp-page="/Feed/TrendingCreations" class="btn btn-lg home-button home-button--outline">看完整熱門排行</a>
+            </div>
+        </section>
+    }
 
     <section class="home-section" aria-labelledby="home-steps-title">
         <header class="home-section__header">

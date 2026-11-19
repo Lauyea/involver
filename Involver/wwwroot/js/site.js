@@ -250,4 +250,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 寫到 root 的 CSS 變數
     document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
+
+    initCheckedLimits(document);
 });
+
+/**
+ * 勾選數量上限：容器加上 data-max-checked="3"，勾滿後其他還沒勾的選項會停用（例如分類選擇）
+ * @param {ParentNode} root - 要尋找容器的範圍
+ * @returns {void}
+ */
+function initCheckedLimits(root) {
+    root.querySelectorAll('[data-max-checked]').forEach((group) => {
+        const max = Number(group.dataset.maxChecked);
+        const boxes = [...group.querySelectorAll('input[type="checkbox"]')];
+        const update = () => {
+            const checked = boxes.filter((box) => box.checked).length;
+            boxes.forEach((box) => {
+                box.disabled = !box.checked && checked >= max;
+            });
+        };
+
+        boxes.forEach((box) => box.addEventListener('change', update));
+        update();
+    });
+}

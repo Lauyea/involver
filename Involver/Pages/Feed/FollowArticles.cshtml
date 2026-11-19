@@ -1,41 +1,106 @@
 @page
 @model Involver.Pages.Feed.FollowArticlesModel
+@using Involver.Models.ViewModels.Feed
 @{
-    ViewData["Title"] = "屬於每個人的創作";
+    ViewData["Title"] = "追蹤文章";
     Layout = "~/Pages/Shared/_Layout.cshtml";
 }
 
-<nav class="nav nav-pills flex-column flex-sm-row" style="border-radius: 0.75rem;">
-    <a asp-page="/Index" class="flex-sm-fill text-sm-center nav-link">追蹤創作</a>
-    <a asp-page="/Feed/FollowArticles"
-       asp-route-id="@Model.UserProfileID" class="flex-sm-fill text-sm-center nav-link active">追蹤文章</a>
-    <a asp-page="/Feed/TrendingCreations"
-       asp-route-id="@Model.UserProfileID" class="flex-sm-fill text-sm-center nav-link">熱門創作</a>
-    <a asp-area="" asp-page="/Novels/Index" class="flex-sm-fill text-sm-center nav-link">最新創作</a>
-    <a asp-area="" asp-page="/Articles/Index" class="flex-sm-fill text-sm-center nav-link">最新文章</a>
-</nav>
-<p></p>
-<div>
-    @if (Model.Articles != null)
-    {
+@section Styles {
+    <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+}
+
+<partial name="_FeedTabsPartial" model="FeedTab.FollowArticles" />
+
+<h1 class="visually-hidden">追蹤文章</h1>
+
+@if (Model.FollowedCreatorCount == 0)
+{
+    <div class="feed-empty">
+        <i class="fas fa-user-plus feed-empty__icon" aria-hidden="true"></i>
+        <p class="feed-empty__title">還沒有追蹤任何創作者</p>
+        <p class="feed-empty__text">在創作者的個人頁按「追蹤」，他們發表的文章就會出現在這裡。</p>
+        <a class="btn btn-primary rounded-pill px-4" asp-page="/Articles/Index">逛逛最新文章</a>
+    </div>
+}
+else if (Model.Articles.Count == 0)
+{
+    <div class="feed-empty">
+        <i class="fas fa-feather feed-empty__icon" aria-hidden="true"></i>
+        <p class="feed-empty__title">追蹤的創作者還沒有發表文章</p>
+        <p class="feed-empty__text">你追蹤了 @Model.FollowedCreatorCount 位創作者，他們有新文章時會出現在這裡。</p>
+        <a class="btn btn-primary rounded-pill px-4" asp-page="/Articles/Index">逛逛最新文章</a>
+    </div>
+}
+else
+{
+    <p class="feed-caption">你追蹤的 @Model.FollowedCreatorCount 位創作者最近發表的文章</p>
+
+    <div class="article-list">
         @foreach (var article in Model.Articles)
         {
-            <div class="row">
-                <div class="col-md-5">
-                    <a asp-page="/Articles/Details"
-               asp-route-id="@article.ArticleID">
-                        @Html.DisplayFor(modelItem => article.Title)
-                    </a>
-                </div>
-                <div class="col-md-4 text-body-secondary">
-                    @Html.DisplayFor(modelItem => article.Profile.UserName)
-                </div>
-                <div class="col-md-3 text-body-secondary" title="@article.UpdateTime">
-                    @TimePeriodHelper.Get(article.UpdateTime)
-                </div>
-            </div>
-            <hr />
-        }
-    }
-</div>
+            <article class="article-item">
+                <div class="article-item__main">
+                    <header class="article-item__header">
+                        <a class="article-item__author" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@article.AuthorId">
+                            @if (article.AuthorImageUrl != null)
+                            {
+                                <img class="article-item__avatar" src="@article.AuthorImageUrl" alt="" loading="lazy" />
+                            }
+                            else
+                            {
+                                <span class="article-item__avatar article-item__avatar--initial" aria-hidden="true">@article.AuthorInitial</span>
+                            }
+                            <span class="article-item__author-name">@article.AuthorName</span>
+                        </a>
+                        <span class="article-item__time" title="@article.UpdatedAt">@TimePeriodHelper.Get(article.UpdatedAt)</span>
+                    </header>
 
+                    <h2 class="article-item__title">
+                        <a class="article-item__link" asp-page="/Articles/Details" asp-route-id="@article.ArticleId">@article.Title</a>
+                    </h2>
+
+                    @if (!string.IsNullOrEmpty(article.Preview))
+                    {
+                        <p class="article-item__preview">@article.Preview</p>
+                    }
+
+                    <footer class="article-item__footer">
+                        @foreach (var tag in article.Tags)
+                        {
+                            <a class="article-item__tag" asp-page="/Articles/Index" asp-route-currentFilter="@tag">#@tag</a>
+                        }
+                        <span class="article-item__stats">
+                            <span title="觀看數"><i class="far fa-eye" aria-hidden="true"></i><span class="visually-hidden">觀看數</span> @article.Views.ToString("N0")</span>
+                            <span title="留言數"><i class="far fa-comment" aria-hidden="true"></i><span class="visually-hidden">留言數</span> @article.Comments.ToString("N0")</span>
+                        </span>
+                    </footer>
+                </div>
+
+                @if (article.ImageUrl != null)
+                {
+                    <img class="article-item__thumbnail" src="@article.ImageUrl" alt="" loading="lazy" />
+                }
+            </article>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="feed-pager" aria-label="分頁">
+            @if (Model.PageIndex > 1)
+            {
+                <a class="feed-pager__button" asp-route-PageIndex="@(Model.PageIndex - 1)" rel="prev">
+                    <i class="fas fa-chevron-left" aria-hidden="true"></i>較新
+                </a>
+            }
+            <span class="feed-pager__status">第 @Model.PageIndex / @Model.TotalPages 頁</span>
+            @if (Model.PageIndex < Model.TotalPages)
+            {
+                <a class="feed-pager__button" asp-route-PageIndex="@(Model.PageIndex + 1)" rel="next">
+                    較舊<i class="fas fa-chevron-right" aria-hidden="true"></i>
+                </a>
+            }
+        </nav>
+    }
+}

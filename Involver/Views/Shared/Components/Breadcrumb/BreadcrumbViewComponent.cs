@@ -7,6 +7,17 @@ namespace Involver.Views.Shared.Components.Breadcrumb;
 
 public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewComponent
 {
+    private const string FeedSegment = "Feed";
+
+    /// <summary>
+    /// 和會員首頁共用分頁標籤的動態頁
+    /// </summary>
+    private static readonly HashSet<string> _feedTabPages = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "FollowArticles",
+        "TrendingCreations",
+    };
+
     private readonly Dictionary<string, string> _pathTranslations = new(StringComparer.OrdinalIgnoreCase)
     {
         { "Novels", "創作" },
@@ -17,7 +28,6 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Functions", "工具" },
         { "CreateCover", "製作小說封面" },
         { "Descriptions", "關於" },
-        { "AboutInvolver", "關於 Involver" },
         { "Privacy", "隱私政策" },
         { "Terms", "服務條款" },
         { "Content", "內容政策" },
@@ -62,7 +72,9 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "ContentStats", "內容統計" },
         { "Tags", "標籤" },
         { "Aliases", "合併與別名" },
+        { "Categories", "分類" },
         { "Targets", "KPI 目標" },
+        { "Recommendations", "推薦設定" },
         // 創作者中心
         { "Creator", "創作者中心" },
         { "Works", "作品表現" },
@@ -85,6 +97,14 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         }
 
         string currentUrl = "/";
+
+        // 動態（/Feed）沒有索引頁。追蹤文章、熱門創作和會員首頁是同一組分頁標籤（_FeedTabsPartial），不顯示麵包屑
+        if (path.Length == 2
+            && path[0].Equals(FeedSegment, StringComparison.OrdinalIgnoreCase)
+            && _feedTabPages.Contains(path[1]))
+        {
+            return View(new List<BreadcrumbItemViewModel>());
+        }
 
         // Special handling for Identity Profile pages
         if (path.Length > 1 && path[0].Equals("Identity", StringComparison.OrdinalIgnoreCase) && path[1].Equals("Profile", StringComparison.OrdinalIgnoreCase))
@@ -145,6 +165,13 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         {
             var segment = path[i];
             if (string.IsNullOrEmpty(segment)) continue;
+
+            // 動態（/Feed）沒有索引頁，連過去會 404，略過這一層（例如通知只顯示「首頁 / 通知」）
+            if (segment.Equals(FeedSegment, StringComparison.OrdinalIgnoreCase))
+            {
+                currentUrl += segment + "/";
+                continue;
+            }
 
             // Special handling for Episode pages to show Novel path
             if (segment.Equals("Episodes", StringComparison.OrdinalIgnoreCase) 

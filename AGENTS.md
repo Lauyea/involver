@@ -119,6 +119,14 @@
 
 ## 8. 前端開發規範
 
+  * UI/UX 設計：
+      * 一律參考 [Material Design 3](https://m3.material.io/)：元件的用途與行為（Tabs、Chips、Cards、Lists、Buttons、Dialogs、Snackbar）、狀態層（滑鼠移過約 8%、焦點與按下約 12%）、以 4/8 px 為單位的間距、字級層級、空狀態（圖示＋一句說明＋下一步按鈕）。
+      * 只借用設計原則，不引入 Material 元件庫（Material Web、MUI、Materialize 等）。實作沿用 Bootstrap 5.3 與 `site.css` 的主題變數（`--primary-accent`、`--card-bg-color`、`--border-color`、`--text-color` 等），不要寫死顏色。
+      * 先找現有的共用元件再新增：分頁標籤 `_FeedTabsPartial`、篩選 chip `.category-chip`（`_CategoryPickerPartial`）、作品卡片 `_ContentCardPartial`、空狀態 `.feed-empty`。
+      * `site.css` 會給所有 `<nav>` 加上導覽列漸層與圓角，新的 `<nav>` 元件要自行覆寫。
+      * 無障礙：鍵盤焦點要看得見（`:focus-visible`）、觸控目標至少 40～48 px 高、只有圖示的按鈕要有 `aria-label`、顏色對比在淺色與深色模式都要足夠。
+      * 每次修改 UI 都要在瀏覽器確認淺色、深色模式，以及手機寬度（375 px）沒有水平捲動。
+
   * CSS：
   
       * 使用 BEM (Block, Element, Modifier) 等命名規範來組織 CSS 類別。

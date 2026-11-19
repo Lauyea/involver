@@ -1,44 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-using DataAccess.Data;
-using DataAccess.Models.NovelModel;
+using Involver.Models.ViewModels.Feed;
+using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Involver.Pages.Feed
 {
+    /// <summary>
+    /// 熱門創作：近 7 天不重複讀者最多的作品（排除已刪除、封鎖）。與首頁 Feed 的「熱門」區塊相同
+    /// </summary>
+    /// <param name="homeFeedService">首頁 Feed</param>
+    /// <param name="userManager">帳號管理</param>
     [AllowAnonymous]
-    public class TrendingCreationsModel : PageModel
+    public class TrendingCreationsModel(
+        IHomeFeedService homeFeedService,
+        UserManager<DataAccess.Data.InvolverUser> userManager) : PageModel
     {
-        private readonly ILogger<IndexModel> _logger;
-        private readonly ApplicationDbContext Context;
+        /// <summary>
+        /// 目前使用者 ProfileID；未登入為 null
+        /// </summary>
+        public string UserProfileID { get; private set; }
 
-        public string UserProfileID;
+        /// <summary>
+        /// 熱門作品
+        /// </summary>
+        public List<ContentCardViewModel> Novels { get; private set; } = [];
 
-        public ICollection<Novel> Novels { get; set; }
-
-        public TrendingCreationsModel(ILogger<IndexModel> logger,
-            ApplicationDbContext context)
+        /// <summary>
+        /// 載入熱門作品
+        /// </summary>
+        /// <param name="cancellationToken">取消權杖</param>
+        public async Task OnGetAsync(CancellationToken cancellationToken)
         {
-            _logger = logger;
-            Context = context;
-        }
-        public async Task OnGetAsync(string id)
-        {
-            UserProfileID = id;
-            Novels = await Context.Novels
-                .Include(n => n.Profile)
-                .OrderByDescending(n => n.MonthlyCoins)
-                .Take(10)
-                .ToListAsync();
+            UserProfileID = userManager.GetUserId(User);
+            Novels = await homeFeedService.GetTrendingAsync(HomeFeedService.TrendingPageCount, cancellationToken);
         }
     }
 }
