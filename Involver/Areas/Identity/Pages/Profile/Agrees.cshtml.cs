@@ -58,9 +58,7 @@ public class AgreesModel(
 
             if (agree.Comment != null)
             {
-                vm.Content = agree.Comment.Content.StripHTML().Length < Parameters.ContentLength
-                    ? agree.Comment.Content.StripHTML()
-                    : agree.Comment.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...";
+                vm.Content = agree.Comment.Content.ToPlainTextPreview(Parameters.ContentLength);
 
                 if (agree.Comment.NovelID != null)
                 {
@@ -84,14 +82,10 @@ public class AgreesModel(
             }
             else if (agree.Message != null)
             {
-                vm.Content = agree.Message.Content.Length < Parameters.ContentLength
-                    ? agree.Message.Content
-                    : agree.Message.Content.Substring(0, Parameters.ContentLength) + "...";
+                vm.Content = agree.Message.Content.ToPlainTextPreview(Parameters.ContentLength);
                 vm.PageName = "/Comments/Details";
                 vm.RouteId = agree.Message.CommentID.ToString();
-                vm.DestinationTitle = agree.Message.Comment.Content.StripHTML().Length < Parameters.SmallContentLength
-                    ? agree.Message.Comment.Content.StripHTML()
-                    : agree.Message.Comment.Content.StripHTML().Substring(0, Parameters.SmallContentLength) + "...";
+                vm.DestinationTitle = agree.Message.Comment.Content.ToPlainTextPreview(Parameters.SmallContentLength);
             }
 
             agreeViewModels.Add(vm);

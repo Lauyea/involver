@@ -24,7 +24,7 @@
                     <dd class="col-sm-9">@Html.DisplayFor(model => model.Article.Profile.UserName)</dd>
 
                     <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Article.Content)</dt>
-                    <dd class="col-sm-9 ck-content">@Html.Raw(Model.Article.Content.Substring(0, Math.Min(Model.Article.Content.Length, 100))) ...</dd>
+                    <dd class="col-sm-9">@Model.Article.Content.ToPlainTextPreview(100)</dd>
 
                     <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Article.UpdateTime)</dt>
                     <dd class="col-sm-9">@Html.DisplayFor(model => model.Article.UpdateTime)</dd>

@@ -8,6 +8,7 @@ using DataAccess.Data;
 using DataAccess.Models.ArticleModel;
 
 using Involver.Common;
+using Involver.Extensions;
 using Involver.Helpers;
 using Involver.Services;
 
@@ -36,6 +37,11 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
     /// 本頁各文章的留言數（ArticleID → 留言數）
     /// </summary>
     public Dictionary<int, int> CommentCounts { get; set; } = [];
+
+    /// <summary>
+    /// 本頁各文章的純文字預覽（ArticleID → 預覽文字），已去除 HTML 標籤並截斷
+    /// </summary>
+    public Dictionary<int, string> Previews { get; set; } = [];
 
     public async Task OnGetAsync(
         string sortOrder,
@@ -116,6 +122,10 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
 
         // 只為了顯示留言數，改在資料庫端計數，不載入整個留言集合
         var articleIds = Articles.Select(a => a.ArticleID).ToList();
+
+        Previews = Articles.ToDictionary(
+            a => a.ArticleID,
+            a => a.Content.ToPlainTextPreview(Parameters.ContentLength));
 
         CommentCounts = await Context.Comments
             .Where(c => c.ArticleID != null && articleIds.Contains(c.ArticleID.Value))

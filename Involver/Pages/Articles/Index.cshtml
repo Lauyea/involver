@@ -61,10 +61,7 @@
                                     <small class="bg-danger rounded-pill ms-1">Block</small>
                                 }
                             </a>
-                            @{
-                                string cardText = item.Content?.Length > Parameters.ContentLength ? item.Content.Substring(0, Parameters.ContentLength) + "..." : item.Content;
-                            }
-                            <p class="card-text flex-grow-1">@Html.AntiXssRaw(cardText)</p>
+                            <p class="card-text flex-grow-1">@Model.Previews.GetValueOrDefault(item.ArticleID)</p>
                             <div class="d-flex justify-content-between align-items-center mt-2">
                                 <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@item.ProfileID">
                                     <small>@Html.DisplayFor(modelItem => item.Profile.UserName)</small>
