@@ -1,0 +1,84 @@
+@page
+@model Involver.Areas.Admin.Pages.Users.IndexModel
+@{
+    ViewData["Title"] = "用戶管理";
+}
+
+<form method="get" class="dashboard__card p-3 mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-5">
+            <label asp-for="Search" class="form-label small">搜尋</label>
+            <input asp-for="Search" class="form-control" placeholder="用戶名或用戶 ID" />
+        </div>
+        <div class="col-md-5 d-flex flex-wrap gap-3">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="Prime" />
+                <label class="form-check-label" asp-for="Prime">Prime</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="Professional" />
+                <label class="form-check-label" asp-for="Professional">特約作家</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="Banned" />
+                <label class="form-check-label" asp-for="Banned">已封鎖</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" asp-for="HasRole" />
+                <label class="form-check-label" asp-for="HasRole">有管理角色</label>
+            </div>
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-magnifying-glass me-1"></i>搜尋</button>
+            <a asp-page="./Index" class="btn btn-outline-secondary" title="清除條件"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+    </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="small text-body-secondary">共 @Model.TotalCount.ToString("N0") 位用戶</span>
+    <partial name="_Pager" model="(Model.PageIndex, Model.TotalPages)" />
+</div>
+
+<div class="dashboard__card table-responsive">
+    <table class="table table-hover align-middle mb-0 dashboard__table">
+        <thead>
+            <tr>
+                <th scope="col">用戶名</th>
+                <th scope="col">註冊日</th>
+                <th scope="col">最後登入</th>
+                <th scope="col" class="text-center">Prime</th>
+                <th scope="col" class="text-center">特約作家</th>
+                <th scope="col" class="text-center">封鎖</th>
+                <th scope="col">角色</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td><a asp-page="./Details" asp-route-id="@user.ProfileId">@user.UserName</a></td>
+                    <td>@user.EnrollmentDate.ToString("yyyy/MM/dd")</td>
+                    <td>@user.LastTimeLogin.ToString("yyyy/MM/dd HH:mm")</td>
+                    <td class="text-center">@if (user.Prime) { <i class="fa-solid fa-check text-success" aria-label="是"></i> }</td>
+                    <td class="text-center">@if (user.Professional) { <i class="fa-solid fa-check text-success" aria-label="是"></i> }</td>
+                    <td class="text-center">@if (user.Banned) { <span class="badge text-bg-danger">封鎖</span> }</td>
+                    <td>
+                        @foreach (var role in user.Roles)
+                        {
+                            <span class="badge text-bg-secondary me-1">@role</span>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Users.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-body-secondary py-4">沒有符合條件的用戶</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-end mt-2">
+    <partial name="_Pager" model="(Model.PageIndex, Model.TotalPages)" />
+</div>

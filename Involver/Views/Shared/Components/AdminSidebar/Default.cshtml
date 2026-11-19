@@ -1,0 +1,24 @@
+@model List<Involver.Views.Shared.Components.AdminSidebar.AdminSidebarViewComponent.SidebarLink>
+@* Views/ 底下沒有 _ViewImports，要在這裡註冊，asp-area／asp-page 才會產生 href *@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@foreach (var group in Model.GroupBy(l => l.Item.Section))
+{
+    @if (group.Key != null)
+    {
+        <div class="dashboard__nav-heading">@group.Key</div>
+    }
+    <ul class="nav flex-column dashboard__nav px-2">
+        @foreach (var link in group)
+        {
+            <li class="nav-item">
+                <a class="nav-link @(link.IsActive ? "active" : null)"
+                   asp-area="Admin" asp-page="@link.Item.Page"
+                   aria-current="@(link.IsActive ? "page" : null)">
+                    <i class="fa-solid @link.Item.Icon dashboard__nav-icon" aria-hidden="true"></i>
+                    @link.Item.Text
+                </a>
+            </li>
+        }
+    </ul>
+}

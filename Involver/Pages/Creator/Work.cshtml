@@ -1,0 +1,46 @@
+@page
+@model Involver.Pages.Creator.WorkModel
+@using DataAccess.Models.Dashboard
+@{
+    ViewData["Title"] = $"作品趨勢：{Model.Title}";
+    ViewData["ShowPeriodSwitch"] = true;
+}
+
+<partial name="_CreatorNav" />
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h2 class="h5 mb-0">
+        <span class="badge @(Model.Type == ContentStatType.Novel ? "text-bg-primary" : "text-bg-success") me-1">@Model.Type.GetDisplayName()</span>
+        @Model.Title
+    </h2>
+    <div class="small">
+        <a asp-page="./Works" asp-route-days="@Model.Days"><i class="fa-solid fa-chevron-left me-1"></i>回到作品表現</a>
+        <span class="mx-2 text-body-secondary">|</span>
+        @if (Model.Type == ContentStatType.Novel)
+        {
+            <a asp-page="/Novels/Details" asp-route-id="@Model.Id">前往作品</a>
+        }
+        else
+        {
+            <a asp-page="/Articles/Details" asp-route-id="@Model.Id">前往文章</a>
+        }
+    </div>
+</div>
+
+<div class="row row-cols-2 row-cols-md-5 g-3 mb-3">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+    }
+</div>
+
+<div class="row g-3">
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.ViewsChart })</div>
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.EngagementChart })</div>
+</div>
+
+<p class="small text-body-secondary mt-2">數據取自每日快照，不受觀看紀錄只保留 30 天的限制。</p>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

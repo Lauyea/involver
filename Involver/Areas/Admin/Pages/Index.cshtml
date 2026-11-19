@@ -1,0 +1,69 @@
+@page
+@model Involver.Areas.Admin.Pages.IndexModel
+@{
+    ViewData["Title"] = "總覽";
+    ViewData["ShowPeriodSwitch"] = true;
+}
+
+<section aria-labelledby="core-metrics-heading" class="mb-4">
+    <h2 id="core-metrics-heading" class="h6 text-body-secondary mb-2">核心指標：讀者參與創作</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var card in Model.CoreMetrics)
+        {
+            <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+        }
+    </div>
+</section>
+
+<section aria-labelledby="kpi-heading" class="mb-4">
+    <h2 id="kpi-heading" class="visually-hidden">KPI</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3">
+        @foreach (var card in Model.Cards)
+        {
+            <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+        }
+    </div>
+    <p class="small text-body-secondary mt-2 mb-0">
+        即時數字直接查詢；比較與趨勢讀取每日快照
+        @if (Model.LatestSnapshotDate.HasValue)
+        {
+            <text>（最新快照：@Model.LatestSnapshotDate.Value.ToString("yyyy/MM/dd")）</text>
+        }
+        else
+        {
+            <text>（尚未有快照，比較會顯示「—」）</text>
+        }
+        。目標值可在 <a asp-page="/Targets/Index">KPI 目標</a> 設定。
+    </p>
+</section>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.ViewsChart })</div>
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.UsersChart })</div>
+</div>
+
+<section aria-labelledby="pending-heading">
+    <h2 id="pending-heading" class="h6 text-body-secondary mb-2">待處理</h2>
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        @foreach (var item in Model.PendingItems)
+        {
+            <div class="col">
+                <div class="dashboard__card h-100 p-3 d-flex align-items-center gap-3 position-relative">
+                    <i class="fa-solid @item.Icon fa-lg text-body-secondary" aria-hidden="true"></i>
+                    <div class="flex-grow-1">
+                        <div class="kpi-card__label">@item.Label</div>
+                        <div class="fs-4 fw-bold">@item.Count.ToString("N0")</div>
+                    </div>
+                    @if (item.Url != null)
+                    {
+                        <a href="@item.Url" class="stretched-link" aria-label="前往處理@(item.Label)"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

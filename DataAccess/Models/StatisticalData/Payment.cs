@@ -52,5 +52,24 @@ namespace DataAccess.Models.StatisticalData
         public int RtnCode { get; set; }
         [Display(Name = "模擬付款")]
         public int SimulatePaid { get; set; }
+
+        /// <summary>
+        /// 是否已作廢。金流紀錄不刪除；錯誤的訂單標記作廢，需要退回 In 幣時另以管理員調整沖正
+        /// </summary>
+        [Display(Name = "已作廢")]
+        public bool IsVoided { get; set; }
+
+        /// <summary>
+        /// 作廢時間（UTC）
+        /// </summary>
+        [Display(Name = "作廢時間")]
+        public DateTime? VoidedAt { get; set; }
+
+        /// <summary>
+        /// 作廢原因
+        /// </summary>
+        [StringLength(200)]
+        [Display(Name = "作廢原因")]
+        public string? VoidReason { get; set; }
     }
 }

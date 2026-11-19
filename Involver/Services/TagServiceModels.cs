@@ -60,6 +60,49 @@ public class TagResolveResult
 }
 
 /// <summary>
+/// <see cref="ITagService.MergeAsync"/> 的結果
+/// </summary>
+public class TagMergeResult
+{
+    /// <summary>
+    /// 是否成功
+    /// </summary>
+    public bool Succeeded => ErrorMessage == null;
+
+    /// <summary>
+    /// 失敗原因
+    /// </summary>
+    public string ErrorMessage { get; init; }
+
+    /// <summary>
+    /// 被合併的標籤名稱
+    /// </summary>
+    public string SourceName { get; init; }
+
+    /// <summary>
+    /// 保留的標籤名稱
+    /// </summary>
+    public string TargetName { get; init; }
+
+    /// <summary>
+    /// 新加上目標標籤的小說數（原本已有目標標籤的不重複計算）
+    /// </summary>
+    public int MovedNovels { get; init; }
+
+    /// <summary>
+    /// 新加上目標標籤的文章數
+    /// </summary>
+    public int MovedArticles { get; init; }
+
+    /// <summary>
+    /// 建立失敗的結果
+    /// </summary>
+    /// <param name="message">失敗原因</param>
+    /// <returns>失敗的結果</returns>
+    public static TagMergeResult Fail(string message) => new() { ErrorMessage = message };
+}
+
+/// <summary>
 /// 建議清單（Tagify whitelist）的一筆標籤
 /// </summary>
 public class TagSuggestion

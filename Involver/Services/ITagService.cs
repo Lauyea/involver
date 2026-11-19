@@ -78,4 +78,45 @@ public interface ITagService
     /// <param name="cancellationToken">取消權杖</param>
     /// <returns>報表，依類型與相似度排序</returns>
     Task<List<TagDuplicateReportRow>> GetDuplicateReportAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 所有標籤與小說、文章的使用次數（後台使用量排行、待審清單用）
+    /// </summary>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>所有標籤</returns>
+    Task<List<TagSuggestion>> GetUsagesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 合併標籤：把來源標籤的作品搬到目標標籤，來源標籤的名稱與別名記成目標標籤的別名，再刪除來源標籤
+    /// </summary>
+    /// <param name="sourceTagId">被合併的標籤（A）</param>
+    /// <param name="targetTagId">保留的標籤（B）</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>合併結果；失敗時含原因</returns>
+    Task<TagMergeResult> MergeAsync(int sourceTagId, int targetTagId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 駁回待審標籤：從作品上移除並刪除。正式標籤不能駁回
+    /// </summary>
+    /// <param name="tagId">標籤 ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>被駁回的標籤名稱；找不到或不是待審標籤時為 null</returns>
+    Task<string> RejectAsync(int tagId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 新增別名。別名不能和現有標籤或別名重複（統一格式後比對）
+    /// </summary>
+    /// <param name="name">別名</param>
+    /// <param name="tagId">對應的正式標籤 ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>失敗原因；成功時為 null</returns>
+    Task<string> AddAliasAsync(string name, int tagId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 移除別名
+    /// </summary>
+    /// <param name="aliasId">別名 ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>被移除的別名名稱；找不到時為 null</returns>
+    Task<string> RemoveAliasAsync(int aliasId, CancellationToken cancellationToken = default);
 }

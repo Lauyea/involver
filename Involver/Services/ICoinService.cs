@@ -72,4 +72,16 @@ public interface ICoinService
     /// <param name="amount">金額，必須大於 0</param>
     /// <param name="cancellationToken">取消權杖</param>
     Task AddArticleCoinsAsync(int articleId, decimal amount, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 管理員調整或沖正：增減指定幣別的餘額並寫入流水帳。扣除時餘額不能變成負數；
+    /// 不會累加已使用的 In 幣
+    /// </summary>
+    /// <param name="profileId">Profile ID</param>
+    /// <param name="coinType">幣別</param>
+    /// <param name="amount">異動金額，正數為增加、負數為扣除，不可為 0</param>
+    /// <param name="info">交易說明（類型通常是 <see cref="DataAccess.Models.StatisticalData.CoinTransactionType.AdminAdjust"/>）</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>成功回傳 true；找不到使用者或扣除後會變成負數時回傳 false</returns>
+    Task<bool> AdjustAsync(string profileId, DataAccess.Models.StatisticalData.CoinType coinType, decimal amount, CoinTransactionInfo info, CancellationToken cancellationToken = default);
 }

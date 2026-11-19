@@ -5,6 +5,7 @@ using System.Text;
 using DataAccess.Models;
 using DataAccess.Models.AchievementModel;
 using DataAccess.Models.ArticleModel;
+using DataAccess.Models.Dashboard;
 using DataAccess.Models.NovelModel;
 using DataAccess.Models.StatisticalData;
 
@@ -59,6 +60,41 @@ namespace DataAccess.Data
         /// In 幣月結
         /// </summary>
         public DbSet<CoinMonthlyBalance> CoinMonthlyBalances { get; set; }
+
+        /// <summary>
+        /// 標籤別名
+        /// </summary>
+        public DbSet<TagAlias> TagAliases { get; set; }
+
+        /// <summary>
+        /// 全站每日快照
+        /// </summary>
+        public DbSet<DailySiteStat> DailySiteStats { get; set; }
+
+        /// <summary>
+        /// 作品、文章每日快照
+        /// </summary>
+        public DbSet<DailyContentStat> DailyContentStats { get; set; }
+
+        /// <summary>
+        /// 管理者操作紀錄
+        /// </summary>
+        public DbSet<AdminAuditLog> AdminAuditLogs { get; set; }
+
+        /// <summary>
+        /// KPI 目標值
+        /// </summary>
+        public DbSet<KpiTarget> KpiTargets { get; set; }
+
+        /// <summary>
+        /// 手動登錄的網站支出
+        /// </summary>
+        public DbSet<SiteExpense> SiteExpenses { get; set; }
+
+        /// <summary>
+        /// 創作者分潤撥款紀錄
+        /// </summary>
+        public DbSet<CreatorPayout> CreatorPayouts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -246,6 +282,7 @@ namespace DataAccess.Data
 
             ConfigureIssue219(modelBuilder);
             ConfigureAccountOwnership(modelBuilder);
+            ConfigureDashboard(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
             // Customize the ASP.NET Identity model and override the defaults if needed.
@@ -386,6 +423,61 @@ namespace DataAccess.Data
                 v.Property(x => x.OwnerID).HasMaxLength(450);
                 v.HasIndex(x => x.OwnerID);
             });
+        }
+
+        /// <summary>
+        /// Issue #237：儀表板的每日快照、管理者操作紀錄、KPI 目標、網站支出、撥款紀錄與標籤別名
+        /// </summary>
+        /// <param name="modelBuilder">Model builder</param>
+        private static void ConfigureDashboard(ModelBuilder modelBuilder)
+        {
+            // 同一內容每天只有一筆；作品趨勢圖依內容與日期查詢
+            modelBuilder.Entity<DailyContentStat>(s =>
+            {
+                s.HasIndex(e => new { e.ContentType, e.ContentId, e.Date }).IsUnique();
+                s.HasIndex(e => new { e.OwnerProfileId, e.Date });
+                s.HasIndex(e => e.Date);
+            });
+
+            modelBuilder.Entity<AdminAuditLog>(l =>
+            {
+                l.HasIndex(e => e.CreatedAt);
+                l.HasIndex(e => new { e.ActorProfileId, e.CreatedAt });
+                l.HasIndex(e => new { e.Action, e.CreatedAt });
+            });
+
+            modelBuilder.Entity<KpiTarget>()
+                .HasIndex(e => new { e.Metric, e.Period, e.PeriodStart })
+                .IsUnique();
+
+            modelBuilder.Entity<SiteExpense>()
+                .HasIndex(e => e.Date);
+
+            modelBuilder.Entity<CreatorPayout>(p =>
+            {
+                p.HasIndex(e => new { e.ProfileId, e.Month }).IsUnique();
+                p.HasIndex(e => e.PaidAt);
+
+                // 撥款是帳務紀錄，不能因為刪除使用者而被連帶刪除
+                p.HasOne<Profile>()
+                    .WithMany()
+                    .HasForeignKey(e => e.ProfileId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // 別名和正式標籤共用同一套統一格式；同一個寫法只能對應一個標籤
+            modelBuilder.Entity<TagAlias>(a =>
+            {
+                a.HasIndex(e => e.NormalizedName).IsUnique();
+                a.HasOne(e => e.Tag)
+                    .WithMany(t => t.Aliases)
+                    .HasForeignKey(e => e.TagId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // 訂單列表依付款時間篩選
+            modelBuilder.Entity<Payment>()
+                .HasIndex(e => e.PaymentTime);
         }
 
         /// <summary>

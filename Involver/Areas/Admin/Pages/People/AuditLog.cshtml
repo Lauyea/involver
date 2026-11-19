@@ -1,0 +1,100 @@
+@page
+@model Involver.Areas.Admin.Pages.People.AuditLogModel
+@{
+    // 沒有用戶管理權限時，用戶名不加連結（點了會 403）
+    var canViewUsers = (await AuthorizationService.AuthorizeAsync(User, AdminPolicies.Users)).Succeeded;
+    var canViewPayments = (await AuthorizationService.AuthorizeAsync(User, AdminPolicies.Payments)).Succeeded;
+    ViewData["Title"] = "管理者活動紀錄";
+}
+
+<form method="get" class="dashboard__card p-3 mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label asp-for="Actor" class="form-label small">操作者</label>
+            <input asp-for="Actor" class="form-control" placeholder="用戶名或 ID" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Action" class="form-label small">動作</label>
+            <select asp-for="Action" asp-items="Html.GetEnumSelectList<AdminAuditAction>()" class="form-select">
+                <option value="">全部</option>
+            </select>
+        </div>
+        <div class="col-6 col-md-2">
+            <label asp-for="From" class="form-label small">開始日期</label>
+            <input asp-for="From" type="date" class="form-control" />
+        </div>
+        <div class="col-6 col-md-2">
+            <label asp-for="To" class="form-label small">結束日期</label>
+            <input asp-for="To" type="date" class="form-control" />
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-primary flex-grow-1"><i class="fa-solid fa-filter me-1"></i>篩選</button>
+            <a asp-page="./AuditLog" class="btn btn-outline-secondary" title="清除條件"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+    </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <span class="small text-body-secondary">共 @Model.TotalCount.ToString("N0") 筆</span>
+    <partial name="_Pager" model="(Model.PageIndex, Model.TotalPages)" />
+</div>
+
+<div class="dashboard__card table-responsive">
+    <table class="table table-sm align-middle mb-0 dashboard__table">
+        <thead>
+            <tr>
+                <th scope="col">時間</th>
+                <th scope="col">操作者</th>
+                <th scope="col">動作</th>
+                <th scope="col">對象</th>
+                <th scope="col">變更前</th>
+                <th scope="col">變更後</th>
+                <th scope="col">IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                <tr>
+                    <td class="text-nowrap small">@log.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm:ss")</td>
+                    <td>
+                        @if (canViewUsers)
+                        {
+                            <a asp-page="/Users/Details" asp-route-id="@log.ActorProfileId">@(log.ActorUserName ?? log.ActorProfileId)</a>
+                        }
+                        else
+                        {
+                            @(log.ActorUserName ?? log.ActorProfileId)
+                        }
+                    </td>
+                    <td><span class="badge text-bg-secondary">@log.Action.GetDisplayName()</span></td>
+                    <td class="small">
+                        @if (log.TargetType == "User" && log.TargetId != null && canViewUsers)
+                        {
+                            <a asp-page="/Users/Details" asp-route-id="@log.TargetId">用戶</a>
+                        }
+                        else if (log.TargetType == "Payment" && log.TargetId != null && canViewPayments)
+                        {
+                            <a asp-page="/Payments/Details" asp-route-id="@log.TargetId">訂單 #@log.TargetId</a>
+                        }
+                        else
+                        {
+                            @($"{log.TargetType} #{log.TargetId}")
+                        }
+                    </td>
+                    <td class="small text-break">@log.Before</td>
+                    <td class="small text-break">@log.After</td>
+                    <td class="small text-body-secondary">@log.IpAddress</td>
+                </tr>
+            }
+            @if (Model.Logs.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-body-secondary py-4">沒有符合條件的紀錄</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="d-flex justify-content-end mt-2">
+    <partial name="_Pager" model="(Model.PageIndex, Model.TotalPages)" />
+</div>

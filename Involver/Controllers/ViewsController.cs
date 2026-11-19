@@ -104,5 +104,89 @@ namespace Involver.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// 觀看紀錄彈窗的資料：過去 30 天的每日觀看數與累積觀看數（取代原本的 /StatisticalData/PartialViewRecord）
+        /// </summary>
+        /// <param name="type">novel 或 article</param>
+        /// <param name="id">作品或文章 ID</param>
+        /// <param name="cancellationToken">取消權杖</param>
+        /// <returns>標題、日期、每日與累積觀看數</returns>
+        // GET: api/Views/Daily?type=novel&id=5
+        [HttpGet("Daily")]
+        public async Task<IActionResult> GetDailyViewsAsync([FromQuery] string type, [FromQuery] int id, CancellationToken cancellationToken)
+        {
+            var today = DateTime.Now.Date;
+            var days = -Parameters.ViewRecordDays;
+            var start = today.AddDays(1 - days);
+
+            string title;
+            long totalViews;
+            IQueryable<DataAccess.Models.View> views;
+
+            if (string.Equals(type, "novel", StringComparison.OrdinalIgnoreCase))
+            {
+                var novel = await _context.Novels
+                    .Where(n => n.NovelID == id)
+                    .Select(n => new { n.Title, n.TotalViews })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (novel == null)
+                {
+                    return NotFound();
+                }
+
+                (title, totalViews) = (novel.Title, novel.TotalViews);
+                views = _context.Views.Where(v => v.NovelId == id);
+            }
+            else if (string.Equals(type, "article", StringComparison.OrdinalIgnoreCase))
+            {
+                var article = await _context.Articles
+                    .Where(a => a.ArticleID == id)
+                    .Select(a => new { a.Title, a.TotalViews })
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (article == null)
+                {
+                    return NotFound();
+                }
+
+                (title, totalViews) = (article.Title, article.TotalViews);
+                views = _context.Views.Where(v => v.ArticleId == id);
+            }
+            else
+            {
+                return BadRequest(new { message = "type 必須是 novel 或 article。" });
+            }
+
+            var counts = await views
+                .Where(v => v.CreateTime >= start)
+                .GroupBy(v => v.CreateTime.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .AsNoTracking()
+                .ToDictionaryAsync(g => g.Date, g => g.Count, cancellationToken);
+
+            var dates = Enumerable.Range(0, days).Select(i => start.AddDays(i)).ToList();
+            var daily = dates.Select(d => counts.GetValueOrDefault(d)).ToArray();
+
+            // 由目前的總觀看數往回推每天結束時的累積數
+            var cumulative = new long[daily.Length];
+            if (cumulative.Length > 0)
+            {
+                cumulative[^1] = totalViews;
+                for (var i = cumulative.Length - 2; i >= 0; i--)
+                {
+                    cumulative[i] = cumulative[i + 1] - daily[i + 1];
+                }
+            }
+
+            return Ok(new
+            {
+                title,
+                labels = dates.Select(d => d.ToString("MM/dd")),
+                daily,
+                cumulative,
+            });
+        }
     }
 }

@@ -1,0 +1,51 @@
+@model (int PageIndex, int TotalPages)
+@{
+    // 保留篩選條件，只換頁碼
+    var otherQuery = Context.Request.Query
+        .Where(q => q.Key != "pageIndex")
+        .SelectMany(q => q.Value.Select(v => new KeyValuePair<string, string>(q.Key, v)))
+        .ToList();
+
+    string PageUrl(int page) =>
+        Context.Request.PathBase + Context.Request.Path
+        + QueryString.Create(otherQuery.Append(new KeyValuePair<string, string>("pageIndex", page.ToString())));
+
+    var first = Math.Max(1, Model.PageIndex - 2);
+    var last = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+}
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="分頁">
+        <ul class="pagination pagination-sm flex-wrap mb-0">
+            <li class="page-item @(Model.PageIndex <= 1 ? "disabled" : null)">
+                <a class="page-link" href="@PageUrl(Model.PageIndex - 1)" aria-label="上一頁">&laquo;</a>
+            </li>
+            @if (first > 1)
+            {
+                <li class="page-item"><a class="page-link" href="@PageUrl(1)">1</a></li>
+                @if (first > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+            }
+            @for (var i = first; i <= last; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : null)" aria-current="@(i == Model.PageIndex ? "page" : null)">
+                    <a class="page-link" href="@PageUrl(i)">@i</a>
+                </li>
+            }
+            @if (last < Model.TotalPages)
+            {
+                @if (last < Model.TotalPages - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+                <li class="page-item"><a class="page-link" href="@PageUrl(Model.TotalPages)">@Model.TotalPages</a></li>
+            }
+            <li class="page-item @(Model.PageIndex >= Model.TotalPages ? "disabled" : null)">
+                <a class="page-link" href="@PageUrl(Model.PageIndex + 1)" aria-label="下一頁">&raquo;</a>
+            </li>
+        </ul>
+    </nav>
+}

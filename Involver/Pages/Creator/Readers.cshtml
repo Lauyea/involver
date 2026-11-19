@@ -1,0 +1,71 @@
+@page
+@model Involver.Pages.Creator.ReadersModel
+@{
+    ViewData["Title"] = "讀者與互動";
+    ViewData["ShowPeriodSwitch"] = true;
+}
+
+<partial name="_CreatorNav" />
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+    }
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.FollowChart })</div>
+    <div class="col-xl-6">@await Component.InvokeAsync("ChartPanel", new { panel = Model.VotingChart })</div>
+</div>
+
+<section aria-labelledby="votings-heading">
+    <h2 id="votings-heading" class="h6 text-body-secondary">最近的投票</h2>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr>
+                    <th scope="col">投票</th>
+                    <th scope="col">章節</th>
+                    <th scope="col">模式</th>
+                    <th scope="col" class="text-end">參與人數</th>
+                    <th scope="col" class="text-end">投入 In 幣</th>
+                    <th scope="col">勝出選項</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var v in Model.Votings)
+                {
+                    <tr>
+                        <td>
+                            @v.Title
+                            <div class="small text-body-secondary">@v.CreateTime.ToString("yyyy/MM/dd")</div>
+                        </td>
+                        <td class="small">
+                            @v.NovelTitle／<a asp-page="/Episodes/Details" asp-route-id="@v.EpisodeId">@v.EpisodeTitle</a>
+                        </td>
+                        <td><span class="badge text-bg-secondary">@(v.Policy == PolicyType.Liberty ? "自由" : "平等")</span></td>
+                        <td class="text-end">@v.Participants.ToString("N0")</td>
+                        <td class="text-end">@v.Coins.ToString("N0")</td>
+                        <td>
+                            @(v.Winner ?? "—")
+                            @if (!v.End && v.Winner != null)
+                            {
+                                <span class="badge text-bg-info ms-1">進行中・領先</span>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (Model.Votings.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-center text-body-secondary py-3">還沒有舉辦過投票</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-body-secondary mt-1">平等模式以票數、自由模式以投入的 In 幣決定勝出選項。追蹤時間以追蹤紀錄的更新時間計算。</p>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

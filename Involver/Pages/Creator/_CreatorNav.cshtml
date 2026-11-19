@@ -1,0 +1,46 @@
+@{
+    var current = ViewContext.RouteData.Values["page"] as string;
+    var items = new[]
+    {
+        ("/Creator/Index", "收入", "fa-coins"),
+        ("/Creator/Works", "作品表現", "fa-book-open"),
+        ("/Creator/Readers", "讀者與互動", "fa-people-group"),
+    };
+}
+
+<div class="dashboard__header">
+    <div>
+        <h1 class="h4 mb-1">創作者中心</h1>
+        <p class="small text-body-secondary mb-0">只有你看得到這些數據。公開的資料在<a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@userManager.GetUserId(User)">個人檔案</a>。</p>
+    </div>
+    @if (ViewData["ShowPeriodSwitch"] is true)
+    {
+        var days = ViewData["Days"] as int? ?? Involver.Services.Admin.DashboardPeriod.Default;
+        var otherQuery = Context.Request.Query
+            .Where(q => q.Key != "days")
+            .SelectMany(q => q.Value.Select(v => new KeyValuePair<string, string>(q.Key, v)))
+            .ToList();
+        <div class="btn-group btn-group-sm" role="group" aria-label="期間">
+            @foreach (var option in Involver.Services.Admin.DashboardPeriod.Options)
+            {
+                var query = QueryString.Create(otherQuery.Append(new KeyValuePair<string, string>("days", option.ToString())));
+                <a class="btn @(option == days ? "btn-primary" : "btn-outline-secondary")"
+                   href="@(Context.Request.PathBase + Context.Request.Path + query)"
+                   aria-current="@(option == days ? "true" : null)">@option 天</a>
+            }
+        </div>
+    }
+</div>
+
+<ul class="nav nav-pills mb-3">
+    @foreach (var (target, text, icon) in items)
+    {
+        var isActive = string.Equals(current, target, StringComparison.OrdinalIgnoreCase)
+            || (target == "/Creator/Works" && string.Equals(current, "/Creator/Work", StringComparison.OrdinalIgnoreCase));
+        <li class="nav-item">
+            <a class="nav-link @(isActive ? "active" : null)" asp-area="" asp-page="@target" aria-current="@(isActive ? "page" : null)">
+                <i class="fa-solid @icon me-1" aria-hidden="true"></i>@text
+            </a>
+        </li>
+    }
+</ul>

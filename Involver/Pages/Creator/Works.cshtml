@@ -1,0 +1,70 @@
+@page
+@model Involver.Pages.Creator.WorksModel
+@using DataAccess.Models.Dashboard
+@{
+    ViewData["Title"] = "作品表現";
+    ViewData["ShowPeriodSwitch"] = true;
+    var columns = new (string Key, string Text, bool End)[]
+    {
+        ("views", "總瀏覽", true),
+        ("periodViews", $"{Model.Days} 天瀏覽", true),
+        ("readers", "不重複讀者", true),
+        ("follows", "追蹤", true),
+        ("comments", "留言", true),
+        ("coins", "收到 In 幣", true),
+        ("periodCoins", $"{Model.Days} 天 In 幣", true),
+        ("updated", "更新時間", false),
+    };
+}
+
+<partial name="_CreatorNav" />
+
+<div class="dashboard__card table-responsive">
+    <table class="table table-hover align-middle mb-0 dashboard__table">
+        <thead>
+            <tr>
+                <th scope="col">作品</th>
+                @foreach (var column in columns)
+                {
+                    var isSorted = Model.Sort == column.Key;
+                    <th scope="col" class="@(column.End ? "text-end" : null) text-nowrap" aria-sort="@(isSorted ? "descending" : null)">
+                        <a asp-page="./Works" asp-route-sort="@column.Key" asp-route-days="@Model.Days" class="@(isSorted ? "fw-bold" : "text-reset")">
+                            @column.Text
+                            @if (isSorted)
+                            {
+                                <i class="fa-solid fa-arrow-down-wide-short ms-1" aria-hidden="true"></i>
+                            }
+                        </a>
+                    </th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var work in Model.Works)
+            {
+                <tr>
+                    <td class="text-break">
+                        <span class="badge @(work.Type == ContentStatType.Novel ? "text-bg-primary" : "text-bg-success") me-1">@work.Type.GetDisplayName()</span>
+                        <a asp-page="./Work" asp-route-type="@work.Type" asp-route-id="@work.Id" asp-route-days="@Model.Days" title="看趨勢">@work.Title</a>
+                    </td>
+                    <td class="text-end">@work.TotalViews.ToString("N0")</td>
+                    <td class="text-end">@work.PeriodViews.ToString("N0")</td>
+                    <td class="text-end">@work.Readers.ToString("N0")</td>
+                    <td class="text-end">@(work.Follows?.ToString("N0") ?? "—")</td>
+                    <td class="text-end">@work.Comments.ToString("N0")</td>
+                    <td class="text-end">@work.Coins.ToString("N0")</td>
+                    <td class="text-end">@work.PeriodCoins.ToString("N0")</td>
+                    <td class="small text-nowrap">@work.UpdateTime.ToString("yyyy/MM/dd")</td>
+                </tr>
+            }
+            @if (Model.Works.Count == 0)
+            {
+                <tr><td colspan="9" class="text-center text-body-secondary py-4">還沒有作品或文章。<a asp-page="/Novels/Create">開始創作</a></td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="small text-body-secondary mt-2">
+    不重複讀者是看過的登入讀者數；期間數字取自每日快照（每天午夜寫入前一天）。
+    每集的讀者數需要章節閱讀紀錄（#238）上線後才能提供。
+</p>

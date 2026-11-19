@@ -1,0 +1,51 @@
+@page
+@model Involver.Areas.Admin.Pages.ContentStats.IndexModel
+@{
+    ViewData["Title"] = "內容統計";
+    ViewData["ShowPeriodSwitch"] = true;
+}
+
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+    }
+</div>
+
+<div class="mb-3">@await Component.InvokeAsync("ChartPanel", new { panel = Model.DailyChart })</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyVotesChart })</div>
+    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.PolicyCoinsChart })</div>
+    <div class="col-md-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.TypeChart })</div>
+</div>
+
+<section id="blocked" aria-labelledby="blocked-heading">
+    <h2 id="blocked-heading" class="h6 text-body-secondary">被封鎖的內容</h2>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr><th scope="col">種類</th><th scope="col">標題／內容</th><th scope="col">更新時間</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.BlockedItems)
+                {
+                    <tr>
+                        <td><span class="badge text-bg-secondary">@item.Kind</span></td>
+                        <td><a href="@item.Url" target="_blank" rel="noopener">@item.Title</a></td>
+                        <td class="text-nowrap small">@item.UpdateTime.ToString("yyyy/MM/dd HH:mm")</td>
+                    </tr>
+                }
+                @if (Model.BlockedItems.Count == 0)
+                {
+                    <tr><td colspan="3" class="text-center text-body-secondary py-3">沒有被封鎖的內容</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-body-secondary mt-1">每種最多列出最近 @IndexModel.BlockedLimit 筆；解除封鎖請到內容頁操作。</p>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,53 @@
+@page
+@model Involver.Areas.Admin.Pages.People.IndexModel
+@{
+    ViewData["Title"] = "任命管理";
+}
+
+@if (!Model.CanAssignRoles)
+{
+    <div class="alert alert-secondary small">只有用戶管理員（ProfileAdministrators）可以任命或移除角色。</div>
+}
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-xxl-3 g-3">
+    @foreach (var (role, members) in Model.Roles)
+    {
+        <div class="col">
+            <section class="dashboard__card p-3 h-100" aria-label="@role">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h2 class="h6 mb-0">@role</h2>
+                    <span class="badge text-bg-secondary rounded-pill">@members.Count</span>
+                </div>
+                <ul class="list-unstyled small mb-2">
+                    @foreach (var member in members)
+                    {
+                        <li class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                            <a asp-page="/Users/Details" asp-route-id="@member.UserId">@member.UserName</a>
+                            @if (Model.CanAssignRoles)
+                            {
+                                <form method="post" asp-page-handler="Remove" data-confirm="移除 @member.UserName 的 @role？">
+                                    <input type="hidden" name="role" value="@role" />
+                                    <input type="hidden" name="userId" value="@member.UserId" />
+                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0">移除</button>
+                                </form>
+                            }
+                        </li>
+                    }
+                    @if (members.Count == 0)
+                    {
+                        <li class="text-body-secondary">沒有成員</li>
+                    }
+                </ul>
+                @if (Model.CanAssignRoles)
+                {
+                    <form method="post" asp-page-handler="Add" class="d-flex gap-1">
+                        <input type="hidden" name="role" value="@role" />
+                        <label class="visually-hidden" for="add-@role">用戶名或用戶 ID</label>
+                        <input id="add-@role" name="user" class="form-control form-control-sm" placeholder="用戶名或用戶 ID" required />
+                        <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap">任命</button>
+                    </form>
+                }
+            </section>
+        </div>
+    }
+</div>

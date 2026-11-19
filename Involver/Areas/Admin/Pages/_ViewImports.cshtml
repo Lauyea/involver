@@ -1,0 +1,22 @@
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Authorization
+@using Involver
+@using Involver.Areas.Admin.Pages
+@using Involver.Authorization.Admin
+@using Involver.Common
+@using Involver.Helpers
+@using Involver.Extensions
+@using Involver.Models.ViewModels.Dashboard
+@using Involver.Services.Admin
+@using DataAccess.Common
+@using DataAccess.Data
+@using DataAccess.Models
+@using DataAccess.Models.Dashboard
+@using DataAccess.Models.StatisticalData
+@using Microsoft.AspNetCore.Hosting
+@using Microsoft.Extensions.Hosting
+@namespace Involver.Areas.Admin.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, Involver
+@inject IAuthorizationService AuthorizationService
+@inject IWebHostEnvironment WebHostEnvironment

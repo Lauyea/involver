@@ -1,0 +1,144 @@
+@page
+@model Involver.Areas.Admin.Pages.Tags.AliasesModel
+@{
+    ViewData["Title"] = "標籤合併與別名";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-xl-6">
+        <form method="post" asp-page-handler="Merge" class="dashboard__card p-3"
+              data-confirm="合併後被合併的標籤會刪除，作品改用保留的標籤，無法復原。確定要合併？">
+            <h2 class="h6">合併標籤</h2>
+            <p class="small text-body-secondary">把 A 的作品搬到 B，A 的名稱記成 B 的別名；作者之後輸入 A 會自動換成 B。</p>
+            <div class="row g-2 align-items-end">
+                <div class="col-sm-5">
+                    <label for="merge-source" class="form-label small">被合併（A）</label>
+                    <select id="merge-source" name="sourceTagId" class="form-select form-select-sm" required>
+                        <option value="">選擇標籤</option>
+                        @foreach (var tag in Model.AllTags)
+                        {
+                            <option value="@tag.TagId">@tag.Name（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-5">
+                    <label for="merge-target" class="form-label small">保留（B）</label>
+                    <select id="merge-target" name="targetTagId" class="form-select form-select-sm" required>
+                        <option value="">選擇標籤</option>
+                        @foreach (var tag in Model.AllTags)
+                        {
+                            <option value="@tag.TagId">@tag.Name（小說 @tag.NovelCount／文章 @tag.ArticleCount）</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">合併</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-xl-6">
+        <form method="post" asp-page-handler="AddAlias" class="dashboard__card p-3">
+            <h2 class="h6">新增別名</h2>
+            <p class="small text-body-secondary">別名不會建立新標籤，作者輸入別名時會自動換成對應的標籤。</p>
+            <div class="row g-2 align-items-end">
+                <div class="col-sm-5">
+                    <label for="alias-name" class="form-label small">別名</label>
+                    <input id="alias-name" name="aliasName" class="form-control form-control-sm" maxlength="@Parameters.TagNameMaxLength" required />
+                </div>
+                <div class="col-sm-5">
+                    <label for="alias-target" class="form-label small">對應標籤</label>
+                    <select id="alias-target" name="tagId" class="form-select form-select-sm" required>
+                        <option value="">選擇標籤</option>
+                        @foreach (var tag in Model.AllTags)
+                        {
+                            <option value="@tag.TagId">@tag.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-2">
+                    <button type="submit" class="btn btn-sm btn-primary w-100">新增</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<section class="mb-4" aria-labelledby="report-heading">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 id="report-heading" class="h6 text-body-secondary mb-0">相似標籤（@Model.ReportTotal 組@(Model.ReportTotal > AliasesModel.ReportLimit ? $"，顯示前 {AliasesModel.ReportLimit} 組" : null)）</h2>
+        <a href="/api/v1/tags/reports/duplicates" class="small"><i class="fa-solid fa-file-csv me-1"></i>下載完整報表</a>
+    </div>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr>
+                    <th scope="col">類型</th>
+                    <th scope="col">相似度</th>
+                    <th scope="col">標籤 A</th>
+                    <th scope="col">標籤 B</th>
+                    <th scope="col" class="text-end">一鍵合併</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Model.Report)
+                {
+                    <tr>
+                        <td><span class="badge @(row.Kind == "Similar" ? "text-bg-secondary" : "text-bg-warning")">@(row.Kind switch { "Same" => "相同", "Duplicate" => "只差結尾", _ => "相似" })</span></td>
+                        <td>@row.Score.ToString("0.00")</td>
+                        <td>@row.TagA.Name <span class="small text-body-secondary">（@row.TagA.NovelCount／@row.TagA.ArticleCount）</span></td>
+                        <td>@row.TagB.Name <span class="small text-body-secondary">（@row.TagB.NovelCount／@row.TagB.ArticleCount）</span></td>
+                        <td class="text-end text-nowrap">
+                            <form method="post" asp-page-handler="Merge" class="d-inline" data-confirm="把「@row.TagA.Name」合併到「@row.TagB.Name」？">
+                                <input type="hidden" name="sourceTagId" value="@row.TagA.TagId" />
+                                <input type="hidden" name="targetTagId" value="@row.TagB.TagId" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary" title="保留 B">A → B</button>
+                            </form>
+                            <form method="post" asp-page-handler="Merge" class="d-inline" data-confirm="把「@row.TagB.Name」合併到「@row.TagA.Name」？">
+                                <input type="hidden" name="sourceTagId" value="@row.TagB.TagId" />
+                                <input type="hidden" name="targetTagId" value="@row.TagA.TagId" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary" title="保留 A">B → A</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Report.Count == 0)
+                {
+                    <tr><td colspan="5" class="text-center text-body-secondary py-3">沒有相似的標籤</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-body-secondary mt-1">括號內為小說／文章使用數。相似規則與作者新增標籤時的檢查相同。</p>
+</section>
+
+<section aria-labelledby="aliases-heading">
+    <h2 id="aliases-heading" class="h6 text-body-secondary">別名（@Model.Aliases.Count）</h2>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr><th scope="col">別名</th><th scope="col">對應標籤</th><th scope="col">建立時間</th><th></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var alias in Model.Aliases)
+                {
+                    <tr>
+                        <td>@alias.Name</td>
+                        <td>@alias.Tag?.Name</td>
+                        <td class="small">@alias.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd")</td>
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="RemoveAlias" data-confirm="移除別名「@alias.Name」？">
+                                <input type="hidden" name="aliasId" value="@alias.TagAliasId" />
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0">移除</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.Aliases.Count == 0)
+                {
+                    <tr><td colspan="4" class="text-center text-body-secondary py-3">還沒有別名</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>

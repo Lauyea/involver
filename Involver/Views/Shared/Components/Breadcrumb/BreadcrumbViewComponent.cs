@@ -50,7 +50,24 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Email", "Email" },
         { "ChangePassword", "變更密碼" },
         { "ExternalLogins", "外部登入" },
-        { "PersonalData", "個人資料" }
+        { "PersonalData", "個人資料" },
+        // 管理員後台
+        { "Admin", "管理後台" },
+        { "Users", "用戶管理" },
+        { "People", "任命管理" },
+        { "AuditLog", "活動紀錄" },
+        { "Finance", "金流總覽" },
+        { "Payments", "訂單" },
+        { "Payouts", "分潤清單" },
+        { "ContentStats", "內容統計" },
+        { "Tags", "標籤" },
+        { "Aliases", "合併與別名" },
+        { "Targets", "KPI 目標" },
+        // 創作者中心
+        { "Creator", "創作者中心" },
+        { "Works", "作品表現" },
+        { "Work", "作品趨勢" },
+        { "Readers", "讀者與互動" }
     };
 
     public async Task<IViewComponentResult> InvokeAsync()

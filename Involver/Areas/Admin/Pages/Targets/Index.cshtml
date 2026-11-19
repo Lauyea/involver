@@ -1,0 +1,79 @@
+@page
+@model Involver.Areas.Admin.Pages.Targets.IndexModel
+@{
+    ViewData["Title"] = "KPI 目標";
+}
+
+<div class="row g-3">
+    <div class="col-xl-4">
+        <form method="post" asp-page-handler="Save" class="dashboard__card p-3">
+            <h2 class="h6">設定目標</h2>
+            <p class="small text-body-secondary">設定後，總覽上對應的 KPI 卡片會顯示達成進度。同一指標、同一期間再次設定會覆蓋原本的目標。</p>
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <div class="mb-2">
+                <label asp-for="Input.Metric" class="form-label small"></label>
+                <select asp-for="Input.Metric" asp-items="Html.GetEnumSelectList<KpiMetric>()" class="form-select form-select-sm"></select>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-5">
+                    <label asp-for="Input.Period" class="form-label small"></label>
+                    <select asp-for="Input.Period" asp-items="Html.GetEnumSelectList<KpiPeriod>()" class="form-select form-select-sm"></select>
+                </div>
+                <div class="col-7">
+                    <label asp-for="Input.Date" class="form-label small"></label>
+                    <input asp-for="Input.Date" type="date" class="form-control form-control-sm" />
+                </div>
+            </div>
+            <div class="mb-2">
+                <label asp-for="Input.TargetValue" class="form-label small"></label>
+                <input asp-for="Input.TargetValue" class="form-control form-control-sm" />
+                <span asp-validation-for="Input.TargetValue" class="text-danger small"></span>
+            </div>
+            <div class="mb-2">
+                <label asp-for="Input.Note" class="form-label small"></label>
+                <input asp-for="Input.Note" class="form-control form-control-sm" />
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">儲存</button>
+        </form>
+    </div>
+
+    <div class="col-xl-8">
+        @foreach (var (title, targets) in new[] { ("進行中與未來的目標", Model.ActiveTargets), ("已結束的目標", Model.PastTargets) })
+        {
+            <section class="mb-3" aria-label="@title">
+                <h2 class="h6 text-body-secondary">@title</h2>
+                <div class="dashboard__card table-responsive">
+                    <table class="table table-sm align-middle mb-0 dashboard__table">
+                        <thead>
+                            <tr><th>指標</th><th>期間</th><th class="text-end">目標值</th><th>備註</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in targets)
+                            {
+                                var isCurrent = t.PeriodStart <= Model.Today && Model.Today < KpiTargetPeriods.GetEnd(t.Period, t.PeriodStart);
+                                <tr>
+                                    <td>@t.Metric.GetDisplayName()</td>
+                                    <td>
+                                        @KpiTargetPeriods.GetLabel(t.Period, t.PeriodStart)
+                                        @if (isCurrent) { <span class="badge text-bg-success ms-1">進行中</span> }
+                                    </td>
+                                    <td class="text-end">@t.TargetValue.ToString("N0")</td>
+                                    <td class="small">@t.Note</td>
+                                    <td class="text-end">
+                                        <form method="post" asp-page-handler="Delete" asp-route-id="@t.Id" data-confirm="刪除這個目標？">
+                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0">刪除</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            @if (targets.Count == 0)
+                            {
+                                <tr><td colspan="5" class="text-center text-body-secondary py-3">沒有目標</td></tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        }
+    </div>
+</div>
