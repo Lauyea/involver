@@ -1,0 +1,83 @@
+@page
+@model Involver.Areas.Admin.Pages.Payouts.IndexModel
+@{
+    // 沒有用戶管理權限時，用戶名不加連結（點了會 403）
+    var canViewUsers = (await AuthorizationService.AuthorizeAsync(User, AdminPolicies.Users)).Succeeded;
+    ViewData["Title"] = "分潤清單";
+}
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+    <div class="col">
+        @await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "待撥金額", Value = Model.TotalPending, Suffix = "元", Icon = "fa-hourglass-half", Hint = "已月結、尚未標記撥款" } })
+    </div>
+    <div class="col">
+        @await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "已撥金額", Value = Model.TotalPaid, Suffix = "元", Icon = "fa-circle-check" } })
+    </div>
+    <div class="col">
+        @await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "本月累計中", Value = Model.TotalCurrent, Suffix = "元", Icon = "fa-calendar-day", Hint = "下個月 1 日月結後才會列入待撥" } })
+    </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-2">
+    <form method="get" class="form-check form-switch mb-0">
+        <input class="form-check-input" type="checkbox" role="switch" id="pending-only" name="PendingOnly" value="true"
+               @(Model.PendingOnly ? "checked" : null) onchange="this.form.submit()" />
+        <input type="hidden" name="PendingOnly" value="false" />
+        <label class="form-check-label small" for="pending-only">只列有待撥金額的創作者</label>
+    </form>
+    <span class="small text-body-secondary">金額取自每月排程彙總的創作者收入（CoinMonthlyBalances）</span>
+</div>
+
+<div class="dashboard__card table-responsive">
+    <table class="table align-middle mb-0 dashboard__table">
+        <thead>
+            <tr>
+                <th scope="col">創作者</th>
+                <th scope="col">待撥月份</th>
+                <th scope="col" class="text-end">待撥</th>
+                <th scope="col" class="text-end">已撥</th>
+                <th scope="col">最後撥款</th>
+                <th scope="col" class="text-end">本月累計</th>
+                <th scope="col" style="min-width: 16rem;">撥款</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Summaries)
+            {
+                <tr>
+                    <td>
+                        @if (canViewUsers)
+                        {
+                            <a asp-page="/Users/Details" asp-route-id="@s.ProfileId">@s.UserName</a>
+                        }
+                        else
+                        {
+                            @s.UserName
+                        }
+                    </td>
+                    <td class="small">@(s.PendingMonths.Count == 0 ? "—" : string.Join("、", s.PendingMonths.Select(m => m.ToString("yyyy/MM"))))</td>
+                    <td class="text-end fw-bold">@s.PendingAmount.ToString("N0")</td>
+                    <td class="text-end">@s.PaidAmount.ToString("N0")</td>
+                    <td class="small">@(s.LastPaidAt?.ToLocalTime().ToString("yyyy/MM/dd") ?? "—")</td>
+                    <td class="text-end">@s.CurrentMonthIncome.ToString("N0")</td>
+                    <td>
+                        @if (s.PendingAmount > 0)
+                        {
+                            <form method="post" asp-page-handler="MarkPaid" asp-route-pendingOnly="@Model.PendingOnly" class="d-flex gap-1"
+                                  data-confirm="確定已撥款 @s.PendingAmount.ToString("N0") 元給 @s.UserName？">
+                                <input type="hidden" name="profileId" value="@s.ProfileId" />
+                                <label class="visually-hidden" for="note-@s.ProfileId">備註</label>
+                                <input id="note-@s.ProfileId" name="note" class="form-control form-control-sm" placeholder="轉帳編號（選填）" maxlength="200" />
+                                <button type="submit" class="btn btn-sm btn-primary text-nowrap">標記已撥款</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Summaries.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-body-secondary py-4">目前沒有待撥的分潤</td></tr>
+            }
+        </tbody>
+    </table>
+</div>

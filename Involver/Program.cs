@@ -3,13 +3,16 @@ using Azure.Monitor.OpenTelemetry.AspNetCore;
 
 using DataAccess.Data;
 
+using Involver.Authorization.Admin;
 using Involver.Services;
+using Involver.Services.Admin;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 
 using System.Threading.RateLimiting;
@@ -68,7 +71,16 @@ services.AddTransient<IEmailSender, EmailSender>();
 services.Configure<AuthMessageSenderOptions>(builder.Configuration);
 
 //services.AddRazorPages();
-services.AddMvc();
+services.AddMvc()
+    .AddRazorPagesOptions(options =>
+    {
+        // 管理員後台：整個 Area 要有任一管理角色；各頁再以 [Authorize(Policy)] 細分
+        options.Conventions.AuthorizeAreaFolder("Admin", "/", AdminPolicies.Access);
+        // 創作者中心：只看自己的數據
+        options.Conventions.AuthorizeFolder("/Creator");
+    });
+
+services.AddAuthorization(AdminPolicies.Configure);
 
 // 將預設的 IHtmlGenerator 替換為自訂的 HTML5 版本
 services.AddSingleton<IHtmlGenerator, Html5ValidationHtmlGenerator>();
@@ -94,6 +106,9 @@ services.AddScoped<IMissionService, MissionService>();
 services.AddScoped<IViewCountService, ViewCountService>();
 services.AddScoped<IUserAccountService, UserAccountService>();
 services.AddScoped<ITagService, TagService>();
+services.AddScoped<IAdminAuditService, AdminAuditService>();
+services.AddScoped<IPayoutService, PayoutService>();
+services.AddHttpContextAccessor();
 services.AddSingleton<IPasswordHasher<DataAccess.Models.Preview>, PasswordHasher<DataAccess.Models.Preview>>();
 
 services.AddRateLimiter(options =>
@@ -224,6 +239,13 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// 統計資料已搬到管理員後台，舊網址永久轉址（查詢字串會保留）
+app.UseRewriter(new RewriteOptions()
+    .AddRedirect("(?i)^StatisticalData(/Index)?/?$", "Admin/Users", StatusCodes.Status301MovedPermanently)
+    .AddRedirect("(?i)^StatisticalData/Payments(/Index)?/?$", "Admin/Payments", StatusCodes.Status301MovedPermanently)
+    .AddRedirect("(?i)^StatisticalData/Payments/Details/?$", "Admin/Payments/Details", StatusCodes.Status301MovedPermanently)
+    .AddRedirect("(?i)^StatisticalData/ProfitSharings(/.*)?$", "Admin/Payouts", StatusCodes.Status301MovedPermanently));
 app.UseStaticFiles();
 app.UseCookiePolicy();
 

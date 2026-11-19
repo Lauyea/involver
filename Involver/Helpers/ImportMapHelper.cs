@@ -16,6 +16,10 @@ public static class ImportMapHelper
         ["ckeditor5"] = "/lib/ckeditor5/dist/browser/ckeditor5.js",
         ["ckeditor5/translations/zh.js"] = "/lib/ckeditor5/dist/translations/zh.js",
         ["/js/ckeditor-setup.js"] = "/js/ckeditor-setup.js",
+        // Chart.js 以 LibMan 鎖定版本；ESM 版本依賴 @kurkle/color
+        ["chart.js"] = "/lib/chart.js/dist/chart.js",
+        ["@kurkle/color"] = "/lib/kurkle-color/dist/color.esm.js",
+        ["/js/charts/chart-theme.js"] = "/js/charts/chart-theme.js",
     };
 
     /// <summary>

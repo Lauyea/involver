@@ -65,5 +65,10 @@ namespace DataAccess.Models
         /// Collection navigation to Articles
         /// </summary>
         public ICollection<Article>? Articles { get; set; }
+
+        /// <summary>
+        /// Collection navigation to 別名
+        /// </summary>
+        public ICollection<TagAlias>? Aliases { get; set; }
     }
 }

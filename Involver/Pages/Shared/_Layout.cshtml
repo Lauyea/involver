@@ -55,7 +55,6 @@
 
     <link rel="stylesheet" asp-append-version="true" href="~/css/site.css" />
     <script src="~/js/color-mode-toggler.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     @RenderSection("Styles", required: false)
     @RenderSection("Head", required: false)
@@ -180,7 +179,8 @@
         <div id="toast-container" style="position: absolute; bottom: 0; right: 0;">
         </div>
     </div>
-    <div class="container mb-5 pb-5">
+    @* 管理員後台、創作者中心需要較寬的版面，以 ViewData["ContainerClass"] 指定 *@
+    <div class="@(ViewData["ContainerClass"] as string ?? "container") mb-5 pb-5">
         <main role="main" class="pb-3">
             <partial name="_CookieConsentPartial" />
             @await Component.InvokeAsync("Breadcrumb")

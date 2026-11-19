@@ -1,0 +1,126 @@
+@page
+@model Involver.Areas.Admin.Pages.Users.DetailsModel
+@{
+    ViewData["Title"] = $"用戶：{Model.Profile.UserName}";
+    var availableRoles = AdminPolicies.AllRoles.Except(Model.Roles).ToList();
+}
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="dashboard__card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <h2 class="h5 mb-0">@Model.Profile.UserName</h2>
+                <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.Profile.ProfileID" target="_blank" rel="noopener" class="small">
+                    公開個人檔案 <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </a>
+            </div>
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4">用戶 ID</dt>
+                <dd class="col-sm-8"><code>@Model.Profile.ProfileID</code></dd>
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8">@(Model.Email ?? "—")</dd>
+                <dt class="col-sm-4">註冊日</dt>
+                <dd class="col-sm-8">@Model.Profile.EnrollmentDate.ToString("yyyy/MM/dd")</dd>
+                <dt class="col-sm-4">最後登入</dt>
+                <dd class="col-sm-8">@Model.Profile.LastTimeLogin.ToString("yyyy/MM/dd HH:mm")</dd>
+                <dt class="col-sm-4">實體 In 幣</dt>
+                <dd class="col-sm-8">@Model.Profile.RealCoins.ToString("N0")</dd>
+                <dt class="col-sm-4">虛擬 In 幣</dt>
+                <dd class="col-sm-8">@Model.Profile.VirtualCoins.ToString("N0")</dd>
+                <dt class="col-sm-4">本月創作收入</dt>
+                <dd class="col-sm-8">@Model.Profile.MonthlyCoins.ToString("N0")</dd>
+                <dt class="col-sm-4">作品／文章</dt>
+                <dd class="col-sm-8">@Model.NovelCount ／ @Model.ArticleCount</dd>
+                <dt class="col-sm-4">狀態</dt>
+                <dd class="col-sm-8">
+                    @if (Model.Profile.Prime) { <span class="badge text-bg-warning">Prime</span> }
+                    @if (Model.Profile.Professional) { <span class="badge text-bg-info">特約作家</span> }
+                    @if (Model.Profile.Banned) { <span class="badge text-bg-danger">封鎖</span> }
+                    @if (!Model.Profile.Prime && !Model.Profile.Professional && !Model.Profile.Banned) { <span class="text-body-secondary">一般</span> }
+                </dd>
+            </dl>
+        </div>
+
+        <div class="dashboard__card p-3">
+            <h2 class="h6">管理操作紀錄</h2>
+            @if (Model.RecentLogs.Count == 0)
+            {
+                <p class="small text-body-secondary mb-0">沒有紀錄</p>
+            }
+            else
+            {
+                <ul class="list-unstyled small mb-0">
+                    @foreach (var log in Model.RecentLogs)
+                    {
+                        <li class="py-1 border-bottom">
+                            <span class="text-body-secondary">@log.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</span>
+                            <strong class="ms-1">@log.Action.GetDisplayName()</strong>
+                            <span class="ms-1">@log.After</span>
+                            <span class="text-body-secondary">— @log.ActorUserName</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="dashboard__card p-3 mb-3">
+            <h2 class="h6">帳號狀態</h2>
+            <div class="d-flex flex-wrap gap-2">
+                <form method="post" asp-page-handler="ToggleProfessional" asp-route-id="@Model.Id">
+                    <button type="submit" class="btn btn-sm @(Model.Profile.Professional ? "btn-outline-secondary" : "btn-outline-primary")">
+                        @(Model.Profile.Professional ? "取消特約作家" : "設為特約作家")
+                    </button>
+                </form>
+                <form method="post" asp-page-handler="ToggleBan" asp-route-id="@Model.Id"
+                      data-confirm="@(Model.Profile.Banned ? "確定要解除封鎖？" : "確定要封鎖這位用戶？")">
+                    <button type="submit" class="btn btn-sm @(Model.Profile.Banned ? "btn-outline-success" : "btn-outline-danger")">
+                        @(Model.Profile.Banned ? "解除封鎖" : "封鎖")
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="dashboard__card p-3">
+            <h2 class="h6">管理角色</h2>
+            @if (Model.Roles.Count == 0)
+            {
+                <p class="small text-body-secondary">沒有管理角色</p>
+            }
+            <ul class="list-group list-group-flush mb-3">
+                @foreach (var role in Model.Roles)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-transparent">
+                        <span>@role</span>
+                        @if (Model.CanAssignRoles)
+                        {
+                            <form method="post" asp-page-handler="RemoveRole" asp-route-id="@Model.Id"
+                                  data-confirm="確定要移除 @role？">
+                                <input type="hidden" name="Role" value="@role" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">移除</button>
+                            </form>
+                        }
+                    </li>
+                }
+            </ul>
+            @if (Model.CanAssignRoles && availableRoles.Count > 0)
+            {
+                <form method="post" asp-page-handler="AddRole" asp-route-id="@Model.Id" class="d-flex gap-2">
+                    <label for="role-select" class="visually-hidden">角色</label>
+                    <select id="role-select" name="Role" class="form-select form-select-sm">
+                        @foreach (var role in availableRoles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary text-nowrap">任命</button>
+                </form>
+            }
+            else if (!Model.CanAssignRoles)
+            {
+                <p class="small text-body-secondary mb-0">只有用戶管理員（ProfileAdministrators）可以任命角色。</p>
+            }
+        </div>
+    </div>
+</div>

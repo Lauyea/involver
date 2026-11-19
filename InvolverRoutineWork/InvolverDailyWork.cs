@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DataAccess.Data;
+using DataAccess.Services;
 
 using InvolverRoutineWork.Common;
 
@@ -38,12 +39,30 @@ namespace InvolverDailyWork
             // 每個步驟各自執行，其中一步失敗不會讓後面的步驟被跳過
             var failedSteps = new List<string>();
 
-            await RunStepAsync("Reset daily views", failedSteps, log, async () =>
+            // 快照的瀏覽數取自 DailyView，必須在歸零之前寫入
+            const string snapshotStep = "Write daily snapshot";
+            await RunStepAsync(snapshotStep, failedSteps, log, async () =>
             {
-                var resetViewsSql = "UPDATE [dbo].[Articles] SET [DailyView] = 0; UPDATE [dbo].[Novels] SET [DailyView] = 0;";
-                int resetViewsRows = await _context.Database.ExecuteSqlRawAsync(resetViewsSql);
-                log.LogInformation($"Reset daily views, {resetViewsRows} rows were updated (includes both articles and novels).");
+                var date = SnapshotWindow.PreviousDay(DateTime.Now);
+                var result = await new DailySnapshotService(_context).WriteSnapshotAsync(date);
+                log.LogInformation($"Write daily snapshot of {date:yyyy-MM-dd}, {result.ContentCount} content rows were inserted.");
             });
+
+            if (failedSteps.Contains(snapshotStep))
+            {
+                // 快照失敗時不歸零：今天的瀏覽數會併入明天，但不會遺失
+                failedSteps.Add("Reset daily views (skipped)");
+                log.LogWarning("Daily snapshot failed, daily views are not reset.");
+            }
+            else
+            {
+                await RunStepAsync("Reset daily views", failedSteps, log, async () =>
+                {
+                    var resetViewsSql = "UPDATE [dbo].[Articles] SET [DailyView] = 0; UPDATE [dbo].[Novels] SET [DailyView] = 0;";
+                    int resetViewsRows = await _context.Database.ExecuteSqlRawAsync(resetViewsSql);
+                    log.LogInformation($"Reset daily views, {resetViewsRows} rows were updated (includes both articles and novels).");
+                });
+            }
 
             await RunStepAsync("Reset daily login mission", failedSteps, log, async () =>
             {

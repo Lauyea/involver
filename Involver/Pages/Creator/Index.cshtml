@@ -1,0 +1,111 @@
+@page
+@model Involver.Pages.Creator.IndexModel
+@using Involver.Models.ViewModels.Dashboard
+@{
+    ViewData["Title"] = "創作者中心";
+    ViewData["ShowPeriodSwitch"] = Model.HasWorks;
+}
+
+<partial name="_CreatorNav" />
+
+@if (Model.HasWorks)
+{
+    <div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+        @foreach (var card in Model.IncomeCards)
+        {
+            <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+        }
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-lg-8">@await Component.InvokeAsync("ChartPanel", new { panel = Model.MonthlyChart })</div>
+        <div class="col-lg-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.SourceChart })</div>
+    </div>
+
+    <section class="dashboard__card p-3 mb-4" aria-labelledby="supporters-heading">
+        <h2 id="supporters-heading" class="h6">前 @IndexModel.TopCount 名贊助者</h2>
+        @if (Model.TopSupporters.Count == 0)
+        {
+            <p class="small text-body-secondary mb-0">還沒有贊助者。</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0 dashboard__table">
+                    <thead><tr><th>#</th><th>讀者</th><th class="text-end">本月</th><th class="text-end">累計</th></tr></thead>
+                    <tbody>
+                        @foreach (var (supporter, index) in Model.TopSupporters.Select((s, i) => (s, i)))
+                        {
+                            <tr>
+                                <td>@(index + 1)</td>
+                                <td><a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@supporter.ProfileId">@supporter.UserName</a></td>
+                                <td class="text-end">@supporter.Monthly.ToString("N0")</td>
+                                <td class="text-end fw-bold">@supporter.Total.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <p class="small text-body-secondary mt-2 mb-0">包含投票、贊助作品、文章與創作者本人。</p>
+        }
+    </section>
+}
+else
+{
+    <div class="alert alert-info">
+        你還沒有發表作品或文章，這裡先顯示你身為讀者的數據。
+        <a asp-page="/Novels/Create" class="alert-link">開始創作</a>後就能看到收入與作品表現。
+    </div>
+}
+
+<section aria-labelledby="reader-heading">
+    <h2 id="reader-heading" class="h6 text-body-secondary mb-2">讀者視角</h2>
+    <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+        @foreach (var card in Model.ReaderCards)
+        {
+            <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+        }
+    </div>
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="dashboard__card p-3 h-100">
+                <h3 class="h6">支持過的作者</h3>
+                @if (Model.SupportedCreators.Count == 0)
+                {
+                    <p class="small text-body-secondary mb-0">還沒有支持過作者。</p>
+                }
+                <ul class="list-unstyled small mb-0">
+                    @foreach (var creator in Model.SupportedCreators)
+                    {
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@creator.ProfileId">@creator.UserName</a>
+                            <span>本月 @creator.Monthly.ToString("N0") ／ 累計 <strong>@creator.Total.ToString("N0")</strong></span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="dashboard__card p-3 h-100">
+                <h3 class="h6">最近看過的作品</h3>
+                @if (Model.RecentNovels.Count == 0)
+                {
+                    <p class="small text-body-secondary mb-0">還沒有閱讀紀錄。</p>
+                }
+                <ul class="list-unstyled small mb-0">
+                    @foreach (var novel in Model.RecentNovels)
+                    {
+                        <li class="d-flex justify-content-between py-1 border-bottom">
+                            <a asp-page="/Novels/Details" asp-route-id="@novel.NovelId">@novel.Title</a>
+                            <span class="text-body-secondary">@novel.ViewDate.ToString("yyyy/MM/dd")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

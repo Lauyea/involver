@@ -33,6 +33,25 @@
         "dist/browser/ckeditor5-editor.css",
         "dist/translations/zh.js"
       ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "chart.js@4.5.1",
+      "destination": "wwwroot/lib/chart.js/",
+      "files": [
+        "LICENSE.md",
+        "dist/chart.js",
+        "dist/chunks/helpers.dataset.js"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@kurkle/color@0.3.4",
+      "destination": "wwwroot/lib/kurkle-color/",
+      "files": [
+        "LICENSE.md",
+        "dist/color.esm.js"
+      ]
     }
   ]
 }

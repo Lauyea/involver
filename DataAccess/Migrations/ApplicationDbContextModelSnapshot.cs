@@ -361,6 +361,303 @@ namespace DataAccess.Migrations
                         });
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Dashboard.AdminAuditLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<short>("Action")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("ActorProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ActorUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("After")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Before")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("TargetId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Action", "CreatedAt");
+
+                    b.HasIndex("ActorProfileId", "CreatedAt");
+
+                    b.ToTable("AdminAuditLogs");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Dashboard.CreatorPayout", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("money");
+
+                    b.Property<DateOnly>("Month")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PaidByProfileId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaidAt");
+
+                    b.HasIndex("ProfileId", "Month")
+                        .IsUnique();
+
+                    b.ToTable("CreatorPayouts");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Dashboard.DailyContentStat", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<decimal>("CoinsReceived")
+                        .HasColumnType("money");
+
+                    b.Property<int>("ContentId")
+                        .HasColumnType("int");
+
+                    b.Property<byte>("ContentType")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("NewComments")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewFollows")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OwnerProfileId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("UniqueReaders")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.HasIndex("OwnerProfileId", "Date");
+
+                    b.HasIndex("ContentType", "ContentId", "Date")
+                        .IsUnique();
+
+                    b.ToTable("DailyContentStats");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Dashboard.DailySiteStat", b =>
+                {
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Articles")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Comments")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DailyActiveUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Episodes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MonthlyActiveCreators")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MonthlyActiveUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MonthlyPayingSupporters")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewArticles")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewNovels")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NewUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Novels")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrimeUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProfessionalUsers")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("RealCoinsSpent")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("RevenueShareAmount")
+                        .HasColumnType("money");
+
+                    b.Property<decimal>("TopUpAmount")
+                        .HasColumnType("money");
+
+                    b.Property<int>("TopUpCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalUsers")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("VirtualCoinsIssued")
+                        .HasColumnType("money");
+
+                    b.Property<int>("WeeklyVoters")
+                        .HasColumnType("int");
+
+                    b.HasKey("Date");
+
+                    b.ToTable("DailySiteStats");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Dashboard.KpiTarget", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedByProfileId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<short>("Metric")
+                        .HasColumnType("smallint");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<byte>("Period")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateOnly>("PeriodStart")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("TargetValue")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Metric", "Period", "PeriodStart")
+                        .IsUnique();
+
+                    b.ToTable("KpiTargets");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Dashboard.SiteExpense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("money");
+
+                    b.Property<byte>("Category")
+                        .HasColumnType("tinyint");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByProfileId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Date");
+
+                    b.ToTable("SiteExpenses");
+                });
+
             modelBuilder.Entity("DataAccess.Models.Follow", b =>
                 {
                     b.Property<int>("FollowID")
@@ -1176,6 +1473,9 @@ namespace DataAccess.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<bool>("IsVoided")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MerchantTradeNo")
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
@@ -1213,11 +1513,20 @@ namespace DataAccess.Migrations
                     b.Property<DateTime?>("TradeTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("VoidReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("VoidedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("PaymentID");
 
                     b.HasIndex("InvolverID");
 
                     b.HasIndex("MerchantTradeNo");
+
+                    b.HasIndex("PaymentTime");
 
                     b.ToTable("Payments");
                 });
@@ -1284,6 +1593,40 @@ namespace DataAccess.Migrations
                     b.HasIndex("Status");
 
                     b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.TagAlias", b =>
+                {
+                    b.Property<int>("TagAliasId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TagAliasId"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("int");
+
+                    b.HasKey("TagAliasId");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("TagAliases");
                 });
 
             modelBuilder.Entity("DataAccess.Models.View", b =>
@@ -1591,6 +1934,15 @@ namespace DataAccess.Migrations
                     b.Navigation("Profile");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.Dashboard.CreatorPayout", b =>
+                {
+                    b.HasOne("DataAccess.Models.Profile", null)
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("DataAccess.Models.Follow", b =>
                 {
                     b.HasOne("DataAccess.Models.Profile", "Follower")
@@ -1834,6 +2186,17 @@ namespace DataAccess.Migrations
                     b.Navigation("CreatorProfile");
                 });
 
+            modelBuilder.Entity("DataAccess.Models.TagAlias", b =>
+                {
+                    b.HasOne("DataAccess.Models.Tag", "Tag")
+                        .WithMany("Aliases")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("DataAccess.Models.View", b =>
                 {
                     b.HasOne("DataAccess.Models.ArticleModel.Article", "Article")
@@ -2013,6 +2376,11 @@ namespace DataAccess.Migrations
                     b.Navigation("Novels");
 
                     b.Navigation("ProfileAchievements");
+                });
+
+            modelBuilder.Entity("DataAccess.Models.Tag", b =>
+                {
+                    b.Navigation("Aliases");
                 });
 #pragma warning restore 612, 618
         }

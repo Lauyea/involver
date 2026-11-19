@@ -1,0 +1,24 @@
+@using Involver.Models.ViewModels.Dashboard
+@using System.Text.Json
+@model ChartPanelViewModel
+
+<div class="dashboard__card h-100 p-3">
+    <div class="d-flex justify-content-between align-items-baseline flex-wrap gap-1 mb-2">
+        <h2 class="h6 mb-0">@Model.Title</h2>
+        @if (!string.IsNullOrEmpty(Model.Subtitle))
+        {
+            <span class="small text-body-secondary">@Model.Subtitle</span>
+        }
+    </div>
+    <div class="chart-panel__body @(Model.Small ? "chart-panel__body--small" : string.Empty)">
+        @if (Model.HasData)
+        {
+            @* 屬性值由 Razor 編碼，JSON 不會破壞 HTML *@
+            <canvas data-chart-config="@JsonSerializer.Serialize(Model.Config)" role="img" aria-label="@Model.Title"></canvas>
+        }
+        else
+        {
+            <div class="chart-panel__empty">@Model.EmptyText</div>
+        }
+    </div>
+</div>

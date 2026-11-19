@@ -1,0 +1,19 @@
+@model int
+@{
+    // 保留其他查詢參數（篩選條件），只換掉天數；換期間時回到第一頁
+    var otherQuery = Context.Request.Query
+        .Where(q => q.Key != "days" && q.Key != "pageIndex")
+        .SelectMany(q => q.Value.Select(v => new KeyValuePair<string, string>(q.Key, v)))
+        .ToList();
+}
+
+<div class="btn-group btn-group-sm" role="group" aria-label="期間">
+    @foreach (var days in DashboardPeriod.Options)
+    {
+        var query = QueryString.Create(otherQuery.Append(new KeyValuePair<string, string>("days", days.ToString())));
+        var isActive = days == Model;
+        <a class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
+           href="@(Context.Request.PathBase + Context.Request.Path + query)"
+           aria-current="@(isActive ? "true" : null)">@days 天</a>
+    }
+</div>

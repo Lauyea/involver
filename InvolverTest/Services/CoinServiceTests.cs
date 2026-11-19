@@ -469,5 +469,61 @@ namespace InvolverTest.Services
             Assert.That(realTransactions.Last().BalanceAfter, Is.EqualTo(payer.RealCoins));
         }
 
+        private static readonly CoinTransactionInfo AdjustInfo = new(CoinTransactionType.AdminAdjust, CoinReferenceType.Payment, "ECPay:T001", Note: "訂單沖正");
+
+        [Test]
+        public async Task AdjustAsync_WithNegativeAmountWithinBalance_DeductsWithoutAddingUsedCoins()
+        {
+            using var context = CreateContext();
+            var service = new CoinService(context);
+
+            var result = await service.AdjustAsync(PayerId, CoinType.Real, -30, AdjustInfo);
+
+            var payer = await GetProfileAsync(PayerId);
+            var transaction = (await GetTransactionsAsync()).Single();
+            Assert.That(result, Is.True);
+            Assert.That(payer.RealCoins, Is.EqualTo(70));
+            Assert.That(payer.UsedCoins, Is.EqualTo(0), "沖正不是消費");
+            Assert.That(transaction.TransactionType, Is.EqualTo(CoinTransactionType.AdminAdjust));
+            Assert.That(transaction.Amount, Is.EqualTo(-30));
+            Assert.That(transaction.BalanceAfter, Is.EqualTo(70));
+            Assert.That(transaction.ReferenceId, Is.EqualTo("ECPay:T001"));
+        }
+
+        [Test]
+        public async Task AdjustAsync_WhenBalanceWouldBecomeNegative_ReturnsFalseAndKeepsBalance()
+        {
+            using var context = CreateContext();
+            var service = new CoinService(context);
+
+            var result = await service.AdjustAsync(PayerId, CoinType.Real, -200, AdjustInfo);
+
+            var payer = await GetProfileAsync(PayerId);
+            Assert.That(result, Is.False);
+            Assert.That(payer.RealCoins, Is.EqualTo(100));
+            Assert.That(await GetTransactionsAsync(), Is.Empty);
+        }
+
+        [Test]
+        public async Task AdjustAsync_WithPositiveCreatorIncome_AddsMonthlyCoins()
+        {
+            using var context = CreateContext();
+            var service = new CoinService(context);
+
+            var result = await service.AdjustAsync(CreatorId, CoinType.CreatorIncome, 15, AdjustInfo);
+
+            var creator = await GetProfileAsync(CreatorId);
+            Assert.That(result, Is.True);
+            Assert.That(creator.MonthlyCoins, Is.EqualTo(15));
+        }
+
+        [Test]
+        public void AdjustAsync_WithZeroAmount_ThrowsArgumentOutOfRangeException()
+        {
+            using var context = CreateContext();
+            var service = new CoinService(context);
+
+            Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => service.AdjustAsync(PayerId, CoinType.Real, 0, AdjustInfo));
+        }
     }
 }

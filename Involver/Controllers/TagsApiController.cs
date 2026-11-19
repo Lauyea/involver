@@ -4,6 +4,7 @@ using System.Text;
 using DataAccess.Common;
 
 using Involver.Authorization.Tag;
+using Involver.Helpers;
 using Involver.Services;
 
 using Microsoft.AspNetCore.Authorization;
@@ -100,20 +101,20 @@ public class TagsApiController(ITagService tagService) : ControllerBase
                 row.Kind,
                 row.Score.ToString("0.###", CultureInfo.InvariantCulture),
                 row.TagA.TagId,
-                EscapeCsv(row.TagA.Name),
+                CsvHelper.Escape(row.TagA.Name),
                 row.TagA.Status,
                 row.TagA.NovelCount,
                 row.TagA.ArticleCount,
                 row.TagB?.TagId.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-                EscapeCsv(row.TagB?.Name),
+                CsvHelper.Escape(row.TagB?.Name),
                 row.TagB?.Status.ToString() ?? string.Empty,
                 row.TagB?.NovelCount.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                 row.TagB?.ArticleCount.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-                EscapeCsv(row.Note));
+                CsvHelper.Escape(row.Note));
             csv.AppendLine();
         }
 
-        var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
+        var bytes = CsvHelper.ToUtf8WithBom(csv);
         return File(bytes, "text/csv; charset=utf-8", $"tag-duplicates-{DateTime.Now:yyyyMMdd}.csv");
     }
 
@@ -157,28 +158,5 @@ public class TagsApiController(ITagService tagService) : ControllerBase
         }
 
         return false;
-    }
-
-    /// <summary>
-    /// CSV 欄位跳脫；開頭是公式字元時加上單引號，避免在試算表裡被當成公式執行
-    /// </summary>
-    private static string EscapeCsv(string value)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return string.Empty;
-        }
-
-        if ("=+-@\t\r".Contains(value[0]))
-        {
-            value = "'" + value;
-        }
-
-        if (value.IndexOfAny([',', '"', '\n', '\r']) >= 0)
-        {
-            value = $"\"{value.Replace("\"", "\"\"")}\"";
-        }
-
-        return value;
     }
 }

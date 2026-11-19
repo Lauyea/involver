@@ -1,0 +1,111 @@
+@page
+@model Involver.Areas.Admin.Pages.Finance.IndexModel
+@{
+    ViewData["Title"] = "金流總覽";
+}
+
+<div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+    @foreach (var card in Model.Cards)
+    {
+        <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+    }
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-xl-8">@await Component.InvokeAsync("ChartPanel", new { panel = Model.CashChart })</div>
+    <div class="col-xl-4">@await Component.InvokeAsync("ChartPanel", new { panel = Model.VirtualChart })</div>
+</div>
+
+<div class="dashboard__card table-responsive mb-3">
+    <table class="table table-sm align-middle mb-0 dashboard__table">
+        <thead>
+            <tr>
+                <th scope="col">月份</th>
+                <th scope="col" class="text-end">儲值收入</th>
+                <th scope="col" class="text-end">創作者分潤</th>
+                <th scope="col" class="text-end">退款</th>
+                <th scope="col" class="text-end">網站支出</th>
+                <th scope="col" class="text-end">淨額</th>
+                <th scope="col" class="text-end">虛擬 In 幣發行</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var month in Model.Months.AsEnumerable().Reverse())
+            {
+                <tr>
+                    <td>@month.Month.ToString("yyyy/MM")</td>
+                    <td class="text-end">@month.TopUp.ToString("N0")</td>
+                    <td class="text-end">@month.RevenueShare.ToString("N0")</td>
+                    <td class="text-end">@month.Refund.ToString("N0")</td>
+                    <td class="text-end">@month.SiteExpense.ToString("N0")</td>
+                    <td class="text-end fw-bold @(month.Net < 0 ? "text-danger" : null)">@month.Net.ToString("N0")</td>
+                    <td class="text-end text-body-secondary">@month.VirtualIssued.ToString("N0")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<p class="small text-body-secondary">
+    儲值收入取自付款成功的訂單（不含模擬付款、作廢）；分潤與虛擬 In 幣已月結的月份取自月結表，本月取自流水帳。
+    訂單明細見 <a asp-page="/Payments/Index">訂單</a>，創作者撥款見 <a asp-page="/Payouts/Index">分潤清單</a>。
+</p>
+
+<div class="row g-3" id="expenses">
+    <div class="col-xl-4">
+        <form method="post" asp-page-handler="AddExpense" class="dashboard__card p-3">
+            <h2 class="h6">登錄網站支出</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+            <div class="mb-2">
+                <label asp-for="Expense.Date" class="form-label small"></label>
+                <input asp-for="Expense.Date" type="date" class="form-control form-control-sm" />
+            </div>
+            <div class="mb-2">
+                <label asp-for="Expense.Category" class="form-label small"></label>
+                <select asp-for="Expense.Category" asp-items="Html.GetEnumSelectList<SiteExpenseCategory>()" class="form-select form-select-sm"></select>
+            </div>
+            <div class="mb-2">
+                <label asp-for="Expense.Amount" class="form-label small"></label>
+                <input asp-for="Expense.Amount" class="form-control form-control-sm" />
+                <span asp-validation-for="Expense.Amount" class="text-danger small"></span>
+            </div>
+            <div class="mb-2">
+                <label asp-for="Expense.Note" class="form-label small"></label>
+                <input asp-for="Expense.Note" class="form-control form-control-sm" placeholder="例如：Azure App Service 11 月" />
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">新增</button>
+        </form>
+    </div>
+    <div class="col-xl-8">
+        <div class="dashboard__card table-responsive">
+            <table class="table table-sm align-middle mb-0 dashboard__table">
+                <thead>
+                    <tr><th>日期</th><th>類別</th><th class="text-end">金額</th><th>說明</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.RecentExpenses)
+                    {
+                        <tr>
+                            <td>@e.Date.ToString("yyyy/MM/dd")</td>
+                            <td>@e.Category.GetDisplayName()</td>
+                            <td class="text-end">@e.Amount.ToString("N0")</td>
+                            <td>@e.Note</td>
+                            <td class="text-end">
+                                <form method="post" asp-page-handler="DeleteExpense" asp-route-id="@e.Id" data-confirm="確定要刪除這筆登錄錯誤的支出？">
+                                    <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="刪除"><i class="fa-solid fa-trash-can"></i><span class="visually-hidden">刪除</span></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (Model.RecentExpenses.Count == 0)
+                    {
+                        <tr><td colspan="5" class="text-center text-body-secondary py-3">尚未登錄網站支出</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
+}

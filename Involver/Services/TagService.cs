@@ -155,6 +155,12 @@ public class TagService(ApplicationDbContext context) : ITagService
             existing ??= await context.Tags
                 .FirstOrDefaultAsync(t => t.Name == item.Name, cancellationToken);
 
+            // 別名自動換成正式標籤
+            existing ??= await context.TagAliases
+                .Where(a => a.NormalizedName == item.NormalizedName)
+                .Select(a => a.Tag)
+                .FirstOrDefaultAsync(cancellationToken);
+
             if (existing == null)
             {
                 newNames.Add(item);
@@ -346,6 +352,27 @@ public class TagService(ApplicationDbContext context) : ITagService
             }
         }
 
+        // 輸入的是別名時，視為對應的正式標籤
+        if (existing == null)
+        {
+            var aliasTagId = await context.TagAliases
+                .Where(a => a.NormalizedName == normalizedName)
+                .Select(a => (int?)a.TagId)
+                .FirstOrDefaultAsync(cancellationToken);
+            var aliasTag = tags.FirstOrDefault(t => t.TagId == aliasTagId);
+            if (aliasTag != null)
+            {
+                existing = new TagMatch
+                {
+                    TagId = aliasTag.TagId,
+                    Name = aliasTag.Name,
+                    IsPending = aliasTag.Status == TagStatus.Pending,
+                    Score = 1,
+                    UsageCount = aliasTag.CountOf(target),
+                };
+            }
+        }
+
         var baseName = TagSimilarity.StripTrailingNumber(normalizedName);
 
         return new TagSimilarResult
@@ -426,6 +453,169 @@ public class TagService(ApplicationDbContext context) : ITagService
             })
             .ThenByDescending(r => r.Score)
             .ToList();
+    }
+
+    /// <inheritdoc />
+    public Task<List<TagSuggestion>> GetUsagesAsync(CancellationToken cancellationToken = default)
+    {
+        return QueryTagUsages().ToListAsync(cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<TagMergeResult> MergeAsync(int sourceTagId, int targetTagId, CancellationToken cancellationToken = default)
+    {
+        if (sourceTagId == targetTagId)
+        {
+            return TagMergeResult.Fail("不能把標籤合併到自己。");
+        }
+
+        var tags = await context.Tags
+            .Where(t => t.TagId == sourceTagId || t.TagId == targetTagId)
+            .ToListAsync(cancellationToken);
+        var source = tags.FirstOrDefault(t => t.TagId == sourceTagId);
+        var target = tags.FirstOrDefault(t => t.TagId == targetTagId);
+        if (source == null || target == null)
+        {
+            return TagMergeResult.Fail("找不到要合併的標籤。");
+        }
+
+        // 呼叫端（後台）會開交易把稽核紀錄一起提交；沒有交易時自己開一個
+        await using var transaction = context.Database.CurrentTransaction is null
+            ? await context.Database.BeginTransactionAsync(cancellationToken)
+            : null;
+
+        // 只補上還沒有目標標籤的作品；來源標籤的關聯會在刪除標籤時一併刪除（FK cascade）
+        var movedNovels = await context.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO [NovelTaggings] ([NovelID], [TagId])
+            SELECT [NovelID], {targetTagId} FROM [NovelTaggings]
+            WHERE [TagId] = {sourceTagId}
+                AND [NovelID] NOT IN (SELECT [NovelID] FROM [NovelTaggings] WHERE [TagId] = {targetTagId})
+            """, cancellationToken);
+
+        var movedArticles = await context.Database.ExecuteSqlInterpolatedAsync($"""
+            INSERT INTO [ArticleTaggings] ([ArticleID], [TagId])
+            SELECT [ArticleID], {targetTagId} FROM [ArticleTaggings]
+            WHERE [TagId] = {sourceTagId}
+                AND [ArticleID] NOT IN (SELECT [ArticleID] FROM [ArticleTaggings] WHERE [TagId] = {targetTagId})
+            """, cancellationToken);
+
+        // 來源標籤原有的別名改指向目標標籤
+        await context.TagAliases
+            .Where(a => a.TagId == sourceTagId)
+            .ExecuteUpdateAsync(s => s.SetProperty(a => a.TagId, targetTagId), cancellationToken);
+
+        // 正式標籤被合併掉時，目標標籤也一併轉正
+        if (source.Status == TagStatus.Approved && target.Status == TagStatus.Pending)
+        {
+            target.Status = TagStatus.Approved;
+        }
+
+        context.Tags.Remove(source);
+        await context.SaveChangesAsync(cancellationToken);
+
+        // 先刪除來源標籤，NormalizedName 才不會和別名衝突
+        if (source.NormalizedName != target.NormalizedName
+            && !await context.TagAliases.AnyAsync(a => a.NormalizedName == source.NormalizedName, cancellationToken))
+        {
+            context.TagAliases.Add(new TagAlias
+            {
+                Name = source.Name,
+                NormalizedName = source.NormalizedName,
+                TagId = targetTagId,
+                CreatedAt = DateTime.UtcNow,
+            });
+            await context.SaveChangesAsync(cancellationToken);
+        }
+
+        if (transaction is not null)
+        {
+            await transaction.CommitAsync(cancellationToken);
+        }
+
+        return new TagMergeResult
+        {
+            SourceName = source.Name,
+            TargetName = target.Name,
+            MovedNovels = movedNovels,
+            MovedArticles = movedArticles,
+        };
+    }
+
+    /// <inheritdoc />
+    public async Task<string> RejectAsync(int tagId, CancellationToken cancellationToken = default)
+    {
+        var tag = await context.Tags
+            .FirstOrDefaultAsync(t => t.TagId == tagId && t.Status == TagStatus.Pending, cancellationToken);
+        if (tag == null)
+        {
+            return null;
+        }
+
+        // 作品上的關聯由 FK cascade 一併刪除
+        context.Tags.Remove(tag);
+        await context.SaveChangesAsync(cancellationToken);
+        return tag.Name;
+    }
+
+    /// <inheritdoc />
+    public async Task<string> AddAliasAsync(string name, int tagId, CancellationToken cancellationToken = default)
+    {
+        var displayName = TagNameNormalizer.CleanDisplayName(name);
+        var normalizedName = TagNameNormalizer.Normalize(displayName);
+
+        var error = ValidateName(displayName, normalizedName);
+        if (error != null)
+        {
+            return error;
+        }
+
+        var tag = await context.Tags
+            .Where(t => t.TagId == tagId)
+            .Select(t => new { t.TagId, t.Name })
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+        if (tag == null)
+        {
+            return "找不到對應的標籤。";
+        }
+
+        var existingTag = await context.Tags
+            .Where(t => t.NormalizedName == normalizedName)
+            .Select(t => t.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (existingTag != null)
+        {
+            return $"已經有標籤「{existingTag}」，請改用合併。";
+        }
+
+        if (await context.TagAliases.AnyAsync(a => a.NormalizedName == normalizedName, cancellationToken))
+        {
+            return $"別名「{displayName}」已經存在。";
+        }
+
+        context.TagAliases.Add(new TagAlias
+        {
+            Name = displayName,
+            NormalizedName = normalizedName,
+            TagId = tag.TagId,
+            CreatedAt = DateTime.UtcNow,
+        });
+        await context.SaveChangesAsync(cancellationToken);
+        return null;
+    }
+
+    /// <inheritdoc />
+    public async Task<string> RemoveAliasAsync(int aliasId, CancellationToken cancellationToken = default)
+    {
+        var alias = await context.TagAliases.FirstOrDefaultAsync(a => a.TagAliasId == aliasId, cancellationToken);
+        if (alias == null)
+        {
+            return null;
+        }
+
+        context.TagAliases.Remove(alias);
+        await context.SaveChangesAsync(cancellationToken);
+        return alias.Name;
     }
 
     /// <summary>

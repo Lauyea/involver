@@ -1,0 +1,146 @@
+@page
+@model Involver.Areas.Admin.Pages.Payments.DetailsModel
+@{
+    ViewData["Title"] = $"訂單 {Model.Payment.MerchantTradeNo}";
+    var p = Model.Payment;
+    var status = p switch
+    {
+        { IsVoided: true } => ("作廢", "text-bg-secondary"),
+        { SimulatePaid: not 0 } => ("模擬付款", "text-bg-info"),
+        { RtnCode: 1 } => ("成功", "text-bg-success"),
+        _ => ("失敗", "text-bg-danger"),
+    };
+    // 沒有用戶管理權限時，用戶名不加連結（點了會 403）
+    var canViewUsers = (await AuthorizationService.AuthorizeAsync(User, AdminPolicies.Users)).Succeeded;
+}
+
+<p><a asp-page="./Index"><i class="fa-solid fa-chevron-left me-1"></i>回到訂單列表</a></p>
+
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="dashboard__card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h2 class="h6 mb-0">訂單資料</h2>
+                <span class="badge @status.Item2">@status.Item1</span>
+            </div>
+            <dl class="row small mb-0">
+                <dt class="col-sm-4">用戶</dt>
+                <dd class="col-sm-8">
+                    @if (p.InvolverID != null && canViewUsers)
+                    {
+                        <a asp-page="/Users/Details" asp-route-id="@p.InvolverID">@(Model.UserName ?? p.InvolverID)</a>
+                    }
+                    else if (p.InvolverID != null)
+                    {
+                        @(Model.UserName ?? p.InvolverID)
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.TradeAmt)</dt>
+                <dd class="col-sm-8">@p.TradeAmt.ToString("N0") 元</dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.MerchantTradeNo)</dt>
+                <dd class="col-sm-8"><code>@p.MerchantTradeNo</code></dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.TradeNo)</dt>
+                <dd class="col-sm-8"><code>@p.TradeNo</code></dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.PaymentTime)</dt>
+                <dd class="col-sm-8">@(p.PaymentTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? p.PaymentDate)</dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.TradeTime)</dt>
+                <dd class="col-sm-8">@(p.TradeTime?.ToString("yyyy/MM/dd HH:mm:ss") ?? p.TradeDate)</dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.RtnCode)</dt>
+                <dd class="col-sm-8">@p.RtnCode（@p.RtnMsg）</dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.SimulatePaid)</dt>
+                <dd class="col-sm-8">@(p.SimulatePaid == 0 ? "否" : "是")</dd>
+                <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.ReturnString)</dt>
+                <dd class="col-sm-8"><code>@p.ReturnString</code></dd>
+                @if (p.IsVoided)
+                {
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Payment.VoidReason)</dt>
+                    <dd class="col-sm-8">@p.VoidReason（@p.VoidedAt?.ToLocalTime().ToString("yyyy/MM/dd HH:mm")）</dd>
+                }
+            </dl>
+            <details class="mt-2 small">
+                <summary>金流商回傳的原始內容</summary>
+                <pre class="mt-2 mb-0 text-wrap text-break">@p.RequestBody</pre>
+            </details>
+        </div>
+
+        <div class="dashboard__card p-3">
+            <h2 class="h6">相關 In 幣流水帳</h2>
+            @if (Model.Transactions.Count == 0)
+            {
+                <p class="small text-body-secondary mb-0">沒有入帳紀錄（付款失敗、模擬付款或重複通知不會入帳）。</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm small mb-0 dashboard__table">
+                        <thead>
+                            <tr><th>時間</th><th>類型</th><th class="text-end">金額</th><th class="text-end">交易後餘額</th><th>備註</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.Transactions)
+                            {
+                                <tr>
+                                    <td class="text-nowrap">@t.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd HH:mm")</td>
+                                    <td>@t.TransactionType</td>
+                                    <td class="text-end">@t.Amount.ToString("+#,0.##;-#,0.##")</td>
+                                    <td class="text-end">@t.BalanceAfter.ToString("N0")</td>
+                                    <td>@t.Note</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-xl-5">
+        <div class="alert alert-secondary small">
+            金流紀錄不能刪除。錯誤的訂單請「作廢」；需要退回或扣回 In 幣時，以「沖正」寫入一筆管理員調整。兩者都會記錄在活動紀錄。
+        </div>
+
+        @if (!p.IsVoided)
+        {
+            <form method="post" asp-page-handler="Void" asp-route-id="@Model.Id" class="dashboard__card p-3 mb-3"
+                  data-confirm="確定要作廢這筆訂單？">
+                <h2 class="h6">作廢訂單</h2>
+                <div class="mb-2">
+                    <label asp-for="Void.Reason" class="form-label small"></label>
+                    <input asp-for="Void.Reason" class="form-control form-control-sm" />
+                    <span asp-validation-for="Void.Reason" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-danger">作廢</button>
+            </form>
+        }
+
+        @if (Model.CanAdjust)
+        {
+            <form method="post" asp-page-handler="Adjust" asp-route-id="@Model.Id" class="dashboard__card p-3"
+                  data-confirm="確定要調整這位用戶的實體 In 幣？">
+                <h2 class="h6">In 幣沖正</h2>
+                <p class="small text-body-secondary">以 AdminAdjust 調整付款用戶的實體 In 幣：正數補發、負數扣回（扣回後不能變成負數）。補發後這筆訂單累計入帳不能超過訂單金額。</p>
+                <div class="row g-2 mb-2">
+                    <div class="col-5">
+                        <label asp-for="Adjust.Amount" class="form-label small"></label>
+                        <input asp-for="Adjust.Amount" class="form-control form-control-sm" step="1" />
+                        <span asp-validation-for="Adjust.Amount" class="text-danger small"></span>
+                    </div>
+                    <div class="col-7">
+                        <label asp-for="Adjust.Note" class="form-label small"></label>
+                        <input asp-for="Adjust.Note" class="form-control form-control-sm" />
+                        <span asp-validation-for="Adjust.Note" class="text-danger small"></span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-primary">沖正</button>
+            </form>
+        }
+        else if (p.InvolverID != null)
+        {
+            <p class="small text-body-secondary">In 幣沖正只限金流管理員（PaymentAdministrators），且不能沖正自己的訂單。</p>
+        }
+    </div>
+</div>

@@ -115,6 +115,35 @@ public class CoinService(ApplicationDbContext context) : ICoinService
                 cancellationToken);
     }
 
+    public async Task<bool> AdjustAsync(string profileId, CoinType coinType, decimal amount, CoinTransactionInfo info, CancellationToken cancellationToken = default)
+    {
+        if (amount == 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(amount), amount, "調整金額不可為 0。");
+        }
+
+        await using var transaction = await BeginTransactionIfNoneAsync(cancellationToken);
+
+        var query = context.Profiles.Where(p => p.ProfileID == profileId);
+
+        // 餘額檢查與異動在同一個 UPDATE 完成
+        int affected = coinType switch
+        {
+            CoinType.Real => await query
+                .Where(p => p.RealCoins + amount >= 0)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.RealCoins, p => p.RealCoins + amount), cancellationToken),
+            CoinType.Virtual => await query
+                .Where(p => p.VirtualCoins + amount >= 0)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.VirtualCoins, p => p.VirtualCoins + amount), cancellationToken),
+            CoinType.CreatorIncome => await query
+                .Where(p => p.MonthlyCoins + amount >= 0)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.MonthlyCoins, p => p.MonthlyCoins + amount), cancellationToken),
+            _ => throw new ArgumentOutOfRangeException(nameof(coinType), coinType, null),
+        };
+
+        return await FinishCreditAsync(transaction, affected, profileId, coinType, amount, info, cancellationToken);
+    }
+
     /// <summary>
     /// 加值後的共同收尾：有加到值才寫流水帳並提交自己開的交易
     /// </summary>

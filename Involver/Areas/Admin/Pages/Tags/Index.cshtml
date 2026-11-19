@@ -1,0 +1,106 @@
+@page
+@model Involver.Areas.Admin.Pages.Tags.IndexModel
+@{
+    // 沒有用戶管理權限時，用戶名不加連結（點了會 403）
+    var canViewUsers = (await AuthorizationService.AuthorizeAsync(User, AdminPolicies.Users)).Succeeded;
+    ViewData["Title"] = "標籤";
+}
+
+<div class="row row-cols-1 row-cols-md-3 g-3 mb-3">
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "待審標籤", Value = Model.PendingTags.Count, Icon = "fa-hourglass-half" } })</div>
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "標籤總數", Value = Model.TotalTags, Icon = "fa-tags" } })</div>
+    <div class="col">@await Component.InvokeAsync("KpiCard", new { card = new KpiCardViewModel { Label = "沒有作品使用", Value = Model.UnusedTags, Icon = "fa-ghost", Hint = "可考慮合併或刪除" } })</div>
+</div>
+
+<section class="mb-4" aria-labelledby="pending-heading">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 id="pending-heading" class="h6 text-body-secondary mb-0">待審標籤</h2>
+        <a asp-page="./Aliases" class="small">相似標籤與合併 <i class="fa-solid fa-chevron-right"></i></a>
+    </div>
+    <div class="dashboard__card table-responsive">
+        <table class="table table-sm align-middle mb-0 dashboard__table">
+            <thead>
+                <tr>
+                    <th scope="col">標籤</th>
+                    <th scope="col">申請者</th>
+                    <th scope="col">申請時間</th>
+                    <th scope="col" class="text-end">小說</th>
+                    <th scope="col" class="text-end">文章</th>
+                    <th scope="col" class="text-end">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in Model.PendingTags)
+                {
+                    <tr>
+                        <td>@p.Tag.Name</td>
+                        <td>
+                            @if (p.CreatorId != null && canViewUsers)
+                            {
+                                <a asp-page="/Users/Details" asp-route-id="@p.CreatorId">@p.CreatorName</a>
+                            }
+                            else
+                            {
+                                @p.CreatorName
+                            }
+                        </td>
+                        <td class="small text-nowrap">@p.CreateTime.ToString("yyyy/MM/dd HH:mm")</td>
+                        <td class="text-end">@p.Tag.NovelCount</td>
+                        <td class="text-end">@p.Tag.ArticleCount</td>
+                        <td class="text-end text-nowrap">
+                            <form method="post" asp-page-handler="Approve" class="d-inline">
+                                <input type="hidden" name="tagId" value="@p.Tag.TagId" />
+                                <button type="submit" class="btn btn-sm btn-outline-success">核准</button>
+                            </form>
+                            <form method="post" asp-page-handler="Reject" class="d-inline" data-confirm="駁回後會從作品上移除這個標籤，確定要駁回「@p.Tag.Name」？">
+                                <input type="hidden" name="tagId" value="@p.Tag.TagId" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">駁回</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                @if (Model.PendingTags.Count == 0)
+                {
+                    <tr><td colspan="6" class="text-center text-body-secondary py-3">沒有待審標籤</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <p class="small text-body-secondary mt-1">
+        待審標籤被 @Parameters.TagAutoApproveAuthorCount 位不同作者使用後會自動轉正。要改用其他標籤時，請到「合併與別名」合併。
+    </p>
+</section>
+
+<div class="row g-3">
+    @foreach (var (title, ranking, isNovel) in new[] { ("小說使用量排行", Model.NovelRanking, true), ("文章使用量排行", Model.ArticleRanking, false) })
+    {
+        <div class="col-lg-6">
+            <section class="dashboard__card p-3 h-100" aria-label="@title">
+                <h2 class="h6">@title</h2>
+                <ol class="list-group list-group-flush list-group-numbered small">
+                    @foreach (var tag in ranking)
+                    {
+                        <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                            <span class="ms-2 me-auto">
+                                @if (tag.Status == TagStatus.Pending)
+                                {
+                                    @* 待審標籤不出現在標籤搜尋裡，不加連結 *@
+                                    @tag.Name<span class="badge text-bg-warning ms-1">待審</span>
+                                }
+                                else
+                                {
+                                    <a asp-area="" asp-page="@(isNovel ? "/Novels/Index" : "/Articles/Index")" asp-route-currentFilter="@tag.Name" target="_blank" rel="noopener">@tag.Name</a>
+                                }
+                            </span>
+                            <span class="badge text-bg-secondary rounded-pill">@(isNovel ? tag.NovelCount : tag.ArticleCount)</span>
+                        </li>
+                    }
+                    @if (ranking.Count == 0)
+                    {
+                        <li class="list-group-item bg-transparent text-body-secondary">尚無資料</li>
+                    }
+                </ol>
+            </section>
+        </div>
+    }
+</div>
