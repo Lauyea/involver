@@ -5,14 +5,7 @@
 {
     <div class="row">
         <div class="col-md-5">
-            @if (comment.Content.StripHTML().Length < Parameters.ContentLength)
-            {
-                @Html.AntiXssRaw(comment.Content.StripHTML())
-            }
-            else
-            {
-                @Html.AntiXssRaw(comment.Content.StripHTML().Substring(0, Parameters.ContentLength) + "...")
-            }
+            @comment.Content.ToPlainTextPreview(Parameters.ContentLength)
         </div>
         <div class="col-md-4">
             @if (comment.NovelID != null)

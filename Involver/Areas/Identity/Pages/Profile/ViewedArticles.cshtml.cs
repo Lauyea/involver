@@ -63,17 +63,13 @@ public class ViewedArticlesModel(
         var articles = rows
             .Select(r =>
             {
-                var content = StripHtmlPrefix(r.ContentPrefix);
-
                 return new ViewedArticleViewModel
                 {
                     ArticleID = r.ArticleID,
                     Title = r.Title.Length < Parameters.SmallContentLength
                         ? r.Title
                         : r.Title.Substring(0, Parameters.SmallContentLength) + "...",
-                    Content = content.Length < Parameters.ContentLength
-                        ? content
-                        : content.Substring(0, Parameters.ContentLength) + "...",
+                    Content = TrimUnclosedTag(r.ContentPrefix).ToPlainTextPreview(Parameters.ContentLength),
                     ViewDate = r.ViewDate,
                 };
             })
@@ -83,26 +79,25 @@ public class ViewedArticlesModel(
     }
 
     /// <summary>
-    /// 去除 HTML 標籤；前綴可能在標籤中間被截斷，一併去掉結尾未閉合的標籤
+    /// 內文前綴可能在標籤中間被截斷，去掉結尾未閉合的標籤，避免被當成文字顯示
     /// </summary>
     /// <param name="prefix">內文前綴</param>
-    /// <returns>純文字</returns>
-    private static string StripHtmlPrefix(string prefix)
+    /// <returns>結尾沒有殘缺標籤的 HTML</returns>
+    private static string TrimUnclosedTag(string prefix)
     {
         if (string.IsNullOrEmpty(prefix))
         {
             return string.Empty;
         }
 
-        var text = prefix.StripHTML();
-        var lastOpen = text.LastIndexOf('<');
+        var lastOpen = prefix.LastIndexOf('<');
 
-        if (lastOpen >= 0 && text.IndexOf('>', lastOpen) < 0)
+        if (lastOpen >= 0 && prefix.IndexOf('>', lastOpen) < 0)
         {
-            text = text[..lastOpen];
+            return prefix[..lastOpen];
         }
 
-        return text;
+        return prefix;
     }
 
     public async Task<IActionResult> OnGetAsync(string id)
