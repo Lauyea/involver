@@ -1,6 +1,6 @@
 # Involver.tw 程式碼風格與開發指南
 
-目標： 確保程式碼清晰、易讀、一致，提升團隊協作效率，並利於 AI 夥伴（如 Copilot、Gemini CLI）學習與遵循。
+目標： 確保程式碼清晰、易讀、一致，提升團隊協作效率，並利於 AI 夥伴（如 Claude Code、Antigravity、Copilot）學習與遵循。Agent 的工作流程、skills 與開發工具見第 9 節。
 
 ## 1. 檔案與資料夾結構
 
@@ -98,7 +98,7 @@
     * PUT `/api/v1/articles/{id}`：更新文章。
     * DELETE `/api/v1/articles/{id}`：刪除文章。
 
-## 7. 單元測試
+## 6. 單元測試
 
 1.  測試類別命名：
     * 格式：`[待測類別名稱]Tests`
@@ -117,7 +117,7 @@
 
 -----
 
-## 8. 前端開發規範
+## 7. 前端開發規範
 
   * UI/UX 設計：
       * 一律參考 [Material Design 3](https://m3.material.io/)：元件的用途與行為（Tabs、Chips、Cards、Lists、Buttons、Dialogs、Snackbar）、狀態層（滑鼠移過約 8%、焦點與按下約 12%）、以 4/8 px 為單位的間距、字級層級、空狀態（圖示＋一句說明＋下一步按鈕）。
@@ -126,6 +126,12 @@
       * `site.css` 會給所有 `<nav>` 加上導覽列漸層與圓角，新的 `<nav>` 元件要自行覆寫。
       * 無障礙：鍵盤焦點要看得見（`:focus-visible`）、觸控目標至少 40～48 px 高、只有圖示的按鈕要有 `aria-label`、顏色對比在淺色與深色模式都要足夠。
       * 每次修改 UI 都要在瀏覽器確認淺色、深色模式，以及手機寬度（375 px）沒有水平捲動。
+
+  * 瀏覽器支援與 Modern Web Guidance：
+      * **Browser Support:** This project's Baseline target is **Baseline Widely available**. 比這個新的功能要依 guide 提供 fallback；fallback 只寫輕量的自訂程式（約 20 行以內），不引入 npm 套件或 polyfill 套件。
+      * 寫 HTML、CSS、前端 JS（dialog、popover、表單驗證、版面、動畫、效能、無障礙）前，先用 `modern-web-guidance` skill 查詢做法。
+      * 與 Bootstrap 的取捨：Bootstrap 已有的元件（modal、dropdown、tooltip、collapse、offcanvas、表單樣式）沿用 Bootstrap，維持全站一致；Bootstrap 沒有的功能才採用原生 API 或 CSS。
+      * 原生功能必須同時支援 `site.css` 的主題變數與 `[data-bs-theme="dark"]`。
 
   * CSS：
   
@@ -163,7 +169,7 @@
       * 註解：
           * 公開的函數和類別需使用 JSDoc 格式註解，說明其用途、參數 (`@param`) 和返回值 (`@returns`)。
             ```javascript
-            /
+            /**
              * 根據小說ID取得小說詳細資訊
              * @param {string} novelId - 小說的唯一ID
              * @returns {Promise<Object>} 包含小說標題和內容的物件
@@ -228,8 +234,57 @@
             * 職責：定義 Vue 實體、處理使用者互動、呼叫 API。
             * 範例：`comments.js`
 
-## 9. 相容性與相依性
+## 8. 相容性與相依性
 
   * .NET 版本：以 .Net 10 規格撰寫 C# 程式碼。
   * Bootstrap 版本：v5.3.8。
   * 外部相依性：除非絕對必要，否則避免引入新的外部相依性。若有需要，必須在團隊中提出討論並說明原因。
+
+## 9. Agent 工作流程
+
+這一節適用於所有 AI Agent（Claude Code、Antigravity、Copilot 等）。
+
+### 一定要遵守的規則
+
+  * **master 只能透過 PR 修改**：commit 前確認目前分支（`git rev-parse --abbrev-ref HEAD`）；在 master 上要先建立 `feature/`、`fix/`、`debug/`、`refactor/` 分支。
+  * **commit 前要先取得使用者同意**：告訴使用者分支、檔案與 commit 訊息，等確認後才 commit。
+  * **開完 PR 只回報連結**：CI 跑得慢，不要第一時間查詢或回報 CI 狀態。
+  * **用繁體中文回覆**；程式碼識別名稱維持原樣。
+  * **驗證完要釋放資源**：停掉 dev server、關閉瀏覽器分頁、執行 `dotnet build-server shutdown`。不認得的 `dotnet`／`VBCSCompiler` 行程可能是使用者 IDE 的，不要擅自結束。
+  * **手寫 migration SQL 一律包 `EXEC(N'...')`**，部署前跑 `Tools/MigrationCheck`（原因見 `ef-migration` skill）。
+  * **實體 In 幣（綠界儲值）尚未上線**：`ECPay:Enabled` 預設必須維持 `false`，金流程式不要當成已上線的功能。
+  * 會寫入資料的工具與測試只能連本機資料庫。
+
+### Skills
+
+共用的 skill 放在 `.agents/skills/`（Antigravity 等 Agent 直接讀取）。Claude Code 透過本機 junction `.claude/skills` 讀取同一份；clone 後執行一次 `cd Tools/AgentSkills && dotnet run skills.cs` 建立。不支援 skills 的 Agent，請依下表直接讀對應的 `SKILL.md`。
+
+| Skill | 什麼時候用 |
+|---|---|
+| `issue-to-pr` | 開始做 issue、建立分支、commit、開 PR |
+| `ef-migration` | 新增或修改 Entity、schema、資料搬移 |
+| `ui-change` | 修改畫面、CSS、深色模式、手機版、無障礙 |
+| `vue-view-component` | 用 View Component＋Vue 做互動區塊 |
+| `dependency-upgrade` | 升級 NuGet、LibMan 套件或修弱點 |
+| `dev-tool` | 在 `Tools/` 新增開發工具 |
+| `run-involver` | 啟動網站、用不同身分登入、在瀏覽器驗證 |
+
+另外安裝在各 Agent 的使用者層級（不放進 repo）：
+
+  * Modern Web Guidance（Google Chrome 團隊）：前端寫法查詢，規則見第 7 節「瀏覽器支援與 Modern Web Guidance」。
+  * Microsoft Learn MCP（`https://learn.microsoft.com/api/mcp`）：查 .NET 10、ASP.NET Core、EF Core 的官方文件。比訓練資料新的 API 一律先查再寫。
+
+### 開發工具
+
+工具都在 `Tools/`（用法見 `Tools/README.md`），skill 會在對應步驟提到：
+
+  * 開發用測試帳號：`Tools/DevSeed`
+  * 本機資料庫快照：`Tools/DbSnapshot`
+  * migration 部署前檢查：`Tools/MigrationCheck`
+  * 頁面路由與權限清單：`Tools/PageInventory`
+  * C# 格式與命名檢查：`Tools/FormatCheck`（CI 也會檢查 PR 改到的行）
+  * 前端規範檢查：`Tools/FrontendLint`
+  * 瀏覽器 UI 檢查：`Tools/UiAudit`
+  * 只跑受影響的測試：`Tools/AffectedTests`
+
+Claude Code 另有專案 hooks（`.claude/settings.json`）：在 master 上 commit 或 push 到 master 會被擋下；commit 時會跳出確認視窗；回合結束時若 launch.json 啟動的 dev server 還在執行，會提醒停掉。
