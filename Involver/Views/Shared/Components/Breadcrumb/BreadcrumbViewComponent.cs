@@ -27,6 +27,7 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Feedbacks", "回報與意見" },
         { "Functions", "工具" },
         { "CreateCover", "製作小說封面" },
+        { "BracketBuilder", "賽程表產生器" },
         { "Descriptions", "關於" },
         { "Privacy", "隱私政策" },
         { "Terms", "服務條款" },

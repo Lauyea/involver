@@ -41,7 +41,7 @@
     @foreach (var tool in Model.Tools)
     {
         <div class="col">
-            <a href="@tool.Url" class="card h-100 tool-card">
+            <a asp-page="@tool.PageName" class="card h-100 tool-card">
                 <div class="card-body p-4">
                     <div class="tool-icon">
                         <i class="@tool.IconClass"></i>
