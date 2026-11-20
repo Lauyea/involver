@@ -1,0 +1,268 @@
+@page
+@model Involver.Pages.Functions.BracketBuilderModel
+@{
+    ViewData["Title"] = "賽程表產生器";
+    // 左右兩個半區並排很寬，改用全寬版面（同管理員後台）
+    ViewData["ContainerClass"] = "container-fluid px-lg-4";
+}
+
+@* 整個工具由 wwwroot/js/tools/bracket-builder.js（Vue）掛載，賽程邏輯在 bracket-core.js *@
+<div id="bracket-builder" class="bracket-builder" v-cloak>
+
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+        <h1 class="h3 mb-0"><i class="fa-solid fa-trophy bracket-builder__icon me-2" aria-hidden="true"></i>@ViewData["Title"]</h1>
+        <a asp-page="./Index" class="btn btn-sm btn-outline-secondary">
+            <i class="fa-solid fa-toolbox" aria-hidden="true"></i> 工具箱
+        </a>
+    </div>
+    <p class="text-body-secondary mb-4">
+        建立單淘汰賽程：依排名安排種子，讓前幾名種子不會太早相遇；人數不足時自動輪空。可隨賽程登錄勝負或比分，最後匯出 HTML。
+        進度只會儲存在這台裝置的瀏覽器，換裝置請用「儲存進度」下載檔案。
+    </p>
+
+    <div v-if="notice" class="alert alert-dismissible fade show" :class="notice.isError ? 'alert-danger' : 'alert-success'" role="status">
+        {{ notice.text }}
+        <button type="button" class="btn-close" aria-label="關閉" @@click="notice = null"></button>
+    </div>
+
+    @* ---------- 設定 ---------- *@
+    <section v-if="step === 'setup'" class="card mb-4" aria-labelledby="bracket-setup-heading">
+        <div class="card-body p-3 p-md-4">
+            <h2 id="bracket-setup-heading" class="h5 mb-3">賽程設定</h2>
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="mb-3">
+                        <label for="bracket-title" class="form-label fw-bold">賽事名稱</label>
+                        <input id="bracket-title" v-model="form.title" class="form-control" :maxlength="maxTitleLength" placeholder="例如：第一屆角色人氣王" />
+                    </div>
+
+                    <label for="bracket-names" class="form-label fw-bold">參賽名單（個人或隊伍）</label>
+                    <textarea id="bracket-names" v-model="form.namesText" class="form-control bracket-builder__names" rows="12"
+                              placeholder="每行一位，排名高的放前面" aria-describedby="bracket-names-help"></textarea>
+                    <div id="bracket-names-help" class="form-text">
+                        每行一位，<strong>由排名最高的開始排</strong>；最多 {{ maxParticipants }} 位，名稱最長 {{ maxNameLength }} 字。
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                        <span class="small text-body-secondary">快速填入範例：</span>
+                        @foreach (var size in Model.PresetSizes)
+                        {
+                            <button type="button" class="category-chip bg-transparent" @@click="fillSample(@size)">@size 位</button>
+                        }
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="bracket-builder__summary mb-3" aria-live="polite">
+                        <template v-if="participantCount >= minParticipants">
+                            <div class="fw-bold">{{ participantCount }} 位參賽 → {{ roundNameOfSize }}賽程</div>
+                            <div class="small text-body-secondary">
+                                共 {{ participantCount - 1 }} 場比賽<span v-if="byeCount > 0">，{{ byeCount }} 個輪空（給排名最高的 {{ byeCount }} 位）</span>
+                            </div>
+                        </template>
+                        <div v-else class="small text-body-secondary">至少需要 {{ minParticipants }} 位參賽者。</div>
+                        <div v-if="participantCount > maxParticipants" class="small text-danger mt-1">超過 {{ maxParticipants }} 位上限。</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bracket-seeds" class="form-label fw-bold">種子人數</label>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <input id="bracket-seeds" type="number" class="form-control bracket-builder__seed-input" min="0" :max="participantCount"
+                                   :value="seededCount" @@input="setSeededCount($event.target.value)" aria-describedby="bracket-seeds-help" />
+                            <button type="button" class="category-chip bg-transparent" @@click="setSeededCount(0)">全部抽籤</button>
+                            <button type="button" class="category-chip bg-transparent" @@click="setSeededCount(participantCount)">全部依排名</button>
+                        </div>
+                        <div id="bracket-seeds-help" class="form-text">
+                            名單前 {{ seededCount }} 位為種子，其餘隨機抽籤。<span v-if="seedHint">{{ seedHint }}</span>
+                        </div>
+                    </div>
+
+                    <div class="form-check form-switch mb-2">
+                        <input id="bracket-scoring" v-model="form.scoring" class="form-check-input" type="checkbox" role="switch" />
+                        <label for="bracket-scoring" class="form-check-label">比分制</label>
+                        <div class="form-text mt-0">登錄雙方比分，分數高者晉級；平手時再點選勝者。</div>
+                    </div>
+                    <div class="form-check form-switch mb-4">
+                        <input id="bracket-third" v-model="form.thirdPlace" class="form-check-input" type="checkbox" role="switch" :disabled="participantCount < 4" />
+                        <label for="bracket-third" class="form-check-label">季軍戰</label>
+                        <div class="form-text mt-0">準決賽的兩位敗者再比一場（至少 4 位參賽）。</div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="button" class="btn btn-primary" :disabled="!canGenerate" @@click="generate">
+                            <i class="fa-solid fa-shuffle" aria-hidden="true"></i> 產生賽程
+                        </button>
+                        <button v-if="tournament" type="button" class="btn btn-outline-secondary" @@click="step = 'bracket'">
+                            返回目前賽程
+                        </button>
+                        <label class="btn btn-outline-secondary mb-0">
+                            <i class="fa-solid fa-folder-open" aria-hidden="true"></i> 載入進度
+                            <input type="file" accept="application/json,.json" class="visually-hidden" @@change="importJsonAsync" />
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @* ---------- 賽程 ---------- *@
+    <section v-else-if="tournament && view" aria-labelledby="bracket-heading">
+        <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+            <div class="flex-grow-1">
+                <h2 id="bracket-heading" class="h4 mb-1">{{ tournament.title || '賽程表' }}</h2>
+                <div class="small text-body-secondary">
+                    {{ tournament.participants.length }} 位參賽・{{ view.rounds[0].name }}<span v-if="tournament.scoring">・比分制</span><span v-if="tournament.thirdPlace">・含季軍戰</span>
+                    ・已完成 {{ view.progress.done }}/{{ view.progress.total }} 場
+                </div>
+                <div class="progress bracket-builder__progress mt-2" role="progressbar" aria-label="賽程進度"
+                     :aria-valuenow="view.progress.done" aria-valuemin="0" :aria-valuemax="view.progress.total">
+                    <div class="progress-bar" :style="{ width: progressPercent + '%' }"></div>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-primary btn-sm" @@click="downloadHtml">
+                    <i class="fa-solid fa-file-code" aria-hidden="true"></i> 下載 HTML
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" @@click="copyHtmlAsync">
+                    <i class="fa-regular" :class="copied ? 'fa-circle-check' : 'fa-clipboard'" aria-hidden="true"></i> {{ copied ? '已複製' : '複製 HTML' }}
+                </button>
+                <button type="button" class="btn btn-outline-secondary btn-sm" @@click="downloadJson">
+                    <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> 儲存進度
+                </button>
+                <div class="dropdown">
+                    <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        更多
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><button type="button" class="dropdown-item" @@click="isEditingNames = !isEditingNames">{{ isEditingNames ? '收起名單' : '修改名稱' }}</button></li>
+                        <li><button type="button" class="dropdown-item" @@click="redraw">重新抽籤（非種子）</button></li>
+                        <li><button type="button" class="dropdown-item" @@click="editSettings">調整設定 / 重新產生</button></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button type="button" class="dropdown-item text-danger" @@click="discard">清除這個賽程</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isEditingNames" class="card mb-3">
+            <div class="card-body">
+                <h3 class="h6">修改名稱</h3>
+                <p class="small text-body-secondary">只改顯示名稱，不影響籤位與已登錄的賽果。</p>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-2">
+                    <div class="col" v-for="participant in tournament.participants" :key="participant.id">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bracket-builder__seed-label">{{ participant.seed ? '種子 ' + participant.seed : '—' }}</span>
+                            <input class="form-control" :value="participant.name" :maxlength="maxNameLength"
+                                   :aria-label="'參賽者名稱：' + participant.name" @@change="rename(participant.id, $event.target)" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="small text-body-secondary mb-2">
+            <i class="fa-solid fa-circle-info me-1" aria-hidden="true"></i>
+            <span v-if="tournament.scoring">輸入比分自動決定晉級；平手時點選勝者。</span>
+            <span v-else>點選勝者晉級，再點一次可取消。</span>
+            修改前面的賽果時，受影響的後續賽果會自動清除。
+        </p>
+
+        @* 左右兩個半區分別往中間的決賽匯聚 *@
+        <div class="bracket mb-4" role="region" aria-label="賽程表" tabindex="0">
+            <div v-for="column in view.columns" :key="column.key"
+                 class="bracket__round" :class="['bracket__round--' + column.side, { 'bracket__round--outer': column.isOuter, 'bracket__round--pair': column.isPair }]">
+                <h3 class="bracket__round-name">
+                    <i v-if="column.side === 'final'" class="fa-solid fa-trophy me-1" aria-hidden="true"></i>{{ column.name }}
+                </h3>
+                <div class="bracket__matches">
+                    <div class="bracket__slot" v-for="match in column.matches" :key="match.key">
+                        <div class="bracket-match" :class="{ 'bracket-match--bye': match.isBye, 'bracket-match--done': match.isDone }">
+                            <div class="bracket-match__header">
+                                <span>{{ match.isBye ? '輪空晉級' : '第 ' + match.number + ' 場' }}</span>
+                                <span v-if="match.isTie && !match.isDone" class="bracket-match__status">平手・請點選勝者</span>
+                            </div>
+                            <div class="bracket-match__side" v-for="side in match.sides" :key="side.side"
+                                 :class="{ 'bracket-match__side--winner': side.isWinner, 'bracket-match__side--loser': side.isLoser, 'bracket-match__side--muted': side.isBye || side.isPending }">
+                                <button type="button" class="bracket-match__pick" :disabled="!match.canPick"
+                                        :aria-pressed="match.canPick ? String(side.isWinner) : null"
+                                        :aria-label="match.canPick ? side.name + (side.isWinner ? '（勝者，再點一次取消）' : '：設為勝者') : null"
+                                        @@click="pickWinner(match.key, side.id)">
+                                    <span v-if="side.seed" class="bracket-match__seed" :title="'種子 ' + side.seed">{{ side.seed }}</span>
+                                    <span class="bracket-match__name">{{ side.name }}</span>
+                                    <i v-if="side.isWinner" class="fa-solid fa-check bracket-match__check" aria-hidden="true"></i>
+                                </button>
+                                <input v-if="tournament.scoring && !match.isBye" type="number" min="0" step="1" inputmode="numeric"
+                                       class="bracket-match__score" :value="side.score" :disabled="!match.isPlayable"
+                                       :aria-label="side.name + ' 的比分'" @@input="updateScore(match.key, side.side, $event.target.value)" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <h3 class="h5">名次</h3>
+                <ul class="bracket-podium">
+                    <li class="bracket-podium__item bracket-podium__item--first">
+                        <i class="fa-solid fa-trophy" aria-hidden="true"></i>
+                        <div><small>冠軍</small><strong>{{ view.champion ? view.champion.name : '待定' }}</strong></div>
+                    </li>
+                    <li class="bracket-podium__item">
+                        <i class="fa-solid fa-medal" aria-hidden="true"></i>
+                        <div><small>亞軍</small><strong>{{ view.runnerUp ? view.runnerUp.name : '待定' }}</strong></div>
+                    </li>
+                    <li v-if="view.thirdPlace" class="bracket-podium__item">
+                        <i class="fa-solid fa-award" aria-hidden="true"></i>
+                        <div><small>季軍</small><strong>{{ view.third ? view.third.name : '待定' }}</strong></div>
+                    </li>
+                </ul>
+
+                <template v-if="view.thirdPlace">
+                    <h3 class="h6 mt-4">季軍戰</h3>
+                    <div class="bracket-match bracket-builder__third" :class="{ 'bracket-match--done': view.thirdPlace.isDone }">
+                        <div class="bracket-match__header">
+                            <span>第 {{ view.thirdPlace.number }} 場</span>
+                            <span v-if="view.thirdPlace.isTie && !view.thirdPlace.isDone" class="bracket-match__status">平手・請點選勝者</span>
+                        </div>
+                        <div class="bracket-match__side" v-for="side in view.thirdPlace.sides" :key="side.side"
+                             :class="{ 'bracket-match__side--winner': side.isWinner, 'bracket-match__side--loser': side.isLoser, 'bracket-match__side--muted': side.isBye || side.isPending }">
+                            <button type="button" class="bracket-match__pick" :disabled="!view.thirdPlace.canPick"
+                                    :aria-pressed="view.thirdPlace.canPick ? String(side.isWinner) : null"
+                                    @@click="pickWinner(view.thirdPlace.key, side.id)">
+                                <span v-if="side.seed" class="bracket-match__seed" :title="'種子 ' + side.seed">{{ side.seed }}</span>
+                                <span class="bracket-match__name">{{ side.isPending ? '準決賽敗者' : side.name }}</span>
+                                <i v-if="side.isWinner" class="fa-solid fa-check bracket-match__check" aria-hidden="true"></i>
+                            </button>
+                            <input v-if="tournament.scoring" type="number" min="0" step="1" inputmode="numeric"
+                                   class="bracket-match__score" :value="side.score" :disabled="!view.thirdPlace.isPlayable"
+                                   :aria-label="side.name + ' 的比分'" @@input="updateScore(view.thirdPlace.key, side.side, $event.target.value)" />
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="col-lg-7">
+                <h3 class="h5">晉級名單</h3>
+                <p v-if="view.advancement.length === 0" class="small text-body-secondary">只有一場決賽。</p>
+                <div v-for="stage in view.advancement" :key="stage.name" class="bracket-advance">
+                    <div class="bracket-advance__title">
+                        <span>{{ stage.name }}</span>
+                        <span class="small text-body-secondary">{{ stage.players.length }}/{{ stage.total }}</span>
+                    </div>
+                    <div v-if="stage.players.length" class="d-flex flex-wrap gap-1">
+                        <span v-for="player in stage.players" :key="player.id" class="bracket-advance__player">
+                            <span v-if="player.seed" class="bracket-match__seed">{{ player.seed }}</span>{{ player.name }}
+                        </span>
+                    </div>
+                    <div v-else class="small text-body-secondary">尚未產生</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script type="module" src="~/js/tools/bracket-builder.js" asp-append-version="true"></script>
+}

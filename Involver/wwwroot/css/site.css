@@ -1134,6 +1134,365 @@ h6:hover .anchor-link {
     position: relative;
 }
 
+/* 賽程表產生器（Functions/BracketBuilder，bracket-builder.js） */
+.bracket-builder {
+    /* 淺色模式下主色的對比不足，種子編號等小字改用較深的橘色 */
+    --bracket-accent-text: var(--primary-accent-active);
+    --bracket-gap: 1rem;
+}
+
+[data-bs-theme="dark"] .bracket-builder {
+    --bracket-accent-text: var(--primary-accent);
+}
+
+.bracket-builder[v-cloak] {
+    display: none;
+}
+
+.bracket-builder__icon {
+    color: var(--primary-accent);
+}
+
+.bracket-builder__names {
+    font-family: var(--font-main);
+    min-height: 12rem;
+}
+
+.bracket-builder__summary {
+    background-color: rgba(var(--primary-accent-rgb), .08);
+    border-radius: .5rem;
+    padding: .75rem 1rem;
+}
+
+.bracket-builder__seed-input {
+    width: 6rem;
+}
+
+.bracket-builder__seed-label {
+    justify-content: center;
+    min-width: 4.5rem;
+}
+
+.bracket-builder__progress {
+    --bs-progress-bar-bg: var(--primary-accent);
+    height: .375rem;
+    max-width: 24rem;
+}
+
+.bracket-builder__third {
+    max-width: 15rem;
+}
+
+.bracket {
+    border-radius: .5rem;
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: .5rem;
+}
+
+    .bracket:focus-visible {
+        outline: 2px solid var(--primary-accent);
+        outline-offset: 4px;
+    }
+
+.bracket__round {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    width: 13.5rem;
+}
+
+/* 放得下時置中；放不下時用 auto margin（而非 justify-content: center）才不會把左側裁掉 */
+.bracket__round:first-child {
+    margin-left: auto;
+}
+
+.bracket__round:last-child {
+    margin-right: auto;
+}
+
+.bracket__round-name {
+    color: var(--bracket-accent-text);
+    font-size: .8125rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    margin-bottom: .5rem;
+    padding: 0 var(--bracket-gap);
+    text-align: center;
+}
+
+.bracket__matches {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+}
+
+/* 每一輪的籤位等分高度，下一輪的籤位剛好落在上一輪兩場的中間，再用偽元素畫出連接線 */
+.bracket__slot {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    padding: .375rem var(--bracket-gap);
+    position: relative;
+}
+
+/* 連接線：左半區往右、右半區往左匯聚到中間的決賽。
+   --pair 欄每兩場匯聚成下一欄的一場（ㄈ 形線），準決賽欄只有一場，直接用水平線連到決賽 */
+.bracket__round--left .bracket__slot::after,
+.bracket__round--left:not(.bracket__round--outer) .bracket__slot::before,
+.bracket__round--right .bracket__slot::before,
+.bracket__round--right:not(.bracket__round--outer) .bracket__slot::after,
+.bracket__round--final:not(.bracket__round--outer) .bracket__slot::before,
+.bracket__round--final:not(.bracket__round--outer) .bracket__slot::after {
+    border-top: 2px solid var(--border-color);
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: var(--bracket-gap);
+}
+
+.bracket__round--left .bracket__slot::after,
+.bracket__round--right:not(.bracket__round--outer) .bracket__slot::after,
+.bracket__round--final .bracket__slot::after {
+    right: 0;
+}
+
+.bracket__round--left .bracket__slot::before,
+.bracket__round--right .bracket__slot::before,
+.bracket__round--final .bracket__slot::before {
+    left: 0;
+}
+
+.bracket__round--left.bracket__round--pair .bracket__slot::after {
+    border-right: 2px solid var(--border-color);
+    height: 50%;
+}
+
+.bracket__round--right.bracket__round--pair .bracket__slot::before {
+    border-left: 2px solid var(--border-color);
+    height: 50%;
+}
+
+/* 每對的下面那場：線從中線往上接 */
+.bracket__round--left.bracket__round--pair .bracket__slot:nth-child(even)::after,
+.bracket__round--right.bracket__round--pair .bracket__slot:nth-child(even)::before {
+    border-bottom: 2px solid var(--border-color);
+    border-top: 0;
+    top: 0;
+}
+
+.bracket__round--final .bracket-match {
+    border-color: rgba(var(--primary-accent-rgb), .55);
+    box-shadow: 0 .25rem .75rem rgba(var(--primary-accent-rgb), .15);
+}
+
+.bracket-match {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: .5rem;
+    overflow: hidden;
+    width: 100%;
+}
+
+.bracket-match--bye {
+    opacity: .7;
+}
+
+.bracket-match--done {
+    border-color: rgba(var(--primary-accent-rgb), .55);
+}
+
+.bracket-match__header {
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--bs-secondary-color);
+    display: flex;
+    font-size: .75rem;
+    gap: .5rem;
+    justify-content: space-between;
+    min-height: 1.5rem;
+    padding: 0 .625rem;
+}
+
+.bracket-match__status {
+    color: var(--bracket-accent-text);
+    font-weight: 600;
+}
+
+.bracket-match__side {
+    display: flex;
+}
+
+    .bracket-match__side + .bracket-match__side {
+        border-top: 1px solid var(--border-color);
+    }
+
+.bracket-match__side--winner {
+    background-color: rgba(var(--primary-accent-rgb), .16);
+}
+
+    .bracket-match__side--winner .bracket-match__name {
+        font-weight: 700;
+    }
+
+.bracket-match__side--loser .bracket-match__name {
+    color: var(--bs-secondary-color);
+    text-decoration: line-through;
+}
+
+.bracket-match__side--muted .bracket-match__name {
+    color: var(--bs-secondary-color);
+    font-style: italic;
+}
+
+.bracket-match__pick {
+    align-items: center;
+    background-color: transparent;
+    border: 0;
+    color: var(--text-color);
+    display: flex;
+    flex: 1;
+    gap: .5rem;
+    min-height: 2.5rem;
+    min-width: 0;
+    padding: 0 .625rem;
+    text-align: left;
+    transition: background-color .15s ease;
+}
+
+    .bracket-match__pick:not(:disabled):hover {
+        background-color: rgba(var(--primary-accent-rgb), .08);
+    }
+
+    .bracket-match__pick:not(:disabled):active {
+        background-color: rgba(var(--primary-accent-rgb), .12);
+    }
+
+    .bracket-match__pick:focus-visible {
+        outline: 2px solid var(--primary-accent);
+        outline-offset: -2px;
+    }
+
+    .bracket-match__pick:disabled {
+        cursor: default;
+    }
+
+.bracket-match__seed {
+    background-color: rgba(var(--primary-accent-rgb), .15);
+    border-radius: .25rem;
+    color: var(--bracket-accent-text);
+    flex-shrink: 0;
+    font-size: .6875rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    padding: .0625rem .25rem;
+    text-align: center;
+}
+
+.bracket-match__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.bracket-match__check {
+    color: var(--bracket-accent-text);
+}
+
+.bracket-match__score {
+    -moz-appearance: textfield;
+    background-color: transparent;
+    border: 0;
+    border-left: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: center;
+    width: 3.25rem;
+}
+
+    .bracket-match__score::-webkit-inner-spin-button,
+    .bracket-match__score::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .bracket-match__score:focus-visible {
+        background-color: rgba(var(--primary-accent-rgb), .12);
+        outline: 2px solid var(--primary-accent);
+        outline-offset: -2px;
+    }
+
+    .bracket-match__score:disabled {
+        color: var(--bs-secondary-color);
+    }
+
+.bracket-podium {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bracket-podium__item {
+    align-items: center;
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: .5rem;
+    display: flex;
+    gap: .75rem;
+    padding: .75rem 1rem;
+}
+
+    .bracket-podium__item i {
+        color: var(--bs-secondary-color);
+        font-size: 1.25rem;
+        text-align: center;
+        width: 1.5rem;
+    }
+
+    .bracket-podium__item small {
+        color: var(--bs-secondary-color);
+        display: block;
+        font-size: .75rem;
+    }
+
+.bracket-podium__item--first {
+    background-color: rgba(var(--primary-accent-rgb), .12);
+    border-color: rgba(var(--primary-accent-rgb), .55);
+}
+
+    .bracket-podium__item--first i {
+        color: var(--primary-accent);
+    }
+
+.bracket-advance {
+    border-bottom: 1px solid var(--border-color);
+    padding: .75rem 0;
+}
+
+.bracket-advance__title {
+    align-items: baseline;
+    display: flex;
+    font-weight: 600;
+    justify-content: space-between;
+    margin-bottom: .375rem;
+}
+
+.bracket-advance__player {
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: .5rem;
+    display: inline-flex;
+    font-size: .875rem;
+    gap: .375rem;
+    padding: .125rem .5rem;
+}
+
 /* ==============================================
     9. 通用類別 (Utility Classes)
 ==============================================

@@ -22,6 +22,8 @@ public static class ImportMapHelper
         ["/js/charts/chart-theme.js"] = "/js/charts/chart-theme.js",
         // 呼叫站內 API（帶 anti-forgery token）
         ["/js/api-client.js"] = "/js/api-client.js",
+        // 賽程表產生器的核心邏輯（版本號讓更新後不會讀到舊快取）
+        ["/js/tools/bracket-core.js"] = "/js/tools/bracket-core.js",
     };
 
     /// <summary>
