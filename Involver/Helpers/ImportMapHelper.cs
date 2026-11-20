@@ -13,6 +13,8 @@ public static class ImportMapHelper
     /// </summary>
     private static readonly IReadOnlyDictionary<string, string> _imports = new Dictionary<string, string>
     {
+        // Vue 使用含模板編譯器的 ESM 版本：元件模板直接寫在 .cshtml 的 HTML 裡，需在瀏覽器編譯
+        ["vue"] = "/lib/vue/vue.esm-browser.prod.min.js",
         ["ckeditor5"] = "/lib/ckeditor5/dist/browser/ckeditor5.js",
         ["ckeditor5/translations/zh.js"] = "/lib/ckeditor5/dist/translations/zh.js",
         ["/js/ckeditor-setup.js"] = "/js/ckeditor-setup.js",

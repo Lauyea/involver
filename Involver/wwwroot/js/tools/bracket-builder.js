@@ -1,3 +1,4 @@
+import { createApp } from 'vue';
 import {
   MAX_NAME_LENGTH,
   MAX_PARTICIPANTS,
@@ -17,8 +18,6 @@ import {
   setScore,
   setWinner
 } from '/js/tools/bracket-core.js';
-
-const { createApp } = Vue;
 
 /** 進度存在瀏覽器的 key */
 const STORAGE_KEY = 'involver.bracketBuilder.v1';
