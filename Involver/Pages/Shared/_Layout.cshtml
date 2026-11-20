@@ -17,21 +17,7 @@
     <title>Involver - @ViewData["Title"]</title>
     @* Import map 必須出現在任何 type="module" 腳本之前，對應表定義在 ImportMapHelper *@
     <script type="importmap" asp-importmap="@ImportMapHelper.Create(FileVersionProvider, Context.Request.PathBase)"></script>
-    @{
-        // 判斷是否為生產環境
-        bool isProduction = WebHostEnvironment.IsProduction();
-
-        // 根據環境設定 URL 和 Integrity Hash
-        string vueUrl = isProduction
-        ? "https://cdnjs.cloudflare.com/ajax/libs/vue/3.5.22/vue.global.prod.min.js"
-        : "/lib/vue/vue.global.min.js"; // local
-
-        string integrityHash = isProduction
-        ? "sha512-Y9sKU0AwzWRxKSLd2i35LuDpUdHY/E9tJrKG0mxw0qYQ75VVgGYazIUQPwKhFK9vGO3jIgAtxLiSq8GQ7PDfUg=="
-        : "";
-    }
-
-    <script src="@vueUrl" integrity="@integrityHash" crossorigin="anonymous"></script>
+    @* Vue 不再以全域 <script> 載入：元件以 import { createApp } from 'vue' 取得，只有用到 Vue 的頁面才會下載 *@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">

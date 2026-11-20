@@ -1,4 +1,4 @@
-const { createApp, markRaw } = Vue;
+import { createApp, markRaw } from 'vue';
 
 /**
  * 延遲載入 CKEditor 並建立編輯器：只有使用者真的開啟留言編輯器時才下載 CKEditor，
