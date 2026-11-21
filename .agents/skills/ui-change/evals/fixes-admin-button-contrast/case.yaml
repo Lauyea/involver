@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: fixes-admin-button-contrast
+expected_outcome: |
+  用主題變數修好「30 天」按鈕在深色模式的對比（達到 4.5 以上），淺色模式不受影響；在淺色、深色與 375 px 都用瀏覽器和 ui-audit.js 驗證過，跑過 FrontendLint，最後停掉 dev server 並釋放資源。

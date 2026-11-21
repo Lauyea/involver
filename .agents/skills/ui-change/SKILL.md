@@ -21,6 +21,8 @@ description: Involver 的 UI 修改流程：改 .cshtml 版面、site.css／feed
 
 搜尋方式：`grep -rn "class=\"<關鍵字>" Involver/Pages Involver/Views`，以及 `Involver/wwwroot/css/*.css`。
 
+**從畫面找原始碼**：畫面上的文字可能是 Razor 組出來的（例如「30 天」在程式裡是 `@days 天`），直接搜尋文字會找不到。先用 `Tools/PageInventory` 找到頁面檔，再看它用到的 partial；或在瀏覽器看元素的 class，再搜尋 class。
+
 ## 2. 寫法
 
 - **顏色**一律用變數：`var(--primary-accent)`、`--card-bg-color`、`--border-color`、`--text-color` 等。變數定義在 `site.css` 開頭；深色模式的覆寫寫在 `[data-bs-theme="dark"]` 區塊。新顏色先加變數，淺色與深色都要給值。
@@ -34,6 +36,12 @@ description: Involver 的 UI 修改流程：改 .cshtml 版面、site.css／feed
   - 圖片要有 `alt`
   - 淺色與深色模式的對比都要足夠
 - **間距**以 4／8 px 為單位（Bootstrap 的 `gap-2`、`p-3` 等）。狀態層：滑鼠移過約 8%、焦點與按下約 12%。
+
+### 修改範圍
+
+- **只修使用者要求的問題**。檢查時看到其他既有的問題（例如旁邊的按鈕對比也不足），不要順手修，在回報時列出來讓使用者決定。順手修會讓 PR 變大，也可能改到使用者不想動的設計。
+- **改到共用樣式**（`.btn-primary`、主題變數等）時，影響的是全站。回報時說明還有哪些地方跟著變，並至少再看一個用到它的頁面。
+- **同一個問題在另一個主題也不合格時要先講**。例如深色模式的對比修好了，但淺色模式原本也只有 2.92：在回報的最前面說明，並問使用者要不要一起修，不要只報修好的那一半。
 
 ## 3. Modern Web Guidance
 
@@ -51,15 +59,27 @@ description: Involver 的 UI 修改流程：改 .cshtml 版面、site.css／feed
    cd Tools/PageInventory
    dotnet run pages.cs -- --filter <關鍵字>
    ```
-3. **三種情況各檢查一次**：
-   - 淺色模式、桌面寬度
-   - 深色模式，切換方式：`localStorage.setItem('theme', 'dark'); location.reload();`
-   - 手機寬度 375 px，不能有水平捲動
-4. **自動檢查**：每種情況都在瀏覽器執行 `Tools/UiAudit/ui-audit.js` 的完整內容，回傳水平捲動、缺 aria-label、觸控目標過小、缺 alt、對比不足的清單。新出現的問題要修掉；既有的問題在回報時說明即可。
-5. **截圖**：給使用者看修改前後，或至少修改後的畫面。
-6. **前端規範檢查**（顏色寫死、屬性排序、單引號、`var`、import map）：
+3. **改之前先量一次、截一張圖**：在要修的那個情況（例如深色模式）跑第 5 步的自動檢查並截圖，記下修改前的數字。少了這一步，就沒辦法證明是這次修好的，也分不出哪些問題原本就有。
+4. **改完後檢查三種情況**，每種都跑自動檢查：
+
+   | 情況 | 怎麼切換 |
+   |---|---|
+   | 淺色、桌面寬度 | `localStorage.setItem('theme', 'light'); location.reload();` |
+   | 深色、桌面寬度 | `localStorage.setItem('theme', 'dark'); location.reload();` |
+   | 手機寬度 375 px | Claude Code 用 `resize_window`（寬 375、高 812）；其他環境用 DevTools 的裝置模式。不能有水平捲動。改到的是顏色時，淺色與深色都要看 |
+
+   - 網站預設的主題是 `auto`（跟著系統），所以淺色與深色都要明確指定，不要假設一開始是淺色。
+   - 驗證完用 `localStorage.removeItem('theme')` 還原主題，並把視窗改回桌面大小。
+5. **自動檢查**：第一次把 `Tools/UiAudit/ui-audit.js` 的完整內容交給瀏覽器執行。它會把自己存進 sessionStorage，同一個分頁之後（重新整理後也可以）只要執行：
+   ```
+   eval(sessionStorage.getItem('uiAudit'))
+   ```
+   - 回傳 `error`（viewport 是 0×0）代表瀏覽器面板被隱藏，量到的數字都不能用。先顯示面板或用 `resize_window` 設定大小，再重跑。
+   - 正常時回傳水平捲動、缺 aria-label、觸控目標過小、缺 alt、對比不足的清單。新出現的問題要修掉；既有的問題依「修改範圍」處理。
+6. **截圖**：修改後的畫面，和第 3 步的修改前一起給使用者看。
+7. **前端規範檢查**（顏色寫死、屬性排序、單引號、`var`、import map）：
    ```
    cd Tools/FrontendLint
    dotnet run felint.cs
    ```
-7. **收尾**：停掉 dev server、關閉瀏覽器分頁、執行 `dotnet build-server shutdown`。
+8. **收尾**：停掉 dev server、關閉瀏覽器分頁、執行 `dotnet build-server shutdown`。

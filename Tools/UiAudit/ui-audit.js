@@ -4,6 +4,10 @@
  * 用法：
  *   - Agent：把整個檔案內容交給瀏覽器工具執行（例如 Claude 的 javascript_tool），最後一個運算式就是結果。
  *   - 人工：貼到 DevTools Console 執行。
+ *   - 第一次執行後，程式會存進 sessionStorage；同一個分頁之後（重新整理後也可以）只要執行：
+ *       eval(sessionStorage.getItem('uiAudit'))
+ *
+ * 回傳 error 而不是檢查結果時，代表 viewport 是 0×0（瀏覽器面板被隱藏），這時量到的數字都不能用。
  *
  * 檢查項目：
  *   - overflow：頁面是否有水平捲動，以及超出視窗右緣的元素（手機寬度 375 px 最常見）
@@ -15,9 +19,22 @@
  * 每次修改 UI 都要在淺色、深色模式與 375 px 寬度各跑一次。切換主題：
  *   localStorage.setItem('theme', 'dark'); location.reload();
  */
-(() => {
+// 用具名函式（不是箭頭函式），才能用 uiAudit.toString() 把自己存起來重複執行
+(function uiAudit() {
   const MAX_ITEMS = 15;
   const MIN_TARGET = 40;
+
+  try {
+    sessionStorage.setItem('uiAudit', `(${uiAudit.toString()})();`);
+  } catch {
+    // sessionStorage 不能用時（例如被封鎖）不影響這次的檢查
+  }
+
+  if (window.innerWidth === 0 || window.innerHeight === 0) {
+    return {
+      error: 'viewport 是 0×0：瀏覽器面板被隱藏，量到的結果不能用。請先顯示面板或設定視窗大小（例如 resize_window），再執行 eval(sessionStorage.getItem(\'uiAudit\'))。',
+    };
+  }
 
   /**
    * 產生容易辨識的元素描述

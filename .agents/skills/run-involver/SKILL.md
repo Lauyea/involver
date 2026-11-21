@@ -18,7 +18,12 @@ description: 在本機啟動 Involver 網站、用不同身分登入並在瀏覽
   ```
   dotnet run --project Involver/Involver.csproj --launch-profile Involver
   ```
-  - 網址：http://localhost:5000、https://localhost:5001
+  - 網址：https://localhost:5001。http://localhost:5000 會轉到 https，瀏覽器請直接開 https。
+- **啟動後要等編譯完成才連得上**（第一次約一分鐘）。這段時間開頁面會顯示連線失敗，那不是權限問題。先輪詢到有回應再開頁面：
+  ```
+  curl -k -s -o /dev/null -w "%{http_code}" https://localhost:5001/
+  ```
+  回傳 `200` 或 `302` 就可以繼續；回傳 `000` 代表還沒好，等幾秒再試。
   - 環境是 `Development`，會啟用開發用登入，以及 Razor 執行階段編譯（改 .cshtml 不用重啟）。
   - 改 C# 程式碼要重新啟動。
 
