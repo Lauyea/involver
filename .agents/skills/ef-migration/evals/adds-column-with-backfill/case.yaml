@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: adds-column-with-backfill
+expected_outcome: |
+  Novel 新增 EpisodeCount 欄位（含 XML 註解），migration 用包在 EXEC 裡的 SQL 回填既有資料；先備份本機資料庫，套用後確認回填的數字正確，並用 MigrationCheck（含 --with-data）通過部署前檢查，測試通過。
