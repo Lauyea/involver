@@ -342,3 +342,11 @@ healthchecksdb
 # MCP files
 *mcp.json
 settings.json
+
+# Claude Code：專案 hooks 要進版控；.claude/skills 是指向 .agents/skills 的本機 junction（Tools/AgentSkills/skills.cs 建立）
+!.claude/settings.json
+.claude/settings.local.json
+.claude/skills
+
+# skill-creator 的測試結果（本機）
+.agents/skills-workspace/

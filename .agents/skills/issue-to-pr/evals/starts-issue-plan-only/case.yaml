@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: starts-issue-plan-only
+expected_outcome: |
+  讀完 issue #241 與討論，從最新的 master 開一個 feature/ 分支，回報實作計畫並指出需要使用者確認的範圍，沒有改任何程式、沒有 commit 或 push。

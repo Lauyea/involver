@@ -190,6 +190,11 @@ csharp_preserve_single_line_statements = true
 
 # Naming rules
 
+# 非同步方法以 Async 結尾（AGENTS.md）。測試專案的測試方法另有命名規則，在檔案最後關閉
+dotnet_naming_rule.async_methods_should_end_with_async.severity = suggestion
+dotnet_naming_rule.async_methods_should_end_with_async.symbols = async_methods
+dotnet_naming_rule.async_methods_should_end_with_async.style = pascalcase_async
+
 dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.severity = suggestion
 dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.symbols = types_and_namespaces
 dotnet_naming_rule.types_and_namespaces_should_be_pascalcase.style = pascalcase
@@ -376,3 +381,16 @@ dotnet_naming_style.s_camelcase.required_suffix =
 dotnet_naming_style.s_camelcase.word_separator = 
 dotnet_naming_style.s_camelcase.capitalization = camel_case
 
+
+dotnet_naming_symbols.async_methods.applicable_kinds = method
+dotnet_naming_symbols.async_methods.applicable_accessibilities = *
+dotnet_naming_symbols.async_methods.required_modifiers = async
+
+dotnet_naming_style.pascalcase_async.required_prefix = 
+dotnet_naming_style.pascalcase_async.required_suffix = Async
+dotnet_naming_style.pascalcase_async.word_separator = 
+dotnet_naming_style.pascalcase_async.capitalization = pascal_case
+
+# 測試方法的命名格式是 [方法]_[情境]_[預期結果]（AGENTS.md 第 6 節），不加 Async
+[InvolverTest/**.cs]
+dotnet_naming_rule.async_methods_should_end_with_async.severity = none
