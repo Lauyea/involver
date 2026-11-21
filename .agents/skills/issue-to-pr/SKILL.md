@@ -84,8 +84,8 @@ cd Tools/FrontendLint && dotnet run felint.cs      # 改到的 CSS / JS 行
 ## 5. Commit
 
 - **commit 前要先取得使用者同意**：告訴使用者分支、要 commit 的檔案與 commit 訊息，等使用者確認。
-  - 在 Claude Code 裡，`.claude/hooks/guard-git.mjs` 會在 commit 時跳出確認視窗，這個視窗就是確認；視窗會顯示程式碼變更行數，超過 200 行時提醒使用者確認已經 review。
-  - 其他 Agent 請在對話中詢問。
+  - 一律在對話中詢問。使用者已經明確說可以 commit（例如「commit + push」）就不用再問一次。
+  - 在 Claude Code 裡，程式碼變更超過 200 行時，`.claude/hooks/guard-git.mjs` 會另外跳出確認視窗，顯示行數並提醒使用者確認已經 review；沒超過就不會跳。
 - 先確認目前不在 master（`git rev-parse --abbrev-ref HEAD`）。
 - commit 訊息用繁體中文，第一行一句話說明做了什麼，例如「修正造訪他人頁面時替別人跳成就」。需要時在空一行後補充細節。
 - 依各 Agent 的規定附上 Co-Authored-By 署名。

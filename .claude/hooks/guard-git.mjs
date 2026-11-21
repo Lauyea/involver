@@ -1,6 +1,7 @@
 // PreToolUse hook（Bash、PowerShell）：守住 git commit 與 git push 的規則（AGENTS.md「Agent 工作流程」）
 // - 在 master 上 commit，或 push 到 master：直接擋下（master 只能透過 PR 修改）
-// - 其他分支的 commit：跳出確認視窗，讓使用者看過 commit 內容再決定（等同「commit 前先問」）
+// - 其他分支的 commit：程式碼變更超過 200 行才跳出確認視窗，提醒先 code review；
+//   沒超過就放行（「commit 前先問」由 Agent 在對話裡詢問，不重複確認）
 // 不是 git commit / push 的指令一律放行，不輸出任何東西。
 
 import { execFileSync } from 'node:child_process';
@@ -111,9 +112,9 @@ if (isCommit) {
   } else {
     const cwd = input?.cwd || process.cwd();
     const lines = countCodeLines(cwd, /\s(?:-[a-zA-Z]*a[a-zA-Z]*|--all)(?:\s|$)/.test(commitSegment));
-    const review = lines > REVIEW_THRESHOLD
-      ? `這次 commit 的程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行：請確認已經做過 code review，還沒做的話請拒絕，讓 Claude 先執行 /code-review。`
-      : `程式碼變更 ${lines} 行。`;
-    decide('ask', `即將在 ${branch || '(未知分支)'} 分支 commit。${review}請確認分支、檔案與 commit 訊息後再允許。`);
+    // 沒超過門檻就不輸出：使用者已經在對話裡同意 commit，不必再點一次
+    if (lines > REVIEW_THRESHOLD) {
+      decide('ask', `即將在 ${branch || '(未知分支)'} 分支 commit，程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行。請確認已經做過 code review；還沒做的話請拒絕，讓 Claude 先執行 /code-review。`);
+    }
   }
 }
