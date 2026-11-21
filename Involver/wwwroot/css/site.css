@@ -12,6 +12,7 @@ for details on configuring this project to bundle and minify static web assets. 
     --primary-accent: #D98236; /* 溫暖的橘色調 */
     --primary-accent-hover: #BF712E; /* 滑鼠懸停時的深橘色 */
     --primary-accent-active: #A66128; /* 按下時更深的橘色 */
+    --primary-accent-contrast: #fff; /* 主色按鈕上的文字顏色 */
     --primary-accent-rgb: 217, 130, 54; /* 焦點光暈用的 RGB */
     --card-bg-color: #fff; /* 卡片背景，保持白色以凸顯 */
     --border-color: #e0dcd5; /* 柔和的邊框顏色 */
@@ -50,6 +51,7 @@ for details on configuring this project to bundle and minify static web assets. 
     --primary-accent: #E89F59; /* 黑暗模式下稍亮的橘色 */
     --primary-accent-hover: #D98236;
     --primary-accent-active: #BF712E;
+    --primary-accent-contrast: #1a1a1a; /* 深色模式主色較亮，按鈕文字改深色以維持對比 */
     --primary-accent-rgb: 232, 159, 89;
     --card-bg-color: #3a352f; /* 稍亮的卡片背景 */
     --border-color: #5a534a;
@@ -242,13 +244,13 @@ button.accept-policy {
 .btn-primary {
     --bs-btn-active-bg: var(--primary-accent-active);
     --bs-btn-active-border-color: var(--primary-accent-active);
-    --bs-btn-active-color: #fff;
+    --bs-btn-active-color: var(--primary-accent-contrast);
     --bs-btn-disabled-bg: var(--primary-accent);
     --bs-btn-disabled-border-color: var(--primary-accent);
     --bs-btn-focus-shadow-rgb: var(--primary-accent-rgb);
     background-color: var(--primary-accent);
     border-color: var(--primary-accent);
-    color: #fff;
+    color: var(--primary-accent-contrast);
     font-weight: 500;
     transition: all 0.3s ease;
 }
@@ -258,7 +260,7 @@ button.accept-policy {
         background-color: var(--primary-accent-hover);
         border-color: var(--primary-accent-hover);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        color: #fff;
+        color: var(--primary-accent-contrast);
     }
 
     .btn-primary:active,
@@ -266,7 +268,7 @@ button.accept-policy {
     .btn-check:checked + .btn-primary {
         background-color: var(--primary-accent-active);
         border-color: var(--primary-accent-active);
-        color: #fff;
+        color: var(--primary-accent-contrast);
     }
 
 .btn-link {
