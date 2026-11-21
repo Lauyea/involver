@@ -347,3 +347,6 @@ settings.json
 !.claude/settings.json
 .claude/settings.local.json
 .claude/skills
+
+# skill-creator 的測試結果（本機）
+.agents/skills-workspace/

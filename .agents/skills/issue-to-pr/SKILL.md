@@ -7,8 +7,18 @@ description: Involver 從 GitHub issue 到 Pull Request 的完整流程：開始
 
 ## 1. 開始之前
 
-- 讀 issue 的完整內容與討論：`gh issue view <編號> --comments`。
-- 檢查 issue 是否相依其他 issue（例如需要另一個 issue 先合併）。有的話先告訴使用者，不要自己先做一份骨架。
+- 讀 issue 的完整內容與討論：
+  ```
+  gh issue view <編號> --json title,body,state,labels,comments
+  ```
+  用 `--json`，因為 `--comments` 在非互動的環境可能沒有輸出。
+- 檢查 issue 是否相依其他 issue（內文提到的 `#編號`，例如「接在 #237 的創作者中心上」）。每一個都要實際查，不要從資料夾結構猜：
+  ```
+  gh issue view <相依編號> --json state,title
+  git log origin/master --oneline --grep "#<相依編號>"
+  ```
+  - 已關閉而且 master 找得到對應的 commit：可以做，並找出那個功能實際放在哪裡（例如創作者中心在 `Involver/Pages/Creator`），計畫要接在既有的程式上。
+  - 還沒合併：先告訴使用者，不要自己先做一份骨架，之後合併會衝突。
 - 範圍不清楚，或 issue 裡有多個階段時，先和使用者確認這次要做哪些。
 
 ## 2. 分支
@@ -54,10 +64,27 @@ cd Tools/FrontendLint && dotnet run felint.cs      # 改到的 CSS / JS 行
 
 有 migration 時，再跑 `Tools/MigrationCheck`（見 `ef-migration`）。
 
+只改文件（`.md`）時不需要 build 和 test，說明略過的原因即可。
+
+### 變更超過 200 行：先 code review
+
+程式碼變更（新增＋刪除）超過 200 行時，commit 前先做一次 code review。變更越大，越容易有自己寫的時候沒注意到的錯，而 commit 之後才發現要多一輪 PR 修改。
+
+1. 先把要 commit 的檔案 `git add`，再算行數。只算程式碼，不算 migration 的 Designer 與 snapshot、`wwwroot/lib`、文件：
+   ```
+   git diff --cached --numstat -- '*.cs' '*.cshtml' '*.js' '*.css' ':(exclude,glob)**/Migrations/*.Designer.cs' ':(exclude,glob)**/*ModelSnapshot.cs' ':(exclude)Involver/wwwroot/lib'
+   ```
+   把每一行前兩欄（新增、刪除）加總。
+2. 超過 200 行就 review：
+   - Claude Code：執行 `/code-review`。
+   - 其他 Agent：用自己的 review 功能；沒有的話，逐檔重讀 `git diff --cached`，檢查正確性、遺漏的情況、權限檢查，以及是否符合 AGENTS.md。
+3. 修掉確定是問題的項目，重跑上面的檢查。沒有修的項目，在詢問使用者是否 commit 時一併列出原因。
+4. 詢問 commit 時，告訴使用者變更行數與 review 的結果。沒超過 200 行就寫「未達 code review 門檻」。
+
 ## 5. Commit
 
 - **commit 前要先取得使用者同意**：告訴使用者分支、要 commit 的檔案與 commit 訊息，等使用者確認。
-  - 在 Claude Code 裡，`.claude/hooks/guard-git.mjs` 會在 commit 時跳出確認視窗，這個視窗就是確認。
+  - 在 Claude Code 裡，`.claude/hooks/guard-git.mjs` 會在 commit 時跳出確認視窗，這個視窗就是確認；視窗會顯示程式碼變更行數，超過 200 行時提醒使用者確認已經 review。
   - 其他 Agent 請在對話中詢問。
 - 先確認目前不在 master（`git rev-parse --abbrev-ref HEAD`）。
 - commit 訊息用繁體中文，第一行一句話說明做了什麼，例如「修正造訪他人頁面時替別人跳成就」。需要時在空一行後補充細節。

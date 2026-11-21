@@ -7,6 +7,9 @@ import { execFileSync } from 'node:child_process';
 
 const PROTECTED = ['master', 'main'];
 
+// 程式碼變更超過這個行數，commit 前要先 code review（AGENTS.md「Agent 工作流程」）
+const REVIEW_THRESHOLD = 200;
+
 /**
  * 讀取 stdin 的 hook 輸入
  * @returns {Promise<Object>} hook 輸入的 JSON
@@ -48,12 +51,37 @@ const decide = (decision, reason) => {
   }));
 };
 
+/**
+ * 計算這次 commit 的程式碼變更行數（新增＋刪除）。
+ * 只算 .cs、.cshtml、.js、.css；不算 migration 的 Designer 與 snapshot、wwwroot/lib。
+ * @param {string} cwd - 指令執行的目錄
+ * @param {boolean} includeUnstaged - git commit -a 時連未 staged 的變更一起算
+ * @returns {number} 變更行數，取不到時回傳 0
+ */
+const countCodeLines = (cwd, includeUnstaged) => {
+  try {
+    const output = execFileSync('git', [
+      'diff', includeUnstaged ? 'HEAD' : '--cached', '--numstat', '--',
+      '*.cs', '*.cshtml', '*.js', '*.css',
+      ':(exclude,glob)**/Migrations/*.Designer.cs',
+      ':(exclude,glob)**/*ModelSnapshot.cs',
+      ':(exclude)Involver/wwwroot/lib',
+    ], { cwd, encoding: 'utf8' });
+    return output.split('\n')
+      .map((line) => line.split('\t'))
+      .reduce((sum, [added, deleted]) => sum + (Number(added) || 0) + (Number(deleted) || 0), 0);
+  } catch {
+    return 0;
+  }
+};
+
 const input = await readInputAsync();
 const command = String(input?.tool_input?.command ?? '');
 
 // 以 ; && || | 與換行切成多段，逐段判斷，避免 echo 'git commit' 之類的誤判太多
 const segments = command.split(/;|&&|\|\||\||\r?\n/).map((s) => s.trim());
-const isCommit = segments.some((s) => /^(?:\S+=\S+\s+)*git(?:\s+-C\s+\S+|\s+-c\s+\S+)*\s+commit\b/.test(s));
+const commitSegment = segments.find((s) => /^(?:\S+=\S+\s+)*git(?:\s+-C\s+\S+|\s+-c\s+\S+)*\s+commit\b/.test(s));
+const isCommit = Boolean(commitSegment);
 const pushSegment = segments.find((s) => /^(?:\S+=\S+\s+)*git(?:\s+-C\s+\S+|\s+-c\s+\S+)*\s+push\b/.test(s));
 
 if (!isCommit && !pushSegment) {
@@ -81,6 +109,11 @@ if (isCommit) {
   if (PROTECTED.includes(branch)) {
     decide('deny', `目前在 ${branch} 分支。master 只能透過 PR 修改：請先建立 feature/、fix/ 或 debug/ 分支再 commit。`);
   } else {
-    decide('ask', `即將在 ${branch || '(未知分支)'} 分支 commit。請確認分支、檔案與 commit 訊息後再允許。`);
+    const cwd = input?.cwd || process.cwd();
+    const lines = countCodeLines(cwd, /\s(?:-[a-zA-Z]*a[a-zA-Z]*|--all)(?:\s|$)/.test(commitSegment));
+    const review = lines > REVIEW_THRESHOLD
+      ? `這次 commit 的程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行：請確認已經做過 code review，還沒做的話請拒絕，讓 Claude 先執行 /code-review。`
+      : `程式碼變更 ${lines} 行。`;
+    decide('ask', `即將在 ${branch || '(未知分支)'} 分支 commit。${review}請確認分支、檔案與 commit 訊息後再允許。`);
   }
 }

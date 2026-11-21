@@ -248,6 +248,7 @@
 
   * **master 只能透過 PR 修改**：commit 前確認目前分支（`git rev-parse --abbrev-ref HEAD`）；在 master 上要先建立 `feature/`、`fix/`、`debug/`、`refactor/` 分支。
   * **commit 前要先取得使用者同意**：告訴使用者分支、檔案與 commit 訊息，等確認後才 commit。
+  * **程式碼變更超過 200 行，commit 前先 code review**：只算 `.cs`、`.cshtml`、`.js`、`.css` 的新增＋刪除行數；算法與 review 方式見 `issue-to-pr` skill。
   * **開完 PR 只回報連結**：CI 跑得慢，不要第一時間查詢或回報 CI 狀態。
   * **用繁體中文回覆**；程式碼識別名稱維持原樣。
   * **驗證完要釋放資源**：停掉 dev server、關閉瀏覽器分頁、執行 `dotnet build-server shutdown`。不認得的 `dotnet`／`VBCSCompiler` 行程可能是使用者 IDE 的，不要擅自結束。
@@ -287,4 +288,4 @@
   * 瀏覽器 UI 檢查：`Tools/UiAudit`
   * 只跑受影響的測試：`Tools/AffectedTests`
 
-Claude Code 另有專案 hooks（`.claude/settings.json`）：在 master 上 commit 或 push 到 master 會被擋下；commit 時會跳出確認視窗；回合結束時若 launch.json 啟動的 dev server 還在執行，會提醒停掉。
+Claude Code 另有專案 hooks（`.claude/settings.json`）：在 master 上 commit 或 push 到 master 會被擋下；commit 時會跳出確認視窗，並顯示程式碼變更行數（超過 200 行會提醒先 code review）；回合結束時若 launch.json 啟動的 dev server 還在執行，會提醒停掉。
