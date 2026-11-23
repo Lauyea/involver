@@ -288,4 +288,4 @@
   * 瀏覽器 UI 檢查：`Tools/UiAudit`
   * 只跑受影響的測試：`Tools/AffectedTests`
 
-Claude Code 另有專案 hooks（`.claude/settings.json`）：在 master 上 commit 或 push 到 master 會被擋下；commit 的程式碼變更超過 200 行時會跳出確認視窗，提醒先 code review（沒超過不會跳）；回合結束時若 launch.json 啟動的 dev server 還在執行，會提醒停掉。
+Claude Code 另有專案 hooks（`.claude/settings.json`）：在 master 上 commit 或 push 到 master 會被擋下；commit 的程式碼變更超過 200 行時，要先 code review 並執行 `node .claude/hooks/guard-git.mjs --mark-reviewed` 記錄，暫存內容與記錄相符才放行，否則擋下（不會跳確認視窗，使用者在對話裡同意即可）；回合結束時若 launch.json 啟動的 dev server 還在執行，會提醒停掉。
