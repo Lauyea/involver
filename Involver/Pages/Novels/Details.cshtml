@@ -63,19 +63,19 @@
                                 <div>
                                     @if (Model.Novel.PrimeRead)
                                     {
-                                        <span class="badge bg-warning text-dark" title="只有付費會員才能閱讀最新章節">
+                                        <span class="badge text-bg-warning" title="只有付費會員才能閱讀最新章節">
                                             <i class="fas fa-crown"></i> 付費限定
                                         </span>
                                     }
                                     @if (Model.Novel.End)
                                     {
-                                        <span class="badge bg-success text-light">
+                                        <span class="badge text-bg-success">
                                             <i class="fas fa-flag-checkered"></i> 完結
                                         </span>
                                     }
                                     @if (Model.Novel.Block)
                                     {
-                                        <span class="badge bg-danger text-light" title="封鎖的創作會在列表上隱藏，但可以分享連結用作私人房間。如要解封請提出申請">
+                                        <span class="badge text-bg-danger" title="封鎖的創作會在列表上隱藏，但可以分享連結用作私人房間。如要解封請提出申請">
                                             <i class="fas fa-lock"></i> 封鎖/ 隱藏
                                         </span>
                                     }

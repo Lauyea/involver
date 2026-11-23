@@ -255,10 +255,11 @@
 }
 
 /* 結尾行動呼籲 */
+/* 品牌漸層：和頂部導覽列同一組，深色模式會換成深色漸層與淺色文字 */
 .home-cta {
-    background: var(--theme-gradient);
+    background: var(--brand-gradient);
     border-radius: 1.25rem;
-    color: #3b2a1c;
+    color: var(--brand-on-gradient);
     padding: 3.5rem 1.5rem;
     text-align: center;
 }
@@ -282,14 +283,14 @@
 }
 
 .home-cta .home-button--outline {
-    border-color: #8a4b1f;
-    color: #8a4b1f;
+    border-color: var(--md-primary);
+    color: var(--md-primary);
 }
 
 .home-cta .home-button--outline:hover,
 .home-cta .home-button--outline:focus-visible {
-    background-color: #8a4b1f;
-    color: #fff6ea;
+    background-color: var(--md-primary);
+    color: var(--md-on-primary);
 }
 
 @media (hover: none) {

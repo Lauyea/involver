@@ -25,9 +25,10 @@ description: Involver 的 UI 修改流程：改 .cshtml 版面、site.css／feed
 
 ## 2. 寫法
 
-- **顏色**一律用變數：`var(--primary-accent)`、`--card-bg-color`、`--border-color`、`--text-color` 等。變數定義在 `site.css` 開頭；深色模式的覆寫寫在 `[data-bs-theme="dark"]` 區塊。新顏色先加變數，淺色與深色都要給值。
+- **顏色**一律用變數，新樣式優先用 M3 色彩角色 `--md-*`，底色與前景色成對使用（`--md-primary`／`--md-on-primary`、`--md-secondary-container`／`--md-on-secondary-container`、`--md-surface-container`／`--md-on-surface`）。舊變數 `--primary-accent`、`--card-bg-color`、`--border-color`、`--text-color` 是別名，可以沿用。色值定義在 `site.css` 開頭，深色模式寫在 `[data-bs-theme="dark"]` 區塊；新顏色先加變數，淺色與深色都要給值，再到 `/Theme` 頁看即時對比。
+- **狀態**：選中用平面的角色色，滑鼠移過、按下用 `color-mix(in oklab, <前景色> 8%／12%, transparent)` 疊狀態層，不要用漸層。品牌漸層 `--brand-gradient` 只用在頂部導覽列與首頁的 `.home-cta`。
 - **CSS 類別**用 BEM（`.feed-card__title--muted`），不要用 ID 選擇器。每個區塊內的屬性**依字母排序**，並放進 `site.css` 對應的章節（章節順序見 AGENTS.md）。
-- **`<nav>`**：`site.css` 會給所有 `<nav>` 加上導覽列的漸層與圓角，新的 `<nav>` 元件要自己覆寫。
+- **`<nav>`**：`site.css` 會給 `.container` 裡的 `<nav>` 加上圓角，新的 `<nav>` 元件不要圓角時要自己覆寫。
 - **Razor**：用 Tag Helper；輸出 HTML 用 `@Html.AntiXssRaw`；資料查詢與計算放在 PageModel，不要寫在 .cshtml 裡。
 - **無障礙**：
   - 焦點要看得見（`:focus-visible`）

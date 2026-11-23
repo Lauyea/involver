@@ -4,77 +4,260 @@ for details on configuring this project to bundle and minify static web assets. 
 /* ==============================================
     1. 根變數 (Root Variables)
 ==============================================
+    色彩依 Material Design 3 的色彩角色（color roles）設計：
+    - 種子色是品牌 icon（favicon.ico）的橘色 #FFAA55，用 tone（CIELAB 亮度 L*）產生各角色。
+      淺色模式的強調色用 tone 40、深色模式用 tone 80（接近 icon 本身的顏色），文字對比都在 6:1 以上。
+    - tertiary 不用 M3 預設的色相 +60°（會變成和 success 撞色的橄欖綠），改用和橘色互補的低彩度藍綠。
+    - 每個底色都配一個 on-* 前景色，對比保證合格；新的元件請成對使用，不要自己挑顏色。
+    - 下方「舊變數」與「Bootstrap 對應」只是別名，色值一律改 --md-* 這一組。
+    /Theme 頁（導覽列只在 Development 顯示連結）列出所有角色與元件，修改後到那裡檢查淺色與深色模式。
 */
-:root {
-    /* 預設 (淺色模式) 變數 */
-    --bg-color: #fdfaf6; /* 柔和米白背景 */
-    --text-color: #4C4842; /* 暖灰色文字 */
-    --primary-accent: #D98236; /* 溫暖的橘色調 */
-    --primary-accent-hover: #BF712E; /* 滑鼠懸停時的深橘色 */
-    --primary-accent-active: #A66128; /* 按下時更深的橘色 */
-    --primary-accent-contrast: #fff; /* 主色按鈕上的文字顏色 */
-    --primary-accent-rgb: 217, 130, 54; /* 焦點光暈用的 RGB */
-    --card-bg-color: #fff; /* 卡片背景，保持白色以凸顯 */
-    --border-color: #e0dcd5; /* 柔和的邊框顏色 */
-    --breadcrumb-bg-color: #e9ecef;
-    /* --- 元件特定變數 --- */
-    --navbar-shadow: 0 2px 4px rgba(0,0,0,.05);
-    --navbar-brand-color-hover: rgb(255 180 0 / 90%);
-    --toggler-border-color: rgba(0,0,0,.1);
-    --card-hover-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
-    --tag-container-bg: #f9f9f9;
-    --tag-item-bg: #e9ecef;
-    --tag-item-border: #ced4da;
-    --tag-count-color: #6c757d;
-    --theme-gradient: linear-gradient(128deg, rgb(255 245 211), rgb(247 226 152));
-    /* 定義 TOC 的寬度變數，方便統一管理 */
-    --toc-width: 260px;
-    --gap-size: 1.5rem;
-    /* UI 主要字體：優先使用思源黑體，若無則退回系統字體 */
-    --font-main: 'Noto Sans TC', system-ui, -apple-system, "Microsoft JhengHei", sans-serif;
-    --notification-indicator-color: rgba(255,0,0,.85);
+:root,
+[data-bs-theme="light"] {
+    /* --- 品牌 --- */
+    /* icon 本身的顏色。只給 logo 周邊與品牌漸層等裝飾用，對比不足，不要當文字或按鈕色 */
+    --brand-color: #ffaa55;
+    /* 品牌漸層：淺色由米白漸入 icon 的淺橘（primary tone 99 → 95 → 90），logo 放在最淺的左側 */
+    --brand-gradient-start: #fffcf9;
+    --brand-gradient-mid: #fff1e7;
+    --brand-gradient-end: #ffdcc0;
+    --brand-on-gradient: #201b17;
+    --brand-on-gradient-accent: #6b3b00;
+    /* --- M3 色彩角色：強調色 --- */
+    --md-primary: #8d4f01;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #ffdcc0;
+    --md-on-primary-container: #6b3b00;
+    --md-secondary: #715a47;
+    --md-on-secondary: #ffffff;
+    --md-secondary-container: #faddc7;
+    --md-on-secondary-container: #584330;
+    --md-tertiary: #126779;
+    --md-on-tertiary: #ffffff;
+    --md-tertiary-container: #aeecff;
+    --md-on-tertiary-container: #044e5d;
+    --md-error: #ba1a1a;
+    --md-on-error: #ffffff;
+    --md-error-container: #ffdad6;
+    --md-on-error-container: #93000a;
+    /* M3 的自訂色（custom colors），對應 Bootstrap 的 success、warning */
+    --md-success: #336a32;
+    --md-on-success: #ffffff;
+    --md-success-container: #b7f1b0;
+    --md-on-success-container: #19511c;
+    --md-warning: #775a00;
+    --md-on-warning: #ffffff;
+    --md-warning-container: #ffdea2;
+    --md-on-warning-container: #5a4301;
+    /* --- M3 色彩角色：表面與文字 --- */
+    --md-surface: #fff8f3;
+    --md-surface-container-lowest: #ffffff;
+    --md-surface-container-low: #faf2ec;
+    --md-surface-container: #f4ece7;
+    --md-surface-container-high: #eee7e1;
+    --md-surface-container-highest: #e9e1db;
+    --md-on-surface: #201b17;
+    --md-on-surface-variant: #50453b;
+    --md-outline: #82756b;
+    --md-outline-variant: #d2c4b9;
+    --md-inverse-surface: #352f2b;
+    --md-inverse-on-surface: #f7efea;
+    --md-inverse-primary: #ffb875;
+    --md-scrim: #000000;
+    /* rgba() 用的 RGB（Bootstrap 的 .bg-*、.text-* 等工具類別需要） */
+    --md-on-surface-rgb: 32, 27, 23;
+    --md-primary-rgb: 141, 79, 1;
+    --md-surface-rgb: 255, 248, 243;
+    --bs-body-bg-rgb: 255, 248, 243;
+    --bs-body-color-rgb: 32, 27, 23;
+    --bs-danger-rgb: 186, 26, 26;
+    --bs-info-rgb: 18, 103, 121;
+    --bs-link-color-rgb: 141, 79, 1;
+    --bs-link-hover-color-rgb: 107, 59, 0;
+    --bs-primary-rgb: 141, 79, 1;
+    --bs-secondary-bg-rgb: 238, 231, 225;
+    --bs-secondary-rgb: 113, 90, 71;
+    --bs-success-rgb: 51, 106, 50;
+    --bs-tertiary-bg-rgb: 250, 242, 236;
+    --bs-warning-rgb: 119, 90, 0;
+    /* --- 元件 --- */
+    /* 卡片：淺色用最亮的表面（白），深色用比背景亮一階的表面 */
+    --card-bg-color: var(--md-surface-container-lowest);
+    --card-hover-shadow: 0 0.25rem 0.75rem rgba(32, 27, 23, 0.12);
+    --navbar-shadow: 0 2px 6px rgba(32, 27, 23, 0.08);
     /* --- 圖表 (Chart.js 由 chart-theme.js 讀取) --- */
-    --chart-color-1: #d98236;
+    --chart-color-1: #ae650c;
     --chart-color-2: #3b7fc4;
     --chart-color-3: #3f9467;
     --chart-color-4: #8b68c0;
     --chart-color-5: #c9534f;
     --chart-color-6: #23968a;
-    --chart-grid: rgba(76, 72, 66, .12);
-    --chart-text: #4c4842;
+    --chart-grid: rgba(32, 27, 23, .12);
+    --chart-text: #50453b;
 }
 
 /* Bootstrap 5 Color Mode: Dark */
 [data-bs-theme="dark"] {
-    --bg-color: #282420; /* 深灰褐色背景 */
-    --text-color: #d4cdc3; /* 淺米色文字 */
-    --primary-accent: #E89F59; /* 黑暗模式下稍亮的橘色 */
-    --primary-accent-hover: #D98236;
-    --primary-accent-active: #BF712E;
-    --primary-accent-contrast: #1a1a1a; /* 深色模式主色較亮，按鈕文字改深色以維持對比 */
-    --primary-accent-rgb: 232, 159, 89;
-    --card-bg-color: #3a352f; /* 稍亮的卡片背景 */
-    --border-color: #5a534a;
-    --breadcrumb-bg-color: #343a40;
-    /* --- 元件特定變數重定義 --- */
-    --navbar-shadow: 0 2px 4px rgba(255,255,255,.2);
-    --navbar-brand-color-hover: rgba(255, 180, 0, 0.9);
-    --toggler-border-color: rgba(0,0,0,.1);
-    --card-hover-shadow: 0 0.5rem 1rem rgba(255,255,255,0.1);
-    --tag-container-bg: var(--card-bg-color);
-    --tag-item-bg: #495057;
-    --tag-item-border: #6c757d;
-    --tag-count-color: #adb5bd;
-    --theme-gradient: linear-gradient(128deg, hwb(46deg 83% 10%), hwb(47deg 60% 13%));
+    /* --- 品牌 --- */
+    /* 深色由表面色漸入深琥珀（neutral 12 → 17 → primary 17），亮橘色的 logo 在深色上最醒目 */
+    --brand-gradient-start: #241f1b;
+    --brand-gradient-mid: #2e2925;
+    --brand-gradient-end: #402300;
+    --brand-on-gradient: #e9e1db;
+    --brand-on-gradient-accent: #ffb875;
+    /* --- M3 色彩角色：強調色 --- */
+    --md-primary: #ffb875;
+    --md-on-primary: #4a2801;
+    --md-primary-container: #6b3b00;
+    --md-on-primary-container: #ffdcc0;
+    --md-secondary: #ddc2ab;
+    --md-on-secondary: #402c1b;
+    --md-secondary-container: #584330;
+    --md-on-secondary-container: #faddc7;
+    --md-tertiary: #8ad1e5;
+    --md-on-tertiary: #023640;
+    --md-tertiary-container: #044e5d;
+    --md-on-tertiary-container: #aeecff;
+    --md-error: #ffb4ab;
+    --md-on-error: #690005;
+    --md-error-container: #93000a;
+    --md-on-error-container: #ffdad6;
+    --md-success: #9bd595;
+    --md-on-success: #013908;
+    --md-success-container: #19511c;
+    --md-on-success-container: #b7f1b0;
+    --md-warning: #efc053;
+    --md-on-warning: #3e2e00;
+    --md-warning-container: #5a4301;
+    --md-on-warning-container: #ffdea2;
+    /* --- M3 色彩角色：表面與文字 --- */
+    --md-surface: #18120d;
+    --md-surface-container-lowest: #140d06;
+    --md-surface-container-low: #201b17;
+    --md-surface-container: #241f1b;
+    --md-surface-container-high: #2e2925;
+    --md-surface-container-highest: #39342f;
+    --md-on-surface: #e9e1db;
+    --md-on-surface-variant: #d2c4b9;
+    --md-outline: #9c8e84;
+    --md-outline-variant: #50453b;
+    --md-inverse-surface: #e9e1db;
+    --md-inverse-on-surface: #352f2b;
+    --md-inverse-primary: #8d4f01;
+    /* rgba() 用的 RGB */
+    --md-on-surface-rgb: 233, 225, 219;
+    --md-primary-rgb: 255, 184, 117;
+    --md-surface-rgb: 24, 18, 13;
+    --bs-body-bg-rgb: 24, 18, 13;
+    --bs-body-color-rgb: 233, 225, 219;
+    --bs-danger-rgb: 255, 180, 171;
+    --bs-info-rgb: 138, 209, 229;
+    --bs-link-color-rgb: 255, 184, 117;
+    --bs-link-hover-color-rgb: 255, 220, 192;
+    --bs-primary-rgb: 255, 184, 117;
+    --bs-secondary-bg-rgb: 46, 41, 37;
+    --bs-secondary-rgb: 221, 194, 171;
+    --bs-success-rgb: 155, 213, 149;
+    --bs-tertiary-bg-rgb: 32, 27, 23;
+    --bs-warning-rgb: 239, 192, 83;
+    /* --- 元件 --- */
+    --card-bg-color: var(--md-surface-container);
+    --card-hover-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.45);
+    --navbar-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
     /* --- 圖表：深色背景上提高亮度 --- */
-    --chart-color-1: #f0a965;
+    --chart-color-1: #ffb875;
     --chart-color-2: #74b0eb;
     --chart-color-3: #72c796;
     --chart-color-4: #b9a0e3;
     --chart-color-5: #ec8784;
     --chart-color-6: #5cc4b8;
-    --chart-grid: rgba(212, 205, 195, .14);
-    --chart-text: #d4cdc3;
+    --chart-grid: rgba(233, 225, 219, .14);
+    --chart-text: #d2c4b9;
+}
+
+/* 漸層的內插色彩空間：不支援的舊瀏覽器留空，退回預設的 sRGB 內插 */
+:root {
+    --in-oklab: ;
+}
+
+@supports (background: linear-gradient(in oklab, white, black)) {
+    :root {
+        --in-oklab: in oklab;
+    }
+}
+
+/* 舊變數與 Bootstrap 變數：都指向上面的 M3 角色。
+   選擇器包含 [data-bs-theme]，局部切換主題的元素也會重新計算 */
+:root,
+[data-bs-theme] {
+    --brand-gradient: linear-gradient(100deg var(--in-oklab), var(--brand-gradient-start) 0%, var(--brand-gradient-mid) 50%, var(--brand-gradient-end) 100%);
+    /* --- 舊變數（既有樣式沿用，新樣式可直接用 --md-*） --- */
+    --bg-color: var(--md-surface);
+    --border-color: var(--md-outline-variant);
+    --breadcrumb-bg-color: var(--md-surface-container);
+    --primary-accent: var(--md-primary);
+    --primary-accent-active: color-mix(in oklab, var(--md-primary), var(--md-on-primary) 12%);
+    --primary-accent-contrast: var(--md-on-primary);
+    --primary-accent-hover: color-mix(in oklab, var(--md-primary), var(--md-on-primary) 8%);
+    --primary-accent-rgb: var(--md-primary-rgb);
+    --tag-container-bg: var(--md-surface-container-low);
+    --tag-count-color: var(--md-on-surface-variant);
+    --tag-item-bg: var(--md-surface-container-high);
+    --tag-item-border: var(--md-outline-variant);
+    --text-color: var(--md-on-surface);
+    /* 焦點光暈：Bootstrap 的 0.25rem 光暈，改用主色 */
+    --focus-ring: 0 0 0 0.25rem color-mix(in oklab, var(--md-primary) 50%, transparent);
+    /* --- 版面 --- */
+    /* 定義 TOC 的寬度變數，方便統一管理 */
+    --toc-width: 260px;
+    --gap-size: 1.5rem;
+    /* UI 主要字體：優先使用思源黑體，若無則退回系統字體 */
+    --font-main: 'Noto Sans TC', system-ui, -apple-system, "Microsoft JhengHei", sans-serif;
+    /* --- Bootstrap 對應 --- */
+    --bs-body-bg: var(--md-surface);
+    --bs-body-color: var(--md-on-surface);
+    --bs-code-color: var(--md-tertiary);
+    --bs-border-color: var(--md-outline-variant);
+    --bs-emphasis-color: var(--md-on-surface);
+    --bs-focus-ring-color: color-mix(in oklab, var(--md-primary) 50%, transparent);
+    --bs-form-invalid-border-color: var(--md-error);
+    --bs-form-invalid-color: var(--md-error);
+    --bs-form-valid-border-color: var(--md-success);
+    --bs-form-valid-color: var(--md-success);
+    --bs-heading-color: inherit;
+    --bs-highlight-bg: var(--md-warning-container);
+    --bs-highlight-color: var(--md-on-warning-container);
+    --bs-link-color: var(--md-primary);
+    --bs-link-hover-color: var(--md-on-primary-container);
+    --bs-secondary-bg: var(--md-surface-container-high);
+    --bs-secondary-color: var(--md-on-surface-variant);
+    --bs-tertiary-bg: var(--md-surface-container-low);
+    --bs-tertiary-color: color-mix(in oklab, var(--md-on-surface-variant) 75%, transparent);
+    /* 語意色：primary/secondary 對應 M3 同名角色，info 對應 tertiary，danger 對應 error */
+    --bs-primary: var(--md-primary);
+    --bs-primary-bg-subtle: var(--md-primary-container);
+    --bs-primary-border-subtle: color-mix(in oklab, var(--md-primary) 40%, var(--md-surface));
+    --bs-primary-text-emphasis: var(--md-on-primary-container);
+    --bs-secondary: var(--md-secondary);
+    --bs-secondary-bg-subtle: var(--md-secondary-container);
+    --bs-secondary-border-subtle: color-mix(in oklab, var(--md-secondary) 40%, var(--md-surface));
+    --bs-secondary-text-emphasis: var(--md-on-secondary-container);
+    --bs-info: var(--md-tertiary);
+    --bs-info-bg-subtle: var(--md-tertiary-container);
+    --bs-info-border-subtle: color-mix(in oklab, var(--md-tertiary) 40%, var(--md-surface));
+    --bs-info-text-emphasis: var(--md-on-tertiary-container);
+    --bs-success: var(--md-success);
+    --bs-success-bg-subtle: var(--md-success-container);
+    --bs-success-border-subtle: color-mix(in oklab, var(--md-success) 40%, var(--md-surface));
+    --bs-success-text-emphasis: var(--md-on-success-container);
+    --bs-warning: var(--md-warning);
+    --bs-warning-bg-subtle: var(--md-warning-container);
+    --bs-warning-border-subtle: color-mix(in oklab, var(--md-warning) 40%, var(--md-surface));
+    --bs-warning-text-emphasis: var(--md-on-warning-container);
+    --bs-danger: var(--md-error);
+    --bs-danger-bg-subtle: var(--md-error-container);
+    --bs-danger-border-subtle: color-mix(in oklab, var(--md-error) 40%, var(--md-surface));
+    --bs-danger-text-emphasis: var(--md-on-error-container);
 }
 
 /* ==============================================
@@ -110,7 +293,7 @@ a {
 }
 
     a:hover {
-        color: var(--primary-accent-hover);
+        color: var(--bs-link-hover-color);
     }
 
 /* ==============================================
@@ -140,12 +323,21 @@ a {
     border-radius: .5rem;
 }
 
-/* 導覽列漸層 */
-nav,
-.bg-light,
+/* 頂部導覽列：品牌漸層只用在這裡（以及首頁的行動呼籲區），其他 <nav> 不套漸層 */
+.navbar {
+    --bs-navbar-active-color: var(--brand-on-gradient);
+    --bs-navbar-brand-color: var(--brand-on-gradient-accent);
+    --bs-navbar-brand-hover-color: var(--brand-on-gradient-accent);
+    --bs-navbar-color: var(--md-on-surface-variant);
+    --bs-navbar-hover-color: var(--md-primary);
+    --bs-navbar-toggler-border-color: var(--md-outline-variant);
+    --bs-navbar-toggler-focus-width: 0;
+}
+
 .bg-themed,
 .navbar-themed {
-    background-image: var(--theme-gradient);
+    background-image: var(--brand-gradient);
+    color: var(--brand-on-gradient);
 }
 
 .navbar-scrolled {
@@ -153,65 +345,63 @@ nav,
 }
 
 a.navbar-brand {
+    font-weight: 600;
     text-align: center;
     white-space: normal;
     word-break: break-all;
 }
 
-/* Navbar Brand 互動狀態 */
-.navbar-brand:focus, 
-.navbar-brand:hover {
-    color: var(--navbar-brand-color-hover);
-}
-
-/* 深色模式下的 Navbar Brand */
-[data-bs-theme="dark"] .navbar-brand {
-    color: rgba(0,0,0,.9);
-}
-
-/* Nav Link 顏色 */
 .navbar-nav .nav-link {
-    color: rgba(0,0,0,.5);
-    font-weight:500;
+    font-weight: 500;
 }
 
-    .navbar-nav .nav-link:focus, 
-    .navbar-nav .nav-link:hover {
-        color: var(--navbar-brand-color-hover);
-    }
-
-/* 深色模式下的 Toggler */
-.navbar-toggler {
-    border-color: var(--toggler-border-color);
+.navbar .nav-link:focus-visible,
+.navbar-brand:focus-visible,
+.navbar-toggler:focus-visible {
+    border-radius: .25rem;
+    box-shadow: none;
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
 }
 
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+/* Nav Pills：選中的項目用主色，未選中用文字色加狀態層 */
+.nav-pills {
+    --bs-nav-link-color: var(--md-primary);
+    --bs-nav-link-hover-color: var(--md-primary);
+    --bs-nav-pills-link-active-bg: var(--md-primary);
+    --bs-nav-pills-link-active-color: var(--md-on-primary);
 }
 
-/* Nav Pills */
 nav.nav-pills {
-    background-image: none;
     background-color: var(--breadcrumb-bg-color);
-}
-
-.nav-pills .nav-link.active,
-.nav-pills .show > .nav-link {
-    background-color: var(--primary-accent);
-    border-color: var(--primary-accent-hover);
-    color: #fff;
+    background-image: none;
 }
 
 .nav-pills .nav-link {
     border-radius: 0.75rem;
-    color: var(--primary-accent);
     font-weight: 500;
+}
+
+    .nav-pills .nav-link:not(.active):hover {
+        background-color: color-mix(in oklab, var(--md-primary) 8%, transparent);
+    }
+
+.nav-link:focus-visible {
+    box-shadow: var(--focus-ring);
 }
 
 /* ==============================================
     5. 卡片 (Cards)
 ==============================================
 */
+/* M3 的卡片：底色見 --card-bg-color，邊框用 outline-variant */
+.card {
+    --bs-card-bg: var(--card-bg-color);
+    --bs-card-border-color: var(--md-outline-variant);
+    --bs-card-cap-bg: var(--md-surface-container-low);
+    --bs-card-color: var(--md-on-surface);
+}
+
 .card.hover-effect {
     background-color: var(--card-bg-color);
     transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
@@ -241,43 +431,131 @@ button.accept-policy {
     line-height: inherit;
 }
 
-.btn-primary {
-    --bs-btn-active-bg: var(--primary-accent-active);
-    --bs-btn-active-border-color: var(--primary-accent-active);
-    --bs-btn-active-color: var(--primary-accent-contrast);
-    --bs-btn-disabled-bg: var(--primary-accent);
-    --bs-btn-disabled-border-color: var(--primary-accent);
-    --bs-btn-focus-shadow-rgb: var(--primary-accent-rgb);
-    background-color: var(--primary-accent);
-    border-color: var(--primary-accent);
-    color: var(--primary-accent-contrast);
-    font-weight: 500;
-    transition: all 0.3s ease;
+/* 語意按鈕：每個變體只指定 M3 角色（--btn-role 底色、--btn-on-role 前景色），
+   下面兩條共用規則再換算成 Bootstrap 的 --bs-btn-*。
+   狀態層依 M3：滑鼠移過疊 8% 前景色、按下疊 12% */
+.btn-primary,
+.btn-outline-primary {
+    --btn-on-role: var(--md-on-primary);
+    --btn-role: var(--md-primary);
 }
 
-    .btn-primary:hover,
-    .btn-primary:focus {
-        background-color: var(--primary-accent-hover);
-        border-color: var(--primary-accent-hover);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        color: var(--primary-accent-contrast);
-    }
+.btn-secondary,
+.btn-outline-secondary {
+    --btn-on-role: var(--md-on-secondary-container);
+    --btn-role: var(--md-secondary);
+}
 
-    .btn-primary:active,
-    .btn-primary.active,
-    .btn-check:checked + .btn-primary {
-        background-color: var(--primary-accent-active);
-        border-color: var(--primary-accent-active);
-        color: var(--primary-accent-contrast);
-    }
+.btn-info,
+.btn-outline-info {
+    --btn-on-role: var(--md-on-tertiary);
+    --btn-role: var(--md-tertiary);
+}
+
+.btn-success,
+.btn-outline-success {
+    --btn-on-role: var(--md-on-success);
+    --btn-role: var(--md-success);
+}
+
+.btn-warning,
+.btn-outline-warning {
+    --btn-on-role: var(--md-on-warning);
+    --btn-role: var(--md-warning);
+}
+
+.btn-danger,
+.btn-outline-danger {
+    --btn-on-role: var(--md-on-error);
+    --btn-role: var(--md-error);
+}
+
+/* 實心按鈕（M3 filled button） */
+.btn-primary,
+.btn-info,
+.btn-success,
+.btn-warning,
+.btn-danger {
+    --bs-btn-active-bg: color-mix(in oklab, var(--btn-role), var(--btn-on-role) 12%);
+    --bs-btn-active-border-color: var(--bs-btn-active-bg);
+    --bs-btn-active-color: var(--btn-on-role);
+    --bs-btn-bg: var(--btn-role);
+    --bs-btn-border-color: var(--btn-role);
+    --bs-btn-color: var(--btn-on-role);
+    --bs-btn-disabled-bg: var(--btn-role);
+    --bs-btn-disabled-border-color: var(--btn-role);
+    --bs-btn-disabled-color: var(--btn-on-role);
+    --bs-btn-focus-box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--btn-role) 50%, transparent);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--btn-role), var(--btn-on-role) 8%);
+    --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+    --bs-btn-hover-color: var(--btn-on-role);
+    font-weight: 500;
+}
+
+/* secondary 用 M3 的 tonal button：淺色容器底、深色字，比主要按鈕低調 */
+.btn-secondary {
+    --bs-btn-active-bg: color-mix(in oklab, var(--md-secondary-container), var(--btn-on-role) 12%);
+    --bs-btn-active-border-color: var(--bs-btn-active-bg);
+    --bs-btn-active-color: var(--btn-on-role);
+    --bs-btn-bg: var(--md-secondary-container);
+    --bs-btn-border-color: var(--md-secondary-container);
+    --bs-btn-color: var(--btn-on-role);
+    --bs-btn-disabled-bg: var(--md-secondary-container);
+    --bs-btn-disabled-border-color: var(--md-secondary-container);
+    --bs-btn-disabled-color: var(--btn-on-role);
+    --bs-btn-focus-box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--btn-role) 50%, transparent);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--md-secondary-container), var(--btn-on-role) 8%);
+    --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
+    --bs-btn-hover-color: var(--btn-on-role);
+    font-weight: 500;
+}
+
+/* 外框按鈕（M3 outlined button）：文字與框線用角色色，互動時疊同色的狀態層，不整塊填滿 */
+.btn-outline-primary,
+.btn-outline-secondary,
+.btn-outline-info,
+.btn-outline-success,
+.btn-outline-warning,
+.btn-outline-danger {
+    --bs-btn-active-bg: color-mix(in oklab, var(--btn-role) 12%, transparent);
+    --bs-btn-active-border-color: var(--btn-role);
+    --bs-btn-active-color: var(--btn-role);
+    --bs-btn-border-color: var(--btn-role);
+    --bs-btn-color: var(--btn-role);
+    --bs-btn-disabled-border-color: var(--btn-role);
+    --bs-btn-disabled-color: var(--btn-role);
+    --bs-btn-focus-box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--btn-role) 50%, transparent);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--btn-role) 8%, transparent);
+    --bs-btn-hover-border-color: var(--btn-role);
+    --bs-btn-hover-color: var(--btn-role);
+}
+
+/* 選中的切換按鈕（.btn-check:checked、.active）用 M3 的 selected 狀態：填滿角色色 */
+.btn-check:checked + [class*="btn-outline-"],
+[class*="btn-outline-"].active {
+    --bs-btn-active-bg: var(--btn-role);
+    --bs-btn-active-border-color: var(--btn-role);
+    --bs-btn-active-color: var(--btn-on-role);
+}
+
+.btn-check:checked + .btn-outline-secondary,
+.btn-outline-secondary.active {
+    --bs-btn-active-bg: var(--md-secondary-container);
+    --bs-btn-active-border-color: var(--md-secondary);
+    --bs-btn-active-color: var(--md-on-secondary-container);
+}
 
 .btn-link {
-    color: var(--primary-accent);
+    --bs-btn-active-color: var(--md-on-primary-container);
+    --bs-btn-color: var(--md-primary);
+    --bs-btn-disabled-color: var(--md-on-surface-variant);
+    --bs-btn-focus-shadow-rgb: var(--md-primary-rgb);
+    --bs-btn-hover-color: var(--md-on-primary-container);
 }
 
-    .btn-link:hover {
-        color: var(--primary-accent-hover);
-    }
+.btn-close:focus {
+    box-shadow: var(--focus-ring);
+}
 
 /* Social Media Buttons */
 .btn-facebook {
@@ -336,39 +614,182 @@ button.accept-policy {
 ==============================================
 */
 
-/* Active State Override (Pills, Pagination etc.) */
-.active {
-    background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
-}
+/* 選中狀態：M3 用平面的角色色表示，不用漸層（漸層上的文字對比無法保證）。
+   pills 與分頁用 primary，下拉選單與清單用 secondary-container */
 
-/* Dropdown */
+/* Dropdown：M3 的 menu 用 surface-container，滑鼠移過疊 8% 文字色 */
 .dropdown-menu {
+    --bs-dropdown-bg: var(--md-surface-container);
+    --bs-dropdown-border-color: var(--md-outline-variant);
+    --bs-dropdown-color: var(--md-on-surface);
+    --bs-dropdown-divider-bg: var(--md-outline-variant);
+    --bs-dropdown-header-color: var(--md-on-surface-variant);
+    --bs-dropdown-link-active-bg: var(--md-secondary-container);
+    --bs-dropdown-link-active-color: var(--md-on-secondary-container);
+    --bs-dropdown-link-color: var(--md-on-surface);
+    --bs-dropdown-link-disabled-color: color-mix(in oklab, var(--md-on-surface) 38%, transparent);
+    --bs-dropdown-link-hover-bg: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+    --bs-dropdown-link-hover-color: var(--md-on-surface);
     max-height: 280px;
     overflow-y: auto;
 }
 
-.dropdown-item:focus,
-.dropdown-item:hover {
-    background-color: hwb(45deg 3% 0% / 30%);
-}
-
-.dropdown-item.active,
-.dropdown-item:active {
-    background-color: hwb(33deg 3% 0% / 30%);
-}
-
-/* Pagination */
-.page-link {
-    color: var(--primary-accent);
-}
-
-    .page-link:hover {
-        color: var(--primary-accent-hover);
+    .dropdown-item.active:hover,
+    .dropdown-item.active:focus {
+        background-color: color-mix(in oklab, var(--md-secondary-container), var(--md-on-secondary-container) 8%);
+        color: var(--md-on-secondary-container);
     }
 
-.page-item.active .page-link {
-    background-image: linear-gradient(195deg,#fcc278 0%,#fb8c00 100%);
-    border-color: #00000000;
+/* Pagination */
+.pagination {
+    --bs-pagination-active-bg: var(--md-primary);
+    --bs-pagination-active-border-color: var(--md-primary);
+    --bs-pagination-active-color: var(--md-on-primary);
+    --bs-pagination-bg: var(--card-bg-color);
+    --bs-pagination-border-color: var(--md-outline-variant);
+    --bs-pagination-color: var(--md-primary);
+    --bs-pagination-disabled-bg: var(--card-bg-color);
+    --bs-pagination-disabled-color: color-mix(in oklab, var(--md-on-surface) 38%, transparent);
+    --bs-pagination-focus-bg: color-mix(in oklab, var(--md-primary) 12%, var(--card-bg-color));
+    --bs-pagination-focus-box-shadow: var(--focus-ring);
+    --bs-pagination-focus-color: var(--md-primary);
+    --bs-pagination-hover-bg: color-mix(in oklab, var(--md-primary) 8%, var(--card-bg-color));
+    --bs-pagination-hover-border-color: var(--md-outline-variant);
+    --bs-pagination-hover-color: var(--md-primary);
+}
+
+/* List group */
+.list-group {
+    --bs-list-group-action-active-bg: color-mix(in oklab, var(--md-on-surface) 12%, transparent);
+    --bs-list-group-action-hover-bg: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+    --bs-list-group-active-bg: var(--md-secondary-container);
+    --bs-list-group-active-border-color: var(--md-secondary-container);
+    --bs-list-group-active-color: var(--md-on-secondary-container);
+    --bs-list-group-bg: var(--card-bg-color);
+    --bs-list-group-border-color: var(--md-outline-variant);
+    --bs-list-group-color: var(--md-on-surface);
+}
+
+/* Modal：M3 的 dialog 用 surface-container-high */
+.modal {
+    --bs-modal-bg: var(--md-surface-container-high);
+    --bs-modal-border-color: var(--md-outline-variant);
+    --bs-modal-color: var(--md-on-surface);
+}
+
+/* Progress */
+.progress,
+.progress-stacked {
+    --bs-progress-bar-bg: var(--md-primary);
+    --bs-progress-bar-color: var(--md-on-primary);
+    --bs-progress-bg: var(--md-surface-container-highest);
+}
+
+/* Accordion */
+.accordion {
+    --bs-accordion-active-bg: var(--md-secondary-container);
+    --bs-accordion-active-color: var(--md-on-secondary-container);
+    --bs-accordion-bg: var(--card-bg-color);
+    --bs-accordion-border-color: var(--md-outline-variant);
+    --bs-accordion-btn-focus-box-shadow: var(--focus-ring);
+}
+
+/* Badge 與 .text-bg-*：Bootstrap 編譯時把文字色寫死成白或黑，深色模式的淺色底上會看不清楚，改用對應的 on-* 角色 */
+.badge.bg-primary,
+.text-bg-primary {
+    color: var(--md-on-primary) !important;
+}
+
+.badge.bg-secondary,
+.text-bg-secondary {
+    color: var(--md-on-secondary) !important;
+}
+
+.badge.bg-info,
+.text-bg-info {
+    color: var(--md-on-tertiary) !important;
+}
+
+.badge.bg-success,
+.text-bg-success {
+    color: var(--md-on-success) !important;
+}
+
+.badge.bg-warning,
+.text-bg-warning {
+    color: var(--md-on-warning) !important;
+}
+
+.badge.bg-danger,
+.text-bg-danger {
+    color: var(--md-on-error) !important;
+}
+
+/* 表單：焦點框線與勾選狀態用主色 */
+.form-control,
+.form-select {
+    background-color: var(--card-bg-color);
+    border-color: var(--md-outline);
+}
+
+    .form-control:focus,
+    .form-select:focus,
+    .form-check-input:focus {
+        border-color: var(--md-primary);
+        box-shadow: var(--focus-ring);
+    }
+
+.form-check-input {
+    background-color: var(--card-bg-color);
+    border-color: var(--md-outline);
+}
+
+    .form-check-input:checked,
+    .form-check-input[type=checkbox]:indeterminate {
+        background-color: var(--md-primary);
+        border-color: var(--md-primary);
+    }
+
+/* 勾勾、圓點與開關把手用 on-primary：淺色模式是白色，深色模式是深褐色 */
+[data-bs-theme="dark"] .form-check-input:checked[type=checkbox] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%234a2801' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme="dark"] .form-check-input:checked[type=radio] {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%234a2801'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme="dark"] .form-check-input[type=checkbox]:indeterminate {
+    --bs-form-check-bg-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%234a2801' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10h8'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme="dark"] .form-switch .form-check-input:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%234a2801'/%3e%3c/svg%3e");
+}
+
+/* 開關取得焦點但未開啟時，Bootstrap 的把手是藍色，改用 outline 色 */
+.form-switch .form-check-input:focus:not(:checked) {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%2382756b'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme="dark"] .form-switch .form-check-input:focus:not(:checked) {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%239c8e84'/%3e%3c/svg%3e");
+}
+
+.form-range::-webkit-slider-thumb {
+    background-color: var(--md-primary);
+}
+
+.form-range::-moz-range-thumb {
+    background-color: var(--md-primary);
+}
+
+.form-range:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 1px var(--md-surface), var(--focus-ring);
+}
+
+.form-range:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 1px var(--md-surface), var(--focus-ring);
 }
 
 /* Toast & Tooltip */
@@ -428,7 +849,7 @@ button.accept-policy {
     background-color: var(--primary-accent);
     border-radius: 999px;
     bottom: .5rem;
-    color: #fff;
+    color: var(--md-on-primary);
     font-size: .75rem;
     font-weight: 600;
     left: .5rem;
@@ -692,10 +1113,10 @@ button.accept-policy {
 
 /* Dice Roll Info */
 .dice-roll-info {
-    background: #f9f9f9;
-    border-left: 4px solid #888;
+    background: var(--md-surface-container);
+    border-left: 4px solid var(--md-outline);
     border-radius: 6px;
-    color: #444;
+    color: var(--md-on-surface-variant);
     font-size: 0.95em;
     font-weight: bold;
     margin-top: 8px;
@@ -729,13 +1150,12 @@ button.accept-policy {
     padding: 5px 10px;
     text-decoration: none;
     transition: all 0.3s ease;
-    border-color: var(--tag-item-border);
 }
 
 .tag-item:hover {
     background-color: var(--primary-accent);
-    border-color: var(--primary-accent-hover);
-    color: var(--bg-color);
+    border-color: var(--primary-accent);
+    color: var(--md-on-primary);
     transform: scale(1.1);
 }
 
@@ -745,7 +1165,7 @@ button.accept-policy {
 }
 
 .tag-item:hover .tag-count {
-    color: var(--bg-color);
+    color: var(--md-on-primary);
 }
 
 .tag-size-1 {
@@ -840,9 +1260,9 @@ h6:hover .anchor-link {
 
 /* Notification Indicator */
 .fa-stack[data-count]:after {
-    background: var(--notification-indicator-color);
+    background: var(--md-error);
     border-radius: 999px;
-    color: white;
+    color: var(--md-on-error);
     content: attr(data-count);
     font-size: 40%;
     font-weight: bold;
@@ -856,7 +1276,7 @@ h6:hover .anchor-link {
 }
 
 .dot {
-    background-color: orange;
+    background-color: var(--md-primary);
     border-radius: 50%;
     display: inline-block;
     height: 10px;
@@ -895,8 +1315,8 @@ h6:hover .anchor-link {
     .tags-look .tagify__dropdown__item--active,
     .tags-look .tagify__dropdown__item:hover {
         background: var(--primary-accent);
-        border-color: var(--primary-accent-hover);
-        color: var(--bg-color); /* 文字變為背景色，確保對比度 */
+        border-color: var(--primary-accent);
+        color: var(--md-on-primary);
     }
 
 /* 4. 隱藏項目 */
@@ -940,48 +1360,48 @@ h6:hover .anchor-link {
 :root[data-bs-theme="dark"] {
     /* 編輯器 UI */
     --ck-color-base-action: var(--primary-accent);
-    --ck-color-base-action-disabled: #8a6a4b;
+    --ck-color-base-action-disabled: color-mix(in oklab, var(--md-primary) 45%, var(--md-surface));
     --ck-color-base-action-hover: var(--primary-accent-hover);
     --ck-color-base-action-muted: rgba(var(--primary-accent-rgb), 0.15);
     --ck-color-base-active: var(--primary-accent);
     --ck-color-base-active-focus: var(--primary-accent-hover);
     --ck-color-base-background: var(--card-bg-color);
     --ck-color-base-border: var(--border-color);
-    --ck-color-base-border-light: #4a443d;
+    --ck-color-base-border-light: var(--md-outline-variant);
     --ck-color-base-error-shadow: #5c2a2a;
     --ck-color-base-focus: var(--primary-accent);
     --ck-color-base-focus-shadow: rgba(var(--primary-accent-rgb), 0.25);
     --ck-color-base-focus-shadow-faded: rgba(var(--primary-accent-rgb), 0.1);
-    --ck-color-base-foreground: #312c27;
-    --ck-color-base-hover: #463f38;
-    --ck-color-base-hover-strong: #514941;
+    --ck-color-base-foreground: var(--md-surface-container-low);
+    --ck-color-base-hover: var(--md-surface-container-high);
+    --ck-color-base-hover-strong: var(--md-surface-container-highest);
     --ck-color-base-selected: rgba(var(--primary-accent-rgb), 0.18);
     --ck-color-base-selected-hover: rgba(var(--primary-accent-rgb), 0.28);
     --ck-color-base-text: var(--text-color);
-    --ck-color-base-text-light: #a89f93;
-    --ck-color-interactive-disabled-surface: #2f2a25;
+    --ck-color-base-text-light: var(--md-on-surface-variant);
+    --ck-color-interactive-disabled-surface: var(--md-surface-container-low);
     --ck-color-link-default: var(--primary-accent);
-    --ck-color-media-embed-placeholder-url-text: #a89f93;
+    --ck-color-media-embed-placeholder-url-text: var(--md-on-surface-variant);
     --ck-color-shadow-drop: rgba(0, 0, 0, 0.4);
     --ck-color-shadow-drop-active: rgba(0, 0, 0, 0.5);
     --ck-color-shadow-inner: rgba(0, 0, 0, 0.2);
-    --ck-color-surface-skeleton: #4a443d;
-    --ck-color-surface-skeleton-highlight: #5a534a;
-    --ck-color-text-placeholder: #8f877c;
-    --ck-color-upload-placeholder-loader: #a89f93;
+    --ck-color-surface-skeleton: var(--md-surface-container-highest);
+    --ck-color-surface-skeleton-highlight: var(--md-outline-variant);
+    --ck-color-text-placeholder: var(--md-outline);
+    --ck-color-upload-placeholder-loader: var(--md-on-surface-variant);
     /* 內容 (編輯區與文章顯示頁) */
     --ck-content-block-quote-border-color: var(--border-color);
-    --ck-content-code-block-background: #2f2a25;
+    --ck-content-code-block-background: var(--md-surface-container-low);
     --ck-content-code-block-border-color: var(--border-color);
     --ck-content-code-block-text-color: var(--text-color);
-    --ck-content-color-image-caption-background: #312c27;
-    --ck-content-color-image-caption-text: #c2b9ad;
-    --ck-content-color-table-caption-background: #312c27;
-    --ck-content-color-table-caption-text: #c2b9ad;
+    --ck-content-color-image-caption-background: var(--md-surface-container-low);
+    --ck-content-color-image-caption-text: var(--md-on-surface-variant);
+    --ck-content-color-table-caption-background: var(--md-surface-container-low);
+    --ck-content-color-table-caption-text: var(--md-on-surface-variant);
     --ck-content-horizontal-line-background: var(--border-color);
     --ck-content-inline-code-background-color: rgba(255, 255, 255, 0.1);
-    --ck-content-table-border-color: #6b6359;
-    --ck-content-table-cell-border-color: #6b6359;
+    --ck-content-table-border-color: var(--md-outline);
+    --ck-content-table-cell-border-color: var(--md-outline);
     --ck-content-table-header-background: rgba(255, 255, 255, 0.05);
 }
 
@@ -1027,12 +1447,15 @@ h6:hover .anchor-link {
 }
 
     .dashboard__nav .nav-link:hover {
-        background-color: rgba(var(--primary-accent-rgb), .12);
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
         color: var(--text-color);
     }
 
+    /* M3 navigation drawer 的選中指示：secondary-container */
     .dashboard__nav .nav-link.active {
-        color: #fff;
+        background-color: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+        font-weight: 500;
     }
 
 .dashboard__nav-icon {
@@ -1138,13 +1561,8 @@ h6:hover .anchor-link {
 
 /* 賽程表產生器（Functions/BracketBuilder，bracket-builder.js） */
 .bracket-builder {
-    /* 淺色模式下主色的對比不足，種子編號等小字改用較深的橘色 */
-    --bracket-accent-text: var(--primary-accent-active);
+    --bracket-accent-text: var(--md-primary);
     --bracket-gap: 1rem;
-}
-
-[data-bs-theme="dark"] .bracket-builder {
-    --bracket-accent-text: var(--primary-accent);
 }
 
 .bracket-builder[v-cloak] {
@@ -1495,6 +1913,169 @@ h6:hover .anchor-link {
     padding: .125rem .5rem;
 }
 
+/* 主題檢查頁（Pages/Theme，theme-preview.js 計算對比） */
+.theme-preview__header {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.theme-preview__section {
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+.theme-preview__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1rem;
+}
+
+.theme-preview__brand-icon {
+    align-items: center;
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+    padding: 1rem;
+}
+
+    .theme-preview__brand-icon img {
+        border-radius: .5rem;
+    }
+
+.theme-preview__gradient {
+    align-items: center;
+    border-radius: .75rem;
+    color: var(--brand-on-gradient);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1.5rem;
+    height: 100%;
+    padding: 1rem 1.25rem;
+}
+
+.theme-preview__gradient-brand {
+    align-items: center;
+    color: var(--brand-on-gradient-accent);
+    display: inline-flex;
+    font-size: 1.25rem;
+    font-weight: 600;
+    gap: .5rem;
+}
+
+.theme-preview__roles {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.theme-preview__role {
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 1rem;
+}
+
+.theme-preview__role-head {
+    display: flex;
+    flex-direction: column;
+    gap: .125rem;
+}
+
+.theme-preview__role-usage {
+    color: var(--md-on-surface-variant);
+    font-size: .875rem;
+    margin: 0;
+}
+
+.theme-preview__pair {
+    align-items: center;
+    border-radius: .5rem;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: .875rem;
+    font-weight: 500;
+    gap: .25rem .75rem;
+    justify-content: space-between;
+    min-height: 3rem;
+    padding: .5rem .75rem;
+}
+
+.theme-preview__pair--text {
+    border: 1px solid var(--border-color);
+}
+
+.theme-preview__value {
+    font-family: monospace;
+    font-size: .8125rem;
+    opacity: .85;
+}
+
+.theme-preview__ratio {
+    font-size: .75rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.theme-preview__ratio--fail {
+    background-color: var(--md-error-container);
+    border-radius: .25rem;
+    color: var(--md-on-error-container);
+    font-weight: 700;
+    padding: 0 .375rem;
+}
+
+.theme-preview__surfaces {
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+}
+
+.theme-preview__surface {
+    border: 1px solid var(--border-color);
+    border-radius: .75rem;
+    color: var(--md-on-surface);
+    display: flex;
+    flex-direction: column;
+    font-size: .875rem;
+    gap: .25rem;
+    min-height: 7rem;
+    padding: .75rem;
+}
+
+.theme-preview__surface-usage {
+    color: var(--md-on-surface-variant);
+}
+
+.theme-preview__line {
+    border: 2px solid var(--border-color);
+    border-radius: .5rem;
+    display: flex;
+    flex-direction: column;
+    font-size: .875rem;
+    gap: .25rem;
+    height: 100%;
+    padding: .75rem;
+}
+
+/* 範例用：下拉選單直接展開，不需要點擊 */
+.theme-preview__dropdown {
+    display: block;
+    position: static;
+}
+
 /* ==============================================
     9. 通用類別 (Utility Classes)
 ==============================================
@@ -1530,7 +2111,7 @@ h6:hover .anchor-link {
 */
 @keyframes highlight-fade {
     0% {
-        background-color: #fff8c4;
+        background-color: var(--bs-highlight-bg);
     }
 
     100% {
