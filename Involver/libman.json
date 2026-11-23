@@ -16,7 +16,7 @@
       ]
     },
     {
-      "library": "vue@3.5.22",
+      "library": "vue@3.5.46",
       "destination": "wwwroot/lib/vue/",
       "files": [
         "vue.esm-browser.prod.min.js"
