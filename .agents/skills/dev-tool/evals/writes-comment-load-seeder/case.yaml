@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: writes-comment-load-seeder
+expected_outcome: |
+  在 Tools/<名稱>/ 新增 .NET 10 單檔程式，檔頭格式正確；只允許連本機資料庫；連線字串可用環境變數覆寫；測試資料用新的、沒用過的固定前綴並寫在檔頭；有 clean 模式且建立前先清除，可以重複執行；結束代碼 0/1/2；實際執行灌資料、清除、再灌一次並貼出結果；在 Tools/README.md 登記；沒有加進方案；沒有 commit。
