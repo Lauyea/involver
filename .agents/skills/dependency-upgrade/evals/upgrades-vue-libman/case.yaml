@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: upgrades-vue-libman
+expected_outcome: |
+  用 LibMan 把 Vue 升到最新的穩定版（3.5.x，不是 3.6 的 rc/beta），libman restore 後 wwwroot/lib/vue 只有預期的檔案變動；import map 仍指向含模板編譯器的 vue.esm-browser.prod.min.js；跑 FrontendLint，並在瀏覽器打開用到 Vue 的頁面確認互動正常、console 沒有錯誤；回報升級前後版本；沒有 commit。

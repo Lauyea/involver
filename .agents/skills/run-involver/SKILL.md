@@ -10,6 +10,10 @@ description: 在本機啟動 Involver 網站、用不同身分登入並在瀏覽
 - 本機 SQL Server Express：`.\SQLEXPRESS`，資料庫 `Involver`。
 - schema 要是最新的：`dotnet ef database update --project DataAccess --startup-project Involver`。
 - 沒有 user secrets（SendGrid、外部登入等）也可以啟動；缺少的功能會停用。
+- **在 git worktree 裡**（例如 `.claude/worktrees/` 底下）：`Involver/appsettings.json` 與 `appsettings.Development.json` 被 gitignore，worktree 裡沒有，啟動時會報 ConnectionString 尚未初始化。從主儲存庫複製這兩個檔案過來（不會進 commit），或啟動時設定環境變數：
+  ```
+  ConnectionStrings__ConnectionStrings="Server=.\SQLEXPRESS;Database=Involver;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True"
+  ```
 
 ## 啟動
 
@@ -19,6 +23,7 @@ description: 在本機啟動 Involver 網站、用不同身分登入並在瀏覽
   dotnet run --project Involver/Involver.csproj --launch-profile Involver
   ```
   - 網址：https://localhost:5001。http://localhost:5000 會轉到 https，瀏覽器請直接開 https。
+- **port 已被占用**（使用者自己開著網站、其他 session 或 worktree 正在跑）：不要結束別人的行程，改用別的 port：`dotnet run --project Involver/Involver.csproj --launch-profile Involver --urls https://localhost:5101`，下面網址的 5001 都換成你的 port。`preview_start` 的 `involver` 固定用 5000，這時也改用這個方式，再用瀏覽器工具開網址。
 - **啟動後要等編譯完成才連得上**（第一次約一分鐘）。這段時間開頁面會顯示連線失敗，那不是權限問題。先輪詢到有回應再開頁面：
   ```
   curl -k -s -o /dev/null -w "%{http_code}" https://localhost:5001/
@@ -34,6 +39,8 @@ description: 在本機啟動 Involver 網站、用不同身分登入並在瀏覽
    cd Tools/DevSeed
    dotnet run devseed.cs -- seed
    ```
+   帳號已經存在就不用重跑，直接登入即可。`seed` 會先清除舊資料；若因外鍵失敗（SQL Error 547），通常是其他工具在測試帳號的作品底下掛了資料（例如留言壓力測試），先用那個工具的 `clean`。
+
    `list` 會列出帳號與 ID：
 
    | 使用者 ID | 身分 |

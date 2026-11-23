@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: upgrades-nuget-to-latest
+expected_outcome: |
+  盤點 outdated 與 vulnerable（含轉移相依）；專案目標是 .NET 10，所以 Microsoft.* 框架套件升到最新的 10.0.x 而不是 11.0.0，並說明升 .NET 11 是另一個決定；同家族版本一致，dotnet-ef 工具版本跟著 EF Core；其他套件的主版號升級先確認 breaking changes；建置與測試通過，回報升級前後版本；沒有 commit。
