@@ -56,6 +56,33 @@ namespace InvolverTest.Helpers
             Assert.That(result, Does.Contain("<p>text</p>"));
         }
 
+        [TestCase("https://www.youtube.com.evil.example/embed/x")]
+        [TestCase("https://www.youtube.com@evil.example/embed/x")]
+        [TestCase("http://www.youtube.com/embed/x")]
+        [TestCase("//www.youtube.com/embed/x")]
+        [TestCase("javascript:alert(1)")]
+        public void SanitizeHtml_WithLookalikeYouTubeIframe_RemovesIframe(string src)
+        {
+            var html = $"<p>text</p><iframe src=\"{src}\"></iframe>";
+
+            var result = CustomHtmlSanitizer.SanitizeHtml(html);
+
+            Assert.That(result, Does.Not.Contain("<iframe"));
+            Assert.That(result, Does.Contain("<p>text</p>"));
+        }
+
+        [Test]
+        public void SanitizeHtml_WithIframeWithoutSrc_RemovesIframeWithoutThrowing()
+        {
+            const string html = "<p>text</p><iframe width=\"560\"></iframe>";
+
+            string result = null!;
+            Assert.DoesNotThrow(() => result = CustomHtmlSanitizer.SanitizeHtml(html));
+
+            Assert.That(result, Does.Not.Contain("<iframe"));
+            Assert.That(result, Does.Contain("<p>text</p>"));
+        }
+
         [Test]
         public void SanitizeHtml_WithScriptTag_RemovesScript()
         {
