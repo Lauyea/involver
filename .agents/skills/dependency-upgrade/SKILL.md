@@ -34,7 +34,7 @@ description: Involver 的套件升級與弱點修正：升級 NuGet 套件（含
    dotnet package update --project Involver.sln --vulnerable   # 只升級有已知弱點的套件
    ```
    或直接改 csproj 的版本。同一家族的套件在**所有專案**的版本要一致。
-6. **dotnet-ef 工具**：儲存庫裡不只一份工具清單，用 `git ls-files "*dotnet-tools.json"` 全部找出來。`dotnet ef` 會用離目前目錄最近的那一份，所以每一份的 `dotnet-ef` 都要跟 EF Core 版本一致；過時或多餘的清單要在回報提出（例如 `Involver/.config/dotnet-tools.json` 曾經留著 3.1.1）。
+6. **dotnet-ef 工具**：儲存庫裡可能不只一份工具清單，用 `git ls-files "*dotnet-tools.json"` 全部找出來。`dotnet ef` 會用離目前目錄最近的那一份，所以每一份的 `dotnet-ef` 都要跟 EF Core 版本一致；過時或多餘的清單要在回報提出（例如 #252 刪掉的 Involver 資料夾裡那份，曾經留著 3.1.1）。
 7. **確認**：
    ```
    dotnet build

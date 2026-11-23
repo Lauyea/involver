@@ -1,10 +1,18 @@
 // PreToolUse hook（Bash、PowerShell）：守住 git commit 與 git push 的規則（AGENTS.md「Agent 工作流程」）
 // - 在 master 上 commit，或 push 到 master：直接擋下（master 只能透過 PR 修改）
-// - 其他分支的 commit：程式碼變更超過 200 行才跳出確認視窗，提醒先 code review；
-//   沒超過就放行（「commit 前先問」由 Agent 在對話裡詢問，不重複確認）
+// - 其他分支的 commit：程式碼變更超過 200 行時，要先 code review 並記錄（見下面的 --mark-reviewed），
+//   暫存內容和記錄相符才放行，否則擋下並提醒先 review。不跳確認視窗：
+//   「commit 前先問」由 Agent 在對話裡詢問，使用者在對話裡同意後不必再點一次。
 // 不是 git commit / push 的指令一律放行，不輸出任何東西。
+//
+// 記錄 review（在儲存庫裡執行，code review 完成、修正都已 git add 之後）：
+//   node .claude/hooks/guard-git.mjs --mark-reviewed
+// 會把目前暫存內容的 tree hash 寫進 git 目錄（各 worktree 分開）。review 之後又改了程式碼，
+// tree hash 就對不上，要重新確認後再記錄一次。
 
 import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 
 const PROTECTED = ['master', 'main'];
 
@@ -35,6 +43,48 @@ const getBranch = (cwd) => {
   } catch {
     return '';
   }
+};
+
+/**
+ * 取得記錄 review 結果的檔案路徑（在 git 目錄裡，各 worktree 分開）
+ * @param {string} cwd - 指令執行的目錄
+ * @returns {string} 檔案路徑，取不到時回傳空字串
+ */
+const getReviewMarkerPath = (cwd) => {
+  try {
+    const relative = execFileSync('git', ['rev-parse', '--git-path', 'claude-reviewed-tree'], { cwd, encoding: 'utf8' }).trim();
+    return path.resolve(cwd, relative);
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * 取得目前暫存內容（index）的 tree hash。只會寫入 git 物件，不改變 index 或工作目錄。
+ * @param {string} cwd - 指令執行的目錄
+ * @returns {string} tree hash，取不到時回傳空字串
+ */
+const getStagedTree = (cwd) => {
+  try {
+    return execFileSync('git', ['write-tree'], { cwd, encoding: 'utf8' }).trim();
+  } catch {
+    return '';
+  }
+};
+
+/**
+ * 暫存內容是否就是記錄過 review 的內容
+ * @param {string} cwd - 指令執行的目錄
+ * @returns {boolean} 相符時為 true
+ */
+const isStagedTreeReviewed = (cwd) => {
+  const markerPath = getReviewMarkerPath(cwd);
+  const tree = getStagedTree(cwd);
+  if (!markerPath || !tree || !existsSync(markerPath)) {
+    return false;
+  }
+
+  return readFileSync(markerPath, 'utf8').trim() === tree;
 };
 
 /**
@@ -76,6 +126,20 @@ const countCodeLines = (cwd, includeUnstaged) => {
   }
 };
 
+if (process.argv.includes('--mark-reviewed')) {
+  const cwd = process.cwd();
+  const markerPath = getReviewMarkerPath(cwd);
+  const tree = getStagedTree(cwd);
+  if (!markerPath || !tree) {
+    console.error('記錄失敗：請在儲存庫裡執行。');
+    process.exit(1);
+  }
+
+  writeFileSync(markerPath, `${tree}\n`, 'utf8');
+  console.log(`已記錄 review：暫存內容 ${tree.slice(0, 12)}（程式碼變更 ${countCodeLines(cwd, false)} 行）。之後再修改並 git add，要重新記錄。`);
+  process.exit(0);
+}
+
 const input = await readInputAsync();
 const command = String(input?.tool_input?.command ?? '');
 
@@ -111,10 +175,15 @@ if (isCommit) {
     decide('deny', `目前在 ${branch} 分支。master 只能透過 PR 修改：請先建立 feature/、fix/ 或 debug/ 分支再 commit。`);
   } else {
     const cwd = input?.cwd || process.cwd();
-    const lines = countCodeLines(cwd, /\s(?:-[a-zA-Z]*a[a-zA-Z]*|--all)(?:\s|$)/.test(commitSegment));
-    // 沒超過門檻就不輸出：使用者已經在對話裡同意 commit，不必再點一次
+    const commitsAll = /\s(?:-[a-zA-Z]*a[a-zA-Z]*|--all)(?:\s|$)/.test(commitSegment);
+    const lines = countCodeLines(cwd, commitsAll);
+    // 沒超過門檻、或暫存內容已經記錄過 review，就不輸出：使用者已經在對話裡同意 commit，不必再點一次
     if (lines > REVIEW_THRESHOLD) {
-      decide('ask', `即將在 ${branch || '(未知分支)'} 分支 commit，程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行。請確認已經做過 code review；還沒做的話請拒絕，讓 Claude 先執行 /code-review。`);
+      if (commitsAll) {
+        decide('deny', `程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行。請不要用 git commit -a：先 git add 要 commit 的檔案，做 code review 並執行 node .claude/hooks/guard-git.mjs --mark-reviewed，再 commit。`);
+      } else if (!isStagedTreeReviewed(cwd)) {
+        decide('deny', `程式碼變更有 ${lines} 行，超過 ${REVIEW_THRESHOLD} 行，暫存內容還沒有記錄 code review（或 review 之後又改過）。請先做 code review（Claude Code 用 /code-review），修正後 git add，執行 node .claude/hooks/guard-git.mjs --mark-reviewed，再 commit。`);
+      }
     }
   }
 }

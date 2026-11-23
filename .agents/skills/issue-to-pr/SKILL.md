@@ -79,13 +79,19 @@ cd Tools/FrontendLint && dotnet run felint.cs      # 改到的 CSS / JS 行
    - Claude Code：執行 `/code-review`。
    - 其他 Agent：用自己的 review 功能；沒有的話，逐檔重讀 `git diff --cached`，檢查正確性、遺漏的情況、權限檢查，以及是否符合 AGENTS.md。
 3. 修掉確定是問題的項目，重跑上面的檢查。沒有修的項目，在詢問使用者是否 commit 時一併列出原因。
-4. 詢問 commit 時，告訴使用者變更行數與 review 的結果。沒超過 200 行就寫「未達 code review 門檻」。
+4. 修正都 `git add` 之後，記錄 review（Claude Code 的 hook 會用到，其他 Agent 也可以執行）：
+   ```
+   node .claude/hooks/guard-git.mjs --mark-reviewed
+   ```
+   它記下目前暫存內容的 tree hash。之後再改程式碼並 `git add`，就要重新確認、重新記錄。
+5. 詢問 commit 時，告訴使用者變更行數與 review 的結果。沒超過 200 行就寫「未達 code review 門檻」。
 
 ## 5. Commit
 
 - **commit 前要先取得使用者同意**：告訴使用者分支、要 commit 的檔案與 commit 訊息，等使用者確認。
   - 一律在對話中詢問。使用者已經明確說可以 commit（例如「commit + push」）就不用再問一次。
-  - 在 Claude Code 裡，程式碼變更超過 200 行時，`.claude/hooks/guard-git.mjs` 會另外跳出確認視窗，顯示行數並提醒使用者確認已經 review；沒超過就不會跳。
+  - 在 Claude Code 裡，`.claude/hooks/guard-git.mjs` 不會再跳確認視窗：使用者在對話裡同意就直接 commit。程式碼變更超過 200 行時，暫存內容要和 `--mark-reviewed` 記錄的相符才放行，否則 commit 會被擋下並說明原因。
+  - hook 是在整行指令執行前判斷，所以 `git add`、`--mark-reviewed` 和 `git commit` 要分成不同的指令執行，不要用 `&&` 串在同一行。超過 200 行時也不要用 `git commit -a`。
 - 先確認目前不在 master（`git rev-parse --abbrev-ref HEAD`）。
 - commit 訊息用繁體中文，第一行一句話說明做了什麼，例如「修正造訪他人頁面時替別人跳成就」。需要時在空一行後補充細節。
 - 依各 Agent 的規定附上 Co-Authored-By 署名。
