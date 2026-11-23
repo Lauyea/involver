@@ -88,11 +88,14 @@ public class VotingsApiController(
             return BadRequest($"票價至少需要 {voting.Threshold} In幣。");
         }
 
-        // 票價為 0 或負數時，扣款會變成加值
-        if (voteValue <= 0)
+        // 負數的票價會讓扣款變成加值
+        if (voteValue < 0)
         {
-            return BadRequest("票價必須大於 0。");
+            return BadRequest("票價不能是負數。");
         }
+
+        // 票價設為 0 的投票是免費投票：所有人都可以投，不扣 In 幣、不計收益
+        bool isFreeVote = voteValue == 0;
 
         var episode = await context.Episodes.FindAsync(voting.EpisodeID);
         if (episode == null)
@@ -108,18 +111,28 @@ public class VotingsApiController(
 
         await using var transaction = await context.Database.BeginTransactionAsync();
 
-        // Deduct coins
-        var voteInfo = new CoinTransactionInfo(
-            CoinTransactionType.Vote,
-            CoinReferenceType.Voting,
-            voting.VotingID.ToString(),
-            CounterpartyProfileId: novel.ProfileID);
-        if (!await coinService.TrySpendAsync(userId, voteValue, voteInfo, voteVM.IsVirtual))
+        if (isFreeVote)
         {
-            return BadRequest(voteVM.IsVirtual ? "虛擬In幣餘額不足。" : "實體In幣餘額不足。");
+            // 免費投票沒有扣款，改用不改值的 UPDATE 鎖住投票者的資料列，下面的重新檢查才擋得住重複送出
+            await context.Profiles
+                .Where(p => p.ProfileID == userId)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.UsedCoins, p => p.UsedCoins));
+        }
+        else
+        {
+            // Deduct coins
+            var voteInfo = new CoinTransactionInfo(
+                CoinTransactionType.Vote,
+                CoinReferenceType.Voting,
+                voting.VotingID.ToString(),
+                CounterpartyProfileId: novel.ProfileID);
+            if (!await coinService.TrySpendAsync(userId, voteValue, voteInfo, voteVM.IsVirtual))
+            {
+                return BadRequest(voteVM.IsVirtual ? "虛擬In幣餘額不足。" : "實體In幣餘額不足。");
+            }
         }
 
-        // 扣款會鎖住投票者的資料列直到交易結束，在這之後重新檢查才擋得住重複送出的投票
+        // 扣款（或上面的鎖定）會鎖住投票者的資料列直到交易結束，在這之後重新檢查才擋得住重複送出的投票
         bool votedConcurrently = await context.Votes
             .AnyAsync(v => v.OwnerID == userId && v.NormalOption.VotingID == voting.VotingID);
         if (votedConcurrently)
@@ -139,7 +152,8 @@ public class VotingsApiController(
 
         // Mission check：任務旗標與獎勵由任務服務原子更新，不經過 voter 的追蹤實體
         var missionMessage = string.Empty;
-        if (await missionService.CompleteAsync(userId, MissionType.Vote))
+        // 免費投票不算每週任務：否則作者可以在自己的章節開免費投票，每週零成本領 In 幣
+        if (!isFreeVote && await missionService.CompleteAsync(userId, MissionType.Vote))
         {
             missionMessage = "每週任務：投一次票 已完成，獲得5 虛擬In幣。";
         }
@@ -154,6 +168,15 @@ public class VotingsApiController(
             .Where(o => o.NormalOptionID == option.NormalOptionID)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(o => o.TotalCoins, o => o.TotalCoins + voteValue));
+
+        if (isFreeVote)
+        {
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            var freeVoteToasts = await achievementService.VoteCountAsync(userId);
+            return Ok(new { Toasts = freeVoteToasts, MissionMessage = missionMessage });
+        }
 
         await coinService.AddNovelCoinsAsync(novel.NovelID, voteValue);
 
@@ -216,6 +239,17 @@ public class VotingsApiController(
         if (!ModelState.IsValid)
         {
             return BadRequest(ModelState);
+        }
+
+        if (votingVM.Threshold < 0)
+        {
+            return BadRequest("票價不能是負數；設為 0 代表免費投票。");
+        }
+
+        // 免費投票不會累積 In 幣，限值的投票會永遠到不了上限而無法結束
+        if (votingVM.Threshold == 0 && votingVM.Limit == LimitType.Value)
+        {
+            return BadRequest("免費投票（票價 0）不能使用限值，請改用限時或限量。");
         }
 
         // Validation for LimitType
@@ -342,9 +376,10 @@ public class VotingsApiController(
             .AsNoTracking()
             .ToListAsync();
 
-        if (votings == null || votings.Count == 0)
+        // 章節沒有投票是正常狀態，回傳空陣列（回 404 會讓瀏覽器 console 出現錯誤）
+        if (votings.Count == 0)
         {
-            return NotFound();
+            return Ok(Array.Empty<object>());
         }
 
         var optionIds = votings

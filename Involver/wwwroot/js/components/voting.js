@@ -261,8 +261,6 @@ const app = createApp({
                             };
                         }
                     });
-                } else if (response.status === 404) {
-                    this.votings = [];
                 } else {
                     throw new Error('Failed to fetch votings');
                 }
