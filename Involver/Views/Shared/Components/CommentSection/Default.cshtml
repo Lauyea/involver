@@ -1,5 +1,8 @@
 @model Involver.Views.Shared.Components.CommentSection.CommentSectionViewModel
 
+@* 呼叫 API 用的 anti-forgery token，放在 Vue 掛載點外面，不依賴頁面剛好有 POST 表單 *@
+@Html.AntiForgeryToken()
+
 <div id="comment-app" 
      data-from="@Model.From" 
      data-from-id="@Model.FromID" 

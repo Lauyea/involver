@@ -14,6 +14,15 @@ export const getCsrfToken = () => {
 };
 
 /**
+ * 取得帶 anti-forgery token 的 header，給需要自己處理回應狀態碼、不能用 sendJsonAsync 的 fetch 使用
+ * @returns {Object} `{ 'X-CSRF-TOKEN': token }`；頁面上沒有 token 時為空物件
+ */
+export const getCsrfHeaders = () => {
+  const token = getCsrfToken();
+  return token ? { [CSRF_HEADER]: token } : {};
+};
+
+/**
  * 送出 JSON 請求
  * @param {string} url - API 網址
  * @param {string} method - HTTP 方法
@@ -23,11 +32,7 @@ export const getCsrfToken = () => {
  * @returns {Promise<Response>} 回應
  */
 export const sendJsonAsync = async (url, method, body, { keepalive = false } = {}) => {
-  const headers = { 'Content-Type': 'application/json' };
-  const token = getCsrfToken();
-  if (token) {
-    headers[CSRF_HEADER] = token;
-  }
+  const headers = { 'Content-Type': 'application/json', ...getCsrfHeaders() };
 
   const response = await fetch(url, {
     method,

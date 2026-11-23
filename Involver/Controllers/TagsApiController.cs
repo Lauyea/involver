@@ -17,6 +17,7 @@ namespace Involver.Controllers;
 /// </summary>
 [Route("api/v1/tags")]
 [ApiController]
+[AutoValidateAntiforgeryToken]
 public class TagsApiController(ITagService tagService) : ControllerBase
 {
     /// <summary>

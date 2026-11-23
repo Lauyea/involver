@@ -59,6 +59,7 @@ namespace Involver.Controllers
 
         // POST: api/Views/GetBatchArticleViews
         [HttpPost("GetBatchArticleViews")]
+        [IgnoreAntiforgeryToken] // 唯讀查詢，只是用 POST 帶 ID 陣列；列表頁的訪客不一定有 token
         public async Task<IActionResult> GetBatchArticleViews([FromBody] int[] ids)
         {
             if (ids == null || ids.Length == 0)
@@ -83,6 +84,7 @@ namespace Involver.Controllers
 
         // POST: api/Views/GetBatchNovelViews
         [HttpPost("GetBatchNovelViews")]
+        [IgnoreAntiforgeryToken] // 唯讀查詢，只是用 POST 帶 ID 陣列；列表頁的訪客不一定有 token
         public async Task<IActionResult> GetBatchNovelViews([FromBody] int[] ids)
         {
             if (ids == null || ids.Length == 0)

@@ -17,6 +17,7 @@ namespace Involver.Controllers;
 
 [Route("api/v1/messages")]
 [ApiController]
+[AutoValidateAntiforgeryToken]
 public class MessagesApiController(
     ApplicationDbContext context,
     IAuthorizationService authorizationService,

@@ -15,6 +15,7 @@ namespace Involver.Controllers
     [Route("api/v1/previews")]
     [ApiController]
     [AllowAnonymous]
+    // 試閱以密碼保護，讀者多半沒有登入；跨站請求不知道密碼就做不了任何事，所以不驗證 anti-forgery token
     [IgnoreAntiforgeryToken]
     [EnableRateLimiting("preview-auth")]
     public class PreviewsApiController : ControllerBase
