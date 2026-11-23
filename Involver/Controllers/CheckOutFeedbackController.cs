@@ -31,6 +31,8 @@ namespace Involver.Controllers
     [AllowAnonymous]
     [Route("api/[controller]")]
     [ApiController]
+    // 綠界伺服器直接回呼付款結果，沒有使用者的 anti-forgery token；以綠界的檢查碼驗證來源
+    [IgnoreAntiforgeryToken]
     public class CheckOutFeedbackController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

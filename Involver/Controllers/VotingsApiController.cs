@@ -28,6 +28,7 @@ public class CastVoteApiViewModel
 
 [Route("api/v1/votings")]
 [ApiController]
+[AutoValidateAntiforgeryToken]
 public class VotingsApiController(
     ApplicationDbContext context,
     UserManager<InvolverUser> userManager,

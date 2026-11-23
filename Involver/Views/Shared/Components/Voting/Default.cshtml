@@ -1,5 +1,8 @@
 @model Involver.Views.Shared.Components.Voting.VotingViewModel
 
+@* 呼叫 API 用的 anti-forgery token，放在 Vue 掛載點外面，不依賴頁面剛好有 POST 表單 *@
+@Html.AntiForgeryToken()
+
 <div id="voting-app" data-episode-id="@Model.EpisodeId" data-is-professional="@Model.IsProfessional.ToString().ToLower()">
     <div class="card mb-4">
         <div class="card-header">

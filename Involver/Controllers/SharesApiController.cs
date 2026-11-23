@@ -14,6 +14,7 @@ namespace Involver.Controllers
     [AllowAnonymous]
     [Route("api/shares")]
     [ApiController]
+    [AutoValidateAntiforgeryToken]
     public class SharesApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

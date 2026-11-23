@@ -1,68 +1,55 @@
 /**
- * 追蹤/取消追蹤作者的功能。
- * 使用 Fetch API 執行 GET 請求。
- * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
- * @param {string|number} id - 作者的 ID。
+ * 追蹤或取消追蹤：依按鈕目前的樣式決定送 PUT（追蹤）或 DELETE（取消），再依伺服器回傳的狀態更新按鈕。
+ * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素，btn-secondary 代表已追蹤
+ * @param {string} url - 追蹤 API 網址
+ * @param {string} followLabel - 未追蹤時按鈕的文字
+ * @returns {Promise<void>}
  */
-function FollowAuthor(btn, id) {
-    const url = `/Follow/FollowAuthor?id=${encodeURIComponent(id)}`;
+const updateFollowAsync = async (btn, url, followLabel) => {
+  const isFollowed = btn.classList.contains('btn-secondary');
+  const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+  const headers = tokenInput ? { 'X-CSRF-TOKEN': tokenInput.value } : {};
 
-    fetch(url, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                // 如果 HTTP 狀態碼不是 2xx，拋出錯誤
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-            }
-        })
-        .then(() => {
-            if (btn.textContent.trim() === "追蹤作者") {
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-secondary");
-                btn.textContent = "取消追蹤";
-            } else {
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-primary");
-                btn.textContent = "追蹤作者";
-            }
-        })
-        .catch(error => {
-            alert(error.message);
-            console.error('追蹤作者發生錯誤:', error);
-        });
-}
+  btn.disabled = true;
+  try {
+    const response = await fetch(url, {
+      method: isFollowed ? 'DELETE' : 'PUT',
+      headers,
+      credentials: 'same-origin',
+    });
+
+    if (response.status === 401) {
+      window.location.href = `/Identity/Account/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
+      return;
+    }
+    if (!response.ok) {
+      throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
+    }
+
+    const { followed } = await response.json();
+    btn.classList.toggle('btn-secondary', followed);
+    btn.classList.toggle('btn-primary', !followed);
+    btn.textContent = followed ? '取消追蹤' : followLabel;
+  } catch (error) {
+    alert(error.message);
+    console.error('追蹤發生錯誤:', error);
+  } finally {
+    btn.disabled = false;
+  }
+};
 
 /**
- * 追蹤/取消追蹤小說的功能。
- * 使用 Fetch API 執行 GET 請求
- * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素。
- * @param {string|number} id - 小說的 ID。
+ * 追蹤/取消追蹤作者（由按鈕的 onclick 呼叫）
+ * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素
+ * @param {string} id - 作者的 ProfileID
+ * @returns {Promise<void>}
  */
-function FollowNovel(btn, id) {
-    const url = `/Follow/FollowNovel?id=${encodeURIComponent(id)}`;
+const FollowAuthor = (btn, id) => updateFollowAsync(btn, `/api/v1/follows/authors/${encodeURIComponent(id)}`, '追蹤作者');
 
-    fetch(url, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-            }
-        })
-        .then(() => {
-            if (btn.classList.contains("btn-primary")) {
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-secondary");
-                btn.textContent = "取消追蹤";
-            } else {
-                btn.classList.remove("btn-secondary");
-                btn.classList.add("btn-primary");
-                btn.textContent = "追蹤創作";
-            }
-        })
-        .catch(error => {
-            alert(error.message);
-            console.error('追蹤小說發生錯誤:', error);
-        });
-}
+/**
+ * 追蹤/取消追蹤小說（由按鈕的 onclick 呼叫）
+ * @param {HTMLElement} btn - 觸發事件的按鈕 DOM 元素
+ * @param {string|number} id - 小說的 ID
+ * @returns {Promise<void>}
+ */
+const FollowNovel = (btn, id) => updateFollowAsync(btn, `/api/v1/follows/novels/${encodeURIComponent(id)}`, '追蹤創作');

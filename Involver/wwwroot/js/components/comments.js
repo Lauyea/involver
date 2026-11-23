@@ -1,4 +1,5 @@
 import { createApp, markRaw } from 'vue';
+import { getCsrfHeaders } from '/js/api-client.js';
 
 /**
  * 延遲載入 CKEditor 並建立編輯器：只有使用者真的開啟留言編輯器時才下載 CKEditor，
@@ -223,7 +224,7 @@ const app = createApp({
             try {
                 const response = await fetch('/api/v1/comments', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify({
                         content: content,
                         from: this.from,
@@ -308,7 +309,7 @@ const app = createApp({
             try {
                 const response = await fetch('/api/v1/messages', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify({
                         commentId: this.currentCommentForMessages.commentID,
                         content: this.newMessageContent
@@ -345,7 +346,7 @@ const app = createApp({
             message.agrees.length += originalAgreed ? -1 : 1;
 
             try {
-                const response = await fetch(`/api/v1/messages/${message.messageID}/agree`, { method: 'POST' });
+                const response = await fetch(`/api/v1/messages/${message.messageID}/agree`, { method: 'POST', headers: getCsrfHeaders() });
                 if (response.status === 401 || response.status === 403) {
                     alert('請先登入');
                     // Revert UI
@@ -385,7 +386,7 @@ const app = createApp({
             this.currentCommentForMessages.messagesCount--;
 
             try {
-                const response = await fetch(`/api/v1/messages/${message.messageID}`, { method: 'DELETE' });
+                const response = await fetch(`/api/v1/messages/${message.messageID}`, { method: 'DELETE', headers: getCsrfHeaders() });
                 if (response.status === 401 || response.status === 403) {
                     alert('您沒有權限刪除此訊息');
                     this.messages.splice(messageIndex, 0, message); // Re-add the message
@@ -434,7 +435,7 @@ const app = createApp({
             try {
                 const response = await fetch(`/api/v1/messages/${message.messageID}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify({ content: message.editableContent })
                 });
 
@@ -471,7 +472,7 @@ const app = createApp({
             comment.agreesCount += originalIsAgreed ? -1 : 1;
 
             try {
-                const response = await fetch(`/api/v1/comments/${comment.commentID}/agree`, { method: 'POST' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}/agree`, { method: 'POST', headers: getCsrfHeaders() });
                 if (response.status === 401) {
                     alert('請先登入才能按讚。');
                     throw new Error('Unauthorized');
@@ -499,7 +500,7 @@ const app = createApp({
             const originalComments = [...this.comments];
             this.comments = this.comments.filter(c => c.commentID !== comment.commentID);
             try {
-                const response = await fetch(`/api/v1/comments/${comment.commentID}`, { method: 'DELETE' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}`, { method: 'DELETE', headers: getCsrfHeaders() });
                 if (response.status === 401) {
                     alert('請先登入才能刪除評論。');
                     throw new Error('Unauthorized');
@@ -518,7 +519,7 @@ const app = createApp({
             const originalIsBlocked = comment.isBlocked;
             comment.isBlocked = !comment.isBlocked;
             try {
-                const response = await fetch(`/api/v1/comments/${comment.commentID}/block`, { method: 'POST' });
+                const response = await fetch(`/api/v1/comments/${comment.commentID}/block`, { method: 'POST', headers: getCsrfHeaders() });
                 if (response.status === 401 || response.status === 403) {
                     alert('您沒有權限執行此操作。');
                     throw new Error('Unauthorized');
@@ -586,7 +587,7 @@ const app = createApp({
             try {
                 const response = await fetch(`/api/v1/comments/${comment.commentID}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify({ content: newContent })
                 });
                 if (response.status === 401) {

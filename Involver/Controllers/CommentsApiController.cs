@@ -20,6 +20,7 @@ namespace Involver.Controllers;
 
 [Route("api/v1/comments")]
 [ApiController]
+[AutoValidateAntiforgeryToken]
 public class CommentsApiController(
     ApplicationDbContext context,
     UserManager<InvolverUser> userManager,

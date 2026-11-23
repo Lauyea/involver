@@ -1,4 +1,5 @@
 import { createApp } from 'vue';
+import { getCsrfHeaders } from '/js/api-client.js';
 
 const app = createApp({
     data() {
@@ -130,7 +131,7 @@ const app = createApp({
             try {
                 const response = await fetch('/api/v1/votings/cast', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify(payload),
                 });
 
@@ -187,7 +188,7 @@ const app = createApp({
             try {
                 const response = await fetch('/api/v1/votings', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', ...getCsrfHeaders() },
                     body: JSON.stringify(payload),
                 });
 
