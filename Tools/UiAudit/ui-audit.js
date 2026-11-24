@@ -14,7 +14,8 @@
  *   - unlabeled：只有圖示、沒有可讀名稱的按鈕與連結（需要 aria-label）
  *   - smallTargets：高度或寬度小於 40 px 的觸控目標（段落內的文字連結不算）
  *   - missingAlt：沒有 alt 屬性的圖片
- *   - lowContrast：文字與背景對比不足（一般文字 < 4.5、大字 < 3）；背景是圖片或漸層時略過
+ *   - lowContrast：文字與背景對比不足（一般文字 < 4.5、大字 < 3）；背景是圖片、漸層或半透明色時略過。
+ *     顏色用 1×1 canvas 解析，所以 color-mix() 算出的 oklab()、oklch()、color(srgb …) 也能比較。
  *
  * 每次修改 UI 都要在淺色、深色模式與 375 px 寬度各跑一次。切換主題：
  *   localStorage.setItem('theme', 'dark'); location.reload();
@@ -59,19 +60,34 @@
     return style.display !== 'none' && style.visibility !== 'hidden' && Number(style.opacity) > 0 && rect.width > 0 && rect.height > 0;
   };
 
+  // 用 1×1 canvas 把任何 CSS 顏色（rgb、oklab、oklch、color(srgb …) 等）轉成 sRGB；同一個字串只算一次
+  const colorCanvas = document.createElement('canvas');
+  colorCanvas.width = 1;
+  colorCanvas.height = 1;
+  const colorContext = colorCanvas.getContext('2d', { willReadFrequently: true });
+  const colorCache = new Map();
+
   /**
-   * 解析 rgb()/rgba() 顏色
-   * @param {string} value - CSS 顏色字串
-   * @returns {number[]|null} [r, g, b, a]，無法解析時為 null
+   * 解析計算後的 CSS 顏色。color-mix() 的計算值常是 oklab()／color(srgb …)，所以交給 canvas 轉換，不用正規表示式
+   * @param {string} value - CSS 顏色字串（getComputedStyle 的值）
+   * @returns {number[]|null} [r, g, b, a]，r/g/b 為 0～255、a 為 0～1；無法解析時為 null
    */
   const parseColor = (value) => {
-    const match = value.match(/rgba?\(([^)]+)\)/);
-    if (!match) {
-      return null;
+    if (colorCache.has(value)) {
+      return colorCache.get(value);
     }
 
-    const parts = match[1].split(/[\s,/]+/).filter(Boolean).map(Number);
-    return [parts[0], parts[1], parts[2], parts.length > 3 ? parts[3] : 1];
+    let color = null;
+    if (colorContext && CSS.supports('color', value)) {
+      colorContext.clearRect(0, 0, 1, 1);
+      colorContext.fillStyle = value;
+      colorContext.fillRect(0, 0, 1, 1);
+      const [r, g, b, a] = colorContext.getImageData(0, 0, 1, 1).data;
+      color = [r, g, b, a / 255];
+    }
+
+    colorCache.set(value, color);
+    return color;
   };
 
   /**
