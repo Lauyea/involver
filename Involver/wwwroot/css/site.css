@@ -10,6 +10,8 @@ for details on configuring this project to bundle and minify static web assets. 
     - 實心元件（主要按鈕、選中的 pills 與分頁、進度條）用 --md-primary-fill：參考 M3 Fidelity 方案，
       淺色模式直接用種子色 #FFAA55 配深褐字，保留品牌的亮橘；連結等文字仍用 --md-primary。
     - secondary 用接近中性的暖灰、warning 偏黃且彩度較高，和橘色的主色在淺色、深色模式都分得開。
+    - 淺色模式的 .bg-*／.text-bg-*（徽章、卡片標頭）也用 *-fill：tone 約 75 的高彩度色配深色字，
+      橘、黃、藍、綠一眼分得出來；secondary 維持深暖灰、danger 維持深紅配白字。深色模式的 *-fill 等於角色色。
     - tertiary 不用 M3 預設的色相 +60°（會變成和 success 撞色的橄欖綠），改用和橘色互補的低彩度藍綠。
     - 每個底色都配一個 on-* 前景色，對比保證合格；新的元件請成對使用，不要自己挑顏色。
     - 下方「舊變數」與「Bootstrap 對應」只是別名，色值一律改 --md-* 這一組。
@@ -35,6 +37,12 @@ for details on configuring this project to bundle and minify static web assets. 
     --md-on-primary-container: #6b3b00;
     --md-primary-fill: #ffaa55;
     --md-on-primary-fill: #2a1800;
+    --md-tertiary-fill: #43c5e4;
+    --md-on-tertiary-fill: #011f26;
+    --md-success-fill: #72c96f;
+    --md-on-success-fill: #072100;
+    --md-warning-fill: #ecca38;
+    --md-on-warning-fill: #221b01;
     --md-secondary: #685c52;
     --md-on-secondary: #ffffff;
     --md-secondary-container: #efe0d5;
@@ -71,6 +79,8 @@ for details on configuring this project to bundle and minify static web assets. 
     --md-inverse-on-surface: #f7efea;
     --md-inverse-primary: #ffb875;
     --md-scrim: #000000;
+    /* 「變亮」的狀態層顏色：高彩度底配深色字的元件（例如作品標籤）滑鼠移過時疊白色 */
+    --state-layer-lighten: #ffffff;
     /* rgba() 用的 RGB（Bootstrap 的 .bg-*、.text-* 等工具類別需要） */
     --md-on-surface-rgb: 32, 27, 23;
     --md-primary-rgb: 141, 79, 1;
@@ -120,6 +130,12 @@ for details on configuring this project to bundle and minify static web assets. 
     --md-on-primary-container: #ffdcc0;
     --md-primary-fill: #ffb875;
     --md-on-primary-fill: #4a2801;
+    --md-tertiary-fill: var(--md-tertiary);
+    --md-on-tertiary-fill: var(--md-on-tertiary);
+    --md-success-fill: var(--md-success);
+    --md-on-success-fill: var(--md-on-success);
+    --md-warning-fill: var(--md-warning);
+    --md-on-warning-fill: var(--md-on-warning);
     --md-secondary: #d2c4b9;
     --md-on-secondary: #392e26;
     --md-secondary-container: #50453b;
@@ -706,10 +722,16 @@ button.accept-policy {
     --bs-accordion-btn-focus-box-shadow: var(--focus-ring);
 }
 
-/* Badge 與 .text-bg-*：Bootstrap 編譯時把文字色寫死成白或黑，深色模式的淺色底上會看不清楚，改用對應的 on-* 角色 */
+/* Badge、.bg-* 與 .text-bg-*：Bootstrap 編譯時把文字色寫死成白或黑，深色模式的淺色底上會看不清楚，改用對應的 on-* 角色。
+   primary、info、success、warning 的底色用 *-fill（淺色模式是高彩度色配深色字） */
+.bg-primary,
+.text-bg-primary {
+    background-color: var(--md-primary-fill) !important;
+}
+
 .badge.bg-primary,
 .text-bg-primary {
-    color: var(--md-on-primary) !important;
+    color: var(--md-on-primary-fill) !important;
 }
 
 .badge.bg-secondary,
@@ -717,19 +739,34 @@ button.accept-policy {
     color: var(--md-on-secondary) !important;
 }
 
+.bg-info,
+.text-bg-info {
+    background-color: var(--md-tertiary-fill) !important;
+}
+
 .badge.bg-info,
 .text-bg-info {
-    color: var(--md-on-tertiary) !important;
+    color: var(--md-on-tertiary-fill) !important;
+}
+
+.bg-success,
+.text-bg-success {
+    background-color: var(--md-success-fill) !important;
 }
 
 .badge.bg-success,
 .text-bg-success {
-    color: var(--md-on-success) !important;
+    color: var(--md-on-success-fill) !important;
+}
+
+.bg-warning,
+.text-bg-warning {
+    background-color: var(--md-warning-fill) !important;
 }
 
 .badge.bg-warning,
 .text-bg-warning {
-    color: var(--md-on-warning) !important;
+    color: var(--md-on-warning-fill) !important;
 }
 
 .badge.bg-danger,
@@ -1088,7 +1125,7 @@ button.accept-policy {
 .category-badge {
     align-items: center;
     background-color: rgba(var(--primary-accent-rgb), .15);
-    border-radius: .5rem;
+    border-radius: 999px;
     color: var(--primary-accent);
     display: inline-flex;
     font-size: .75rem;
@@ -1101,6 +1138,35 @@ button.accept-policy {
     a.category-badge:hover {
         background-color: rgba(var(--primary-accent-rgb), .25);
         color: var(--primary-accent);
+    }
+
+    a.category-badge:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+    }
+
+/* 作品標籤（_TagBadgesPartial）：和分類徽章一樣是膠囊形。可點的標籤在滑鼠移過時變亮（疊白色），
+   變化量和分類徽章的 hover 相近，讓讀者知道可以點；和 M3 的一般 chip 一樣不加陰影。
+   .bg-info 的底色有 !important，這裡也要 !important 才蓋得過 */
+.tag-badge {
+    border-radius: 999px;
+}
+
+a.tag-badge {
+    transition: background-color .15s ease;
+}
+
+    a.tag-badge:hover {
+        background-color: color-mix(in oklab, var(--md-tertiary-fill), var(--state-layer-lighten) 25%) !important;
+    }
+
+    a.tag-badge:active {
+        background-color: color-mix(in oklab, var(--md-tertiary-fill), var(--state-layer-lighten) 35%) !important;
+    }
+
+    a.tag-badge:focus-visible {
+        outline: 2px solid var(--md-tertiary);
+        outline-offset: 2px;
     }
 
 /* 章節結尾的閱讀標記（episode-read.js 觀察它是否進入畫面） */

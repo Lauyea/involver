@@ -71,7 +71,7 @@
     <h2 id="theme-roles">強調色角色</h2>
     <p class="text-body-secondary">
         每個角色都有四個顏色：底色、底色上的文字（on-）、容器色（-container）與容器上的文字。
-        淺色模式的底色是 tone 40，深色模式是 tone 80；主色另有實心元件用的 primary-fill。
+        淺色模式的底色是 tone 40，深色模式是 tone 80；primary、tertiary、success、warning 另有實心元件與 <code>bg-*</code> 用的 -fill。
     </p>
     <div class="theme-preview__roles">
         @foreach (var group in Model.AccentRoles)
@@ -88,14 +88,14 @@
                     <span class="theme-preview__ratio"></span>
                     <span class="theme-preview__value" data-color-value="--md-@group.Role"></span>
                 </div>
-                @if (group.Role == "primary")
+                @if (group.HasFill)
                 {
-                    @* 實心元件用的亮橘（M3 Fidelity：淺色模式直接用種子色） *@
-                    <div class="theme-preview__pair" style="background-color: var(--md-primary-fill); color: var(--md-on-primary-fill);"
-                         data-contrast-bg="--md-primary-fill" data-contrast-fg="--md-on-primary-fill">
-                        <span>primary-fill（實心元件）</span>
+                    @* 實心元件與 bg-* 用的高彩度色（淺色模式；深色模式等於角色色） *@
+                    <div class="theme-preview__pair" style="background-color: var(--md-@(group.Role)-fill); color: var(--md-on-@(group.Role)-fill);"
+                         data-contrast-bg="--md-@(group.Role)-fill" data-contrast-fg="--md-on-@(group.Role)-fill">
+                        <span>@(group.Role)-fill（實心、bg-@group.BootstrapName）</span>
                         <span class="theme-preview__ratio"></span>
-                        <span class="theme-preview__value" data-color-value="--md-primary-fill"></span>
+                        <span class="theme-preview__value" data-color-value="--md-@(group.Role)-fill"></span>
                     </div>
                 }
                 <div class="theme-preview__pair" style="background-color: var(--md-@(group.Role)-container); color: var(--md-on-@(group.Role)-container);"

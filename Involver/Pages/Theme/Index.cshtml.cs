@@ -17,12 +17,12 @@ namespace Involver.Pages.Theme
         /// </summary>
         public IReadOnlyList<ColorRoleGroup> AccentRoles { get; } =
         [
-            new("primary", "主色", "連結、勾選框、有意義的圖示；實心按鈕與選中狀態用 primary-fill", "primary"),
+            new("primary", "主色", "連結、勾選框、有意義的圖示；實心按鈕、選中狀態與 bg-primary 用 primary-fill", "primary", true),
             new("secondary", "次要色", "接近中性的暖灰：低調的 tonal 按鈕、選單與清單的選中狀態", "secondary"),
-            new("tertiary", "第三色", "和主色互補的藍綠，對應 Bootstrap 的 info", "info"),
+            new("tertiary", "第三色", "和主色互補的藍綠，對應 Bootstrap 的 info", "info", true),
             new("error", "錯誤", "錯誤、刪除等破壞性操作，對應 Bootstrap 的 danger", "danger"),
-            new("success", "成功", "M3 自訂色，對應 Bootstrap 的 success", "success"),
-            new("warning", "警告", "M3 自訂色，對應 Bootstrap 的 warning", "warning"),
+            new("success", "成功", "M3 自訂色，對應 Bootstrap 的 success", "success", true),
+            new("warning", "警告", "M3 自訂色，對應 Bootstrap 的 warning", "warning", true),
         ];
 
         /// <summary>
@@ -76,7 +76,8 @@ namespace Involver.Pages.Theme
     /// <param name="Label">中文名稱</param>
     /// <param name="Usage">用途說明</param>
     /// <param name="BootstrapName">對應的 Bootstrap 語意色名稱</param>
-    public sealed record ColorRoleGroup(string Role, string Label, string Usage, string BootstrapName);
+    /// <param name="HasFill">是否有實心元件用的 --md-{Role}-fill（淺色模式的高彩度色）</param>
+    public sealed record ColorRoleGroup(string Role, string Label, string Usage, string BootstrapName, bool HasFill = false);
 
     /// <summary>
     /// M3 表面角色
