@@ -69,8 +69,8 @@
             right: 30px;
             width: 50px;
             height: 50px;
-            color: var(--md-on-primary);
-            background-color: var(--primary-accent);
+            color: var(--md-on-primary-fill);
+            background-color: var(--md-primary-fill);
             line-height: 50px;
             border-radius: 50%;
             text-align: center;
@@ -96,7 +96,7 @@
             }
 
             #gotop:hover, #gobottom:hover {
-                background-color: var(--primary-accent-hover);
+                background-color: color-mix(in oklab, var(--md-primary-fill), var(--md-on-primary-fill) 8%);
                 opacity: 1;
                 transform: scale(1.05) translateY(-3px);
             }

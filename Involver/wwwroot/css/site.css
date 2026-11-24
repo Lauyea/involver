@@ -7,6 +7,9 @@ for details on configuring this project to bundle and minify static web assets. 
     色彩依 Material Design 3 的色彩角色（color roles）設計：
     - 種子色是品牌 icon（favicon.ico）的橘色 #FFAA55，用 tone（CIELAB 亮度 L*）產生各角色。
       淺色模式的強調色用 tone 40、深色模式用 tone 80（接近 icon 本身的顏色），文字對比都在 6:1 以上。
+    - 實心元件（主要按鈕、選中的 pills 與分頁、進度條）用 --md-primary-fill：參考 M3 Fidelity 方案，
+      淺色模式直接用種子色 #FFAA55 配深褐字，保留品牌的亮橘；連結等文字仍用 --md-primary。
+    - secondary 用接近中性的暖灰、warning 偏黃且彩度較高，和橘色的主色在淺色、深色模式都分得開。
     - tertiary 不用 M3 預設的色相 +60°（會變成和 success 撞色的橄欖綠），改用和橘色互補的低彩度藍綠。
     - 每個底色都配一個 on-* 前景色，對比保證合格；新的元件請成對使用，不要自己挑顏色。
     - 下方「舊變數」與「Bootstrap 對應」只是別名，色值一律改 --md-* 這一組。
@@ -22,19 +25,23 @@ for details on configuring this project to bundle and minify static web assets. 
     --brand-gradient-mid: #fff1e7;
     --brand-gradient-end: #ffdcc0;
     --brand-on-gradient: #201b17;
-    --brand-on-gradient-accent: #6b3b00;
+    --brand-on-gradient-accent: #201b17;
+    /* 導覽連結：比主要文字淡，在漸層最深處仍有 5:1 */
+    --brand-on-gradient-muted: #685c52;
     /* --- M3 色彩角色：強調色 --- */
     --md-primary: #8d4f01;
     --md-on-primary: #ffffff;
     --md-primary-container: #ffdcc0;
     --md-on-primary-container: #6b3b00;
-    --md-secondary: #715a47;
+    --md-primary-fill: #ffaa55;
+    --md-on-primary-fill: #2a1800;
+    --md-secondary: #685c52;
     --md-on-secondary: #ffffff;
-    --md-secondary-container: #faddc7;
-    --md-on-secondary-container: #584330;
+    --md-secondary-container: #efe0d5;
+    --md-on-secondary-container: #50453b;
     --md-tertiary: #126779;
     --md-on-tertiary: #ffffff;
-    --md-tertiary-container: #aeecff;
+    --md-tertiary-container: #c7e8f2;
     --md-on-tertiary-container: #044e5d;
     --md-error: #ba1a1a;
     --md-on-error: #ffffff;
@@ -45,10 +52,10 @@ for details on configuring this project to bundle and minify static web assets. 
     --md-on-success: #ffffff;
     --md-success-container: #b7f1b0;
     --md-on-success-container: #19511c;
-    --md-warning: #775a00;
+    --md-warning: #6b5f01;
     --md-on-warning: #ffffff;
-    --md-warning-container: #ffdea2;
-    --md-on-warning-container: #5a4301;
+    --md-warning-container: #ffe339;
+    --md-on-warning-container: #514701;
     /* --- M3 色彩角色：表面與文字 --- */
     --md-surface: #fff8f3;
     --md-surface-container-lowest: #ffffff;
@@ -76,10 +83,10 @@ for details on configuring this project to bundle and minify static web assets. 
     --bs-link-hover-color-rgb: 107, 59, 0;
     --bs-primary-rgb: 141, 79, 1;
     --bs-secondary-bg-rgb: 238, 231, 225;
-    --bs-secondary-rgb: 113, 90, 71;
+    --bs-secondary-rgb: 104, 92, 82;
     --bs-success-rgb: 51, 106, 50;
     --bs-tertiary-bg-rgb: 250, 242, 236;
-    --bs-warning-rgb: 119, 90, 0;
+    --bs-warning-rgb: 107, 95, 1;
     /* --- 元件 --- */
     /* 卡片：淺色用最亮的表面（白），深色用比背景亮一階的表面 */
     --card-bg-color: var(--md-surface-container-lowest);
@@ -105,15 +112,18 @@ for details on configuring this project to bundle and minify static web assets. 
     --brand-gradient-end: #402300;
     --brand-on-gradient: #e9e1db;
     --brand-on-gradient-accent: #ffb875;
+    --brand-on-gradient-muted: #d2c4b9;
     /* --- M3 色彩角色：強調色 --- */
     --md-primary: #ffb875;
     --md-on-primary: #4a2801;
     --md-primary-container: #6b3b00;
     --md-on-primary-container: #ffdcc0;
-    --md-secondary: #ddc2ab;
-    --md-on-secondary: #402c1b;
-    --md-secondary-container: #584330;
-    --md-on-secondary-container: #faddc7;
+    --md-primary-fill: #ffb875;
+    --md-on-primary-fill: #4a2801;
+    --md-secondary: #d2c4b9;
+    --md-on-secondary: #392e26;
+    --md-secondary-container: #50453b;
+    --md-on-secondary-container: #efe0d5;
     --md-tertiary: #8ad1e5;
     --md-on-tertiary: #023640;
     --md-tertiary-container: #044e5d;
@@ -126,10 +136,10 @@ for details on configuring this project to bundle and minify static web assets. 
     --md-on-success: #013908;
     --md-success-container: #19511c;
     --md-on-success-container: #b7f1b0;
-    --md-warning: #efc053;
-    --md-on-warning: #3e2e00;
-    --md-warning-container: #5a4301;
-    --md-on-warning-container: #ffdea2;
+    --md-warning: #e0c70c;
+    --md-on-warning: #383001;
+    --md-warning-container: #514701;
+    --md-on-warning-container: #ffe339;
     /* --- M3 色彩角色：表面與文字 --- */
     --md-surface: #18120d;
     --md-surface-container-lowest: #140d06;
@@ -156,10 +166,10 @@ for details on configuring this project to bundle and minify static web assets. 
     --bs-link-hover-color-rgb: 255, 220, 192;
     --bs-primary-rgb: 255, 184, 117;
     --bs-secondary-bg-rgb: 46, 41, 37;
-    --bs-secondary-rgb: 221, 194, 171;
+    --bs-secondary-rgb: 210, 196, 185;
     --bs-success-rgb: 155, 213, 149;
     --bs-tertiary-bg-rgb: 32, 27, 23;
-    --bs-warning-rgb: 239, 192, 83;
+    --bs-warning-rgb: 224, 199, 12;
     /* --- 元件 --- */
     --card-bg-color: var(--md-surface-container);
     --card-hover-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.45);
@@ -328,7 +338,7 @@ a {
     --bs-navbar-active-color: var(--brand-on-gradient);
     --bs-navbar-brand-color: var(--brand-on-gradient-accent);
     --bs-navbar-brand-hover-color: var(--brand-on-gradient-accent);
-    --bs-navbar-color: var(--md-on-surface-variant);
+    --bs-navbar-color: var(--brand-on-gradient-muted);
     --bs-navbar-hover-color: var(--md-primary);
     --bs-navbar-toggler-border-color: var(--md-outline-variant);
     --bs-navbar-toggler-focus-width: 0;
@@ -345,7 +355,6 @@ a {
 }
 
 a.navbar-brand {
-    font-weight: 600;
     text-align: center;
     white-space: normal;
     word-break: break-all;
@@ -364,12 +373,12 @@ a.navbar-brand {
     outline-offset: 2px;
 }
 
-/* Nav Pills：選中的項目用主色，未選中用文字色加狀態層 */
+/* Nav Pills：選中的項目用實心主色，未選中用主色文字加狀態層 */
 .nav-pills {
     --bs-nav-link-color: var(--md-primary);
     --bs-nav-link-hover-color: var(--md-primary);
-    --bs-nav-pills-link-active-bg: var(--md-primary);
-    --bs-nav-pills-link-active-color: var(--md-on-primary);
+    --bs-nav-pills-link-active-bg: var(--md-primary-fill);
+    --bs-nav-pills-link-active-color: var(--md-on-primary-fill);
 }
 
 nav.nav-pills {
@@ -434,8 +443,11 @@ button.accept-policy {
 /* 語意按鈕：每個變體只指定 M3 角色（--btn-role 底色、--btn-on-role 前景色），
    下面兩條共用規則再換算成 Bootstrap 的 --bs-btn-*。
    狀態層依 M3：滑鼠移過疊 8% 前景色、按下疊 12% */
+/* primary 的實心底色另外用 --btn-fill／--btn-on-fill（Fidelity 的亮橘），其他角色沒指定時沿用 --btn-role */
 .btn-primary,
 .btn-outline-primary {
+    --btn-fill: var(--md-primary-fill);
+    --btn-on-fill: var(--md-on-primary-fill);
     --btn-on-role: var(--md-on-primary);
     --btn-role: var(--md-primary);
 }
@@ -476,19 +488,19 @@ button.accept-policy {
 .btn-success,
 .btn-warning,
 .btn-danger {
-    --bs-btn-active-bg: color-mix(in oklab, var(--btn-role), var(--btn-on-role) 12%);
+    --bs-btn-active-bg: color-mix(in oklab, var(--btn-fill, var(--btn-role)), var(--btn-on-fill, var(--btn-on-role)) 12%);
     --bs-btn-active-border-color: var(--bs-btn-active-bg);
-    --bs-btn-active-color: var(--btn-on-role);
-    --bs-btn-bg: var(--btn-role);
-    --bs-btn-border-color: var(--btn-role);
-    --bs-btn-color: var(--btn-on-role);
-    --bs-btn-disabled-bg: var(--btn-role);
-    --bs-btn-disabled-border-color: var(--btn-role);
-    --bs-btn-disabled-color: var(--btn-on-role);
+    --bs-btn-active-color: var(--btn-on-fill, var(--btn-on-role));
+    --bs-btn-bg: var(--btn-fill, var(--btn-role));
+    --bs-btn-border-color: var(--btn-fill, var(--btn-role));
+    --bs-btn-color: var(--btn-on-fill, var(--btn-on-role));
+    --bs-btn-disabled-bg: var(--btn-fill, var(--btn-role));
+    --bs-btn-disabled-border-color: var(--btn-fill, var(--btn-role));
+    --bs-btn-disabled-color: var(--btn-on-fill, var(--btn-on-role));
     --bs-btn-focus-box-shadow: 0 0 0 0.25rem color-mix(in oklab, var(--btn-role) 50%, transparent);
-    --bs-btn-hover-bg: color-mix(in oklab, var(--btn-role), var(--btn-on-role) 8%);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--btn-fill, var(--btn-role)), var(--btn-on-fill, var(--btn-on-role)) 8%);
     --bs-btn-hover-border-color: var(--bs-btn-hover-bg);
-    --bs-btn-hover-color: var(--btn-on-role);
+    --bs-btn-hover-color: var(--btn-on-fill, var(--btn-on-role));
     font-weight: 500;
 }
 
@@ -533,9 +545,9 @@ button.accept-policy {
 /* 選中的切換按鈕（.btn-check:checked、.active）用 M3 的 selected 狀態：填滿角色色 */
 .btn-check:checked + [class*="btn-outline-"],
 [class*="btn-outline-"].active {
-    --bs-btn-active-bg: var(--btn-role);
-    --bs-btn-active-border-color: var(--btn-role);
-    --bs-btn-active-color: var(--btn-on-role);
+    --bs-btn-active-bg: var(--btn-fill, var(--btn-role));
+    --bs-btn-active-border-color: var(--btn-fill, var(--btn-role));
+    --bs-btn-active-color: var(--btn-on-fill, var(--btn-on-role));
 }
 
 .btn-check:checked + .btn-outline-secondary,
@@ -615,7 +627,7 @@ button.accept-policy {
 */
 
 /* 選中狀態：M3 用平面的角色色表示，不用漸層（漸層上的文字對比無法保證）。
-   pills 與分頁用 primary，下拉選單與清單用 secondary-container */
+   pills 與分頁用 primary-fill，下拉選單與清單用 secondary-container */
 
 /* Dropdown：M3 的 menu 用 surface-container，滑鼠移過疊 8% 文字色 */
 .dropdown-menu {
@@ -642,9 +654,9 @@ button.accept-policy {
 
 /* Pagination */
 .pagination {
-    --bs-pagination-active-bg: var(--md-primary);
-    --bs-pagination-active-border-color: var(--md-primary);
-    --bs-pagination-active-color: var(--md-on-primary);
+    --bs-pagination-active-bg: var(--md-primary-fill);
+    --bs-pagination-active-border-color: var(--md-primary-fill);
+    --bs-pagination-active-color: var(--md-on-primary-fill);
     --bs-pagination-bg: var(--card-bg-color);
     --bs-pagination-border-color: var(--md-outline-variant);
     --bs-pagination-color: var(--md-primary);
@@ -680,8 +692,8 @@ button.accept-policy {
 /* Progress */
 .progress,
 .progress-stacked {
-    --bs-progress-bar-bg: var(--md-primary);
-    --bs-progress-bar-color: var(--md-on-primary);
+    --bs-progress-bar-bg: var(--md-primary-fill);
+    --bs-progress-bar-color: var(--md-on-primary-fill);
     --bs-progress-bg: var(--md-surface-container-highest);
 }
 
@@ -810,6 +822,14 @@ button.accept-policy {
     8. 自訂功能樣式 (Custom Feature Styles)
 ==============================================
 */
+/* Cookie 同意列（_CookieConsentPartial）：M3 的 banner，用中性表面，不用 info 的藍綠色 */
+.consent-banner {
+    --bs-alert-bg: var(--md-surface-container-high);
+    --bs-alert-border-color: var(--md-outline-variant);
+    --bs-alert-color: var(--md-on-surface);
+    --bs-alert-link-color: var(--md-primary);
+}
+
 /* Content Card：作品卡片（_ContentCardPartial），首頁 Feed 與作品列表共用 */
 .content-card {
     background-color: var(--card-bg-color);
@@ -846,10 +866,10 @@ button.accept-policy {
     }
 
 .content-card__badge {
-    background-color: var(--primary-accent);
+    background-color: var(--md-primary-fill);
     border-radius: 999px;
     bottom: .5rem;
-    color: var(--md-on-primary);
+    color: var(--md-on-primary-fill);
     font-size: .75rem;
     font-weight: 600;
     left: .5rem;
@@ -1153,9 +1173,9 @@ button.accept-policy {
 }
 
 .tag-item:hover {
-    background-color: var(--primary-accent);
-    border-color: var(--primary-accent);
-    color: var(--md-on-primary);
+    background-color: var(--md-primary-fill);
+    border-color: var(--md-primary-fill);
+    color: var(--md-on-primary-fill);
     transform: scale(1.1);
 }
 
@@ -1165,7 +1185,7 @@ button.accept-policy {
 }
 
 .tag-item:hover .tag-count {
-    color: var(--md-on-primary);
+    color: var(--md-on-primary-fill);
 }
 
 .tag-size-1 {
@@ -1534,7 +1554,7 @@ h6:hover .anchor-link {
 }
 
     .kpi-card__progress .progress-bar {
-        background-color: var(--primary-accent);
+        background-color: var(--md-primary-fill);
     }
 
 .chart-panel__body {
@@ -1956,7 +1976,7 @@ h6:hover .anchor-link {
 .theme-preview__gradient {
     align-items: center;
     border-radius: .75rem;
-    color: var(--brand-on-gradient);
+    color: var(--brand-on-gradient-muted);
     display: flex;
     flex-wrap: wrap;
     gap: .5rem 1.5rem;
@@ -1969,7 +1989,6 @@ h6:hover .anchor-link {
     color: var(--brand-on-gradient-accent);
     display: inline-flex;
     font-size: 1.25rem;
-    font-weight: 600;
     gap: .5rem;
 }
 

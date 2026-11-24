@@ -330,8 +330,10 @@ nav.feed-pager {
             z-index: 2;
         }
 
+        /* 前三名用實心主色（淺色模式是品牌亮橘配深褐字） */
         .feed-grid--ranked > .content-card:nth-child(-n+3)::before {
-            background-color: var(--primary-accent);
+            background-color: var(--md-primary-fill);
+            color: var(--md-on-primary-fill);
         }
 
 /* 追蹤文章：列表 */
