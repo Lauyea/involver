@@ -69,8 +69,8 @@
             right: 30px;
             width: 50px;
             height: 50px;
-            color: #fff;
-            background-color: var(--primary-accent);
+            color: var(--md-on-primary-fill);
+            background-color: var(--md-primary-fill);
             line-height: 50px;
             border-radius: 50%;
             text-align: center;
@@ -96,7 +96,7 @@
             }
 
             #gotop:hover, #gobottom:hover {
-                background-color: var(--primary-accent-hover);
+                background-color: color-mix(in oklab, var(--md-primary-fill), var(--md-on-primary-fill) 8%);
                 opacity: 1;
                 transform: scale(1.05) translateY(-3px);
             }
@@ -114,7 +114,7 @@
         </div>
     </div>
     <header id="TopHead" class="sticky-top">
-        <nav class="navbar navbar-expand-sm mb-3">
+        <nav class="navbar navbar-expand-sm navbar-themed mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico" style="height:36px; margin-right: 5px;"> Involver</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
