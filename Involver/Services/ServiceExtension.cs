@@ -93,6 +93,7 @@ namespace Involver.Services
                                   ProfitSharingManagerAuthorizationHandler>();
 
             services.AddScoped<INotificationSetter, NotificationSetter>();
+            services.AddScoped<INotificationInbox, NotificationInbox>();
         }
     }
 }

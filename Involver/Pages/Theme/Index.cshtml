@@ -406,10 +406,40 @@
     <div class="dice-roll-info">擲出 2d6，結果：8</div>
 
     <p class="mt-4 mb-2"><strong>通知數量與狀態點</strong></p>
-    <span class="fa-stack fa-2x" data-count="12">
-        <i class="fa fa-solid fa-bell fa-stack-1x" aria-hidden="true"></i>
+    <span class="notification-bell">
+        <span class="notification-bell__icon">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            <span class="notification-bell__badge">12</span>
+        </span>
     </span>
     <span class="ms-3">有新狀態 <span class="dot"></span></span>
+    <ul class="notification-list notification-list--page mt-3">
+        <li class="notification-item notification-item--unread">
+            <a class="notification-item__link" href="#">
+                <span class="notification-item__visual">
+                    <span class="notification-item__icon notification-item__icon--comment"><i class="fa-solid fa-comment" aria-hidden="true"></i></span>
+                </span>
+                <span class="notification-item__body">
+                    <span class="notification-item__text"><strong class="notification-item__actor">讀者</strong> 評論了你的創作《範例》</span>
+                    <span class="notification-item__excerpt">未讀的通知：主色淡底＋圓點</span>
+                    <time class="notification-item__time">3小時前</time>
+                </span>
+                <span class="notification-item__dot" aria-hidden="true"></span>
+                <span class="visually-hidden">（未讀）</span>
+            </a>
+        </li>
+        <li class="notification-item">
+            <a class="notification-item__link" href="#">
+                <span class="notification-item__visual">
+                    <span class="notification-item__icon notification-item__icon--achievement"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+                </span>
+                <span class="notification-item__body">
+                    <span class="notification-item__text">你獲得了銀牌成就「範例」</span>
+                    <time class="notification-item__time">2天前</time>
+                </span>
+            </a>
+        </li>
+    </ul>
 
     <p class="mt-4 mb-2"><strong>排行獎牌</strong>（金銀銅的漸層代表名次，不跟主題變動）</p>
     <div class="theme-preview__row">

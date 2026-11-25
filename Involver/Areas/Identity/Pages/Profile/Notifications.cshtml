@@ -1,26 +1,68 @@
 @page
 @model Involver.Areas.Identity.Pages.Profile.NotificationsModel
+@using Involver.Models.ViewModels
 @{
-    ViewData["Title"] = "互動紀錄";
+    ViewData["Title"] = "通知";
     ViewData["ActivePage"] = ManageNavPages.Interaction;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
+    var unreadText = Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString();
 }
 
-<div>
-    <div id="notifications-container">
-        <partial name="_NotificationListPartial" model="Model.Notifications" />
+<section class="notification-page" aria-labelledby="notification-page-title">
+    <h2 id="notification-page-title" class="visually-hidden">通知</h2>
+
+    <div class="notification-toolbar">
+        <nav class="btn-group notification-toolbar__filter" aria-label="篩選通知">
+            <a class="btn btn-outline-primary @(Model.UnreadOnly ? null : "active")" asp-page="./Notifications"
+               asp-route-id="@Model.Profile.ProfileID"
+               aria-current="@(Model.UnreadOnly ? null : "page")">全部</a>
+            <a class="btn btn-outline-primary @(Model.UnreadOnly ? "active" : null)" asp-page="./Notifications"
+               asp-route-id="@Model.Profile.ProfileID" asp-route-filter="unread"
+               aria-current="@(Model.UnreadOnly ? "page" : null)">
+                未讀@(Model.UnreadCount > 0 ? $"（{unreadText}）" : null)
+            </a>
+        </nav>
+        @if (Model.UnreadCount > 0)
+        {
+            <form method="post" asp-page-handler="ReadAll" asp-route-id="@Model.Profile.ProfileID">
+                <button type="submit" class="btn btn-link notification-toolbar__action">
+                    <i class="fa-solid fa-check-double me-1" aria-hidden="true"></i>全部標為已讀
+                </button>
+            </form>
+        }
     </div>
-    <div id="loading" style="display: none;" class="text-center">
-        <p>正在加載更多...</p>
-    </div>
-</div>
+
+    @if (Model.Notifications.Count > 0)
+    {
+        <ul class="notification-list notification-list--page" id="notifications-container">
+            <partial name="_NotificationItemsPartial" model="new NotificationListViewModel(Model.Notifications, InMenu: false)" />
+        </ul>
+        <p id="notifications-loading" class="text-center text-body-secondary" style="display: none;">正在載入更多…</p>
+        <p class="notification-page__note">通知會保留一個月。</p>
+    }
+    else
+    {
+        <div class="feed-empty">
+            <span class="feed-empty__icon"><i class="fa-regular fa-bell-slash" aria-hidden="true"></i></span>
+            <p class="feed-empty__title">@(Model.UnreadOnly ? "沒有未讀的通知" : "目前沒有通知")</p>
+            <p class="feed-empty__text">有人評論你的作品、在你的評論底下留言，或讚你的評論與留言時，會在這裡通知你。</p>
+            @if (Model.UnreadOnly)
+            {
+                <a class="btn btn-outline-primary" asp-page="./Notifications" asp-route-id="@Model.Profile.ProfileID">查看全部通知</a>
+            }
+        </div>
+    }
+</section>
 
 @section Scripts {
-    <script src="~/js/utils.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var profileId = "@Model.Profile.ProfileID";
-            setupInfiniteScroll('#notifications-container', '#loading', 'LoadMore', { id: profileId });
-        });
-    </script>
+    @if (Model.Notifications.Count > 0)
+    {
+        <script src="~/js/utils.js" asp-append-version="true"></script>
+        <script>
+          document.addEventListener('DOMContentLoaded', () => {
+            const params = { id: '@Model.Profile.ProfileID', filter: '@(Model.UnreadOnly ? "unread" : "all")' };
+            setupInfiniteScroll('#notifications-container', '#notifications-loading', 'LoadMore', params);
+          });
+        </script>
+    }
 }

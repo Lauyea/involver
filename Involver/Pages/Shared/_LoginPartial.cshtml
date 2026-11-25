@@ -55,12 +55,15 @@
     </li>
     @if (SignInManager.IsSignedIn(User))
     {
-        @* 通知只對登入者顯示；後端以登入身分查詢通知，不需要由前端傳 user id *@
-        <li class="nav-item dropdown">
-            <div id="notification-container"
-                 data-notification-url="@Url.Page("/Feed/Notifications")">
-                <div class="dropdown" id="notification"></div>
-            </div>
+        @* 通知只對登入者顯示；後端以登入身分查詢通知，不需要由前端傳 user id。
+           先輸出沒有數字的鈴鐺佔位，/js/notifications.js 載入後換成完整的下拉選單，避免導覽列跳動。 *@
+        <li class="nav-item dropdown" id="notification"
+            data-notification-url="@Url.Page("/Feed/Notifications", new { area = "" })"
+            data-mark-all-url="@Url.Page("/Feed/Notifications", "Read", new { area = "" })">
+            <button type="button" class="nav-link btn btn-link notification-bell" aria-label="通知" title="通知">
+                <span class="notification-bell__icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                <span class="d-sm-none ms-2" aria-hidden="true">通知</span>
+            </button>
         </li>
         <li class="nav-item dropdown">
             <button type="button" class="nav-link btn btn-link dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

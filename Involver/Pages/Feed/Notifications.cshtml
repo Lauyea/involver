@@ -1,62 +1,57 @@
 @page
 @model Involver.Pages.Feed.NotificationsModel
+@using Involver.Models.ViewModels
 @{
     Layout = null;
-
-    string dataCount = string.Empty;
-
-    int notificationCount = Model.Count;
-
-    if (notificationCount > 0)
-    {
-        dataCount = $"data-count={notificationCount}";
-
-        if (notificationCount > 99)
-        {
-            dataCount = $"data-count={"99+"}";
-        }
-    }
 }
 
-<div class="dropdown" id="notification">
-    @if(Model.UserId != null && Model.Notifications != null)
-    {
-        var url = @"/Feed/Notifications?handler=Read";
-        <button id="notificationClick" type="button" class="nav-link btn btn-sm btn-link" data-bs-toggle="dropdown" title="通知" onclick="ReadNotification('@Model.UserId', '@url')">
-            <span class="fa-stack" id="notificationStack" @dataCount>
-                <i class="fa fa-circle fa-stack-2x"></i>
-                <i class="fa fa-bell fa-stack-1x fa-inverse"></i>
-            </span>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
-            @if (Model.Notifications.Count != 0)
+@*
+    導覽列的通知鈴鐺與下拉選單，由 /js/notifications.js 在每個頁面載入後 fetch 進 #notification。
+    打開選單不會把通知標為已讀：點開單一通知才算讀過，或按「全部標為已讀」。
+*@
+@if (Model.UserId != null)
+{
+    var badgeText = Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString();
+    var label = Model.UnreadCount > 0 ? $"通知，{badgeText} 則未讀" : "通知";
+
+    <button type="button" class="nav-link btn btn-link notification-bell"
+            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+            aria-label="@label" title="@label">
+        <span class="notification-bell__icon">
+            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+            @if (Model.UnreadCount > 0)
             {
-                foreach (var item in Model.Notifications)
-                {
-                    <span class="dropdown-item">
-                        @if (!item.IsRead)
-                        {
-                            <span class="dot"></span>
-                        }
-                        <a class="nav-link" href="@item.Url" style="color: hwb(32deg 0% 8%);">
-                            <small>@Html.AntiXssRaw(item.Title)</small>
-                        </a>
-                        <small title="@item.CreatedDate">@TimePeriodHelper.Get(item.CreatedDate)</small>
-                    </span>
-                }
-                <span class="dropdown-item">
-                    <a asp-area ="Identity"
-                       asp-page="/Profile/Notifications"
-                       asp-route-id="@userManager.GetUserId(User)" 
-                       class="nav-link text-info text-center">
-                        查看所有通知
-                    </a>
-                </span>
+                <span class="notification-bell__badge" aria-hidden="true">@badgeText</span>
             }
-            else
+        </span>
+        <span class="d-sm-none ms-2" aria-hidden="true">通知</span>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end notification-menu">
+        <div class="notification-menu__header">
+            <h2 class="notification-menu__title">通知</h2>
+            @if (Model.UnreadCount > 0)
             {
-                <span class="dropdown-item">目前沒有通知</span>
+                <button type="button" class="btn btn-link btn-sm notification-menu__action" data-notification-mark-all>
+                    全部標為已讀
+                </button>
             }
         </div>
-    }
-</div>
+        @if (Model.Items.Count > 0)
+        {
+            <ul class="notification-list">
+                <partial name="_NotificationItemsPartial" model="new NotificationListViewModel(Model.Items, InMenu: true)" />
+            </ul>
+        }
+        else
+        {
+            <div class="notification-empty">
+                <i class="fa-regular fa-bell-slash notification-empty__icon" aria-hidden="true"></i>
+                <p class="notification-empty__text">目前沒有通知。有人評論、留言或讚你的內容時，會出現在這裡。</p>
+            </div>
+        }
+        <a class="dropdown-item notification-menu__footer"
+           asp-area="Identity" asp-page="/Profile/Notifications" asp-route-id="@Model.UserId">
+            查看所有通知
+        </a>
+    </div>
+}

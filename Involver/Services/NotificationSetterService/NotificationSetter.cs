@@ -1,3 +1,5 @@
+using System.Net;
+
 using DataAccess.Common;
 using DataAccess.Data;
 using DataAccess.Models;
@@ -5,400 +7,247 @@ using DataAccess.Models;
 using Involver.Common;
 using Involver.Extensions;
 
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 
 namespace Involver.Services.NotificationSetterService
 {
-    public class NotificationSetter : INotificationSetter
+    /// <inheritdoc cref="INotificationSetter"/>
+    public class NotificationSetter(ApplicationDbContext context) : INotificationSetter
     {
-        private readonly ApplicationDbContext _context;
+        /// <summary>
+        /// 通知摘要從內容截取的字數（不含結尾的「...」）
+        /// </summary>
+        private const int ExcerptLength = 60;
 
-        public NotificationSetter(ApplicationDbContext context)
+        /// <inheritdoc />
+        public async Task ForCommentAsync(Comment comment, CancellationToken cancellationToken = default)
         {
-            _context = context;
+            var target = await CommentTargets.ResolveAsync(context, comment, cancellationToken);
+
+            // 作品不存在，或作者評論自己的作品時不通知
+            if (target == null || string.IsNullOrEmpty(target.OwnerId) || target.OwnerId == comment.ProfileID)
+            {
+                return;
+            }
+
+            context.Notifications.Add(Create(
+                target.OwnerId,
+                NotificationType.Comment,
+                $"評論了你的{target.KindLabel}《{Encode(target.Title)}》",
+                ToExcerpt(comment.Content),
+                target.CommentUrl(comment.CommentID),
+                comment.ProfileID));
+
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-
-        public async Task ForMessageAsync(int commentId, string userId, string message, string url)
+        /// <inheritdoc />
+        public async Task ForReplyAsync(Message message, CancellationToken cancellationToken = default)
         {
-            var comment = await _context.Comments.Where(c => c.CommentID == commentId).FirstOrDefaultAsync().ConfigureAwait(false);
+            var comment = await context.Comments
+                .Where(c => c.CommentID == message.CommentID)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cancellationToken);
 
-            // check comment is existed
             if (comment == null)
             {
                 return;
             }
 
-            var commenterId = comment.ProfileID;
+            var target = await CommentTargets.ResolveAsync(context, comment, cancellationToken);
 
-            // if commenter is user, than do not set the notification
-            if (commenterId == userId)
+            if (target == null)
             {
                 return;
             }
 
-            string commentContent = comment.Content.StripHTML();
+            var actorId = message.ProfileID;
+            var url = target.RepliesUrl(comment.CommentID);
+            var excerpt = ToExcerpt(message.Content);
+            var workTitle = $"{target.KindLabel}《{Encode(target.Title)}》";
 
-            if (commentContent.Length > Parameters.SmallContentLength)
+            // 評論者：有人在你的評論底下留言
+            if (comment.ProfileID != actorId)
             {
-                commentContent = string.Concat(commentContent.AsSpan(0, Parameters.SmallContentLength), "...");
+                context.Notifications.Add(Create(
+                    comment.ProfileID,
+                    NotificationType.Reply,
+                    $"在你對{workTitle}的評論底下留言",
+                    excerpt,
+                    url,
+                    actorId));
             }
 
-            if (message.Length > Parameters.SmallContentLength)
+            // 之前在同一則評論留言過的人：讓對話可以接續下去
+            var participantIds = await context.Messages
+                .Where(m => m.CommentID == comment.CommentID
+                    && m.MessageID != message.MessageID
+                    && m.ProfileID != null
+                    && m.ProfileID != actorId
+                    && m.ProfileID != comment.ProfileID)
+                .Select(m => m.ProfileID)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+
+            foreach (var participantId in participantIds)
             {
-                message = string.Concat(message.AsSpan(0, Parameters.SmallContentLength), "...");
+                context.Notifications.Add(Create(
+                    participantId,
+                    NotificationType.Reply,
+                    $"也在{workTitle}的一則評論底下留言",
+                    excerpt,
+                    url,
+                    actorId));
             }
 
-            commentContent = commentContent.Replace("\r\n", "  ");
-
-            message = message.Replace("\r\n", "  ");
-
-            string title = $"有人在你的評論：「{commentContent}」留言給你。<br/>{message}";
-
-            Notification notification = new()
-            {
-                CreatedDate = DateTime.Now,
-                Title = title,
-                IsRead = false,
-                Url = url,
-                ProfileID = commenterId
-            };
-
-            _context.Notifications.Add(notification);
-
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ForCommentAsync(string from, int fromId, string url, string userId, string comment)
+        /// <inheritdoc />
+        public async Task ForCommentAgreedAsync(Comment comment, string agreerId, List<Toast> toasts, CancellationToken cancellationToken = default)
         {
-            string title = string.Empty;
-            string userToBeNotifiy = string.Empty;
+            var target = await CommentTargets.ResolveAsync(context, comment, cancellationToken);
 
-            switch (from)
+            if (target != null)
             {
-                case "Novels":
-                    var novel = await _context.Novels.Where(n => n.NovelID == fromId).FirstOrDefaultAsync().ConfigureAwait(false);
-
-                    // check exist
-                    if (novel == null)
-                    {
-                        return;
-                    }
-
-                    // if commenter is user, than do not set the notification
-                    if (novel.ProfileID == userId)
-                    {
-                        return;
-                    }
-
-                    comment = comment.StripHTML();
-
-                    if (comment.Length > Parameters.SmallContentLength)
-                    {
-                        comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
-                    }
-
-                    title = $"有人在你的創作《{novel.Title}》留下評論：{comment}";
-
-                    userToBeNotifiy = novel.ProfileID;
-                    break;
-                case "Episodes":
-                    var episode = await _context.Episodes.Where(e => e.EpisodeID == fromId).FirstOrDefaultAsync().ConfigureAwait(false);
-
-                    // check exist
-                    if (episode == null)
-                    {
-                        return;
-                    }
-
-                    // if commenter is user, than do not set the notification
-                    if (episode.OwnerID == userId)
-                    {
-                        return;
-                    }
-
-                    comment = comment.StripHTML();
-
-                    if (comment.Length > Parameters.SmallContentLength)
-                    {
-                        comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
-                    }
-
-                    title = $"有人在你的章節《{episode.Title}》留下評論：{comment}";
-
-                    userToBeNotifiy = episode.OwnerID;
-                    break;
-                case "Articles":
-                    var article = await _context.Articles.Where(a => a.ArticleID == fromId).FirstOrDefaultAsync().ConfigureAwait(false);
-
-                    // check exist
-                    if (article == null)
-                    {
-                        return;
-                    }
-
-                    // if commenter is user, than do not set the notification
-                    if (article.ProfileID == userId)
-                    {
-                        return;
-                    }
-
-                    comment = comment.StripHTML();
-
-                    if (comment.Length > Parameters.SmallContentLength)
-                    {
-                        comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
-                    }
-
-                    title = $"有人在你的文章《{article.Title}》留下評論：{comment}";
-
-                    userToBeNotifiy = article.ProfileID;
-                    break;
-                case "Feedbacks":
-                    var feedback = await _context.Articles.Where(f => f.ArticleID == fromId && f.Type == ArticleType.Feedback).FirstOrDefaultAsync().ConfigureAwait(false);
-
-                    // check exist
-                    if (feedback == null)
-                    {
-                        return;
-                    }
-
-                    // if commenter is user, than do not set the notification
-                    if (feedback.ProfileID == userId)
-                    {
-                        return;
-                    }
-
-                    comment = comment.StripHTML();
-
-                    if (comment.Length > Parameters.SmallContentLength)
-                    {
-                        comment = string.Concat(comment.AsSpan(0, Parameters.SmallContentLength), "...");
-                    }
-
-                    title = $"有人在你的意見回饋《{feedback.Title}》留下評論：{comment}";
-
-                    userToBeNotifiy = feedback.ProfileID;
-                    break;
-                default:
-                    break;
+                await AddAgreedOnceAsync(Create(
+                    comment.ProfileID,
+                    NotificationType.CommentAgreed,
+                    $"讚了你對{target.KindLabel}《{Encode(target.Title)}》的評論",
+                    ToExcerpt(comment.Content),
+                    target.CommentUrl(comment.CommentID),
+                    agreerId), cancellationToken);
             }
 
-            Notification notification = new()
-            {
-                CreatedDate = DateTime.Now,
-                Title = title,
-                IsRead = false,
-                Url = url,
-                ProfileID = userToBeNotifiy
-            };
+            AddAchievements(comment.ProfileID, toasts);
 
-            _context.Notifications.Add(notification);
-
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ForFeedbackAcceptAsync(string feedbackTitle, string userId, string url, List<Toast> toasts)
+        /// <inheritdoc />
+        public async Task ForReplyAgreedAsync(Message message, string agreerId, List<Toast> toasts, CancellationToken cancellationToken = default)
         {
-            string title = $"你的意見《{feedbackTitle}》被接受了。";
-
-            if (toasts.Count == 0)
+            if (string.IsNullOrEmpty(message.ProfileID))
             {
-                Notification notification = new()
-                {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = userId
-                };
-
-                _context.Notifications.Add(notification);
-
-                await _context.SaveChangesAsync();
-
                 return;
             }
 
-            foreach (var toast in toasts)
+            var target = await CommentTargets.ResolveAsync(context, message.CommentID, cancellationToken);
+
+            if (target != null)
             {
-                string badgeColor = string.Empty;
-
-                if (toast.Award == Parameters.BronzeBadgeAward)
-                {
-                    badgeColor = "bronze";
-                }
-                else if (toast.Award == Parameters.SilverBadgeAward)
-                {
-                    badgeColor = "silver";
-                }
-                else
-                {
-                    badgeColor = "gold";
-                }
-
-                title = $"你的意見《{feedbackTitle}》被接受了。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
-
-                Notification notification = new()
-                {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = userId
-                };
-
-                _context.Notifications.Add(notification);
+                await AddAgreedOnceAsync(Create(
+                    message.ProfileID,
+                    NotificationType.ReplyAgreed,
+                    $"讚了你在{target.KindLabel}《{Encode(target.Title)}》的留言",
+                    ToExcerpt(message.Content),
+                    target.RepliesUrl(message.CommentID),
+                    agreerId), cancellationToken);
             }
 
-            await _context.SaveChangesAsync();
+            AddAchievements(message.ProfileID, toasts);
+
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ForMessageBeAgreedAsync(string messageContent, string commenterId, string url, List<Toast> toasts)
+        /// <inheritdoc />
+        public async Task ForFeedbackAcceptAsync(int feedbackId, string feedbackTitle, string userId, List<Toast> toasts, CancellationToken cancellationToken = default)
         {
-            messageContent = messageContent.StripHTML();
+            context.Notifications.Add(Create(
+                userId,
+                NotificationType.FeedbackAccepted,
+                $"你的意見回饋《{Encode(feedbackTitle)}》已被接受，謝謝你的建議！",
+                null,
+                $"/{Parameters.Feedbacks}/Details?id={feedbackId}",
+                null));
 
-            if (messageContent.Length > Parameters.SmallContentLength)
-            {
-                messageContent = messageContent[..Parameters.SmallContentLength] + "...";
-            }
+            AddAchievements(userId, toasts);
 
-            string title = $"有人在你的留言「{messageContent}」留下了一個讚。";
-
-            var existingNotification = await _context.Notifications
-                .Where(n => n.Title == title && n.ProfileID == commenterId && n.IsRead == false)
-                .FirstOrDefaultAsync();
-
-            if (existingNotification != null)
-            {
-                return;
-            }
-
-            if (toasts.Count == 0)
-            {
-                Notification notification = new()
-                {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = commenterId
-                };
-
-                _context.Notifications.Add(notification);
-
-                await _context.SaveChangesAsync();
-
-                return;
-            }
-
-            foreach (var toast in toasts)
-            {
-                string badgeColor = string.Empty;
-
-                if (toast.Award == Parameters.BronzeBadgeAward)
-                {
-                    badgeColor = "bronze";
-                }
-                else if (toast.Award == Parameters.SilverBadgeAward)
-                {
-                    badgeColor = "silver";
-                }
-                else
-                {
-                    badgeColor = "gold";
-                }
-
-                title = $"有人在你的留言「{messageContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
-
-                Notification notification = new()
-                {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = commenterId
-                };
-
-                _context.Notifications.Add(notification);
-            }
-
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task ForCommentBeAgreedAsync(string commentContent, string commenterId, string url, List<Toast> toasts)
+        /// <summary>
+        /// 按讚通知：同一個對象還有未讀的同種通知時不再新增，避免連續被讚時洗版
+        /// </summary>
+        /// <param name="notification">要新增的通知</param>
+        /// <param name="cancellationToken">取消權杖</param>
+        private async Task AddAgreedOnceAsync(Notification notification, CancellationToken cancellationToken)
         {
-            commentContent = commentContent.StripHTML();
+            var exists = await context.Notifications
+                .AnyAsync(n => n.ProfileID == notification.ProfileID
+                    && !n.IsRead
+                    && n.Type == notification.Type
+                    && n.Url == notification.Url
+                    && n.Excerpt == notification.Excerpt, cancellationToken);
 
-            if (commentContent.Length > Parameters.SmallContentLength)
+            if (!exists)
             {
-                commentContent = commentContent[..Parameters.SmallContentLength] + "...";
+                context.Notifications.Add(notification);
             }
+        }
 
-            string title = $"有人在你的評論「{commentContent}」留下了一個讚。";
-
-            var existingNotification = await _context.Notifications
-                .Where(n => n.Title == title && n.ProfileID == commenterId && n.IsRead == false)
-                .FirstOrDefaultAsync();
-
-            if (existingNotification != null)
+        /// <summary>
+        /// 每個新成就各建立一則通知，連到成就頁
+        /// </summary>
+        /// <param name="userId">獲得成就的人</param>
+        /// <param name="toasts">新成就</param>
+        private void AddAchievements(string userId, List<Toast> toasts)
+        {
+            foreach (var toast in toasts ?? [])
             {
-                return;
-            }
-
-            if (toasts.Count == 0)
-            {
-                Notification notification = new()
+                var tier = toast.Award switch
                 {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = commenterId
+                    Parameters.BronzeBadgeAward => "銅牌",
+                    Parameters.SilverBadgeAward => "銀牌",
+                    _ => "金牌",
                 };
 
-                _context.Notifications.Add(notification);
-
-                await _context.SaveChangesAsync();
-
-                return;
+                context.Notifications.Add(Create(
+                    userId,
+                    NotificationType.Achievement,
+                    $"你獲得了{tier}成就「{Encode(toast.Header)}」",
+                    Truncate(toast.Body),
+                    $"/Identity/Profile/Achievements?id={WebUtility.UrlEncode(userId)}",
+                    null));
             }
+        }
 
-            foreach (var toast in toasts)
+        /// <summary>
+        /// 建立一筆未讀通知
+        /// </summary>
+        private static Notification Create(string profileId, NotificationType type, string title, string excerpt, string url, string actorId) => new()
+        {
+            ProfileID = profileId,
+            Type = type,
+            Title = title,
+            Excerpt = string.IsNullOrEmpty(excerpt) ? null : excerpt,
+            Url = url,
+            ActorID = actorId,
+            CreatedDate = DateTime.Now,
+            IsRead = false,
+        };
+
+        /// <summary>
+        /// 標題會以 HTML 顯示（為了相容舊資料），使用者輸入的文字要先編碼
+        /// </summary>
+        private static string Encode(string text) => WebUtility.HtmlEncode(text ?? string.Empty);
+
+        /// <summary>
+        /// 把 HTML 內容轉成通知用的純文字摘要
+        /// </summary>
+        private static string ToExcerpt(string html) => Truncate((html ?? string.Empty).ToPlainTextPreview(ExcerptLength));
+
+        /// <summary>
+        /// 確保摘要不超過資料庫欄位長度
+        /// </summary>
+        private static string Truncate(string text)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length <= Parameters.NotificationExcerptLength)
             {
-                string badgeColor = string.Empty;
-
-                if (toast.Award == Parameters.BronzeBadgeAward)
-                {
-                    badgeColor = "bronze";
-                }
-                else if (toast.Award == Parameters.SilverBadgeAward)
-                {
-                    badgeColor = "silver";
-                }
-                else
-                {
-                    badgeColor = "gold";
-                }
-
-                title = $"有人在你的評論「{commentContent}」留下了一個讚。<br/>獲得成就 <span class=\"dot me-1 {badgeColor} \"></span> {toast.Header}: {toast.Body}";
-
-                Notification notification = new()
-                {
-                    CreatedDate = DateTime.Now,
-                    Title = title,
-                    IsRead = false,
-                    Url = url,
-                    ProfileID = commenterId
-                };
-
-                _context.Notifications.Add(notification);
+                return text;
             }
 
-            await _context.SaveChangesAsync();
+            return string.Concat(text.AsSpan(0, Parameters.NotificationExcerptLength - 3), "...");
         }
     }
 }

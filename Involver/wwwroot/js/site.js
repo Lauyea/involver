@@ -144,8 +144,7 @@ async function copyShareLinkAndTrackAsync(btn) {
  */
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. 通知相關 ---
-    fetchNotifications();
+    // --- 1. 通知：由 /js/notifications.js（ES module）自行載入 ---
 
     // --- 2. 複製連結按鈕邏輯 ---
     const copyLinkTooltips = document.querySelectorAll('.btn-copy-link');

@@ -72,6 +72,11 @@ namespace DataAccess.Common
 
         public const int ContentLength = 20;
 
+        /// <summary>
+        /// 通知內容摘要的最大長度（含結尾的「...」）
+        /// </summary>
+        public const int NotificationExcerptLength = 80;
+
         public const decimal BronzeBadgeAward = 10;
 
         public const decimal SilverBadgeAward = 30;

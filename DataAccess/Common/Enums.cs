@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace DataAccess.Common;
 
@@ -41,6 +41,43 @@ public enum ArticleType
 
     [Display(Name = "意見回饋")]
     Feedback
+}
+
+/// <summary>
+/// 通知種類，決定通知的圖示與連結方式。
+/// </summary>
+/// <remarks>
+/// 數值會存進資料庫，只能往後新增，不要改既有的數值。
+/// </remarks>
+public enum NotificationType
+{
+    /// <summary>舊資料或一般系統通知</summary>
+    [Display(Name = "一般")]
+    General = 0,
+
+    /// <summary>有人評論了你的作品</summary>
+    [Display(Name = "評論")]
+    Comment = 1,
+
+    /// <summary>有人在你的評論底下留言</summary>
+    [Display(Name = "留言")]
+    Reply = 2,
+
+    /// <summary>你的評論被讚</summary>
+    [Display(Name = "評論被讚")]
+    CommentAgreed = 3,
+
+    /// <summary>你的留言被讚</summary>
+    [Display(Name = "留言被讚")]
+    ReplyAgreed = 4,
+
+    /// <summary>你的意見回饋被接受</summary>
+    [Display(Name = "意見被接受")]
+    FeedbackAccepted = 5,
+
+    /// <summary>獲得成就</summary>
+    [Display(Name = "成就")]
+    Achievement = 6
 }
 
 // 標籤 Enums
