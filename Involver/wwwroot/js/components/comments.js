@@ -82,16 +82,35 @@ const app = createApp({
             this.sortBy = 'oldest';
         }
         
-        this.getCommentsAsync(1).then(() => {
+        // 通知或分享連結：#comment-123 捲動到評論，#comment-123-messages 再打開留言
+        const hashMatch = /^#comment-(\d+)(-messages)?$/.exec(window.location.hash);
+        const focusId = hashMatch ? parseInt(hashMatch[1], 10) : null;
+        const shouldOpenMessages = Boolean(hashMatch && hashMatch[2]);
+
+        this.getCommentsAsync(1, focusId).then(() => {
             this.$nextTick(() => {
                 const hash = window.location.hash;
                 if (!hash) return;
 
                 const scrollToHash = () => {
-                    const targetId = hash.substring(1);
-                    const element = document.getElementById(targetId);
-                    if (element) {
-                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // 不是評論錨點時，評論載入後版面可能位移，再捲動一次到原本的錨點
+                    if (!focusId) {
+                        document.getElementById(decodeURIComponent(hash.substring(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        return;
+                    }
+
+                    const element = document.getElementById(`comment-${focusId}`);
+                    if (!element) return;
+
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    element.classList.add('new-comment-highlight');
+                    setTimeout(() => element.classList.remove('new-comment-highlight'), 3000);
+
+                    if (shouldOpenMessages) {
+                        const comment = this.comments.find(c => c.commentID === focusId);
+                        if (comment) {
+                            this.getMessagesAsync(comment);
+                        }
                     }
                 };
 
@@ -163,11 +182,13 @@ const app = createApp({
         /**
          * Fetches comments from the server for a given page and sorting preference.
          * @param {number} [page=1] - The page number to fetch.
+         * @param {number|null} [focusId=null] - 要定位的評論 ID；有值時後端會改回傳這則評論所在的頁。
          */
-        async getCommentsAsync(page = 1) {
+        async getCommentsAsync(page = 1, focusId = null) {
             this.isLoading = true;
             try {
-                const url = `/api/v1/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}&authorOnly=${this.authorOnly}&ownerId=${this.ownerId}`;
+                const focusParam = focusId ? `&focusId=${focusId}` : '';
+                const url = `/api/v1/comments?from=${this.from}&fromID=${this.fromID}&page=${page}&sortBy=${this.sortBy}&authorOnly=${this.authorOnly}&ownerId=${this.ownerId}${focusParam}`;
                 const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch comments');
 

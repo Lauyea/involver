@@ -116,9 +116,8 @@ public class MessagesApiController(
         context.Messages.Add(message);
         await context.SaveChangesAsync();
 
-        // Set notification
-        var url = $"{Request.Scheme}://{Request.Host}/Comments/Details?id={message.CommentID}";
-        await notificationSetter.ForMessageAsync(message.CommentID, message.ProfileID, message.Content, url);
+        // 通知評論者與之前留言過的人；網址由 NotificationSetter 依評論所在的頁面組出
+        await notificationSetter.ForReplyAsync(message);
 
         // Reload the message to include related entities for the response
         var createdMessage = await context.Messages
@@ -161,7 +160,6 @@ public class MessagesApiController(
 
         var message = await context.Messages
             .Include(m => m.Profile) // Needed for mission check
-            .Include(m => m.Comment) // Needed for notification URL
             .FirstOrDefaultAsync(m => m.MessageID == id);
 
         if (message == null)
@@ -241,9 +239,8 @@ public class MessagesApiController(
 
         var toasts = await achievementService.GetAgreeCountAsync(authorProfile.ProfileID);
 
-        // Set notification
-        var url = $"{Request.Scheme}://{Request.Host}/Episodes/Details?id={message.Comment.EpisodeID}#comment-{message.CommentID}";
-        await notificationSetter.ForMessageBeAgreedAsync(message.Content, authorProfile.ProfileID, url, toasts);
+        // 通知留言者
+        await notificationSetter.ForReplyAgreedAsync(message, agreerId, toasts);
 
         await context.SaveChangesAsync();
     }

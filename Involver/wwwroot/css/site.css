@@ -1366,21 +1366,274 @@ h6:hover .anchor-link {
     }
 }
 
-/* Notification Indicator */
-.fa-stack[data-count]:after {
-    background: var(--md-error);
+/* 通知：導覽列的鈴鐺與未讀數（M3 的 badge：error 底色） */
+.notification-bell {
+    align-items: center;
+    display: inline-flex;
+    min-height: 40px;
+    min-width: 40px;
+}
+
+.notification-bell__icon {
+    display: inline-flex;
+    font-size: 1.125rem;
+    position: relative;
+}
+
+.notification-bell__badge {
+    background-color: var(--md-error);
     border-radius: 999px;
     color: var(--md-on-error);
-    content: attr(data-count);
-    font-size: 40%;
-    font-weight: bold;
-    line-height: .75em;
-    min-width: 2em;
-    padding: 1em;
+    font-size: .6875rem;
+    font-weight: 700;
+    left: .625rem;
+    line-height: 1rem;
+    min-width: 1rem;
+    padding: 0 .25rem;
     position: absolute;
-    right: 0%;
     text-align: center;
-    top: 1%;
+    top: -.5rem;
+}
+
+/* 通知下拉選單：標題列＋可捲動的清單＋「查看所有通知」 */
+.notification-menu {
+    max-height: none;
+    overflow: hidden;
+    padding: 0;
+    width: min(380px, calc(100vw - 2rem));
+}
+
+    .notification-menu .notification-list {
+        max-height: min(420px, 60vh);
+        overflow-y: auto;
+    }
+
+.notification-menu__header {
+    align-items: center;
+    border-bottom: 1px solid var(--md-outline-variant);
+    display: flex;
+    gap: .5rem;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: .25rem .5rem .25rem 1rem;
+}
+
+.notification-menu__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.notification-menu__action {
+    min-height: 40px;
+}
+
+.notification-menu__footer {
+    border-top: 1px solid var(--md-outline-variant);
+    color: var(--md-primary);
+    font-weight: 500;
+    padding: .75rem 1rem;
+    text-align: center;
+}
+
+.notification-empty {
+    align-items: center;
+    color: var(--md-on-surface-variant);
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    white-space: normal;
+}
+
+.notification-empty__icon {
+    font-size: 1.5rem;
+}
+
+.notification-empty__text {
+    font-size: .875rem;
+    margin: 0;
+}
+
+/* 通知清單（M3 的 list）：頭像或種類圖示＋文字＋時間，未讀用主色淡底與圓點 */
+.notification-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notification-list--page {
+    background-color: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: .75rem;
+    overflow: hidden;
+}
+
+.notification-item + .notification-item {
+    border-top: 1px solid var(--md-outline-variant);
+}
+
+.notification-item__link {
+    align-items: flex-start;
+    color: var(--md-on-surface);
+    display: flex;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    text-decoration: none;
+    white-space: normal;
+}
+
+    .notification-item__link:hover,
+    .notification-item__link:focus {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+        color: var(--md-on-surface);
+    }
+
+    .notification-item__link:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+    .notification-item__link:active {
+        background-color: color-mix(in oklab, var(--md-on-surface) 12%, transparent);
+        color: var(--md-on-surface);
+    }
+
+.notification-item--unread .notification-item__link {
+    background-color: color-mix(in oklab, var(--md-primary) 8%, transparent);
+}
+
+    .notification-item--unread .notification-item__link:hover,
+    .notification-item--unread .notification-item__link:focus {
+        background-color: color-mix(in oklab, var(--md-primary) 14%, transparent);
+    }
+
+.notification-item__visual {
+    flex-shrink: 0;
+    height: 40px;
+    position: relative;
+    width: 40px;
+}
+
+.notification-item__avatar {
+    border-radius: 50%;
+    height: 40px;
+    object-fit: cover;
+    width: 40px;
+}
+
+.notification-item__icon,
+.notification-item__badge {
+    align-items: center;
+    background-color: var(--md-secondary-container);
+    border-radius: 50%;
+    color: var(--md-on-secondary-container);
+    display: flex;
+    justify-content: center;
+}
+
+.notification-item__icon {
+    font-size: 1rem;
+    height: 40px;
+    width: 40px;
+}
+
+.notification-item__badge {
+    border: 2px solid var(--md-surface-container);
+    bottom: -4px;
+    font-size: .5625rem;
+    height: 1.25rem;
+    position: absolute;
+    right: -4px;
+    width: 1.25rem;
+}
+
+.notification-item__icon--comment,
+.notification-item__badge--comment {
+    background-color: var(--md-primary-container);
+    color: var(--md-on-primary-container);
+}
+
+.notification-item__icon--agree,
+.notification-item__badge--agree {
+    background-color: var(--md-tertiary-container);
+    color: var(--md-on-tertiary-container);
+}
+
+.notification-item__icon--success,
+.notification-item__badge--success {
+    background-color: var(--md-success-container);
+    color: var(--md-on-success-container);
+}
+
+.notification-item__icon--achievement,
+.notification-item__badge--achievement {
+    background-color: var(--md-warning-container);
+    color: var(--md-on-warning-container);
+}
+
+.notification-item__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: .125rem;
+    min-width: 0;
+}
+
+.notification-item__text {
+    font-size: .875rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.notification-item__actor {
+    font-weight: 600;
+}
+
+.notification-item__excerpt {
+    color: var(--md-on-surface-variant);
+    font-size: .8125rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.notification-item__time {
+    color: var(--md-on-surface-variant);
+    font-size: .75rem;
+}
+
+.notification-item__dot {
+    align-self: center;
+    background-color: var(--md-primary);
+    border-radius: 50%;
+    flex-shrink: 0;
+    height: .625rem;
+    width: .625rem;
+}
+
+/* 通知頁：篩選（全部／未讀）與「全部標為已讀」 */
+.notification-toolbar {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+    .notification-toolbar .btn {
+        align-items: center;
+        display: inline-flex;
+        min-height: 40px;
+    }
+
+.notification-page__note {
+    color: var(--md-on-surface-variant);
+    font-size: .8125rem;
+    margin-top: .75rem;
+    text-align: center;
 }
 
 .dot {

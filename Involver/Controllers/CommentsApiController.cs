@@ -30,10 +30,19 @@ public class CommentsApiController(
     IMissionService missionService) : ControllerBase
 {
 
-    // GET: api/Comments
+    /// <summary>
+    /// 取得一頁評論
+    /// </summary>
+    /// <param name="from">評論所在的功能：Articles、Novels、Episodes</param>
+    /// <param name="fromID">功能的 ID</param>
+    /// <param name="page">頁碼</param>
+    /// <param name="sortBy">排序：oldest、newest、most_agrees</param>
+    /// <param name="ownerId">作者 ID（搭配 authorOnly）</param>
+    /// <param name="authorOnly">只看作者的評論</param>
+    /// <param name="focusId">要定位的評論 ID；有值時忽略 page，改回傳這則評論所在的頁（most_agrees 排序不支援）</param>
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest", [FromQuery] string ownerId = null, [FromQuery] bool authorOnly = false)
+    public async Task<IActionResult> GetCommentsAsync([FromQuery] string from, [FromQuery] int fromID, [FromQuery] int page = 1, [FromQuery] string sortBy = "oldest", [FromQuery] string ownerId = null, [FromQuery] bool authorOnly = false, [FromQuery] int? focusId = null)
     {
         IQueryable<Comment> commentsQuery = context.Comments
             .Include(c => c.Profile)
@@ -87,6 +96,22 @@ public class CommentsApiController(
         if (isCommentOrderFixed)
         {
             sortBy = "oldest";
+        }
+
+        // 從通知或分享連結（#comment-123）進來時，直接載入那則評論所在的頁
+        if (focusId is int targetId && await commentsQuery.AnyAsync(c => c.CommentID == targetId))
+        {
+            int? before = sortBy.ToLower() switch
+            {
+                "newest" => await commentsQuery.CountAsync(c => c.CommentID > targetId),
+                "most_agrees" => null,
+                _ => await commentsQuery.CountAsync(c => c.CommentID < targetId),
+            };
+
+            if (before is int count)
+            {
+                page = count / Parameters.CommetPageSize + 1;
+            }
         }
 
         commentsQuery = sortBy.ToLower() switch
@@ -307,9 +332,8 @@ public class CommentsApiController(
         // TODO: Add a way to notify user of mission completion
         await missionService.CompleteAsync(user.Id, MissionType.LeaveComment);
 
-        //Set notification
-        var url = $"{Request.Scheme}://{Request.Host}/{createDto.From}/Details/?id={createDto.FromID}#comment-{comment.CommentID}";
-        await notificationSetter.ForCommentAsync(createDto.From, createDto.FromID, url, user.Id, comment.Content);
+        // 通知作品作者；網址由 NotificationSetter 依評論所在的頁面組出
+        await notificationSetter.ForCommentAsync(comment);
 
         // Achievement check and get achievement toasts
         var toasts = await achievementService.CommentCountAsync(user.Id);
@@ -504,11 +528,8 @@ public class CommentsApiController(
 
                 var toasts = await achievementService.GetAgreeCountAsync(comment.ProfileID);
 
-                // Set notification
-                var from = GetCommentSource(comment);
-                var fromId = GetCommentSourceId(comment);
-                var url = $"{Request.Scheme}://{Request.Host}/{from}/Details?id={fromId}#comment-{comment.CommentID}";
-                await notificationSetter.ForCommentBeAgreedAsync(comment.Content, comment.ProfileID, url, toasts);
+                // 通知評論者
+                await notificationSetter.ForCommentAgreedAsync(comment, currentUserID, toasts);
             }
         }
 
@@ -550,22 +571,5 @@ public class CommentsApiController(
         await context.SaveChangesAsync();
 
         return Ok(new { isBlocked = comment.Block });
-    }
-
-    // API Endpoints will be implemented here
-    private string GetCommentSource(Comment comment)
-    {
-        if (comment.ArticleID != null) return Parameters.Articles;
-        if (comment.NovelID != null) return Parameters.Novels;
-        if (comment.EpisodeID != null) return Parameters.Episodes;
-        return string.Empty;
-    }
-
-    private int? GetCommentSourceId(Comment comment)
-    {
-        if (comment.ArticleID != null) return comment.ArticleID;
-        if (comment.NovelID != null) return comment.NovelID;
-        if (comment.EpisodeID != null) return comment.EpisodeID;
-        return null;
     }
 }

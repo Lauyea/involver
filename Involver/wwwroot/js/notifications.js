@@ -1,90 +1,83 @@
-/**
- * 檢查通知（僅登入者）
- */
-function fetchNotifications() {
-    // 找到儲存資料的容器元素；未登入時 _LoginPartial 不會輸出通知容器，直接略過
-    const container = document.getElementById('notification-container');
-    const notificationElement = document.getElementById('notification');
-
-    if (!container || !notificationElement) {
-        return;
-    }
-
-    // data-notification-url 會對應到 dataset.notificationUrl (注意駝峰命名法)
-    // 後端以登入身分查詢通知，不需要傳 userId
-    const url = container.dataset.notificationUrl;
-
-    if (!url) {
-        console.error('缺少必要的 Data Attribute (notification-url)。');
-        return;
-    }
-
-    fetch(url, {
-        method: 'GET'
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP 錯誤! 狀態碼: ${response.status}`);
-            }
-            return response.text();
-        })
-        .then(result => {
-            notificationElement.innerHTML = result;
-        })
-        .catch(error => {
-            // 處理錯誤
-            console.error('獲取通知失敗:', error);
-            notificationElement.innerHTML = '<p style="color: red;">載入通知失敗。</p>';
-        });
-}
+import { getCsrfHeaders } from '/js/api-client.js';
 
 /**
- * 讀取通知
- * @param {string} id - 使用者 ID
- * @param {string} url - 要發送請求的 URL
+ * 導覽列的通知鈴鐺：載入通知下拉選單，處理「全部標為已讀」。
+ * 選單的 HTML 由 /Feed/Notifications 產生；未登入時 _LoginPartial 不會輸出 #notification，直接略過。
  */
-async function ReadNotification(id, url) {
-    // 原生 DOM 操作
-    const notificationStack = document.getElementById("notificationStack");
-    if (notificationStack) {
-        notificationStack.removeAttribute("data-count");
+
+/**
+ * 載入通知下拉選單到 #notification
+ * @param {HTMLElement} container - 通知的容器（帶 data-notification-url）
+ * @returns {Promise<void>}
+ */
+const getNotificationsAsync = async (container) => {
+  const url = container.dataset.notificationUrl;
+
+  try {
+    const response = await fetch(url, { credentials: 'same-origin' });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    // 取得 Anti-Forgery Token
-    const tokenElement = document.querySelector('input[type="hidden"][name="__RequestVerificationToken"]');
-    const token = tokenElement ? tokenElement.value : null;
+    container.innerHTML = await response.text();
+  } catch (error) {
+    // 保留預設的鈴鐺，只在 console 記錄，不在導覽列顯示錯誤訊息
+    console.error('載入通知失敗：', error);
+  }
+};
 
-    if (!token) {
-        console.error('Anti-forgery token (__RequestVerificationToken) not found.');
-        alert('無法讀取通知 (缺少 token)');
-        return;
+/**
+ * 全部標為已讀：送出後移除未讀樣式與數字，選單保持開著
+ * @param {HTMLElement} container - 通知的容器（帶 data-mark-all-url）
+ * @param {HTMLButtonElement} button - 「全部標為已讀」按鈕
+ * @returns {Promise<void>}
+ */
+const updateAllReadAsync = async (container, button) => {
+  button.disabled = true;
+
+  try {
+    const response = await fetch(container.dataset.markAllUrl, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: getCsrfHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
     }
 
-    // 準備 POST 資料
-    const formData = new URLSearchParams();
-    formData.append('userId', id);
+    container.querySelectorAll('.notification-item--unread').forEach((item) => {
+      item.classList.remove('notification-item--unread');
+      item.querySelector('.notification-item__dot')?.remove();
+    });
+    container.querySelector('.notification-bell__badge')?.remove();
 
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                // 設定標頭
-                'X-CSRF-TOKEN': token,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: formData // 傳送 URL-encoded 的資料
-        });
-
-        if (!response.ok) {
-            alert(`Error: ${response.statusText}`);
-        }
-
-    } catch (err) {
-        alert(`Network error: ${err.message}`);
+    const bell = container.querySelector('.notification-bell');
+    if (bell) {
+      bell.setAttribute('aria-label', '通知');
+      bell.title = '通知';
     }
 
-    const notificationClick = document.getElementById("notificationClick");
-    if (notificationClick) {
-        notificationClick.removeAttribute("onclick");
+    // 按鈕移除前把焦點移到「查看所有通知」，避免焦點掉到 body
+    const nextFocus = container.querySelector('.notification-menu__footer');
+    button.remove();
+    nextFocus?.focus();
+  } catch (error) {
+    console.error('標為已讀失敗：', error);
+    button.disabled = false;
+  }
+};
+
+const container = document.getElementById('notification');
+
+if (container) {
+  container.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-notification-mark-all]');
+    if (button) {
+      updateAllReadAsync(container, button);
     }
+  });
+
+  getNotificationsAsync(container);
 }

@@ -136,10 +136,7 @@ ICoinService coinService) : DI_BasePageModel(context, authorizationService, user
 
         var toasts = await AchievementService.AcceptCountAsync(feedback.ProfileID);
 
-        // Set notification
-        var url = $"{Request.Scheme}://{Request.Host}/Feedbacks/Details?id={id}";
-
-        await notificationSetter.ForFeedbackAcceptAsync(feedback.Title, feedback.ProfileID, url, toasts);
+        await notificationSetter.ForFeedbackAcceptAsync(feedback.ArticleID, feedback.Title, feedback.ProfileID, toasts);
 
         return RedirectToPage("./Index");
     }
