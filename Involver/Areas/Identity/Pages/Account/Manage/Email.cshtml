@@ -1,42 +1,45 @@
 @page
 @model EmailModel
 @{
-    ViewData["Title"] = "郵件管理";
+    ViewData["Title"] = "Email";
     ViewData["ActivePage"] = ManageNavPages.Email;
 }
 
-<h4>@ViewData["Title"]</h4>
 <partial name="_StatusMessage" model="Model.StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="email-form" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="ChangeEmail">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Email"></label>
-                @if (Model.IsEmailConfirmed)
-                {
-                    <div class="input-group">
-                        <input asp-for="Email" class="form-control" disabled />
-                        <div class="input-group-append">
-                            <span class="input-group-text text-success fw-bold">✓</span>
-                        </div>
-                    </div>
-                }
-                 else
-                {
-                    <input asp-for="Email" class="form-control" disabled />
-                    <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-link">Send verification email</button>
-                }
-            </div>
-            <div class="mb-3">
-                <label asp-for="Input.NewEmail"></label>
-                <input asp-for="Input.NewEmail" class="form-control" />
-                <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
-            </div>
-            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn btn-primary">變更 Email</button>
-        </form>
-    </div>
-</div>
+
+<form id="email-form" method="post" class="account-form needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="ChangeEmail">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <section class="account-section" aria-labelledby="current-email-heading">
+        <h2 id="current-email-heading" class="account-section__title">目前的 Email</h2>
+        <div class="account-email">
+            <span class="account-email__address">@Model.Email</span>
+            @if (Model.IsEmailConfirmed)
+            {
+                <span class="account-status account-status--ok"><i class="fas fa-circle-check" aria-hidden="true"></i>已驗證</span>
+            }
+            else
+            {
+                <span class="account-status account-status--warn"><i class="fas fa-circle-exclamation" aria-hidden="true"></i>尚未驗證</span>
+            }
+        </div>
+        @if (!Model.IsEmailConfirmed)
+        {
+            <button id="email-verification" type="submit" asp-page-handler="SendVerificationEmail" class="btn btn-outline-primary mt-3">重新寄送驗證信</button>
+        }
+    </section>
+
+    <section class="account-section" aria-labelledby="new-email-heading">
+        <h2 id="new-email-heading" class="account-section__title">變更 Email</h2>
+        <div class="mb-3">
+            <label asp-for="Input.NewEmail" class="form-label"></label>
+            <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-describedby="new-email-help" />
+            <div id="new-email-help" class="form-text">我們會寄確認信到新的信箱，點信裡的連結後才會變更。</div>
+            <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
+        </div>
+        <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="btn btn-primary">變更 Email</button>
+    </section>
+</form>
 
 @section Scripts {
     <script src="https://www.google.com/recaptcha/api.js?render=@Configuration["reCAPTCHA_SiteKey"]" async defer></script>

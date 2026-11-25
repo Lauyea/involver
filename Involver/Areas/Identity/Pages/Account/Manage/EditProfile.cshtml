@@ -1,0 +1,88 @@
+@page
+@model EditProfileModel
+@using Involver.Models.ViewModels.Profiles
+@{
+    ViewData["Title"] = "個人檔案";
+    ViewData["ActivePage"] = ManageNavPages.EditProfile;
+}
+
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+<p class="account-lead">這些資料會公開在你的<a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.ProfileId">個人檔案</a>上。</p>
+
+<form method="post" class="account-form">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <section class="account-section" aria-labelledby="appearance-heading">
+        <h2 id="appearance-heading" class="account-section__title">頭像與橫幅</h2>
+        <div class="account-preview" aria-hidden="true">
+            <div class="account-preview__banner">
+                <img id="banner-preview" src="@(string.IsNullOrEmpty(Model.Input.BannerImageUrl) ? ProfileHeaderViewModel.DefaultBannerUrl : Model.Input.BannerImageUrl)"
+                     data-default-src="@ProfileHeaderViewModel.DefaultBannerUrl" alt="" />
+            </div>
+            <img id="avatar-preview" class="account-preview__avatar" src="@Model.Input.ImageUrl" alt=""
+                 hidden="@string.IsNullOrEmpty(Model.Input.ImageUrl)" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.ImageUrl" class="form-label"></label>
+            <input asp-for="Input.ImageUrl" class="form-control" type="url" placeholder="https://" data-preview="avatar-preview" aria-describedby="image-url-help" />
+            <div id="image-url-help" class="form-text">沒有設定時使用 Gravatar 的頭像。</div>
+            <span asp-validation-for="Input.ImageUrl" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Input.BannerImageUrl" class="form-label"></label>
+            <input asp-for="Input.BannerImageUrl" class="form-control" type="url" placeholder="https://" data-preview="banner-preview" aria-describedby="banner-url-help" />
+            <div id="banner-url-help" class="form-text">建議使用寬 4：高 1 左右的圖片。沒有設定時使用網站的預設橫幅。</div>
+            <span asp-validation-for="Input.BannerImageUrl" class="text-danger"></span>
+        </div>
+    </section>
+
+    <section class="account-section" aria-labelledby="intro-heading">
+        <h2 id="intro-heading" class="account-section__title">自我介紹</h2>
+        <div class="mb-3">
+            <label for="editor" class="visually-hidden">自我介紹</label>
+            <textarea asp-for="Input.Introduction" id="editor" class="form-control" rows="6" placeholder="介紹你自己、喜歡的作品類型……"></textarea>
+            <div id="word-count" class="form-text"></div>
+            <span asp-validation-for="Input.Introduction" class="text-danger"></span>
+        </div>
+    </section>
+
+    <button type="submit" class="btn btn-primary">儲存</button>
+</form>
+
+@section Scripts {
+    <script type="module">
+      /**
+       * 是否為完整的 http(s) 網址；打到一半的字串不預覽，避免對網站送出相對路徑的請求
+       * @@param {string} value - 輸入的文字
+       * @@returns {boolean} 是完整網址時為 true
+       */
+      const isHttpUrl = (value) => {
+        try {
+          return ['http:', 'https:'].includes(new URL(value).protocol);
+        } catch {
+          return false;
+        }
+      };
+
+      // 輸入圖片網址時即時預覽；清空或不是完整網址時頭像隱藏、橫幅回到預設
+      for (const input of document.querySelectorAll('[data-preview]')) {
+        const preview = document.getElementById(input.dataset.preview);
+        input.addEventListener('input', () => {
+          const value = input.value.trim();
+          const url = isHttpUrl(value) ? value : '';
+          if (preview.dataset.defaultSrc) {
+            preview.src = url || preview.dataset.defaultSrc;
+          } else {
+            preview.hidden = !url;
+            preview.src = url;
+          }
+        });
+      }
+    </script>
+    @{
+        ViewData["EditorId"] = "editor";
+        ViewData["WordCountDivId"] = "word-count";
+        ViewData["MaxLength"] = Parameters.ProfileIntroLength;
+        await Html.RenderPartialAsync("_ClassicEditorPartial");
+    }
+}

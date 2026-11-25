@@ -18,7 +18,7 @@
             }
         </div>
         <div class="col-md-4">
-            @creator.Introduction
+            @creator.Introduction?.StripHTML()
         </div>
         <div class="col-md-3" title="@creator.FollowTime">
             @Involver.Helpers.TimePeriodHelper.Get(creator.FollowTime)

@@ -1,22 +1,35 @@
 ﻿@{
     Layout = "/Pages/Shared/_Layout.cshtml";
+    var userId = userManager.GetUserId(User);
 }
 
-<h1>帳號管理</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
+}
 
-<div>
-    <h4>改變你的帳號設定</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-3">
-            <partial name="_ManageNav" />
+<div class="account">
+    <header class="account__header">
+        <div>
+            <p class="account__eyebrow">帳號管理</p>
+            <h1 class="account__title">@ViewData["Title"]</h1>
         </div>
-        <div class="col-md-9">
+        <a class="btn btn-outline-primary account__profile-link" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@userId">
+            <i class="fas fa-user me-1" aria-hidden="true"></i>查看個人檔案
+        </a>
+    </header>
+    <div class="account__body">
+        <partial name="_ManageNav" />
+        <div class="account__content">
             @RenderBody()
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script>
+      // 手機上導覽是橫向捲動的一列，把目前的頁面捲進畫面
+      document.querySelector('.account-nav [aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    </script>
     @RenderSection("Scripts", required: false)
 }

@@ -106,11 +106,11 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                     "確認你的Email",
                     $"請<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>點擊此連結</a>以確認你的Email");
 
-                StatusMessage = "Confirmation link to change email sent. Please check your email.";
+                StatusMessage = "已寄出確認信，請到新的信箱點連結完成變更。";
                 return RedirectToPage();
             }
 
-            StatusMessage = "Your email is unchanged.";
+            StatusMessage = "Email 沒有變更。";
             return RedirectToPage();
         }
 
@@ -142,7 +142,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
                 "確認你的Email",
                 $"請<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>點擊此連結</a>以確認你的Email");
 
-            StatusMessage = "Verification email sent. Please check your email.";
+            StatusMessage = "已寄出驗證信，請到信箱收信。";
             return RedirectToPage();
         }
     }

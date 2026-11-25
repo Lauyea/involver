@@ -64,6 +64,9 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "ExternalLogins", "外部登入" },
         { "PersonalData", "個人資料" },
         { "Wallet", "錢包與會員" },
+        { "EditProfile", "個人檔案" },
+        { "SetPassword", "設定密碼" },
+        { "DeletePersonalData", "刪除帳號" },
         // 管理員後台
         { "Admin", "管理後台" },
         { "Users", "用戶管理" },

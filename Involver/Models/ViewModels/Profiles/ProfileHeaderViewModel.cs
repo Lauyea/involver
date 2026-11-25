@@ -83,11 +83,6 @@ public class ProfileHeaderViewModel
     public bool IsFollowing { get; init; }
 
     /// <summary>
-    /// 瀏覽者是否可以編輯這個個人檔案
-    /// </summary>
-    public bool CanEdit { get; init; }
-
-    /// <summary>
     /// 瀏覽者是否可以封鎖這位會員
     /// </summary>
     public bool CanBan { get; init; }

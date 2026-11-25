@@ -5,8 +5,6 @@
     ViewData["ActivePage"] = ManageNavPages.Wallet;
 }
 
-<h4>@ViewData["Title"]</h4>
-
 <div class="row row-cols-1 row-cols-sm-3 g-3 mb-4">
     <div class="col">
         <div class="dashboard__card h-100 p-3">
@@ -19,14 +17,14 @@
         <div class="dashboard__card h-100 p-3">
             <div class="kpi-card__label"><i class="fas fa-wallet text-body-secondary me-1" aria-hidden="true"></i>@Html.DisplayNameFor(m => m.Profile.RealCoins)</div>
             <div class="kpi-card__value">@Model.Profile.RealCoins.ToString("N0")</div>
-            <a class="small" asp-area="" asp-page="/Involvings/StoredValue">儲值 In 幣</a>
+            <a class="account-link small" asp-area="" asp-page="/Involvings/StoredValue">儲值 In 幣</a>
         </div>
     </div>
     <div class="col">
         <div class="dashboard__card h-100 p-3">
             <div class="kpi-card__label"><i class="fas fa-chart-line text-body-secondary me-1" aria-hidden="true"></i>本月創作收入</div>
             <div class="kpi-card__value">@Model.Profile.MonthlyCoins.ToString("N0")</div>
-            <a class="small" asp-area="" asp-page="/Creator/Index">在創作者中心查看</a>
+            <a class="account-link small" asp-area="" asp-page="/Creator/Index">在創作者中心查看</a>
         </div>
     </div>
 </div>
@@ -44,8 +42,8 @@
         else
         {
             <div class="d-flex align-items-center gap-2">
-                <a asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="prime">說明</a>
-                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-page="/Involvings/BecomePrime" asp-route-id="@Model.Profile.ProfileID">成為付費會員</a>
+                <a class="account-link" asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="prime">說明</a>
+                <a class="btn btn-outline-primary" asp-area="" asp-page="/Involvings/BecomePrime" asp-route-id="@Model.Profile.ProfileID">成為付費會員</a>
             </div>
         }
     </li>
@@ -61,8 +59,8 @@
         else
         {
             <div class="d-flex align-items-center gap-2">
-                <a asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="professional">說明</a>
-                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-page="/Involvings/BecomeProfessional" asp-route-id="@Model.Profile.ProfileID">成為特約作家</a>
+                <a class="account-link" asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="professional">說明</a>
+                <a class="btn btn-outline-primary" asp-area="" asp-page="/Involvings/BecomeProfessional" asp-route-id="@Model.Profile.ProfileID">成為特約作家</a>
             </div>
         }
     </li>

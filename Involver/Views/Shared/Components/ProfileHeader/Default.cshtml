@@ -55,9 +55,9 @@
             </ul>
         </div>
         <div class="profile-header__actions">
-            @if (Model.CanEdit)
+            @if (Model.IsOwner)
             {
-                <a class="btn btn-outline-primary" asp-area="Identity" asp-page="/Profile/ChangeProfile" asp-route-id="@Model.ProfileId">
+                <a class="btn btn-outline-primary" asp-area="Identity" asp-page="/Account/Manage/EditProfile">
                     <i class="fas fa-pen me-1" aria-hidden="true"></i>編輯個人檔案
                 </a>
             }

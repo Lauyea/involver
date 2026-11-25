@@ -1,0 +1,303 @@
+/* ==============================================
+    帳號管理：頂部、分組導覽（Material navigation drawer／手機為橫向一列）、設定區塊
+    顏色用 site.css 的 M3 色彩角色
+==============================================
+*/
+
+/* site.css 對所有 nav 加了導覽列漸層與圓角，帳號管理的導覽不要 */
+nav.account-nav {
+    background-image: none;
+    border-radius: 0;
+}
+
+/* 觸控目標至少 40 px（手機上根字級是 14 px，所以用 px 下限） */
+.account .btn,
+.account .form-control {
+    min-height: max(2.5rem, 40px);
+}
+
+/* 頂部 */
+.account__header {
+    align-items: flex-end;
+    border-bottom: 1px solid var(--md-outline-variant);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.account__eyebrow {
+    color: var(--md-on-surface-variant);
+    font-size: .875rem;
+    font-weight: 500;
+    margin: 0;
+}
+
+.account__title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.account__profile-link {
+    align-items: center;
+    display: inline-flex;
+}
+
+.account__body {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.account__content {
+    min-width: 0;
+}
+
+@media (min-width: 992px) {
+    .account__body {
+        gap: 2.5rem;
+        grid-template-columns: 15rem minmax(0, 1fr);
+    }
+}
+
+/* 導覽 */
+.account-nav__heading {
+    color: var(--md-on-surface-variant);
+    font-size: .8125rem;
+    font-weight: 600;
+    margin: 0 0 .25rem;
+    padding: 0 1rem;
+}
+
+.account-nav__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.account-nav__group + .account-nav__group {
+    margin-top: 1rem;
+}
+
+.account-nav__item {
+    align-items: center;
+    border-radius: 2rem;
+    color: var(--md-on-surface-variant);
+    display: flex;
+    font-weight: 500;
+    gap: .75rem;
+    min-height: 3rem;
+    padding: 0 1rem;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .account-nav__item:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+        color: var(--md-on-surface);
+    }
+
+    .account-nav__item:focus-visible {
+        background-color: color-mix(in oklab, var(--md-on-surface) 12%, transparent);
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+.account-nav__item--active,
+.account-nav__item--active:hover {
+    background-color: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+}
+
+.account-nav__icon {
+    text-align: center;
+    width: 1.25rem;
+}
+
+/* 手機：導覽改成可以橫向捲動的一列，分組標題隱藏 */
+@media (max-width: 991.98px) {
+    .account-nav {
+        display: flex;
+        gap: .5rem;
+        margin: 0 -.25rem;
+        overflow-x: auto;
+        padding: 0 .25rem .25rem;
+        scrollbar-width: none;
+    }
+
+        .account-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+    .account-nav__heading {
+        display: none;
+    }
+
+    .account-nav__list {
+        display: flex;
+        gap: .5rem;
+    }
+
+    .account-nav__group + .account-nav__group {
+        margin-top: 0;
+    }
+
+    .account-nav__item {
+        border: 1px solid var(--md-outline-variant);
+        border-radius: .5rem;
+        gap: .5rem;
+        min-height: max(2.5rem, 40px);
+        padding: 0 .85rem;
+    }
+
+    .account-nav__item--active {
+        border-color: transparent;
+    }
+}
+
+/* 內容 */
+.account-lead {
+    color: var(--md-on-surface-variant);
+    margin-bottom: 1.25rem;
+}
+
+.account-form {
+    max-width: 40rem;
+}
+
+.account-section {
+    background-color: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: .75rem;
+    color: var(--md-on-surface);
+    margin-bottom: 1.25rem;
+    max-width: 40rem;
+    padding: 1.25rem;
+}
+
+    .account-section > :last-child {
+        margin-bottom: 0;
+    }
+
+.account-section__title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-bottom: .75rem;
+}
+
+.account-section--danger {
+    border-color: var(--md-error);
+}
+
+    .account-section--danger .account-section__title {
+        color: var(--md-error);
+    }
+
+.account-link {
+    align-items: center;
+    display: inline-flex;
+    min-height: max(2.5rem, 40px);
+}
+
+/* 個人檔案的預覽（頭像疊在橫幅上） */
+.account-preview {
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.account-preview__banner {
+    aspect-ratio: 4 / 1;
+    background-color: var(--md-secondary-container);
+    border-radius: .5rem;
+    overflow: hidden;
+}
+
+    .account-preview__banner img {
+        display: block;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+    }
+
+.account-preview__avatar {
+    aspect-ratio: 1;
+    background-color: var(--md-surface-container);
+    border: 3px solid var(--md-surface-container-low);
+    border-radius: 50%;
+    bottom: -2rem;
+    height: 4.5rem;
+    left: 1rem;
+    object-fit: cover;
+    position: absolute;
+    width: 4.5rem;
+}
+
+/* Email 與驗證狀態 */
+.account-email {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+}
+
+.account-email__address {
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.account-status {
+    align-items: center;
+    border-radius: .5rem;
+    display: inline-flex;
+    font-size: .8125rem;
+    font-weight: 500;
+    gap: .35rem;
+    padding: .2rem .6rem;
+}
+
+.account-status--ok {
+    background-color: var(--md-success-container);
+    color: var(--md-on-success-container);
+}
+
+.account-status--warn {
+    background-color: var(--md-warning-container);
+    color: var(--md-on-warning-container);
+}
+
+/* 清單（外部登入） */
+.account-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.account-list__item {
+    align-items: center;
+    border-bottom: 1px solid var(--md-outline-variant);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    justify-content: space-between;
+    padding: .75rem 0;
+}
+
+    .account-list__item:first-child {
+        padding-top: 0;
+    }
+
+    .account-list__item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .account-list__item form {
+        margin: 0;
+    }
+
+.account-list__label {
+    font-weight: 500;
+}
