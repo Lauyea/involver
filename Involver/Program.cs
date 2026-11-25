@@ -6,6 +6,7 @@ using DataAccess.Data;
 using Involver.Authorization.Admin;
 using Involver.Services;
 using Involver.Services.Admin;
+using Involver.Services.Profiles;
 using Involver.Services.Recommendations;
 
 using Microsoft.AspNetCore.Authorization;
@@ -113,6 +114,7 @@ services.AddScoped<IPayoutService, PayoutService>();
 services.AddMemoryCache();
 services.AddScoped<IEpisodeReadService, EpisodeReadService>();
 services.AddScoped<IHomeFeedService, HomeFeedService>();
+services.AddScoped<IProfileReadingService, ProfileReadingService>();
 services.AddScoped<IRecommendationSettingsService, RecommendationSettingsService>();
 services.AddScoped<IRecommendationAnomalyService, RecommendationAnomalyService>();
 services.AddHttpContextAccessor();

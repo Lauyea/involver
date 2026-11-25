@@ -4,80 +4,10 @@
     ViewData["Title"] = "Involvers";
     ViewData["ActivePage"] = ManageNavPages.Involving;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
-
-    // string TitleSub = "";
-    string RecentBtnStyle, MonthlyBtnStyle, TotalTimeBtnStyle;
-    RecentBtnStyle = MonthlyBtnStyle = TotalTimeBtnStyle = "btn-outline-info";
-    var timeSpan = Model.PageViewModel.TimeSpan;
-
-    if (timeSpan == "TotalTime")
-    {
-        // TitleSub = "總共（按程度排序）";
-        TotalTimeBtnStyle = "btn-info disabled";
-    }
-    else if (timeSpan == "Monthly")
-    {
-        // TitleSub = "每月（按程度排序）";
-        MonthlyBtnStyle = "btn-info disabled";
-    }
-    else
-    {
-        // TitleSub = "最近（按時間排序）";
-        RecentBtnStyle = "btn-info disabled";
-    }
 }
 
 <div>
-    <div class="nav nav-pills flex-column flex-sm-row">
-        <div class="dropdown col-md-3 nav-link">
-            <button type="button" class="btn btn-xs btn-outline-info" data-bs-toggle="dropdown">
-                Involving <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="dropdown-menu">
-                <a class="btn btn-xs btn-outline-info dropdown-item"
-                   asp-page="./Involving"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   title="Recent">最近</a>
-                <a class="btn btn-xs btn-outline-info dropdown-item"
-                   asp-page="./Involving"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   asp-route-TimeSpan="Monthly"
-                   title="Monthly">每月</a>
-                <a class="btn btn-xs btn-outline-info dropdown-item"
-                   asp-page="./Involving"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   asp-route-TimeSpan="TotalTime"
-                   title="TotalTime">總共</a>
-            </div>
-        </div>
-        <div class="dropdown col-md-3 nav-link">
-            <button type="button" class="btn btn-xs btn-outline-info" data-bs-toggle="dropdown">
-                Involvers <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="dropdown-menu">
-                <a class="btn btn-xs @RecentBtnStyle dropdown-item"
-                   asp-page="./Involvers"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   title="Recent">最近</a>
-                <a class="btn btn-xs @MonthlyBtnStyle dropdown-item"
-                   asp-page="./Involvers"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   asp-route-TimeSpan="Monthly"
-                   title="Monthly">每月</a>
-                <a class="btn btn-xs @TotalTimeBtnStyle dropdown-item"
-                   asp-page="./Involvers"
-                   asp-route-id="@Model.Profile.ProfileID"
-                   asp-route-TimeSpan="TotalTime"
-                   title="TotalTime">總共</a>
-            </div>
-        </div>
-    </div>
-    <hr />
-    <p></p>
+    <partial name="_InvolvingPeriodPartial" model="Model.PageViewModel.TimeSpan" />
     <div id="involvers-container">
         <partial name="_InvolverListPartial" model="Model.PageViewModel" />
     </div>

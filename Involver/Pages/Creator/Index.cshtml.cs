@@ -29,7 +29,7 @@ public class IndexModel(ApplicationDbContext context, UserManager<InvolverUser> 
     public const int TopCount = 10;
 
     /// <summary>
-    /// 贊助者或支持的作者
+    /// 贊助者
     /// </summary>
     /// <param name="ProfileId">用戶 ID</param>
     /// <param name="UserName">用戶名</param>
@@ -38,15 +38,7 @@ public class IndexModel(ApplicationDbContext context, UserManager<InvolverUser> 
     public record Supporter(string ProfileId, string UserName, decimal Total, decimal Monthly);
 
     /// <summary>
-    /// 最近看過的作品
-    /// </summary>
-    /// <param name="NovelId">作品 ID</param>
-    /// <param name="Title">標題</param>
-    /// <param name="ViewDate">觀看時間</param>
-    public record RecentNovel(int NovelId, string Title, DateTime ViewDate);
-
-    /// <summary>
-    /// 是否有作品或文章（沒有時只顯示讀者視角）
+    /// 是否有作品或文章（沒有時顯示開始創作的空狀態）
     /// </summary>
     public bool HasWorks { get; private set; }
 
@@ -69,21 +61,6 @@ public class IndexModel(ApplicationDbContext context, UserManager<InvolverUser> 
     /// 前幾名贊助者
     /// </summary>
     public List<Supporter> TopSupporters { get; private set; } = [];
-
-    /// <summary>
-    /// 讀者視角 KPI
-    /// </summary>
-    public List<KpiCardViewModel> ReaderCards { get; private set; } = [];
-
-    /// <summary>
-    /// 支持過的作者
-    /// </summary>
-    public List<Supporter> SupportedCreators { get; private set; } = [];
-
-    /// <summary>
-    /// 最近看過的作品
-    /// </summary>
-    public List<RecentNovel> RecentNovels { get; private set; } = [];
 
     /// <summary>
     /// 下次月結時間
@@ -110,8 +87,6 @@ public class IndexModel(ApplicationDbContext context, UserManager<InvolverUser> 
             await LoadSourcesAsync(me, cancellationToken);
             await LoadTopSupportersAsync(me, cancellationToken);
         }
-
-        await LoadReaderViewAsync(me, thisMonth, cancellationToken);
     }
 
     private async Task LoadIncomeAsync(string me, DateOnly thisMonth, CancellationToken cancellationToken)
@@ -230,67 +205,5 @@ public class IndexModel(ApplicationDbContext context, UserManager<InvolverUser> 
         TopSupporters = involvings
             .Select(i => new Supporter(i.InvolverId, names.GetValueOrDefault(i.InvolverId, "（已刪除）"), i.Total, i.Monthly))
             .ToList();
-    }
-
-    private async Task LoadReaderViewAsync(string me, DateOnly thisMonth, CancellationToken cancellationToken)
-    {
-        var thisMonthUtc = thisMonth.ToDateTime(TimeOnly.MinValue).ToUniversalTime();
-        var spending = await context.CoinTransactions
-            .Where(t => t.ProfileId == me
-                && t.Amount < 0
-                && DashboardMetrics.SupportTypes.Contains(t.TransactionType)
-                && t.CreatedAt >= thisMonthUtc)
-            .Select(t => new { t.CoinType, t.Amount })
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        var since = DateTime.Now.AddDays(-DashboardMetrics.MonthlyDays);
-        var novelsRead = await context.Set<DataAccess.Models.NovelModel.NovelViewer>()
-            .CountAsync(v => v.ProfileID == me && v.ViewDate >= since, cancellationToken);
-        var articlesRead = await context.Set<DataAccess.Models.ArticleModel.ArticleViewer>()
-            .CountAsync(v => v.ProfileID == me && v.ViewDate >= since, cancellationToken);
-
-        ReaderCards =
-        [
-            new KpiCardViewModel { Label = "本月花費（實體 In 幣）", Value = -spending.Where(s => s.CoinType == CoinType.Real).Sum(s => s.Amount), Suffix = "In", Icon = "fa-wallet" },
-            new KpiCardViewModel { Label = "本月花費（虛擬 In 幣）", Value = -spending.Where(s => s.CoinType == CoinType.Virtual).Sum(s => s.Amount), Suffix = "In", Icon = "fa-gift" },
-            new KpiCardViewModel { Label = "近 30 天看過的作品", Value = novelsRead, Icon = "fa-book-open-reader" },
-            new KpiCardViewModel { Label = "近 30 天看過的文章", Value = articlesRead, Icon = "fa-newspaper" },
-        ];
-
-        var supported = await context.CoinTransactions
-            .Where(t => t.ProfileId == me
-                && t.Amount < 0
-                && t.CounterpartyProfileId != null
-                && t.CounterpartyProfileId != me
-                && DashboardMetrics.SupportTypes.Contains(t.TransactionType))
-            .GroupBy(t => t.CounterpartyProfileId)
-            .Select(g => new
-            {
-                CreatorId = g.Key,
-                Total = -g.Sum(t => t.Amount),
-                Monthly = -g.Where(t => t.CreatedAt >= thisMonthUtc).Sum(t => t.Amount),
-            })
-            .OrderByDescending(g => g.Total)
-            .Take(TopCount)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-
-        var ids = supported.Select(s => s.CreatorId).ToList();
-        var names = await context.Profiles
-            .Where(p => ids.Contains(p.ProfileID))
-            .Select(p => new { p.ProfileID, p.UserName })
-            .ToDictionaryAsync(p => p.ProfileID, p => p.UserName, cancellationToken);
-        SupportedCreators = supported
-            .Select(s => new Supporter(s.CreatorId, names.GetValueOrDefault(s.CreatorId, "（已刪除）"), s.Total, s.Monthly))
-            .ToList();
-
-        RecentNovels = await context.Set<DataAccess.Models.NovelModel.NovelViewer>()
-            .Where(v => v.ProfileID == me && !v.Novel!.IsDeleted)
-            .OrderByDescending(v => v.ViewDate)
-            .Take(5)
-            .Select(v => new RecentNovel(v.NovelID, v.Novel!.Title, v.ViewDate))
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
     }
 }

@@ -2,25 +2,11 @@
 @model Involver.Areas.Identity.Pages.Profile.ViewesModel
 @{
     ViewData["Title"] = "觀看紀錄";
-    ViewData["ActivePage"] = ManageNavPages.Vieweds;
+    ViewData["ActivePage"] = ManageNavPages.Bookshelf;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 
 <div>
-    <div>
-        <a asp-page="./Vieweds"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-info disabled">創作</a>
-        &nbsp&nbsp
-        <a asp-page="./ViewedArticles"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-outline-info">文章</a>
-    </div>
-    <p></p>
     <div id="vieweds-container">
         <partial name="_ViewedNovelListPartial" model="Model.Novels" />
     </div>

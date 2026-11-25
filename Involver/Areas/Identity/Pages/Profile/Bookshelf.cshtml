@@ -1,0 +1,74 @@
+@page
+@model Involver.Areas.Identity.Pages.Profile.BookshelfModel
+@using Involver.Models.ViewModels.Profiles
+@{
+    ViewData["Title"] = "我的書房";
+    ViewData["ActivePage"] = ManageNavPages.Bookshelf;
+    ViewData["ProfileID"] = Model.Profile.ProfileID;
+}
+
+<div class="row row-cols-2 row-cols-lg-4 g-3 mb-4">
+    @foreach (var card in Model.ReaderCards)
+    {
+        <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
+    }
+</div>
+
+@if (Model.Shelves.Count == 0)
+{
+    <div class="feed-empty mb-4">
+        <div class="feed-empty__icon"><i class="fas fa-book-bookmark" aria-hidden="true"></i></div>
+        <p class="feed-empty__title">書架還是空的</p>
+        <p class="feed-empty__text">在作品頁按「追蹤創作」，作品就會放上書架，並記住你讀到哪一集。</p>
+        <a class="btn btn-primary" asp-area="" asp-page="/Feed/TrendingCreations">看看熱門創作</a>
+    </div>
+}
+else
+{
+    <div class="profile-shelves">
+        @foreach (var shelf in Model.Shelves)
+        {
+            var (title, icon) = shelf.Key switch
+            {
+                BookshelfStatus.Reading => ("閱讀中", "fa-book-open"),
+                BookshelfStatus.NotStarted => ("還沒開始", "fa-bookmark"),
+                _ => ("已讀完", "fa-circle-check"),
+            };
+            <section aria-labelledby="shelf-@shelf.Key">
+                <div class="feed-section__header">
+                    <h2 id="shelf-@shelf.Key" class="feed-section__title"><i class="fas @icon" aria-hidden="true"></i>@title</h2>
+                    <span class="feed-section__more text-body-secondary">@shelf.Count() 部</span>
+                </div>
+                <div class="feed-grid">
+                    @foreach (var item in shelf)
+                    {
+                        <partial name="_ContentCardPartial" model="item.Card" />
+                    }
+                </div>
+            </section>
+        }
+    </div>
+}
+
+<section class="profile-card mt-4" aria-labelledby="supported-heading">
+    <h2 id="supported-heading" class="profile-card__title">支持過的作者</h2>
+    @if (Model.SupportedCreators.Count == 0)
+    {
+        <p class="text-body-secondary mb-0">還沒有支持過作者。讀到喜歡的作品時，可以在作品頁 Involve 作者。</p>
+    }
+    else
+    {
+        <ul class="profile-links">
+            @foreach (var creator in Model.SupportedCreators)
+            {
+                <li>
+                    <a class="profile-links__item" asp-page="./Index" asp-route-id="@creator.ProfileId">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <span>@creator.UserName</span>
+                        <span class="profile-links__meta">本月 @creator.Monthly.ToString("N0")／累計 @creator.Total.ToString("N0") In</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    }
+</section>

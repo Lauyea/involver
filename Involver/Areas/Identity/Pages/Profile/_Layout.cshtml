@@ -1,69 +1,30 @@
 @{
     Layout = "/Pages/Shared/_Layout.cshtml";
-    string bannerImageUrl = null;
-    if (ViewData["BannerImageUrl"] != null)
-    {
-        bannerImageUrl = ViewData["BannerImageUrl"].ToString();
-    }
 }
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
     @RenderSection("Styles", required: false)
 }
 
-<div>
-    @if (bannerImageUrl != null)
+<div class="profile">
+    @await Component.InvokeAsync("ProfileHeader", new
     {
-        <div class="text-center">
-            <div title="@Model.Profile.UserName"
-             class="background-image"
-             style="background-image:url(@bannerImageUrl);">
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="text-center">
-            <div title="@Model.Profile.UserName"
-             class="background-image"
-             style="background-image:url(https://i.imgur.com/xcKo0kB.jpg);">
-                <div class="background-image" style="background-image:linear-gradient(128deg,rgb(255 245 211 / 50%), rgb(247 226 152 / 50%));">
-                </div>
-            </div>
-        </div>
-    }
-    <div class="text-center">
-        @if (!string.IsNullOrEmpty(Model.Profile.ImageUrl))
-        {
-            <img src="@Model.Profile.ImageUrl"
-                 asp-append-version="true"
-                 alt="讀取失敗"
-                 title="@Model.Profile.UserName"
-                 style="max-width: 100%; max-height: 150px; border-radius:50%; z-index:1; position:relative; margin-top:-7rem;">
-        }
-        else
-        {
-            var user = await userManager.FindByIdAsync(Model.Profile.ProfileID);
-            string email = user.Email;
-            string md5 = email.ToMd5();
-            <img src="https://www.gravatar.com/avatar/@md5?d=retro"
-                 alt="讀取失敗"
-                 title="@Model.Profile.UserName"
-                 style="max-width: 100%; max-height: 150px; border-radius:50%; z-index:1; position:relative; margin-top:-7rem;">
-        }
-    </div>
-    <div class="card mx-auto" style="margin-top:-4rem;width:90%;">
-        <div class="card-body row mt-5" style="border-radius: 0.75rem;">
-            <div class="col-md-3 my-3">
-                <partial name="_ManageNav" />
-            </div>
-            <div class="col-md-9">
-                @RenderBody()
-            </div>
-        </div>
+        profileId = ManageNavPages.GetProfileID(ViewContext),
+        activeTab = ManageNavPages.GetActivePage(ViewContext),
+    })
+    <partial name="_ProfileSubNavPartial" />
+    <div class="profile__content">
+        @RenderBody()
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/js/social-actions.js" asp-append-version="true"></script>
+    <script>
+      // 手機上分頁標籤會橫向捲動，把目前的分頁捲進畫面
+      document.querySelector('.profile-tabs [aria-current="page"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    </script>
     @RenderSection("Scripts", required: false)
 }

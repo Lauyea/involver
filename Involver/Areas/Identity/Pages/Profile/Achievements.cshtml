@@ -4,10 +4,6 @@
     ViewData["Title"] = "成就";
     ViewData["ActivePage"] = ManageNavPages.Achievements;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 
 <div class="row">

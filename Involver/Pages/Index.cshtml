@@ -31,7 +31,6 @@
 @if (Model.UserProfile != null)
 {
     var feed = Model.Feed;
-    var userId = Model.UserProfile.ProfileID;
 
     <partial name="_FeedTabsPartial" model="Involver.Models.ViewModels.Feed.FeedTab.Home" />
     <h1 class="visually-hidden">為你推薦</h1>
@@ -45,7 +44,7 @@
                 <h2 id="feed-continue-title" class="feed-section__title">
                     <i class="fas fa-book-bookmark" aria-hidden="true"></i>繼續閱讀
                 </h2>
-                <a class="feed-section__more" asp-area="Identity" asp-page="/Profile/Follow" asp-route-id="@userId">追蹤中的作品</a>
+                <a class="feed-section__more" asp-area="Identity" asp-page="/Profile/Bookshelf">我的書架</a>
             </header>
             @if (feed.ContinueReading.Count > 0)
             {

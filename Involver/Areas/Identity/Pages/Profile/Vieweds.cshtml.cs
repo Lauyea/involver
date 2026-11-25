@@ -91,6 +91,12 @@ public class ViewesModel(
 
     public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
     {
+        // 觀看紀錄只有本人看得到，載入下一頁也要檢查
+        if (id != UserManager.GetUserId(User))
+        {
+            return Forbid();
+        }
+
         var novels = await GetViewedNovels(id, pageIndex);
         return Partial("_ViewedNovelListPartial", novels);
     }

@@ -1,0 +1,31 @@
+@*
+    分頁底下的子分頁（Material Design 的 filter chips），依 ManageNavPages.SubPages 產生。
+    只有一個看得到的子分頁時不顯示。
+*@
+@{
+    var profileId = ManageNavPages.GetProfileID(ViewContext);
+    var isOwner = profileId != null && userManager.GetUserId(User) == profileId;
+    var current = ViewContext.RouteData.Values["page"] as string;
+    var pages = ManageNavPages.SubPages(ManageNavPages.GetActivePage(ViewContext))
+        .Where(p => !p.OwnerOnly || isOwner)
+        .ToList();
+}
+
+@if (pages.Count > 1)
+{
+    <nav class="profile-subnav" aria-label="分類">
+        @foreach (var subPage in pages)
+        {
+            var isActive = string.Equals(subPage.Page, current, StringComparison.OrdinalIgnoreCase);
+            <a class="category-chip @(isActive ? "category-chip--selected" : null)"
+               asp-area="Identity" asp-page="@subPage.Page" asp-route-id="@profileId"
+               aria-current="@(isActive ? "page" : null)">
+                @if (isActive)
+                {
+                    <i class="fas fa-check category-chip__check" aria-hidden="true"></i>
+                }
+                @subPage.Label
+            </a>
+        }
+    </nav>
+}

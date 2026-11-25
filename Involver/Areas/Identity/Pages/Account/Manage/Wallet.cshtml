@@ -1,0 +1,71 @@
+@page
+@model WalletModel
+@{
+    ViewData["Title"] = "錢包與會員";
+    ViewData["ActivePage"] = ManageNavPages.Wallet;
+}
+
+<h4>@ViewData["Title"]</h4>
+
+<div class="row row-cols-1 row-cols-sm-3 g-3 mb-4">
+    <div class="col">
+        <div class="dashboard__card h-100 p-3">
+            <div class="kpi-card__label"><i class="fas fa-coins text-body-secondary me-1" aria-hidden="true"></i>@Html.DisplayNameFor(m => m.Profile.VirtualCoins)</div>
+            <div class="kpi-card__value">@Model.Profile.VirtualCoins.ToString("N0")</div>
+            <div class="small text-body-secondary">完成每週任務與成就可以獲得</div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard__card h-100 p-3">
+            <div class="kpi-card__label"><i class="fas fa-wallet text-body-secondary me-1" aria-hidden="true"></i>@Html.DisplayNameFor(m => m.Profile.RealCoins)</div>
+            <div class="kpi-card__value">@Model.Profile.RealCoins.ToString("N0")</div>
+            <a class="small" asp-area="" asp-page="/Involvings/StoredValue">儲值 In 幣</a>
+        </div>
+    </div>
+    <div class="col">
+        <div class="dashboard__card h-100 p-3">
+            <div class="kpi-card__label"><i class="fas fa-chart-line text-body-secondary me-1" aria-hidden="true"></i>本月創作收入</div>
+            <div class="kpi-card__value">@Model.Profile.MonthlyCoins.ToString("N0")</div>
+            <a class="small" asp-area="" asp-page="/Creator/Index">在創作者中心查看</a>
+        </div>
+    </div>
+</div>
+
+<ul class="list-group mb-3">
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+        <div>
+            <div class="fw-semibold"><i class="fas fa-crown me-2" aria-hidden="true"></i>付費會員</div>
+            <div class="small text-body-secondary">每月可獲得實體與虛擬 In 幣各 150 枚，並且不顯示廣告。</div>
+        </div>
+        @if (Model.Profile.Prime)
+        {
+            <span class="badge text-bg-success">已是付費會員</span>
+        }
+        else
+        {
+            <div class="d-flex align-items-center gap-2">
+                <a asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="prime">說明</a>
+                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-page="/Involvings/BecomePrime" asp-route-id="@Model.Profile.ProfileID">成為付費會員</a>
+            </div>
+        }
+    </li>
+    <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+        <div>
+            <div class="fw-semibold"><i class="fas fa-feather-alt me-2" aria-hidden="true"></i>特約作家</div>
+            <div class="small text-body-secondary">可以獲得月收入分潤。</div>
+        </div>
+        @if (Model.Profile.Professional)
+        {
+            <span class="badge text-bg-info">已是特約作家</span>
+        }
+        else
+        {
+            <div class="d-flex align-items-center gap-2">
+                <a asp-area="" asp-page="/Descriptions/InCoin" asp-fragment="professional">說明</a>
+                <a class="btn btn-sm btn-outline-primary" asp-area="" asp-page="/Involvings/BecomeProfessional" asp-route-id="@Model.Profile.ProfileID">成為特約作家</a>
+            </div>
+        }
+    </li>
+</ul>
+
+<p class="small text-body-secondary">已使用的 In 幣：@Model.Profile.UsedCoins.ToString("N0")</p>

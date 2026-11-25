@@ -46,7 +46,8 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "Interaction", "互動" },
         { "Missions", "任務" },
         { "Achievements", "成就" },
-        { "Vieweds", "觀看紀錄" },
+        { "Vieweds", "閱讀紀錄" },
+        { "Bookshelf", "我的書房" },
         { "Follow", "追蹤" },
         { "Messages", "留言" },
         { "Agrees", "贊同" },
@@ -62,6 +63,7 @@ public class BreadcrumbViewComponent(ApplicationDbContext context) : ViewCompone
         { "ChangePassword", "變更密碼" },
         { "ExternalLogins", "外部登入" },
         { "PersonalData", "個人資料" },
+        { "Wallet", "錢包與會員" },
         // 管理員後台
         { "Admin", "管理後台" },
         { "Users", "用戶管理" },

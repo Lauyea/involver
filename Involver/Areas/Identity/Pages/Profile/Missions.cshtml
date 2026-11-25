@@ -2,12 +2,8 @@
 @model Involver.Areas.Identity.Pages.Profile.MissionsModel
 @{
     ViewData["Title"] = "每週任務";
-    ViewData["ActivePage"] = ManageNavPages.Missions;
+    ViewData["ActivePage"] = ManageNavPages.Bookshelf;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 <div class="card">
     <div class="card-header">

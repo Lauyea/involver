@@ -52,59 +52,21 @@
 }
 else
 {
-    <div class="alert alert-info">
-        你還沒有發表作品或文章，這裡先顯示你身為讀者的數據。
-        <a asp-page="/Novels/Create" class="alert-link">開始創作</a>後就能看到收入與作品表現。
+    <div class="feed-empty">
+        <div class="feed-empty__icon"><i class="fas fa-pen-nib" aria-hidden="true"></i></div>
+        <p class="feed-empty__title">還沒有作品</p>
+        <p class="feed-empty__text">發表第一部創作或文章後，這裡會顯示收入、作品表現與讀者互動。你身為讀者的閱讀進度與花費，在個人檔案的「我的書房」。</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a asp-page="/Novels/Create" class="btn btn-primary">開始創作</a>
+            <a asp-area="Identity" asp-page="/Profile/Bookshelf" class="btn btn-outline-primary">前往我的書房</a>
+        </div>
     </div>
 }
 
-<section aria-labelledby="reader-heading">
-    <h2 id="reader-heading" class="h6 text-body-secondary mb-2">讀者視角</h2>
-    <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
-        @foreach (var card in Model.ReaderCards)
-        {
-            <div class="col">@await Component.InvokeAsync("KpiCard", new { card })</div>
-        }
-    </div>
-    <div class="row g-3">
-        <div class="col-lg-6">
-            <div class="dashboard__card p-3 h-100">
-                <h3 class="h6">支持過的作者</h3>
-                @if (Model.SupportedCreators.Count == 0)
-                {
-                    <p class="small text-body-secondary mb-0">還沒有支持過作者。</p>
-                }
-                <ul class="list-unstyled small mb-0">
-                    @foreach (var creator in Model.SupportedCreators)
-                    {
-                        <li class="d-flex justify-content-between py-1 border-bottom">
-                            <a asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@creator.ProfileId">@creator.UserName</a>
-                            <span>本月 @creator.Monthly.ToString("N0") ／ 累計 <strong>@creator.Total.ToString("N0")</strong></span>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="dashboard__card p-3 h-100">
-                <h3 class="h6">最近看過的作品</h3>
-                @if (Model.RecentNovels.Count == 0)
-                {
-                    <p class="small text-body-secondary mb-0">還沒有閱讀紀錄。</p>
-                }
-                <ul class="list-unstyled small mb-0">
-                    @foreach (var novel in Model.RecentNovels)
-                    {
-                        <li class="d-flex justify-content-between py-1 border-bottom">
-                            <a asp-page="/Novels/Details" asp-route-id="@novel.NovelId">@novel.Title</a>
-                            <span class="text-body-secondary">@novel.ViewDate.ToString("yyyy/MM/dd")</span>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
+@section Styles {
+    @* 沒有作品時的空狀態（.feed-empty）在 feed.css *@
+    <link rel="stylesheet" href="~/css/feed.css" asp-append-version="true" />
+}
 
 @section Scripts {
     <script type="module" src="~/js/charts/chart-panels.js" asp-append-version="true"></script>
