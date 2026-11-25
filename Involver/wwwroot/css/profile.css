@@ -1,0 +1,305 @@
+/* ==============================================
+    個人檔案：頂部（橫幅、頭像、身分、數據）、分頁、總覽與書房
+    分頁標籤、卡片網格、空狀態沿用 feed.css；顏色用 site.css 的 M3 色彩角色
+==============================================
+*/
+
+/* site.css 對所有 nav 加了導覽列漸層與圓角，個人檔案的子分頁不要 */
+nav.profile-subnav {
+    background-image: none;
+    border-radius: 0;
+}
+
+/* 頂部 */
+.profile-header {
+    background-color: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: 1rem;
+    color: var(--md-on-surface);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.profile-header__banner {
+    background-color: var(--md-secondary-container);
+    height: clamp(6rem, 22vw, 13rem);
+    position: relative;
+}
+
+.profile-header__banner-img {
+    display: block;
+    height: 100%;
+    object-fit: cover;
+    width: 100%;
+}
+
+/* 預設橫幅的色調：原本是淡黃色半透明，改用主題色，深色模式也適用 */
+.profile-header__banner-tint {
+    background-color: color-mix(in oklab, var(--md-primary-container) 50%, transparent);
+    inset: 0;
+    position: absolute;
+}
+
+.profile-header__body {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    padding: 0 1.5rem 1.25rem;
+}
+
+.profile-header__avatar {
+    aspect-ratio: 1;
+    background-color: var(--md-surface-container);
+    border: 4px solid var(--md-surface-container-low);
+    border-radius: 50%;
+    flex: none;
+    height: 7rem;
+    margin-top: -3.5rem;
+    object-fit: cover;
+    /* 預設橫幅的色調層是絕對定位，頭像要疊在它上面 */
+    position: relative;
+    width: 7rem;
+    z-index: 1;
+}
+
+.profile-header__info {
+    flex: 1 1 14rem;
+    min-width: 0;
+}
+
+.profile-header__name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.profile-header__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .5rem;
+}
+
+.profile-header__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.25rem;
+    list-style: none;
+    margin: .25rem 0 0;
+    padding: 0;
+}
+
+    .profile-header__stats a {
+        align-items: center;
+        color: var(--md-on-surface-variant);
+        display: inline-flex;
+        gap: .3rem;
+        min-height: max(2.5rem, 40px);
+        text-decoration: none;
+    }
+
+        .profile-header__stats a:hover {
+            text-decoration: underline;
+        }
+
+    .profile-header__stats strong {
+        color: var(--md-on-surface);
+    }
+
+.profile-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+    .profile-header__actions .btn {
+        align-items: center;
+        display: inline-flex;
+        min-height: max(2.5rem, 40px);
+    }
+
+    .profile-header__actions form {
+        margin: 0;
+    }
+
+/* 身分徽章（Material assist chip 的樣式） */
+.profile-badge {
+    align-items: center;
+    background-color: var(--md-secondary-container);
+    border-radius: .5rem;
+    color: var(--md-on-secondary-container);
+    display: inline-flex;
+    font-size: .8125rem;
+    font-weight: 500;
+    gap: .35rem;
+    padding: .2rem .6rem;
+}
+
+.profile-badge--professional {
+    background-color: var(--md-tertiary-container);
+    color: var(--md-on-tertiary-container);
+}
+
+.profile-badge--banned {
+    background-color: var(--md-error-container);
+    color: var(--md-on-error-container);
+}
+
+/* 分頁與子分頁 */
+.profile-tabs {
+    margin-bottom: 1rem;
+}
+
+.profile-subnav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-bottom: 1.25rem;
+}
+
+    .profile-subnav .category-chip {
+        min-height: max(2.5rem, 40px);
+    }
+
+/* 總覽：主欄（繼續閱讀、最新作品）＋側欄（關於、本人的捷徑） */
+.profile-overview {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.profile-overview__main {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+}
+
+.profile-overview__side {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 992px) {
+    .profile-overview {
+        grid-template-columns: minmax(0, 1fr) 20rem;
+    }
+}
+
+/* 側欄卡片 */
+.profile-card {
+    background-color: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: .75rem;
+    color: var(--md-on-surface);
+    padding: 1rem 1.25rem;
+}
+
+.profile-card__title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .75rem;
+}
+
+.profile-card__intro {
+    margin-bottom: 1rem;
+    overflow-wrap: anywhere;
+}
+
+.profile-card__facts {
+    display: grid;
+    gap: .5rem;
+    margin: 0;
+}
+
+    .profile-card__facts > div {
+        display: flex;
+        gap: 1rem;
+        justify-content: space-between;
+    }
+
+    .profile-card__facts dt {
+        color: var(--md-on-surface-variant);
+        font-weight: 400;
+    }
+
+        .profile-card__facts dt i {
+            margin-right: .5rem;
+            text-align: center;
+            width: 1rem;
+        }
+
+    .profile-card__facts dd {
+        margin: 0;
+        text-align: end;
+    }
+
+/* 連結清單（Material list） */
+.profile-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-links__item {
+    align-items: center;
+    border-radius: .5rem;
+    color: var(--md-on-surface);
+    display: flex;
+    gap: .75rem;
+    margin: 0 -.5rem;
+    min-height: 3rem;
+    padding: .25rem .5rem;
+    text-decoration: none;
+}
+
+    .profile-links__item:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+        color: var(--md-on-surface);
+    }
+
+    .profile-links__item:focus-visible {
+        background-color: color-mix(in oklab, var(--md-on-surface) 12%, transparent);
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+    .profile-links__item i {
+        color: var(--md-on-surface-variant);
+        flex: none;
+        text-align: center;
+        width: 1.25rem;
+    }
+
+.profile-links__meta {
+    color: var(--md-on-surface-variant);
+    font-size: .8125rem;
+    margin-left: auto;
+    text-align: end;
+}
+
+/* 書房：閱讀中、還沒開始、已讀完 */
+.profile-shelves {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+@media (max-width: 575.98px) {
+    .profile-header__body {
+        padding: 0 1rem 1rem;
+    }
+
+    .profile-header__avatar {
+        height: 5.5rem;
+        margin-top: -2.75rem;
+        width: 5.5rem;
+    }
+
+    .profile-header__actions {
+        width: 100%;
+    }
+}

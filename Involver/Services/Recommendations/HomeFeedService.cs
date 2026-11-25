@@ -41,6 +41,22 @@ public interface IHomeFeedService
     /// <param name="tagIds">分類標籤 ID（最多 <see cref="HomeFeedService.MaxPreferredCategories"/> 個，不是分類的會略過）</param>
     /// <param name="cancellationToken">取消權杖</param>
     Task SavePreferredCategoriesAsync(string profileId, IEnumerable<int> tagIds, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 讀取作品卡片需要的欄位（排除刪除、封鎖）。個人檔案的作品、書架也用這個組卡片
+    /// </summary>
+    /// <param name="ids">作品 ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>以作品 ID 為鍵的卡片；找不到或不能顯示的作品不會出現</returns>
+    Task<Dictionary<int, ContentCardViewModel>> LoadNovelCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// 讀取文章卡片需要的欄位（只限一般文章，排除刪除、封鎖）
+    /// </summary>
+    /// <param name="ids">文章 ID</param>
+    /// <param name="cancellationToken">取消權杖</param>
+    /// <returns>以文章 ID 為鍵的卡片；找不到或不能顯示的文章不會出現</returns>
+    Task<Dictionary<int, ContentCardViewModel>> LoadArticleCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
 }
 
 /// <inheritdoc />
@@ -603,10 +619,8 @@ public class HomeFeedService(
         return result;
     }
 
-    /// <summary>
-    /// 讀取作品卡片需要的欄位（排除刪除、封鎖）
-    /// </summary>
-    private async Task<Dictionary<int, ContentCardViewModel>> LoadNovelCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public async Task<Dictionary<int, ContentCardViewModel>> LoadNovelCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.Distinct().ToList();
         if (idList.Count == 0)
@@ -653,10 +667,8 @@ public class HomeFeedService(
         });
     }
 
-    /// <summary>
-    /// 讀取文章卡片需要的欄位（只限一般文章，排除刪除、封鎖）
-    /// </summary>
-    private async Task<Dictionary<int, ContentCardViewModel>> LoadArticleCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken)
+    /// <inheritdoc />
+    public async Task<Dictionary<int, ContentCardViewModel>> LoadArticleCardsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
     {
         var idList = ids.Distinct().ToList();
         if (idList.Count == 0)

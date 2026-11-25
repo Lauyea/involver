@@ -1,0 +1,26 @@
+@model string
+@*
+    Involving／Involvers 的期間切換：最近（依時間）、本月與累計（依金額）。
+    Model 是目前的 TimeSpan；連結回到目前的頁面。
+*@
+@{
+    var profileId = ManageNavPages.GetProfileID(ViewContext);
+    var current = ViewContext.RouteData.Values["page"] as string;
+    var options = new (string Value, string Label)[]
+    {
+        (null, "最近"),
+        ("Monthly", "本月"),
+        ("TotalTime", "累計"),
+    };
+    var selected = Model is "Monthly" or "TotalTime" ? Model : null;
+}
+
+<div class="btn-group btn-group-sm mb-3" role="group" aria-label="期間">
+    @foreach (var (value, label) in options)
+    {
+        var isActive = value == selected;
+        <a class="btn @(isActive ? "btn-primary" : "btn-outline-secondary")"
+           asp-area="Identity" asp-page="@current" asp-route-id="@profileId" asp-route-TimeSpan="@value"
+           aria-current="@(isActive ? "true" : null)">@label</a>
+    }
+</div>

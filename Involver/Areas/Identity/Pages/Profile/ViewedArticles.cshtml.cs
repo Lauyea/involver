@@ -122,6 +122,12 @@ public class ViewedArticlesModel(
 
     public async Task<IActionResult> OnGetLoadMoreAsync(string id, int pageIndex)
     {
+        // 觀看紀錄只有本人看得到，載入下一頁也要檢查
+        if (id != UserManager.GetUserId(User))
+        {
+            return Forbid();
+        }
+
         var articles = await GetViewedArticles(id, pageIndex);
         return Partial("_ViewedArticleListPartial", articles);
     }

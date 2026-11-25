@@ -1,241 +1,141 @@
 @page
 @model Involver.Areas.Identity.Pages.Profile.IndexModel
 @{
-    ViewData["Title"] = "基本資料";
+    ViewData["Title"] = $"{Model.Profile.UserName} 的個人檔案";
     ViewData["ActivePage"] = ManageNavPages.Index;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 
 <partial name="_StatusMessage" model="Model.StatusMessage" />
-<div>
-    <div>
-        @if ((await AuthorizationService.AuthorizeAsync(
-        User, Model.Profile,
-        ProfileOperations.Update)).Succeeded)
+
+<div class="profile-overview">
+    <div class="profile-overview__main">
+        @if (Model.ProfileOwner)
         {
-            <a asp-page="./ChangeProfile"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-outline-primary">
-                <i class="far fa-edit"></i>
-                編輯
-            </a>
+            <section aria-labelledby="continue-heading">
+                <div class="feed-section__header">
+                    <h2 id="continue-heading" class="feed-section__title"><i class="fas fa-book-open" aria-hidden="true"></i>繼續閱讀</h2>
+                    <a class="feed-section__more" asp-page="./Bookshelf" asp-route-id="@Model.Profile.ProfileID">前往書房</a>
+                </div>
+                @if (Model.ContinueReading.Count > 0)
+                {
+                    <div class="feed-scroller">
+                        @foreach (var item in Model.ContinueReading)
+                        {
+                            <div class="feed-scroller__item"><partial name="_ContentCardPartial" model="item.Card" /></div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="feed-section__empty">
+                        @(Model.HasBookshelf ? "追蹤的作品都讀完了，或還沒開始讀。" : "追蹤喜歡的作品，就能在這裡接著上次的進度讀。")
+                        <a asp-page="./Bookshelf" asp-route-id="@Model.Profile.ProfileID">打開書架</a>
+                    </p>
+                }
+            </section>
         }
-        @if (!Model.ProfileOwner && Model.UserID != null)
-        {
-            @if (Model.Followed)
+
+        <section aria-labelledby="works-heading">
+            <div class="feed-section__header">
+                <h2 id="works-heading" class="feed-section__title"><i class="fas fa-pen-nib" aria-hidden="true"></i>最新作品</h2>
+                @if (Model.LatestWorks.Count > 0)
+                {
+                    <a class="feed-section__more" asp-page="./Creations" asp-route-id="@Model.Profile.ProfileID">全部作品</a>
+                }
+            </div>
+            @if (Model.LatestWorks.Count > 0)
             {
-                <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
-                        class="btn btn-xs btn-secondary">
-                    取消追蹤
-                </button>
+                <div class="feed-grid">
+                    @foreach (var card in Model.LatestWorks)
+                    {
+                        <partial name="_ContentCardPartial" model="card" />
+                    }
+                </div>
+            }
+            else if (Model.ProfileOwner)
+            {
+                <p class="feed-section__empty">
+                    還沒有發表作品。<a asp-area="" asp-page="/Novels/Create">開始創作</a>
+                </p>
             }
             else
             {
-                <button onclick="FollowAuthor(this, '@Model.Profile.ProfileID')"
-                class="btn btn-xs btn-primary">追蹤作者</button>
+                <p class="feed-section__empty">@Model.Profile.UserName 還沒有發表作品。</p>
             }
-        }
-        &nbsp&nbsp
-        @if (!Model.Profile.Banned)
-        {
-            @if ((await AuthorizationService.AuthorizeAsync(
-           User, Model.Profile, ProfileOperations.Ban)).Succeeded)
-            {
-                <form style="display:inline;" method="post">
-                    <input type="hidden" name="id" value="@Model.Profile.ProfileID" />
-                    <input type="hidden" name="ban" value="@true " />
-                    <button type="submit" class="btn btn-xs btn-danger">Ban</button>
-                </form>
-            }
-        }
-        else
-        {
-            @if ((await AuthorizationService.AuthorizeAsync(
-           User, Model.Profile, ProfileOperations.Ban)).Succeeded)
-            {
-                <form style="display:inline;" method="post">
-                    <input type="hidden" name="id" value="@Model.Profile.ProfileID" />
-                    <input type="hidden" name="ban" value="@false" />
-                    <button type="submit" class="btn btn-xs btn-success">Unban</button>
-                </form>
-            }
-        }
+        </section>
     </div>
-    <p></p>
-    <div class="row">
-        <div class="col-md-5 my-3 text-center">
-            @* @if (!string.IsNullOrEmpty(Model.Profile.ImageUrl)) // 標準化在 _Layout 上方水平置中
+
+    <aside class="profile-overview__side">
+        <section class="profile-card" aria-labelledby="about-heading">
+            <h2 id="about-heading" class="profile-card__title">關於</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.Profile.Introduction))
             {
-                <img src="@Model.Profile.ImageUrl"
-                 asp-append-version="true"
-                 alt="讀取失敗"
-                 title="@Model.Profile.UserName"
-                 style="max-width: 100%; max-height: 150px; display:inline; border-radius:50%">
+                <div class="profile-card__intro">@Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))</div>
             }
-            else
+            else if (Model.ProfileOwner)
             {
-                var user = await userManager.FindByIdAsync(Model.Profile.ProfileID);
-                <img src="https://www.gravatar.com/avatar/@user.Email.ToMd5()?d=retro"
-                 alt="讀取失敗"
-                 title="@Model.Profile.UserName"
-                 style="max-width: 100%; max-height: 150px; display:inline; border-radius:50%">
-            } *@
-            <p class="mt-1">
-                <b>@Html.DisplayFor(model => model.Profile.UserName)</b>
-            </p>
-            @if (Model.Profile.CanChangeUserName && Model.ProfileOwner)
-            {
-                <a class="btn btn-xs btn-outline-primary my-3"
-               asp-area="Identity"
-               asp-page="/Account/Manage/Index">
-                    可變更用戶名一次
-                </a>
+                <p class="profile-card__intro text-body-secondary">
+                    還沒有自我介紹。<a asp-page="./ChangeProfile" asp-route-id="@Model.Profile.ProfileID">寫一段介紹</a>
+                </p>
             }
-            @if (Model.Profile.Introduction != null)
-            {
-                <div class="mt-3 text-center text-body-secondary">@Html.AntiXssRaw(Model.Profile.Introduction.Replace("\r\n", "<br />"))</div>
-            }
-        </div>
-        <div class="col-md-7">
-            <div class="card">
-                <ul class="list-group list-group-flush">
-                    @if ((await AuthorizationService.AuthorizeAsync(User, Model.Profile, ProfileOperations.Update)).Succeeded)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="fas fa-dollar-sign text-success me-2"></i>
-                                @Html.DisplayNameFor(model => model.Profile.RealCoins)
-                            </span>
-                            <div>
-                                <a class="btn btn-xs btn-outline-success"
-                                   asp-page="/Involvings/StoredValue"
-                                   asp-route-id="@Model.Profile.ProfileID">
-                                    <i class="fas fa-donate"></i> 儲值In幣
-                                </a>
-                                <span class="badge bg-light text-dark ms-2">@Html.DisplayFor(model => model.Profile.RealCoins)</span>
-                            </div>
-                        </li>
-                    }
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-coins text-warning me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.VirtualCoins)
-                        </span>
-                        <span class="badge bg-light text-dark">@Html.DisplayFor(model => model.Profile.VirtualCoins)</span>
+            <dl class="profile-card__facts">
+                <div>
+                    <dt><i class="far fa-calendar-alt" aria-hidden="true"></i>加入</dt>
+                    <dd>@Model.Profile.EnrollmentDate.ToString("yyyy/MM/dd")</dd>
+                </div>
+                <div>
+                    <dt><i class="far fa-clock" aria-hidden="true"></i>最近上線</dt>
+                    <dd title="@Model.Profile.LastTimeLogin">@TimePeriodHelper.Get(Model.Profile.LastTimeLogin)</dd>
+                </div>
+                <div>
+                    <dt><i class="far fa-eye" aria-hidden="true"></i>個人檔案瀏覽</dt>
+                    <dd>@Model.Profile.Views.ToString("N0")</dd>
+                </div>
+                <div>
+                    <dt><i class="fas fa-trophy" aria-hidden="true"></i>成就</dt>
+                    <dd><a asp-page="./Achievements" asp-route-id="@Model.Profile.ProfileID">@Model.AchievementCount 個</a></dd>
+                </div>
+            </dl>
+        </section>
+
+        @if (Model.ProfileOwner)
+        {
+            <section class="profile-card" aria-labelledby="mine-heading">
+                <h2 id="mine-heading" class="profile-card__title">只有你看得到</h2>
+                <ul class="profile-links">
+                    <li>
+                        <a class="profile-links__item" asp-page="./Missions" asp-route-id="@Model.Profile.ProfileID">
+                            <i class="fas fa-list-check" aria-hidden="true"></i>
+                            <span>每週任務</span>
+                            <span class="profile-links__meta">@Model.MissionsDone／@IndexModel.MissionCount</span>
+                        </a>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-gift text-danger me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.MonthlyCoins)
-                        </span>
-                        <div>
-                            <a class="btn btn-xs btn-outline-danger"
-                               asp-page="/Involvings/InvolveCreator"
-                               asp-route-id="@Model.Profile.ProfileID">
-                                <i class="fas fa-coins"></i> Involve
-                            </a>
-                            <span class="badge bg-light text-dark ms-2">@Html.DisplayFor(model => model.Profile.MonthlyCoins)</span>
-                        </div>
+                    <li>
+                        <a class="profile-links__item" asp-page="/Account/Manage/Wallet">
+                            <i class="fas fa-wallet" aria-hidden="true"></i>
+                            <span>錢包與會員</span>
+                            <span class="profile-links__meta">@((Model.Profile.VirtualCoins + Model.Profile.RealCoins).ToString("N0")) In</span>
+                        </a>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="far fa-calendar-alt text-info me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.EnrollmentDate)
-                        </span>
-                        <span class="text-body-secondary">@Html.DisplayFor(model => model.Profile.EnrollmentDate)</span>
+                    <li>
+                        <a class="profile-links__item" asp-area="" asp-page="/Creator/Index">
+                            <i class="fas fa-chart-line" aria-hidden="true"></i>
+                            <span>創作者中心</span>
+                        </a>
                     </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="far fa-clock text-info me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.LastTimeLogin)
-                        </span>
-                        <span class="text-body-secondary" title="@Model.Profile.LastTimeLogin">@TimePeriodHelper.Get(Model.Profile.LastTimeLogin)</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-crown text-primary me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.Prime)
-                        </span>
-                        <div>
-                            <span class="badge @(Model.Profile.Prime ? "bg-success" : "bg-secondary") me-2">@Html.DisplayFor(model => model.Profile.Prime)</span>
-                            @if (!Model.Profile.Prime && (await AuthorizationService.AuthorizeAsync(User, Model.Profile, ProfileOperations.Update)).Succeeded)
+                    <li>
+                        <a class="profile-links__item" asp-page="/Account/Manage/Index">
+                            <i class="fas fa-gear" aria-hidden="true"></i>
+                            <span>帳號管理</span>
+                            @if (Model.Profile.CanChangeUserName)
                             {
-                                <a class="btn btn-xs btn-outline-success"
-                                   asp-page="/Involvings/BecomePrime"
-                                   asp-route-id="@Model.Profile.ProfileID"
-                                   title="成為付費會員，每月可獲得實體與虛擬In幣各150枚">
-                                    <i class="fas fa-fist-raised"></i> 成為付費會員
-                                </a>
-                                <a asp-page="/Descriptions/InCoin"
-                                   asp-fragment="prime"
-                                   target="_blank"
-                                   title="成為付費會員，每月可獲得實體與虛擬In幣各150枚">
-                                    <i class="far fa-question-circle"></i>
-                                </a>
+                                <span class="profile-links__meta">可變更用戶名一次</span>
                             }
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-feather-alt text-primary me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.Professional)
-                        </span>
-                        <div>
-                            <span class="badge @(Model.Profile.Professional ? "bg-info" : "bg-secondary") me-2">@Html.DisplayFor(model => model.Profile.Professional)</span>
-                            @if (!Model.Profile.Professional && (await AuthorizationService.AuthorizeAsync(User, Model.Profile, ProfileOperations.Update)).Succeeded)
-                            {
-                                <a class="btn btn-xs btn-outline-info"
-                                   asp-page="/Involvings/BecomeProfessional"
-                                   asp-route-id="@Model.Profile.ProfileID"
-                                   title="成為特約作家，可獲得月收入分潤">
-                                    <i class="fas fa-feather-alt"></i> 成為特約作家
-                                </a>
-                                <a asp-page="/Descriptions/InCoin"
-                                   asp-fragment="professional"
-                                   target="_blank"
-                                   title="成為特約作家，可獲得月收入分潤">
-                                    <i class="far fa-question-circle"></i>
-                                </a>
-                            }
-                        </div>
-                    </li>
-                    @if (Model.Profile.Banned == true)
-                    {
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="fas fa-gavel text-danger me-2"></i>
-                                @Html.DisplayNameFor(model => model.Profile.Banned)
-                            </span>
-                            <span class="badge bg-danger">@Html.DisplayFor(model => model.Profile.Banned)</span>
-                        </li>
-                    }
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="far fa-eye text-body-secondary me-2"></i>
-                            @Html.DisplayNameFor(model => model.Profile.Views)
-                        </span>
-                        <span class="text-body-secondary">@Html.DisplayFor(model => model.Profile.Views)</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-user-friends text-body-secondary me-2"></i>
-                            追蹤數
-                        </span>
-                        <a asp-page="./Followers"
-                           asp-route-id="@Model.Profile.ProfileID">
-                            @Model.FollowerCount 個追蹤者
                         </a>
                     </li>
                 </ul>
-            </div>
-        </div>
-    </div>
+            </section>
+        }
+    </aside>
 </div>
-
-@section Scripts {
-    <script src="~/js/social-actions.js" asp-append-version="true"></script>
-}

@@ -1116,6 +1116,28 @@ button.accept-policy {
     outline-offset: 2px;
 }
 
+/* 連結形式的 chip（個人檔案的子分頁）：選中狀態和勾選的 chip 一樣 */
+a.category-chip {
+    text-decoration: none;
+}
+
+    a.category-chip:focus-visible {
+        outline: 2px solid var(--primary-accent);
+        outline-offset: 2px;
+    }
+
+.category-chip--selected,
+.category-chip--selected:hover {
+    background-color: rgba(var(--primary-accent-rgb), .18);
+    border-color: transparent;
+    color: var(--text-color);
+}
+
+    .category-chip--selected .category-chip__check {
+        color: var(--primary-accent);
+        display: inline;
+    }
+
 .btn-check:disabled + .category-chip {
     cursor: not-allowed;
     opacity: .45;

@@ -4,31 +4,9 @@
     ViewData["Title"] = "追蹤";
     ViewData["ActivePage"] = ManageNavPages.Follow;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 
 <div>
-    <div>
-        <a asp-page="./Follow"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-info disabled">創作</a>
-        &nbsp
-        <a asp-page="./FollowArticles"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-outline-info">討論</a>
-        &nbsp
-        <a asp-page="./FollowCreators"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-outline-info">創作者</a>
-        &nbsp
-        <a asp-page="./Followers"
-           asp-route-id="@Model.Profile.ProfileID"
-           class="btn btn-xs btn-outline-info">追蹤者</a>
-    </div>
-    <p></p>
     <div id="follow-container">
         <partial name="_FollowListPartial" model="Model.Follows" />
     </div>

@@ -36,7 +36,7 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
             .Include(p => p.Missions)
             .Where(p => p.ProfileID == id)
             .FirstOrDefaultAsync();
-        Missions = Profile.Missions;
+        Missions = Profile?.Missions;
     }
 
     public async Task<IActionResult> OnGetAsync(string id)
@@ -44,7 +44,8 @@ IAchievementService achievementService) : DI_BasePageModel(context, authorizatio
         await LoadAsync(id);
         if (Profile != null)
         {
-            return Page();
+            // 每週任務放在「我的書房」，只有本人看得到
+            return ProfileOwner ? Page() : Forbid();
         }
         else
         {

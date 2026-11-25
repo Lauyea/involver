@@ -2,31 +2,44 @@
 @model Involver.Areas.Identity.Pages.Profile.ArticlesModel
 @{
     ViewData["Title"] = "文章";
-    ViewData["ActivePage"] = ManageNavPages.Articles;
+    ViewData["ActivePage"] = ManageNavPages.Creations;
     ViewData["ProfileID"] = Model.Profile.ProfileID;
-    if (!string.IsNullOrEmpty(Model.Profile.BannerImageUrl))
-    {
-        ViewData["BannerImageUrl"] = Model.Profile.BannerImageUrl;
-    }
 }
 
-<div class="row">
-    <div class="col-md-12">
-        <div id="articles-container">
-            <partial name="_ArticleListPartial" model="Model.Articles" />
-        </div>
-        <div id="loading" style="display: none;" class="text-center">
-            <p>正在加載更多...</p>
-        </div>
+@if (Model.Cards.Count == 0)
+{
+    <div class="feed-empty">
+        <div class="feed-empty__icon"><i class="fas fa-newspaper" aria-hidden="true"></i></div>
+        <p class="feed-empty__title">還沒有文章</p>
+        @if (Model.IsOwner)
+        {
+            <p class="feed-empty__text">發表第一篇文章，讓讀者在這裡找到你。</p>
+            <a class="btn btn-primary" asp-area="" asp-page="/Articles/Create">開始寫文章</a>
+        }
+        else
+        {
+            <p class="feed-empty__text">@Model.Profile.UserName 還沒有發表文章。</p>
+        }
     </div>
-</div>
+}
+else
+{
+    <div class="feed-grid" id="works-container">
+        <partial name="_WorkCardListPartial" model="Model.Cards" />
+    </div>
+    <div id="loading" class="text-center text-body-secondary py-3" style="display: none;">
+        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>正在載入更多…
+    </div>
+}
 
 @section Scripts {
-    <script src="~/js/utils.js" asp-append-version="true"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var profileId = "@Model.Profile.ProfileID";
-            setupInfiniteScroll('#articles-container', '#loading', 'LoadMore', { id: profileId });
-        });
-    </script>
+    @if (Model.Cards.Count > 0)
+    {
+        <script src="~/js/utils.js" asp-append-version="true"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                setupInfiniteScroll('#works-container', '#loading', 'LoadMore', { id: '@Model.Profile.ProfileID' });
+            });
+        </script>
+    }
 }

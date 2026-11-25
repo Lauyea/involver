@@ -1,0 +1,104 @@
+@model Involver.Models.ViewModels.Profiles.ProfileHeaderViewModel
+@* Views/ 底下沒有 _ViewImports，要在這裡註冊，asp-area／asp-page 才會產生 href *@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<header class="profile-header">
+    <div class="profile-header__banner">
+        @if (Model.BannerUrl != null)
+        {
+            <img class="profile-header__banner-img" src="@Model.BannerUrl" alt="" />
+        }
+        else
+        {
+            @* 預設橫幅疊一層主題色，和自訂橫幅區分，也讓深色模式不會太亮 *@
+            <img class="profile-header__banner-img" src="@Involver.Models.ViewModels.Profiles.ProfileHeaderViewModel.DefaultBannerUrl" alt="" />
+            <span class="profile-header__banner-tint" aria-hidden="true"></span>
+        }
+    </div>
+    <div class="profile-header__body">
+        <img class="profile-header__avatar" src="@Model.AvatarUrl" alt="" width="112" height="112" />
+        <div class="profile-header__info">
+            <h1 class="profile-header__name">@Model.UserName</h1>
+            @if (Model.Prime || Model.Professional || Model.Banned)
+            {
+                <div class="profile-header__badges">
+                    @if (Model.Professional)
+                    {
+                        <span class="profile-badge profile-badge--professional"><i class="fas fa-feather-alt" aria-hidden="true"></i>特約作家</span>
+                    }
+                    @if (Model.Prime)
+                    {
+                        <span class="profile-badge"><i class="fas fa-crown" aria-hidden="true"></i>付費會員</span>
+                    }
+                    @if (Model.Banned)
+                    {
+                        <span class="profile-badge profile-badge--banned"><i class="fas fa-gavel" aria-hidden="true"></i>已封鎖</span>
+                    }
+                </div>
+            }
+            <ul class="profile-header__stats">
+                <li>
+                    <a asp-area="Identity" asp-page="/Profile/Creations" asp-route-id="@Model.ProfileId">
+                        <strong>@Model.WorkCount.ToString("N0")</strong> 作品
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Identity" asp-page="/Profile/Followers" asp-route-id="@Model.ProfileId">
+                        <strong>@Model.FollowerCount.ToString("N0")</strong> 追蹤者
+                    </a>
+                </li>
+                <li>
+                    <a asp-area="Identity" asp-page="/Profile/FollowCreators" asp-route-id="@Model.ProfileId">
+                        <strong>@Model.FollowingCount.ToString("N0")</strong> 追蹤中
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="profile-header__actions">
+            @if (Model.CanEdit)
+            {
+                <a class="btn btn-outline-primary" asp-area="Identity" asp-page="/Profile/ChangeProfile" asp-route-id="@Model.ProfileId">
+                    <i class="fas fa-pen me-1" aria-hidden="true"></i>編輯個人檔案
+                </a>
+            }
+            @if (!Model.IsOwner && Model.IsSignedIn)
+            {
+                @* social-actions.js 依 btn-secondary 判斷是否已追蹤 *@
+                <button type="button"
+                        class="btn @(Model.IsFollowing ? "btn-secondary" : "btn-primary")"
+                        onclick="FollowAuthor(this, '@Model.ProfileId')">
+                    @(Model.IsFollowing ? "取消追蹤" : "追蹤作者")
+                </button>
+                <a class="btn btn-outline-primary" asp-area="" asp-page="/Involvings/InvolveCreator" asp-route-id="@Model.ProfileId">
+                    <i class="fas fa-coins me-1" aria-hidden="true"></i>Involve
+                </a>
+            }
+            else if (!Model.IsSignedIn)
+            {
+                @* 追蹤 API 需要 anti-forgery token，未登入的頁面沒有，所以先導向登入 *@
+                <a class="btn btn-primary" asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Model.ReturnUrl">追蹤作者</a>
+            }
+            @if (Model.CanBan)
+            {
+                <form method="post" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.ProfileId">
+                    <button type="submit" class="btn @(Model.Banned ? "btn-outline-success" : "btn-outline-danger")">
+                        @(Model.Banned ? "解除封鎖" : "封鎖")
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</header>
+
+<nav class="feed-tabs profile-tabs" aria-label="個人檔案">
+    @foreach (var tab in Model.Tabs)
+    {
+        var isActive = tab.Key == Model.ActiveTab;
+        <a class="feed-tabs__tab @(isActive ? "feed-tabs__tab--active" : null)"
+           asp-area="Identity" asp-page="@tab.Page" asp-route-id="@Model.ProfileId"
+           aria-current="@(isActive ? "page" : null)">
+            <i class="fas @tab.Icon feed-tabs__icon" aria-hidden="true"></i>
+            <span class="feed-tabs__label">@tab.Label</span>
+        </a>
+    }
+</nav>

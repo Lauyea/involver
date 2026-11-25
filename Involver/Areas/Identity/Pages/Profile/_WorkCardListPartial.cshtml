@@ -1,0 +1,7 @@
+@model IEnumerable<Involver.Models.ViewModels.Feed.ContentCardViewModel>
+@* 作品卡片列表：作品分頁的第一頁與捲到底載入的下一頁共用 *@
+
+@foreach (var card in Model)
+{
+    <partial name="_ContentCardPartial" model="card" />
+}
