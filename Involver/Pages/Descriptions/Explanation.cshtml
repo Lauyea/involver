@@ -1,25 +1,5 @@
 ﻿@page
 @model Involver.Pages.Descriptions.ExplanationModel
 @{
-    ViewData["Title"] = "說明目錄";
+    // 這頁只負責轉址到說明中心
 }
-<h1>@ViewData["Title"]</h1>
-<hr />
-<div>
-    <a asp-page="/Descriptions/Explanation"
-       class="btn btn-xs btn-info disabled">說明目錄</a>
-    &nbsp&nbsp
-    <a asp-page="/Descriptions/InCoin"
-       class="btn btn-xs btn-outline-info">In幣相關說明</a>
-    &nbsp&nbsp
-    <a asp-page="/Descriptions/Voting"
-       class="btn btn-xs btn-outline-info">投票說明</a>
-</div>
-<hr />
-<ul>
-    <li>有關隱私方面的問題請參照<a asp-page="/Descriptions/Privacy">隱私政策</a></li>
-    <li>大部分的與平台服務有關的條款可以參考<a asp-page="/Descriptions/Terms">服務條款</a></li>
-    <li>與創作內容有關的問題可以看<a asp-page="/Descriptions/Content">內容政策</a></li>
-    <li>與付費、分潤有關的 InCoin 問題請看<a asp-page="/Descriptions/InCoin">In幣相關說明</a></li>
-    <li>與投票有關的問題請看<a asp-page="/Descriptions/Voting">投票說明</a></li>
-</ul>
