@@ -18,7 +18,7 @@ namespace Involver.Views.Shared.Components.ProfileHeader;
 /// </summary>
 /// <param name="context">資料庫內容</param>
 /// <param name="userManager">使用者管理</param>
-/// <param name="authorizationService">授權（編輯、封鎖）</param>
+/// <param name="authorizationService">授權（封鎖）</param>
 public class ProfileHeaderViewComponent(
     ApplicationDbContext context,
     UserManager<InvolverUser> userManager,
@@ -62,7 +62,6 @@ public class ProfileHeaderViewComponent(
             avatarUrl = $"https://www.gravatar.com/avatar/{(user?.Email ?? string.Empty).ToMd5()}?d=retro";
         }
 
-        var canEdit = (await authorizationService.AuthorizeAsync(UserClaimsPrincipal, profile, ProfileOperations.Update)).Succeeded;
         var canBan = (await authorizationService.AuthorizeAsync(UserClaimsPrincipal, profile, ProfileOperations.Ban)).Succeeded;
 
         return View(new ProfileHeaderViewModel
@@ -81,7 +80,6 @@ public class ProfileHeaderViewComponent(
             IsSignedIn = userId != null,
             ReturnUrl = HttpContext.Request.PathBase + HttpContext.Request.Path + HttpContext.Request.QueryString,
             IsFollowing = isFollowing,
-            CanEdit = canEdit,
             CanBan = canBan,
             ActiveTab = activeTab ?? ManageNavPages.Index,
             Tabs = ManageNavPages.Tabs.Where(t => !t.OwnerOnly || isOwner).ToList(),

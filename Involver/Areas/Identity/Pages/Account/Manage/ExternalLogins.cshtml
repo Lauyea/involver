@@ -1,53 +1,52 @@
-﻿@page
+@page
 @model ExternalLoginsModel
 @{
-    ViewData["Title"] = "管理外部登入";
+    ViewData["Title"] = "外部登入";
     ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-@if (Model.CurrentLogins?.Count > 0)
-{
-    <h4>Registered Logins</h4>
-    <table class="table">
-        <tbody>
+
+<section class="account-section" aria-labelledby="current-logins-heading">
+    <h2 id="current-logins-heading" class="account-section__title">已連結的帳號</h2>
+    @if (Model.CurrentLogins?.Count > 0)
+    {
+        <ul class="account-list">
             @foreach (var login in Model.CurrentLogins)
             {
-                <tr>
-                    <td>@login.ProviderDisplayName</td>
-                    <td>
-                        @if (Model.ShowRemoveButton)
-                        {
-                            <form id="remove-login" asp-page-handler="RemoveLogin" method="post">
-                                <div>
-                                    <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
-                                    <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
-                                    <button type="submit" class="btn btn-primary" title="Remove this @login.ProviderDisplayName login from your account">Remove</button>
-                                </div>
-                            </form>
-                        }
-                        else
-                        {
-                            @: &nbsp;
-                        }
-                    </td>
-                </tr>
+                <li class="account-list__item">
+                    <span class="account-list__label">@login.ProviderDisplayName</span>
+                    @if (Model.ShowRemoveButton)
+                    {
+                        <form asp-page-handler="RemoveLogin" method="post">
+                            <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
+                            <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
+                            <button type="submit" class="btn btn-outline-danger">移除 @login.ProviderDisplayName</button>
+                        </form>
+                    }
+                </li>
             }
-        </tbody>
-    </table>
-}
+        </ul>
+        @if (!Model.ShowRemoveButton)
+        {
+            <p class="form-text mb-0">這是你唯一的登入方式，要先<a asp-page="./SetPassword">設定密碼</a>才能移除。</p>
+        }
+    }
+    else
+    {
+        <p class="text-body-secondary mb-0">還沒有連結外部帳號。</p>
+    }
+</section>
+
 @if (Model.OtherLogins?.Count > 0)
 {
-    <h4>新增外部登入</h4>
-    <hr />
-    <form id="link-login-form" asp-page-handler="LinkLogin" method="post" class="form-horizontal">
-        <div id="socialLoginList">
-            <p>
-                @foreach (var provider in Model.OtherLogins)
-                {
-                    <button id="link-login-button" type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                }
-            </p>
-        </div>
-    </form>
+    <section class="account-section" aria-labelledby="add-login-heading">
+        <h2 id="add-login-heading" class="account-section__title">連結其他帳號</h2>
+        <form id="link-login-form" asp-page-handler="LinkLogin" method="post" class="d-flex flex-wrap gap-2">
+            @foreach (var provider in Model.OtherLogins)
+            {
+                <button type="submit" class="btn btn-outline-primary" name="provider" value="@provider.Name">連結 @provider.DisplayName</button>
+            }
+        </form>
+    </section>
 }

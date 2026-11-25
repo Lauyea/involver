@@ -1,26 +1,20 @@
 @page
 @model PersonalDataModel
 @{
-    ViewData["Title"] = "資料處理";
+    ViewData["Title"] = "下載與刪除資料";
     ViewData["ActivePage"] = ManageNavPages.PersonalData;
 }
 
-<h4>@ViewData["Title"]</h4>
+<section class="account-section" aria-labelledby="download-heading">
+    <h2 id="download-heading" class="account-section__title">下載你的資料</h2>
+    <p>把帳號裡的個人資料下載成一個 JSON 檔案。</p>
+    <form id="download-data" asp-page="DownloadPersonalData" method="post" class="needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="DownloadPersonalData">
+        <button class="btn btn-outline-primary" type="submit"><i class="fas fa-download me-1" aria-hidden="true"></i>下載</button>
+    </form>
+</section>
 
-<div class="row">
-    <div class="col-md-6">
-        <p>你的帳號有你給我們的個人資料。 這個頁面允許你下載或是刪除資料。</p>
-        <p>
-            <strong>刪除資料會永久的移除你的帳號，而且不能恢復。</strong>
-        </p>
-        <form id="download-data" asp-page="DownloadPersonalData" method="post" class="mb-3 needs-recaptcha" data-sitekey="@Configuration["reCAPTCHA_SiteKey"]" data-action="DownloadPersonalData">
-            <button class="btn btn-primary" type="submit">下載</button>
-        </form>
-        <p>
-            <a id="delete" asp-page="DeletePersonalData" class="btn btn-primary">刪除</a>
-        </p>
-    </div>
-</div>
-
-@section Scripts {
-}
+<section class="account-section account-section--danger" aria-labelledby="delete-heading">
+    <h2 id="delete-heading" class="account-section__title">刪除帳號</h2>
+    <p>刪除後帳號會永久停用，而且不能恢復。下一步會說明哪些資料會被清除、哪些會保留。</p>
+    <a id="delete" asp-page="DeletePersonalData" class="btn btn-outline-danger">刪除帳號…</a>
+</section>

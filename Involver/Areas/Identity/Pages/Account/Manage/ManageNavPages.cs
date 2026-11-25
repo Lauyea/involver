@@ -1,47 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 
-using Microsoft.AspNetCore.Mvc.Rendering;
+namespace Involver.Areas.Identity.Pages.Account.Manage;
 
-namespace Involver.Areas.Identity.Pages.Account.Manage
+/// <summary>
+/// 帳號管理的導覽：分組的頁面清單與目前所在的頁面
+/// </summary>
+public static class ManageNavPages
 {
-    public static class ManageNavPages
-    {
-        public static string Index => "Index";
+    /// <summary>
+    /// 帳號資料（用戶名、手機）
+    /// </summary>
+    public static string Index => "Index";
 
-        public static string Email => "Email";
+    /// <summary>
+    /// 個人檔案（頭像、橫幅、自我介紹）
+    /// </summary>
+    public static string EditProfile => "EditProfile";
 
-        public static string ChangePassword => "ChangePassword";
+    /// <summary>
+    /// Email
+    /// </summary>
+    public static string Email => "Email";
 
-        public static string ExternalLogins => "ExternalLogins";
+    /// <summary>
+    /// 密碼（變更或設定）
+    /// </summary>
+    public static string ChangePassword => "ChangePassword";
 
-        public static string PersonalData => "PersonalData";
+    /// <summary>
+    /// 外部登入
+    /// </summary>
+    public static string ExternalLogins => "ExternalLogins";
 
-        public static string Wallet => "Wallet";
+    /// <summary>
+    /// 資料處理（下載、刪除）
+    /// </summary>
+    public static string PersonalData => "PersonalData";
 
-        public static string TwoFactorAuthentication => "TwoFactorAuthentication";
+    /// <summary>
+    /// 兩步驟驗證（目前沒有放在導覽上）
+    /// </summary>
+    public static string TwoFactorAuthentication => "TwoFactorAuthentication";
 
-        public static string IndexNavClass(ViewContext viewContext) => PageNavClass(viewContext, Index);
+    /// <summary>
+    /// 錢包與會員
+    /// </summary>
+    public static string Wallet => "Wallet";
 
-        public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);
+    /// <summary>
+    /// 導覽上的一個頁面
+    /// </summary>
+    /// <param name="Key">對應頁面設定的 ViewData["ActivePage"]</param>
+    /// <param name="Page">頁面路徑（相對於 Account/Manage）</param>
+    /// <param name="Label">顯示文字</param>
+    /// <param name="Icon">Font Awesome 圖示</param>
+    public record NavItem(string Key, string Page, string Label, string Icon);
 
-        public static string ChangePasswordNavClass(ViewContext viewContext) => PageNavClass(viewContext, ChangePassword);
+    /// <summary>
+    /// 導覽的分組
+    /// </summary>
+    /// <param name="Title">分組標題</param>
+    /// <param name="Items">頁面</param>
+    public record NavGroup(string Title, IReadOnlyList<NavItem> Items);
 
-        public static string ExternalLoginsNavClass(ViewContext viewContext) => PageNavClass(viewContext, ExternalLogins);
+    /// <summary>
+    /// 導覽分組，依顯示順序。外部登入只在網站有設定外部登入時顯示
+    /// </summary>
+    /// <param name="hasExternalLogins">網站是否有設定外部登入</param>
+    /// <returns>分組</returns>
+    public static IReadOnlyList<NavGroup> Groups(bool hasExternalLogins) =>
+    [
+        new("個人資料",
+        [
+            new(EditProfile, "./EditProfile", "個人檔案", "fa-id-badge"),
+            new(Index, "./Index", "帳號資料", "fa-user"),
+        ]),
+        new("登入與安全",
+        [
+            new(Email, "./Email", "Email", "fa-envelope"),
+            new(ChangePassword, "./ChangePassword", "密碼", "fa-key"),
+            .. hasExternalLogins ? [new NavItem(ExternalLogins, "./ExternalLogins", "外部登入", "fa-right-to-bracket")] : Array.Empty<NavItem>(),
+        ]),
+        new("錢包",
+        [
+            new(Wallet, "./Wallet", "錢包與會員", "fa-wallet"),
+        ]),
+        new("隱私",
+        [
+            new(PersonalData, "./PersonalData", "下載與刪除資料", "fa-shield-halved"),
+        ]),
+    ];
 
-        public static string PersonalDataNavClass(ViewContext viewContext) => PageNavClass(viewContext, PersonalData);
-
-        public static string WalletNavClass(ViewContext viewContext) => PageNavClass(viewContext, Wallet);
-
-        public static string TwoFactorAuthenticationNavClass(ViewContext viewContext) => PageNavClass(viewContext, TwoFactorAuthentication);
-
-        private static string PageNavClass(ViewContext viewContext, string page)
-        {
-            var activePage = viewContext.ViewData["ActivePage"] as string
-                ?? System.IO.Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
-            return string.Equals(activePage, page, StringComparison.OrdinalIgnoreCase) ? "active" : null;
-        }
-    }
+    /// <summary>
+    /// 目前所在的頁面
+    /// </summary>
+    /// <param name="viewContext">ViewContext</param>
+    /// <returns>頁面的 Key</returns>
+    public static string GetActivePage(ViewContext viewContext) =>
+        viewContext.ViewData["ActivePage"] as string
+            ?? System.IO.Path.GetFileNameWithoutExtension(viewContext.ActionDescriptor.DisplayName);
 }

@@ -2,9 +2,10 @@
 
 @if (!String.IsNullOrEmpty(Model))
 {
-    var statusMessageClass = Model.StartsWith("Error") ? "danger" : "success";
+    // 「錯誤」或 Error 開頭的訊息用紅色，其他用綠色
+    var statusMessageClass = Model.StartsWith("Error") || Model.StartsWith("錯誤") ? "danger" : "success";
     <div class="alert alert-@statusMessageClass alert-dismissible" role="alert">
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="關閉"></button>
         @Model
     </div>
 }

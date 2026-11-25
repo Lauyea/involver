@@ -87,7 +87,7 @@ namespace Involver.Areas.Identity.Pages.Account.Manage
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your password has been set.";
+            StatusMessage = "密碼已設定，之後可以用 Email 與密碼登入。";
 
             return RedirectToPage();
         }
