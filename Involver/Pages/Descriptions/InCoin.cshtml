@@ -1,21 +1,11 @@
-﻿@page
+@page
 @model Involver.Pages.Descriptions.InCoinModel
 @{
-    ViewData["Title"] = "In幣相關說明";
+    ViewData["Title"] = Model.Header.Title;
 }
-<h1>@ViewData["Title"]</h1>
-<hr />
-<div>
-    <a asp-page="/Descriptions/Explanation"
-       class="btn btn-xs btn-outline-info">說明目錄</a>
-    &nbsp&nbsp
-    <a asp-page="/Descriptions/InCoin"
-       class="btn btn-xs btn-info disabled">In幣相關說明</a>
-    &nbsp&nbsp
-    <a asp-page="/Descriptions/Voting"
-       class="btn btn-xs btn-outline-info">投票說明</a>
-</div>
-<hr />
+<div class="help-page">
+    <partial name="_HelpPageHeaderPartial" model="Model.Header" />
+
 <h2 style="color:red">目前實體 In幣還未實裝</h2>
 <h3>獲得來源</h3>
 <p>每日登入，每週任務，付費會員每月提供，回報有價值的意見或是Bug。</p>
@@ -91,3 +81,4 @@
 
 <h3>關於二次創作</h3>
 <p>二次創作不能營利，如果有侵權行為，本平台概不負責，一切責任由發布者承擔。</p>
+</div>

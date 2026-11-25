@@ -1644,6 +1644,193 @@ h6:hover .anchor-link {
     width: 10px;
 }
 
+/* 說明中心與政策頁（Pages/Descriptions）：限制閱讀寬度，重點整理用 secondary container，目錄用外框 */
+.help-page {
+    margin-inline: auto;
+    max-width: 48rem;
+    padding-block: .5rem 3rem;
+}
+
+    .help-page h2 {
+        font-size: 1.375rem;
+        font-weight: 700;
+        margin-bottom: .75rem;
+        margin-top: 2.5rem;
+    }
+
+    .help-page h3 {
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: .5rem;
+        margin-top: 1.5rem;
+    }
+
+    .help-page p,
+    .help-page li,
+    .help-page dd {
+        line-height: 1.8;
+    }
+
+.help-page__header {
+    margin-bottom: 1.5rem;
+}
+
+.help-page__title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: .5rem;
+}
+
+.help-page__lead {
+    color: var(--md-on-surface-variant);
+    font-size: 1.125rem;
+    margin-bottom: .5rem;
+}
+
+.help-page__meta {
+    color: var(--md-on-surface-variant);
+    font-size: .875rem;
+    margin-bottom: 0;
+}
+
+.help-page__summary {
+    background-color: var(--md-secondary-container);
+    border-radius: 1rem;
+    color: var(--md-on-secondary-container);
+    padding: 1rem 1.5rem;
+}
+
+    .help-page .help-page__summary-title,
+    .help-page .help-page__toc-title {
+        font-size: 1rem;
+        margin-bottom: .5rem;
+        margin-top: 0;
+    }
+
+    .help-page__summary ul,
+    .help-page__toc ol {
+        margin-bottom: 0;
+        padding-left: 1.25rem;
+    }
+
+.help-page__toc {
+    border: 1px solid var(--md-outline-variant);
+    border-radius: 1rem;
+    margin-top: 1rem;
+    padding: 1rem 1.5rem;
+}
+
+    .help-page__toc ol {
+        column-gap: 2rem;
+        columns: 2 14rem;
+    }
+
+.help-page__terms dt {
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+.help-page__terms dd {
+    margin-bottom: 0;
+    margin-left: 0;
+}
+
+.help-page__note {
+    border-left: 4px solid var(--md-outline-variant);
+    color: var(--md-on-surface-variant);
+    padding-left: 1rem;
+}
+
+/* 說明中心的主題卡片：圖示＋標題＋一句說明，整張卡片可點 */
+.help-center__group + .help-center__group {
+    margin-top: 2rem;
+}
+
+.help-center__grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.help-card {
+    align-items: flex-start;
+    background-color: var(--md-surface-container-low);
+    border: 1px solid var(--md-outline-variant);
+    border-radius: 1rem;
+    color: var(--md-on-surface);
+    display: flex;
+    gap: 1rem;
+    height: 100%;
+    padding: 1rem;
+    text-decoration: none;
+    transition: background-color .2s ease;
+}
+
+    .help-card:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, var(--md-surface-container-low));
+        color: var(--md-on-surface);
+    }
+
+    .help-card:active {
+        background-color: color-mix(in oklab, var(--md-on-surface) 12%, var(--md-surface-container-low));
+    }
+
+    .help-card:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+    }
+
+.help-card__icon {
+    align-items: center;
+    background-color: var(--md-secondary-container);
+    border-radius: 50%;
+    color: var(--md-on-secondary-container);
+    display: inline-flex;
+    flex: 0 0 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.help-card__title {
+    display: block;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.help-card__text {
+    color: var(--md-on-surface-variant);
+    display: block;
+    font-size: .875rem;
+    line-height: 1.6;
+}
+
+.help-center__contact {
+    align-items: center;
+    background-color: var(--md-surface-container);
+    border-radius: 1rem;
+    color: var(--md-on-surface);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-top: 2.5rem;
+    padding: 1rem 1.5rem;
+}
+
+    .help-center__contact p {
+        margin-bottom: 0;
+    }
+
+    .help-center__contact .btn {
+        align-items: center;
+        display: inline-flex;
+        min-height: 40px;
+    }
+
 /* ==============================================
     Tagify "Tags Look" Theme Integration
 ==============================================

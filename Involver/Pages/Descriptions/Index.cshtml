@@ -1,5 +1,37 @@
 @page
 @model Involver.Pages.Descriptions.IndexModel
 @{
-    // This page exists only to redirect.
+    ViewData["Title"] = Model.Header.Title;
 }
+
+<div class="help-page">
+    <partial name="_HelpPageHeaderPartial" model="Model.Header" />
+
+    @for (var i = 0; i < Model.Groups.Count; i++)
+    {
+        var group = Model.Groups[i];
+        var headingId = $"help-group-{i}";
+        <section class="help-center__group" aria-labelledby="@headingId">
+            <h2 id="@headingId">@group.Title</h2>
+            <ul class="help-center__grid">
+                @foreach (var topic in group.Topics)
+                {
+                    <li>
+                        <a class="help-card" asp-area="" asp-page="@topic.PagePath">
+                            <span class="help-card__icon" aria-hidden="true"><i class="@topic.IconClass"></i></span>
+                            <span>
+                                <span class="help-card__title">@topic.Title</span>
+                                <span class="help-card__text">@topic.Description</span>
+                            </span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </section>
+    }
+
+    <section class="help-center__contact" aria-label="聯絡我們">
+        <p>找不到答案，或想回報問題？其他事情也可以寄信到 <a href="mailto:service@involver.tw">service@involver.tw</a>。</p>
+        <a class="btn btn-primary" asp-area="" asp-page="/Feedbacks/Index">前往回報與意見</a>
+    </section>
+</div>

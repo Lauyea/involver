@@ -1,0 +1,20 @@
+@model Involver.Models.ViewModels.Help.HelpPageHeaderViewModel
+@using System.Globalization
+
+@*
+    說明與政策頁共用的標頭：標題、一句說明，政策頁另外顯示最後更新日期。
+    麵包屑由 _Layout 的 Breadcrumb View Component 產生。
+*@
+<header class="help-page__header">
+    <h1 class="help-page__title">@Model.Title</h1>
+    @if (!string.IsNullOrEmpty(Model.Lead))
+    {
+        <p class="help-page__lead">@Model.Lead</p>
+    }
+    @if (Model.UpdatedOn is DateOnly updatedOn)
+    {
+        <p class="help-page__meta">
+            最後更新：<time datetime="@updatedOn.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">@updatedOn.ToString("yyyy 年 M 月 d 日", CultureInfo.InvariantCulture)</time>
+        </p>
+    }
+</header>

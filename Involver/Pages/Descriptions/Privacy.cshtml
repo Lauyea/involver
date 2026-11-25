@@ -1,39 +1,187 @@
 ﻿@page
 @model Involver.Pages.Descriptions.PrivacyModel
 @{
-    ViewData["Title"] = "隱私權政策";
+    ViewData["Title"] = Model.Header.Title;
 }
-<h1>@ViewData["Title"]</h1>
-<hr />
-<div>
-    <h3>簡介</h3>
-    <ul>
-        <li> Involver 只會蒐集用戶提供的資料。</li>
-        <li>除非獲得同意，或是法律部門的需求， Involver 不會向任何人提供用戶資料。</li>
-        <li> Involver 會盡力保障用戶資料的安全。</li>
-    </ul>
 
-    <h3>詳閱並同意條款</h3>
-    <p>當你註冊完成帳號時，也代表你已經閱讀並同意 Involver 的各項政策</p>
+<article class="help-page">
+    <partial name="_HelpPageHeaderPartial" model="Model.Header" />
 
-    <h3>你的個人資料</h3>
-    <p>至少包含以下幾項：</p>
-    <ul>
-        <li>用戶名</li>
-        <li>電郵地址</li>
-        <li>銀行帳戶和持有人證明（如果要接受創作收入分潤的話）</li>
-        <li>信用卡卡號、銀行名稱、到期日和其他帳號（以供付費）</li>
-    </ul>
+    <section class="help-page__summary" aria-labelledby="privacy-summary">
+        <h2 id="privacy-summary" class="help-page__summary-title">重點整理</h2>
+        <ul>
+            <li>我們只蒐集提供服務需要的資料，不會販售你的個人資料。</li>
+            <li>付費會員以外的使用者（包含未登入的訪客）會看到 Google 廣告，Google 可能用 cookie 依你的瀏覽紀錄挑選廣告。你可以關閉個人化廣告。</li>
+            <li>你可以在帳號管理下載自己的資料，或刪除帳號。</li>
+            <li>實體 In 幣儲值尚未開放，本站目前不蒐集信用卡或銀行帳戶資料。</li>
+        </ul>
+    </section>
 
-    <h3>IP位址</h3>
-    <p> Involver 會蒐集用戶的IP位址，作為統計數據之用。</p>
+    <nav class="help-page__toc" aria-labelledby="privacy-toc">
+        <h2 id="privacy-toc" class="help-page__toc-title">目錄</h2>
+        <ol>
+            <li><a href="#scope">適用範圍</a></li>
+            <li><a href="#collect">我們蒐集的資料</a></li>
+            <li><a href="#purpose">使用目的</a></li>
+            <li><a href="#cookies">Cookie 與瀏覽器儲存</a></li>
+            <li><a href="#ads">廣告</a></li>
+            <li><a href="#third-parties">第三方服務</a></li>
+            <li><a href="#retention">保存期間與刪除帳號</a></li>
+            <li><a href="#rights">你的權利</a></li>
+            <li><a href="#security">資料安全</a></li>
+            <li><a href="#payment">付款資料</a></li>
+            <li><a href="#minors">未成年人</a></li>
+            <li><a href="#changes">政策變更</a></li>
+            <li><a href="#contact">聯絡我們</a></li>
+        </ol>
+    </nav>
 
-    <h3>Cookies</h3>
-    <p> Involver 會使用Cookies作為短暫儲存用戶辨別的工具。</p>
+    <section id="scope">
+        <h2>適用範圍</h2>
+        <p>本政策適用於 Involver 網站（involver.tw）與網站提供的所有服務，以下稱「本站」。從本站連到其他網站（例如 Patreon、YouTube）時，適用該網站自己的隱私權政策。</p>
+    </section>
 
-    <h3>個人資料的變更與刪除</h3>
-    <p>用戶可以在個人檔案與帳號管理中編輯資料，可以在帳號管理中備份與刪除個人帳號資料。</p>
+    <section id="collect">
+        <h2>我們蒐集的資料</h2>
+        <dl class="help-page__terms">
+            <dt>帳號資料</dt>
+            <dd>
+                電子郵件、使用者名稱、密碼與兩步驟驗證的設定。密碼只保存雜湊值，本站也看不到你的原始密碼。
+                用 Google 或 Facebook 登入時，會取得該服務提供的帳號識別碼與電子郵件。
+            </dd>
 
-    <h3>隱私權政策的變更</h3>
-    <p>未來隱私權政策還有可能經過數次變更與調整，每次的更動會在公告中提醒用戶，請注意公告的發布。</p>
-</div>
+            <dt>個人檔案</dt>
+            <dd>自我介紹、頭像與橫幅圖片的網址。沒有設定頭像時，會用電子郵件的雜湊值向 Gravatar 取得頭像。</dd>
+
+            <dt>你發布的內容</dt>
+            <dd>創作、章節、文章、評論、留言、投票、贊同與追蹤。這些內容大多是公開的，其他人看得到。</dd>
+
+            <dt>使用紀錄</dt>
+            <dd>閱讀紀錄與閱讀進度、In 幣的取得與使用紀錄、任務與成就、通知。</dd>
+
+            <dt>技術資料</dt>
+            <dd>IP 位址、瀏覽器類型、造訪的網址與時間。這些資料由網站伺服器與主機服務自動記錄。</dd>
+        </dl>
+    </section>
+
+    <section id="purpose">
+        <h2>使用目的</h2>
+        <ul>
+            <li><b>提供服務：</b>登入、顯示你的作品與個人檔案、寄送驗證信與密碼重設信、通知你作品的新評論與留言。</li>
+            <li><b>推薦與統計：</b>依閱讀紀錄與追蹤推薦內容，計算作品的瀏覽數與排行。</li>
+            <li><b>安全與防止濫用：</b>辨識機器人、限制短時間內大量的嘗試、調查違反政策的行為。</li>
+            <li><b>改善服務：</b>找出錯誤與效能問題。</li>
+        </ul>
+        <p>我們不會販售你的個人資料，也不會把資料用在上述以外的目的。需要用在其他目的時，會先取得你的同意。</p>
+    </section>
+
+    <section id="cookies">
+        <h2>Cookie 與瀏覽器儲存</h2>
+        <dl class="help-page__terms">
+            <dt>必要的 cookie（本站設定）</dt>
+            <dd>保持登入狀態（7 天沒有使用本站就會失效）、防止跨站請求偽造、記住你已經看過 cookie 說明。少了這些 cookie 就無法登入。</dd>
+
+            <dt>瀏覽器儲存（本站設定）</dt>
+            <dd>記住你選的主題（淺色、深色）、列表的檢視方式，以及部分工具的暫存資料（例如賽程表產生器）。這些資料只存在你的瀏覽器，不會傳到本站。</dd>
+
+            <dt>第三方 cookie</dt>
+            <dd>Google 的廣告、機器人驗證（reCAPTCHA）、站內搜尋，以及 Facebook 的分享按鈕，會由各服務設定自己的 cookie。說明見下方的「廣告」與「第三方服務」。</dd>
+        </dl>
+        <p>你可以在瀏覽器的設定中封鎖或刪除 cookie。封鎖必要的 cookie 後，將無法登入本站。</p>
+    </section>
+
+    <section id="ads">
+        <h2>廣告</h2>
+        <p>本站使用 Google AdSense 顯示廣告，維持網站營運。付費會員不會看到廣告。</p>
+        <ul>
+            <li>Google 等第三方廠商會使用 cookie，依據你先前造訪本站或其他網站的紀錄放送廣告。</li>
+            <li>Google 使用廣告 cookie，讓 Google 和合作夥伴可以依據你造訪本站和其他網站的紀錄，向你放送合適的廣告。</li>
+            <li>你可以前往 <a href="https://adssettings.google.com" target="_blank" rel="noopener">Google 廣告設定</a> 停用個人化廣告，或到 <a href="https://www.aboutads.info" target="_blank" rel="noopener">www.aboutads.info</a> 停用第三方廠商用於個人化廣告的 cookie。</li>
+        </ul>
+        <p>廣告的內容由廣告商提供，本站不保證廣告內容的正確性。</p>
+    </section>
+
+    <section id="third-parties">
+        <h2>第三方服務</h2>
+        <p>本站使用以下服務。這些服務可能在臺灣以外的地區處理資料，並適用各自的隱私權政策。</p>
+        <dl class="help-page__terms">
+            <dt>Microsoft Azure</dt>
+            <dd>網站主機與資料庫，保存本站所有的資料。</dd>
+
+            <dt>Twilio SendGrid</dt>
+            <dd>寄送驗證信與密碼重設信，會取得你的電子郵件與信件內容。</dd>
+
+            <dt>Google</dt>
+            <dd>Google 登入、reCAPTCHA、站內搜尋、廣告與網頁字型。會取得 IP 位址、瀏覽器資訊與 cookie；用 Google 登入時，另外取得你同意分享的帳號資料。</dd>
+
+            <dt>Meta（Facebook）</dt>
+            <dd>Facebook 登入與分享按鈕。會取得 IP 位址、瀏覽器資訊與 cookie；用 Facebook 登入時，另外取得你同意分享的帳號資料。</dd>
+
+            <dt>Gravatar</dt>
+            <dd>沒有設定頭像時顯示預設頭像，會取得電子郵件的雜湊值。</dd>
+
+            <dt>jsDelivr、cdnjs、Lorem Picsum 等內容傳遞服務</dt>
+            <dd>載入網頁程式庫、作品的預設圖片與首頁的背景影片，會取得 IP 位址與瀏覽器資訊。</dd>
+        </dl>
+        <p>除了上述服務，只有在法律、法院或主管機關要求時，我們才會提供你的資料。</p>
+    </section>
+
+    <section id="retention">
+        <h2>保存期間與刪除帳號</h2>
+        <ul>
+            <li>帳號存在期間，保存你的帳號資料與發布的內容。</li>
+            <li>通知保留約一個月，之後會定期刪除。</li>
+            <li>In 幣的取得與使用紀錄是帳務資料，帳號刪除後仍會保留，但不再連結到你的電子郵件。</li>
+            <li>伺服器紀錄依主機服務的保存設定，到期後自動刪除。</li>
+        </ul>
+        <h3>刪除帳號後會發生什麼事</h3>
+        <ul>
+            <li>電子郵件、密碼、外部登入、自我介紹、頭像與橫幅會立即清除，帳號無法再登入。</li>
+            <li>你的通知，以及作品與文章的瀏覽紀錄會刪除。</li>
+            <li>你發布過的作品、評論與留言會保留，作者名稱改為匿名的名稱（以「deleted-」開頭）。如果希望作品一併移除，請在刪除帳號前自行刪除。</li>
+            <li>章節的閱讀進度、贊同、投票與追蹤會留在匿名的帳號下，用於作品的統計，不再連結到你的電子郵件。</li>
+        </ul>
+    </section>
+
+    <section id="rights">
+        <h2>你的權利</h2>
+        <p>依《個人資料保護法》，你可以向我們請求查詢、閱覽或複製你的個人資料，補充或更正資料，停止蒐集、處理或利用，或刪除資料。</p>
+        <ul>
+            <li>修改資料：在<a asp-area="Identity" asp-page="/Account/Manage/Index">帳號管理</a>與個人檔案設定中編輯。</li>
+            <li>下載資料或刪除帳號：在<a asp-area="Identity" asp-page="/Account/Manage/PersonalData">帳號管理的「個人資料」</a>操作。</li>
+            <li>其他請求：寄信到 <a href="mailto:service@involver.tw">service@involver.tw</a> 說明你的需求。為了確認是你本人，請用註冊帳號時的電子郵件寄信。</li>
+        </ul>
+        <p>你可以選擇不提供資料，但沒有電子郵件就無法註冊帳號，也無法使用需要登入的功能。</p>
+    </section>
+
+    <section id="security">
+        <h2>資料安全</h2>
+        <ul>
+            <li>全站使用 HTTPS 加密連線。</li>
+            <li>密碼只保存雜湊值，並支援兩步驟驗證。</li>
+            <li>只有必要的管理人員能進入管理後台，後台的操作會留下紀錄。</li>
+        </ul>
+        <p>網路傳輸無法保證完全安全。發現帳號有異常時，請立即變更密碼，並寄信到 <a href="mailto:service@involver.tw">service@involver.tw</a> 通知我們。</p>
+    </section>
+
+    <section id="payment">
+        <h2>付款資料</h2>
+        <p>實體 In 幣儲值尚未開放，本站目前不蒐集信用卡或銀行帳戶資料。開放後，付款會交由第三方金流服務處理，本站不會取得或保存你的完整卡號。透過 Patreon 贊助時，付款資料由 Patreon 處理。</p>
+        <p>日後如果需要蒐集收款帳戶等資料（例如創作分潤），會先更新本政策。</p>
+    </section>
+
+    <section id="minors">
+        <h2>未成年人</h2>
+        <p>未滿 18 歲的使用者，應由法定代理人閱讀並同意本政策與<a asp-page="/Descriptions/Terms">服務條款</a>後，再使用本站。</p>
+    </section>
+
+    <section id="changes">
+        <h2>政策變更</h2>
+        <p>修改本政策時，會更新頁首的「最後更新」日期；重大的變更會另外發布<a asp-area="" asp-page="/Announcements/Index">公告</a>。變更後繼續使用本站，表示你同意修改後的政策。</p>
+    </section>
+
+    <section id="contact">
+        <h2>聯絡我們</h2>
+        <p>對本政策或你的個人資料有任何問題，請寄信到 <a href="mailto:service@involver.tw">service@involver.tw</a>。</p>
+    </section>
+</article>
