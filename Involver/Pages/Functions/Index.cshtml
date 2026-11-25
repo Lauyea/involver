@@ -34,14 +34,14 @@
 
 <div class="text-center mb-4">
     <h1>@ViewData["Title"]</h1>
-    <p class="lead text-muted">這裡集結了所有能幫助您創作與交流的工具。</p>
+    <p class="lead text-muted">所有工具都免費，不用登入也能使用。</p>
 </div>
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @foreach (var tool in Model.Tools)
     {
         <div class="col">
-            <a asp-page="@tool.PageName" class="card h-100 tool-card">
+            <a asp-page="@tool.PagePath" class="card h-100 tool-card">
                 <div class="card-body p-4">
                     <div class="tool-icon">
                         <i class="@tool.IconClass"></i>

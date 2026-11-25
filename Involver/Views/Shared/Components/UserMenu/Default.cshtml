@@ -1,0 +1,63 @@
+@model Involver.Models.ViewModels.Navigation.UserMenuViewModel
+@* Views/ 底下沒有 _ViewImports，要在這裡註冊，asp-area／asp-page 才會產生 href *@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@*
+    頭像選單：data-bs-auto-close="outside" 讓切換主題時選單不會關閉，點連結會直接換頁。
+*@
+<li class="nav-item dropdown">
+    <button type="button" class="nav-link btn btn-link site-header__avatar-button"
+            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+            aria-label="帳號選單（@Model.UserName）">
+        <img class="site-header__avatar" src="@Model.AvatarUrl" alt="" width="32" height="32" />
+        <span class="site-header__username d-none d-lg-inline">@Model.UserName</span>
+        <i class="fa-solid fa-chevron-down site-header__caret d-none d-lg-inline" aria-hidden="true"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end user-menu">
+        <a class="user-menu__profile" asp-area="Identity" asp-page="/Profile/Index" asp-route-id="@Model.UserId">
+            <img class="user-menu__avatar" src="@Model.AvatarUrl" alt="" width="40" height="40" />
+            <span>
+                <span class="user-menu__name">@Model.UserName</span>
+                <span class="user-menu__hint">查看個人檔案</span>
+            </span>
+        </a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" asp-area="Identity" asp-page="/Profile/Bookshelf">
+            <i class="fa-solid fa-book-bookmark user-menu__icon" aria-hidden="true"></i>我的書房
+        </a>
+        <a class="dropdown-item" asp-area="" asp-page="/Creator/Index">
+            <i class="fa-solid fa-pen-nib user-menu__icon" aria-hidden="true"></i>創作者中心
+        </a>
+        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Wallet">
+            <i class="fa-solid fa-wallet user-menu__icon" aria-hidden="true"></i>錢包與會員
+        </a>
+        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">
+            <i class="fa-solid fa-gear user-menu__icon" aria-hidden="true"></i>帳號管理
+        </a>
+        @if (Model.CanAccessAdmin)
+        {
+            <a class="dropdown-item" asp-area="Admin" asp-page="/Index">
+                <i class="fa-solid fa-shield-halved user-menu__icon" aria-hidden="true"></i>管理後台
+            </a>
+        }
+        <div class="dropdown-divider"></div>
+        <div class="user-menu__section">
+            <span class="user-menu__section-label" aria-hidden="true">主題</span>
+            @* View Component 只會在 Views/Shared 找 partial，所以寫出完整路徑 *@
+            <partial name="~/Pages/Shared/_ThemeSwitcherPartial.cshtml" />
+        </div>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" asp-area="" asp-page="/Announcements/Index">
+            <i class="fa-solid fa-bullhorn user-menu__icon" aria-hidden="true"></i>公告
+        </a>
+        <a class="dropdown-item" asp-area="" asp-page="/Feedbacks/Index">
+            <i class="fa-solid fa-comment-dots user-menu__icon" aria-hidden="true"></i>回報與意見
+        </a>
+        <div class="dropdown-divider"></div>
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Index", new { area = "" })" method="post">
+            <button type="submit" class="dropdown-item">
+                <i class="fa-solid fa-right-from-bracket user-menu__icon" aria-hidden="true"></i>登出
+            </button>
+        </form>
+    </div>
+</li>

@@ -1,0 +1,58 @@
+@*
+    頁尾：品牌與主題切換，加上探索、社群、說明與政策三欄連結。
+    公告與回報與意見平常的入口在這裡（登入後頭像選單也有），新公告另外以頁首上方的橫幅提醒。
+*@
+<footer class="site-footer">
+    <div class="container site-footer__grid">
+        <div class="site-footer__brand">
+            <a class="site-footer__logo" asp-area="" asp-page="/Index">
+                <img src="/favicon.ico" alt="" width="32" height="32" /> Involver
+            </a>
+            <p class="site-footer__tagline">讓讀者參與創作的平台。</p>
+            <div class="site-footer__theme">
+                <span class="site-footer__theme-label" aria-hidden="true">主題</span>
+                <partial name="_ThemeSwitcherPartial" />
+            </div>
+        </div>
+
+        <nav class="site-footer__column" aria-labelledby="site-footer-explore">
+            <h2 class="site-footer__heading" id="site-footer-explore">探索</h2>
+            <ul class="site-footer__links">
+                <li><a asp-area="" asp-page="/Novels/Index">創作</a></li>
+                <li><a asp-area="" asp-page="/Articles/Index">討論</a></li>
+                <li><a asp-area="" asp-page="@SiteNavigation.ToolsPagePath">工具箱</a></li>
+            </ul>
+        </nav>
+
+        <nav class="site-footer__column" aria-labelledby="site-footer-community">
+            <h2 class="site-footer__heading" id="site-footer-community">社群</h2>
+            <ul class="site-footer__links">
+                <li><a asp-area="" asp-page="/Announcements/Index">公告</a></li>
+                <li><a asp-area="" asp-page="/Feedbacks/Index">回報與意見</a></li>
+                <li>
+                    <a href="https://github.com/Lauyea/involver" target="_blank" rel="noopener">
+                        <i class="fa-brands fa-github" aria-hidden="true"></i>GitHub 原始碼
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <nav class="site-footer__column" aria-labelledby="site-footer-help">
+            <h2 class="site-footer__heading" id="site-footer-help">說明與政策</h2>
+            <ul class="site-footer__links">
+                <li><a asp-area="" asp-page="/Descriptions/Index">說明中心</a></li>
+                <li><a asp-area="" asp-page="/Descriptions/Privacy">隱私權政策</a></li>
+                <li><a asp-area="" asp-page="/Descriptions/Terms">服務條款</a></li>
+                <li><a asp-area="" asp-page="/Descriptions/Content">內容政策</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="container site-footer__bottom">
+        <span>&copy; 2020–@DateTime.Now.Year Involver</span>
+        @if (WebHostEnvironment.IsDevelopment())
+        {
+            <a asp-area="" asp-page="/Theme/Index">主題色彩檢查（開發用）</a>
+        }
+    </div>
+</footer>
