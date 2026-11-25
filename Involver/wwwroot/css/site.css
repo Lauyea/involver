@@ -326,12 +326,212 @@ a {
     3. 佈局 (Layout)
 ==============================================
 */
-.footer {
-    bottom: 0;
-    line-height: 60px;
-    white-space: nowrap;
-    width: 100%;
+/* 手機的底部導覽列（_BottomNavPartial）佔用的高度：內容、回到頂端按鈕與 toast 都要往上讓出這段距離 */
+:root {
+    --bottom-nav-height: 64px;
+    --bottom-nav-offset: 0px;
 }
+
+@media (max-width: 767.98px) {
+    :root {
+        --bottom-nav-offset: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+    }
+
+    body {
+        padding-bottom: var(--bottom-nav-offset);
+    }
+}
+
+/* 跳到主要內容：平常隱藏（visually-hidden-focusable），用鍵盤 Tab 到時顯示在左上角 */
+.skip-link {
+    background-color: var(--md-primary-fill);
+    border-radius: .5rem;
+    color: var(--md-on-primary-fill);
+    font-weight: 700;
+    left: 1rem;
+    padding: .5rem 1rem;
+    position: fixed;
+    top: .5rem;
+    z-index: 1100;
+}
+
+    .skip-link:hover,
+    .skip-link:focus {
+        color: var(--md-on-primary-fill);
+    }
+
+main:focus {
+    outline: none;
+}
+
+/* 頁尾（_SiteFooterPartial）：品牌與主題切換，加上三欄連結；手機上品牌佔一整列，連結兩欄 */
+.site-footer {
+    background-color: var(--md-surface-container-low);
+    border-top: 1px solid var(--md-outline-variant);
+    color: var(--md-on-surface);
+    font-size: .875rem;
+    padding-block: 2.5rem 1.5rem;
+}
+
+.site-footer__grid {
+    display: grid;
+    gap: 2rem 1.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.site-footer__brand {
+    grid-column: 1 / -1;
+}
+
+@media (min-width: 768px) {
+    .site-footer__grid {
+        grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr));
+    }
+
+    .site-footer__brand {
+        grid-column: auto;
+    }
+}
+
+.site-footer__logo {
+    align-items: center;
+    color: var(--md-on-surface);
+    display: inline-flex;
+    font-size: 1.125rem;
+    font-weight: 700;
+    gap: .5rem;
+    min-height: 40px;
+}
+
+    .site-footer__logo:hover {
+        color: var(--md-on-surface);
+    }
+
+.site-footer__tagline {
+    color: var(--md-on-surface-variant);
+    margin: .25rem 0 1rem;
+}
+
+.site-footer__theme {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem .75rem;
+}
+
+.site-footer__theme-label {
+    color: var(--md-on-surface-variant);
+}
+
+.site-footer .site-footer__heading {
+    color: var(--md-on-surface);
+    font-size: .875rem;
+    font-weight: 700;
+    margin-bottom: .25rem;
+}
+
+.site-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+    .site-footer__links a {
+        align-items: center;
+        color: var(--md-on-surface-variant);
+        display: inline-flex;
+        gap: .375rem;
+        min-height: 40px;
+    }
+
+        .site-footer__links a:hover {
+            color: var(--md-primary);
+            text-decoration: underline;
+        }
+
+.site-footer__bottom {
+    border-top: 1px solid var(--md-outline-variant);
+    color: var(--md-on-surface-variant);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem 1rem;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1rem;
+}
+
+    .site-footer__bottom a {
+        align-items: center;
+        display: inline-flex;
+        min-height: 40px;
+    }
+
+/* 手機的底部導覽列（M3 的 navigation bar）：選中的項目在圖示後面加上 secondary container 的膠囊 */
+.bottom-nav {
+    background-color: var(--md-surface-container);
+    bottom: 0;
+    box-shadow: 0 -1px 0 var(--md-outline-variant); /* 用陰影當上框線，不佔高度，和 --bottom-nav-offset 一致 */
+    left: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    position: fixed;
+    right: 0;
+    z-index: 1015; /* 低於 sticky 頁首（1020），頁首的下拉選單在矮螢幕上才不會被底部導覽列蓋住 */
+}
+
+.bottom-nav__list {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bottom-nav__item {
+    align-items: center;
+    color: var(--md-on-surface-variant);
+    display: flex;
+    flex-direction: column;
+    font-size: .75rem;
+    font-weight: 500;
+    gap: .25rem;
+    height: var(--bottom-nav-height);
+    justify-content: center;
+}
+
+    .bottom-nav__item:hover {
+        color: var(--md-on-surface);
+    }
+
+    .bottom-nav__item:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: -4px;
+    }
+
+.bottom-nav__icon {
+    align-items: center;
+    border-radius: 1rem;
+    display: inline-flex;
+    font-size: 1.125rem;
+    height: 32px;
+    justify-content: center;
+    transition: background-color .2s ease;
+    width: 56px;
+}
+
+.bottom-nav__item:hover .bottom-nav__icon {
+    background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+}
+
+.bottom-nav__item--active {
+    color: var(--md-on-surface);
+    font-weight: 700;
+}
+
+    .bottom-nav__item--active .bottom-nav__icon,
+    .bottom-nav__item--active:hover .bottom-nav__icon {
+        background-color: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+    }
 
 .background-image {
     background-position: 50%;
@@ -387,6 +587,381 @@ a.navbar-brand {
     box-shadow: none;
     outline: 2px solid var(--md-primary);
     outline-offset: 2px;
+}
+
+/* 頁首（_SiteHeaderPartial）：左邊品牌與主要入口，右邊搜尋、建立、通知、頭像；手機的主要入口在底部導覽列 */
+.site-header__inner {
+    flex-wrap: nowrap;
+    gap: .5rem;
+}
+
+.site-header__brand {
+    align-items: center;
+    display: inline-flex;
+    gap: .375rem;
+    margin-right: .5rem;
+}
+
+.site-header__primary {
+    gap: .25rem;
+}
+
+.navbar-nav .site-header__link {
+    align-items: center;
+    display: inline-flex;
+    gap: .375rem;
+    min-height: 40px;
+    position: relative;
+}
+
+.site-header__link--active {
+    color: var(--bs-navbar-active-color);
+}
+
+    /* 目前所在的入口：底部 3px 的指示線（M3 primary tabs 的 active indicator） */
+    .site-header__link--active::before {
+        background-color: currentColor;
+        border-radius: 3px 3px 0 0;
+        bottom: calc(var(--bs-navbar-padding-y) * -1);
+        content: "";
+        height: 3px;
+        left: var(--bs-navbar-nav-link-padding-x);
+        position: absolute;
+        right: var(--bs-navbar-nav-link-padding-x);
+    }
+
+.site-header__chip {
+    background-color: var(--md-secondary-container);
+    border-radius: 1rem;
+    color: var(--md-on-secondary-container);
+    font-size: .6875rem;
+    font-weight: 700;
+    line-height: 1;
+    padding: .25rem .5rem;
+}
+
+.site-header__actions {
+    align-items: center;
+    gap: .25rem;
+}
+
+.site-header__icon-button,
+.site-header .notification-bell,
+.site-header__avatar-button {
+    align-items: center;
+    display: inline-flex;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 40px;
+}
+
+.navbar-nav .site-header__avatar-button {
+    gap: .5rem;
+    padding-inline: .25rem;
+}
+
+.site-header__avatar {
+    border-radius: 50%;
+    height: 32px;
+    object-fit: cover;
+    width: 32px;
+}
+
+.site-header__caret {
+    font-size: .75rem;
+}
+
+.site-header__create,
+.site-header__register {
+    align-items: center;
+    display: inline-flex;
+    gap: .375rem;
+    justify-content: center;
+    min-height: 40px;
+    min-width: 40px;
+}
+
+.navbar-nav .site-header__login {
+    align-items: center;
+    display: inline-flex;
+    min-height: 40px;
+}
+
+.site-search__menu {
+    min-width: min(300px, calc(100vw - 2rem));
+    padding: .5rem;
+}
+
+/* 手機寬度時，比較寬的選單（搜尋、通知）的按鈕右邊還有其他按鈕，靠按鈕右緣對齊會超出畫面左邊；
+   改成以整條頁首（.navbar 是 position: relative）為基準，對齊頁首右緣 */
+@media (max-width: 767.98px) {
+    .site-header__actions .site-header__wide-dropdown {
+        position: static;
+    }
+
+    .site-header__wide-dropdown > .dropdown-menu[data-bs-popper] {
+        left: auto;
+        max-width: calc(100vw - 1rem);
+        right: .5rem;
+    }
+}
+
+/* 工具選單：圖示＋名稱＋一句說明，讓第一次來的人看得懂每個工具在做什麼 */
+.tools-menu {
+    padding: .5rem;
+    width: min(520px, calc(100vw - 2rem));
+}
+
+.tools-menu__list {
+    display: grid;
+    gap: .25rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* 平板寬度時選單從「工具」的位置往右展開，改成單欄避免超出視窗 */
+@media (max-width: 991.98px) {
+    .tools-menu {
+        width: min(320px, calc(100vw - 2rem));
+    }
+
+    .tools-menu__list {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.tools-menu__item {
+    align-items: flex-start;
+    border-radius: .75rem;
+    color: var(--md-on-surface);
+    display: flex;
+    gap: .75rem;
+    padding: .75rem;
+}
+
+    .tools-menu__item:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+        color: var(--md-on-surface);
+    }
+
+    .tools-menu__item:active {
+        background-color: color-mix(in oklab, var(--md-on-surface) 12%, transparent);
+    }
+
+    .tools-menu__item:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+.tools-menu__icon {
+    align-items: center;
+    background-color: var(--md-secondary-container);
+    border-radius: 50%;
+    color: var(--md-on-secondary-container);
+    display: inline-flex;
+    flex: 0 0 2.5rem;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.tools-menu__title {
+    display: block;
+    font-weight: 700;
+}
+
+.tools-menu__text {
+    color: var(--md-on-surface-variant);
+    display: block;
+    font-size: .8125rem;
+    line-height: 1.5;
+    white-space: normal;
+}
+
+.tools-menu__footer {
+    align-items: center;
+    border-top: 1px solid var(--md-outline-variant);
+    color: var(--md-on-surface-variant);
+    display: flex;
+    flex-wrap: wrap;
+    font-size: .8125rem;
+    gap: .25rem .75rem;
+    justify-content: space-between;
+    margin-top: .5rem;
+    padding: .5rem .75rem 0;
+}
+
+.tools-menu__all {
+    align-items: center;
+    display: inline-flex;
+    font-weight: 700;
+    gap: .375rem;
+    min-height: 40px;
+}
+
+/* 頭像選單與建立選單：每個項目都有圖示，高度至少 40px */
+/* 全站的 .dropdown-menu 限高 280px，這兩個選單項目較多，改成以視窗高度為上限 */
+.dropdown-menu.user-menu,
+.dropdown-menu.tools-menu {
+    max-height: calc(100vh - var(--top-head-height, 60px) - 1rem);
+}
+
+.user-menu {
+    min-width: 260px;
+}
+
+    .user-menu .dropdown-item {
+        align-items: center;
+        display: flex;
+        gap: .75rem;
+        min-height: 40px;
+    }
+
+.user-menu__icon {
+    color: var(--md-on-surface-variant);
+    text-align: center;
+    width: 1.25rem;
+}
+
+.user-menu__profile {
+    align-items: center;
+    color: var(--md-on-surface);
+    display: flex;
+    gap: .75rem;
+    padding: .5rem 1rem;
+}
+
+    .user-menu__profile:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+        color: var(--md-on-surface);
+    }
+
+    .user-menu__profile:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+.user-menu__avatar {
+    border-radius: 50%;
+    height: 40px;
+    object-fit: cover;
+    width: 40px;
+}
+
+.user-menu__name {
+    display: block;
+    font-weight: 700;
+}
+
+.user-menu__hint {
+    color: var(--md-on-surface-variant);
+    display: block;
+    font-size: .8125rem;
+}
+
+.user-menu__section {
+    padding: .25rem 1rem .5rem;
+}
+
+.user-menu__section-label {
+    color: var(--md-on-surface-variant);
+    display: block;
+    font-size: .75rem;
+    font-weight: 700;
+    margin-bottom: .375rem;
+}
+
+/* 主題切換（_ThemeSwitcherPartial）：M3 的 segmented button，選中的項目用 secondary container */
+.theme-switcher {
+    border: 1px solid var(--md-outline);
+    border-radius: 1.25rem;
+    display: inline-flex;
+    overflow: hidden;
+}
+
+.theme-switcher__option {
+    align-items: center;
+    background-color: transparent;
+    border: 0;
+    color: var(--md-on-surface);
+    display: inline-flex;
+    font-size: .875rem;
+    gap: .375rem;
+    justify-content: center;
+    min-height: 40px;
+    padding: 0 .875rem;
+    white-space: nowrap;
+}
+
+    .theme-switcher__option + .theme-switcher__option {
+        border-left: 1px solid var(--md-outline);
+    }
+
+    .theme-switcher__option:hover {
+        background-color: color-mix(in oklab, var(--md-on-surface) 8%, transparent);
+    }
+
+    .theme-switcher__option:focus-visible {
+        outline: 2px solid var(--md-primary);
+        outline-offset: -2px;
+    }
+
+    .theme-switcher__option[aria-pressed="true"] {
+        background-color: var(--md-secondary-container);
+        color: var(--md-on-secondary-container);
+    }
+
+/* 最新公告橫幅（AnnouncementBanner）：M3 的 banner，放在頁首上方、不跟著捲動 */
+.announcement-banner {
+    background-color: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+}
+
+.announcement-banner__inner {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    padding-block: .25rem;
+}
+
+.announcement-banner__icon {
+    flex: 0 0 auto;
+}
+
+.announcement-banner__text {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 0;
+}
+
+.announcement-banner__label {
+    font-weight: 700;
+    margin-right: .5rem;
+}
+
+.announcement-banner__link {
+    color: var(--md-on-secondary-container);
+    text-decoration: underline;
+}
+
+    .announcement-banner__link:hover {
+        color: var(--md-on-secondary-container);
+        text-decoration-thickness: 2px;
+    }
+
+.announcement-banner__close {
+    --bs-btn-color: var(--md-on-secondary-container);
+    --bs-btn-hover-bg: color-mix(in oklab, var(--md-on-secondary-container) 8%, transparent);
+    --bs-btn-hover-color: var(--md-on-secondary-container);
+    align-items: center;
+    border-radius: 50%;
+    display: inline-flex;
+    flex: 0 0 40px;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
 }
 
 /* Nav Pills：選中的項目用實心主色，未選中用主色文字加狀態層 */

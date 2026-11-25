@@ -1,0 +1,15 @@
+@*
+    主題切換（M3 的 segmented button）：頭像選單與頁尾共用。
+    按鈕的選中狀態與點擊由 /js/color-mode-toggler.js 處理，頁面上有幾組都會一起更新。
+*@
+<div class="theme-switcher" role="group" aria-label="主題">
+    <button type="button" class="theme-switcher__option" data-bs-theme-value="light" aria-pressed="false">
+        <i class="fa-solid fa-sun" aria-hidden="true"></i>淺色
+    </button>
+    <button type="button" class="theme-switcher__option" data-bs-theme-value="dark" aria-pressed="false">
+        <i class="fa-solid fa-moon" aria-hidden="true"></i>深色
+    </button>
+    <button type="button" class="theme-switcher__option" data-bs-theme-value="auto" aria-pressed="false">
+        <i class="fa-solid fa-circle-half-stroke" aria-hidden="true"></i>自動
+    </button>
+</div>

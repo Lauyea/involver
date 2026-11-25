@@ -1,96 +1,91 @@
 /*!
- * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
- * Copyright 2011-2024 The Bootstrap Authors
- * Licensed under the Creative Commons Attribution 3.0 Unported License.
- *
- * Modified to use Font Awesome icons.
+ * 主題切換（淺色／深色／自動）
+ * 改寫自 Bootstrap 文件的 color-modes.js（Copyright 2011-2024 The Bootstrap Authors，CC BY 3.0）。
  */
 
+/**
+ * 在 <head> 同步執行，先套用主題，避免頁面以錯誤的顏色閃一下。
+ * 頁面上可以有多組 [data-bs-theme-value] 按鈕（頭像選單、頁尾），選中狀態會一起更新。
+ * 沒有儲存過選擇時是「自動」，跟著系統的深色模式設定。
+ */
 (() => {
-    'use strict'
+  const STORAGE_KEY = 'theme';
+  const darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
-    const getStoredTheme = () => localStorage.getItem('theme')
-    const setStoredTheme = theme => localStorage.setItem('theme', theme)
+  /**
+   * 讀取使用者選的主題
+   * @returns {string} light、dark 或 auto
+   */
+  const getStoredTheme = () => {
+    try {
+      return localStorage.getItem(STORAGE_KEY) ?? 'auto';
+    } catch {
+      return 'auto';
+    }
+  };
 
-    const getPreferredTheme = () => {
-        const storedTheme = getStoredTheme()
-        if (storedTheme) {
-            return storedTheme
-        }
+  /**
+   * 儲存使用者選的主題；無法儲存時（例如被封鎖）只套用到這一頁
+   * @param {string} theme - light、dark 或 auto
+   * @returns {void}
+   */
+  const setStoredTheme = (theme) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {
+      // 無法儲存時略過
+    }
+  };
 
-        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  /**
+   * 把主題套用到 <html data-bs-theme>；auto 依系統設定換成 light 或 dark
+   * @param {string} theme - light、dark 或 auto
+   * @returns {void}
+   */
+  const applyTheme = (theme) => {
+    let resolved = theme;
+    if (theme === 'auto') {
+      resolved = darkQuery.matches ? 'dark' : 'light';
     }
 
-    const setTheme = theme => {
-        if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.setAttribute('data-bs-theme', 'dark')
-        } else {
-            document.documentElement.setAttribute('data-bs-theme', theme)
-        }
+    document.documentElement.setAttribute('data-bs-theme', resolved);
+  };
+
+  /**
+   * 更新所有主題按鈕的選中狀態
+   * @param {string} theme - light、dark 或 auto
+   * @returns {void}
+   */
+  const showActiveTheme = (theme) => {
+    document.querySelectorAll('[data-bs-theme-value]').forEach((button) => {
+      const isActive = button.dataset.bsThemeValue === theme;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+  };
+
+  applyTheme(getStoredTheme());
+
+  darkQuery.addEventListener('change', () => {
+    if (getStoredTheme() === 'auto') {
+      applyTheme('auto');
     }
+  });
 
-    setTheme(getPreferredTheme())
+  window.addEventListener('DOMContentLoaded', () => {
+    showActiveTheme(getStoredTheme());
 
-    const showActiveTheme = (theme, focus = false) => {
-        const themeSwitcher = document.querySelector('#bd-theme')
+    // 用事件委派，之後才載入的按鈕也能切換
+    document.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-bs-theme-value]');
+      if (!button) {
+        return;
+      }
 
-        if (!themeSwitcher) {
-            return
-        }
-
-        const themeSwitcherText = document.querySelector('#bd-theme-text')
-        const activeThemeIcon = document.querySelector('#theme-icon')
-        const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`)
-
-        // Map themes to Font Awesome icons
-        const themeIconMap = {
-            light: 'fa-sun',
-            dark: 'fa-moon',
-            auto: 'fa-circle-half-stroke'
-        }
-
-        // Update the main icon
-        if (activeThemeIcon) {
-            activeThemeIcon.className = `fa-solid ${themeIconMap[theme]} my-1`;
-        }
-
-        // Update active state in dropdown
-        document.querySelectorAll('[data-bs-theme-value]').forEach(element => {
-            element.classList.remove('active')
-            element.setAttribute('aria-pressed', 'false')
-        })
-
-        if (btnToActive) {
-            btnToActive.classList.add('active')
-            btnToActive.setAttribute('aria-pressed', 'true')
-            const themeSwitcherLabel = `${themeSwitcherText.textContent} (${btnToActive.dataset.bsThemeValue})`
-            themeSwitcher.setAttribute('aria-label', themeSwitcherLabel)
-        }
-
-
-        if (focus) {
-            themeSwitcher.focus()
-        }
-    }
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-        const storedTheme = getStoredTheme()
-        if (storedTheme !== 'light' && storedTheme !== 'dark') {
-            setTheme(getPreferredTheme())
-        }
-    })
-
-    window.addEventListener('DOMContentLoaded', () => {
-        showActiveTheme(getPreferredTheme())
-
-        document.querySelectorAll('[data-bs-theme-value]')
-            .forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const theme = toggle.getAttribute('data-bs-theme-value')
-                    setStoredTheme(theme)
-                    setTheme(theme)
-                    showActiveTheme(theme, true)
-                })
-            })
-    })
-})()
+      const theme = button.dataset.bsThemeValue;
+      setStoredTheme(theme);
+      applyTheme(theme);
+      showActiveTheme(theme);
+    });
+  });
+})();

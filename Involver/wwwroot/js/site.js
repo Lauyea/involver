@@ -251,7 +251,32 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.style.setProperty('--top-head-height', `${headerHeight}px`);
 
     initCheckedLimits(document);
+    initAnnouncementBanner(document);
 });
+
+/**
+ * 公告橫幅（AnnouncementBanner View Component）：按下關閉後把公告 ID 記在 cookie，
+ * 伺服器之後就不再輸出同一則公告；有新公告時會再出現
+ * @param {ParentNode} root - 要尋找橫幅的範圍
+ * @returns {void}
+ */
+function initAnnouncementBanner(root) {
+  const MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+
+  root.querySelectorAll('[data-announcement-banner]').forEach((banner) => {
+    const closeButton = banner.querySelector('[data-announcement-dismiss]');
+    if (!closeButton) {
+      return;
+    }
+
+    closeButton.addEventListener('click', () => {
+      const id = encodeURIComponent(banner.dataset.announcementId);
+      const secure = location.protocol === 'https:' ? '; secure' : '';
+      document.cookie = `dismissed-announcement=${id}; path=/; max-age=${MAX_AGE_SECONDS}; samesite=lax${secure}`;
+      banner.remove();
+    });
+  });
+}
 
 /**
  * 勾選數量上限：容器加上 data-max-checked="3"，勾滿後其他還沒勾的選項會停用（例如分類選擇）

@@ -1,0 +1,138 @@
+@inject SignInManager<InvolverUser> SignInManager
+@using Involver.Models.ViewModels.Navigation
+
+@*
+    頁首：品牌、主要入口（首頁、創作、討論、工具）與右側動作（搜尋、建立、通知、頭像）。
+    手機寬度（md 以下）主要入口改由 _BottomNavPartial 的底部導覽列提供，頁首只留品牌與動作。
+    工具開放給未登入的訪客使用，所以放在主要入口並標示「免登入」。
+*@
+@{
+    var requestPath = Context.Request.Path.Value;
+    var isSignedIn = SignInManager.IsSignedIn(User);
+}
+
+<header id="TopHead" class="sticky-top">
+    <nav class="navbar navbar-expand navbar-themed site-header mb-3" aria-label="主要導覽">
+        <div class="container-fluid site-header__inner">
+            <a class="navbar-brand site-header__brand" asp-area="" asp-page="/Index">
+                <img src="/favicon.ico" alt="" width="36" height="36" /> Involver
+            </a>
+
+            <ul class="navbar-nav site-header__primary d-none d-md-flex">
+                @foreach (var item in SiteNavigation.PrimaryItems)
+                {
+                    var isActive = item.IsActive(requestPath);
+                    var activeClass = isActive ? "site-header__link--active" : null;
+
+                    if (item.PagePath == SiteNavigation.ToolsPagePath)
+                    {
+                        <li class="nav-item dropdown">
+                            <button type="button" class="nav-link btn btn-link site-header__link dropdown-toggle @activeClass"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                @item.Label
+                                <span class="site-header__chip">免登入</span>
+                                @if (isActive)
+                                {
+                                    @* 按鈕不能用 aria-current，改用隱藏文字告訴螢幕閱讀器目前在工具頁 *@
+                                    <span class="visually-hidden">（目前所在）</span>
+                                }
+                            </button>
+                            <div class="dropdown-menu tools-menu">
+                                <ul class="tools-menu__list">
+                                    @foreach (var tool in SiteNavigation.Tools)
+                                    {
+                                        <li>
+                                            <a class="tools-menu__item" asp-area="" asp-page="@tool.PagePath">
+                                                <span class="tools-menu__icon" aria-hidden="true"><i class="@tool.IconClass"></i></span>
+                                                <span>
+                                                    <span class="tools-menu__title">@tool.Title</span>
+                                                    <span class="tools-menu__text">@tool.Description</span>
+                                                </span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                                <div class="tools-menu__footer">
+                                    <span>所有工具都免費，不用登入也能使用。</span>
+                                    <a class="tools-menu__all" asp-area="" asp-page="@SiteNavigation.ToolsPagePath">
+                                        查看全部工具<i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link site-header__link @activeClass" asp-area="" asp-page="@item.PagePath"
+                               aria-current="@(isActive ? "page" : null)">@item.Label</a>
+                        </li>
+                    }
+                }
+            </ul>
+
+            <ul class="navbar-nav site-header__actions ms-auto">
+                <li class="nav-item dropdown site-header__wide-dropdown">
+                    <button type="button" class="nav-link btn btn-link site-header__icon-button"
+                            data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"
+                            aria-label="搜尋" title="搜尋">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end site-search__menu">
+                        <script async src="https://cse.google.com/cse.js?cx=015953285050252692815:vji0k9v7dio"></script>
+                        <div class="gcse-search"></div>
+                    </div>
+                </li>
+
+                @if (isSignedIn)
+                {
+                    <li class="nav-item dropdown">
+                        <button type="button" class="btn btn-secondary site-header__create"
+                                data-bs-toggle="dropdown" aria-expanded="false" aria-label="建立" title="建立">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                            <span class="d-none d-lg-inline" aria-hidden="true">建立</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end user-menu">
+                            <li>
+                                <a class="dropdown-item" asp-area="" asp-page="/Novels/Create">
+                                    <i class="fa-solid fa-book-open user-menu__icon" aria-hidden="true"></i>新增創作
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-area="" asp-page="/Articles/Create">
+                                    <i class="fa-solid fa-pen user-menu__icon" aria-hidden="true"></i>發表討論
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" asp-area="" asp-page="/Creator/Index">
+                                    <i class="fa-solid fa-list-ol user-menu__icon" aria-hidden="true"></i>新增章節（創作者中心）
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    @* 通知只對登入者顯示；後端以登入身分查詢通知，不需要由前端傳 user id。
+                       先輸出沒有數字的鈴鐺佔位，/js/notifications.js 載入後換成完整的下拉選單，避免導覽列跳動。 *@
+                    <li class="nav-item dropdown site-header__wide-dropdown" id="notification"
+                        data-notification-url="@Url.Page("/Feed/Notifications", new { area = "" })"
+                        data-mark-all-url="@Url.Page("/Feed/Notifications", "Read", new { area = "" })">
+                        <button type="button" class="nav-link btn btn-link notification-bell" aria-label="通知" title="通知">
+                            <span class="notification-bell__icon"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+                        </button>
+                    </li>
+
+                    @await Component.InvokeAsync("UserMenu")
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link site-header__login" asp-area="Identity" asp-page="/Account/Login">登入</a>
+                    </li>
+                    <li class="nav-item d-none d-sm-block">
+                        <a class="btn btn-primary site-header__register" asp-area="Identity" asp-page="/Account/Register">免費註冊</a>
+                    </li>
+                }
+            </ul>
+        </div>
+    </nav>
+</header>

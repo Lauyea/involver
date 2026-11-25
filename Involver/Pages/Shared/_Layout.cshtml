@@ -40,7 +40,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <link rel="stylesheet" asp-append-version="true" href="~/css/site.css" />
-    <script src="~/js/color-mode-toggler.js"></script>
+    <script src="~/js/color-mode-toggler.js" asp-append-version="true"></script>
 
     @RenderSection("Styles", required: false)
     @RenderSection("Head", required: false)
@@ -82,11 +82,11 @@
         }
 
         #gotop {
-            bottom: 91px;
+            bottom: calc(91px + var(--bottom-nav-offset, 0px));
         }
 
         #gobottom {
-            bottom: 31px;
+            bottom: calc(31px + var(--bottom-nav-offset, 0px));
         }
 
             #gotop.visible, #gobottom.visible {
@@ -113,81 +113,24 @@
             <span class="sr-only">Loading...</span>
         </div>
     </div>
-    <header id="TopHead" class="sticky-top">
-        <nav class="navbar navbar-expand-sm navbar-themed mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-page="/Index"><img src="/favicon.ico" style="height:36px; margin-right: 5px;"> Involver</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <partial name="_LoginPartial" />
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownNovels" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                創作
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownNovels">
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Novels/Index">所有創作</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Feed/TrendingCreations">熱門創作</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Articles/Index">討論</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Announcements/Index">公告</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Feedbacks/Index">回報與意見</a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTools" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                工具
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownTools">
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/CreateCover">製作小說封面</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/MarkdownToHtml">Markdown轉換器</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/Preview">建立小說試閱</a></li>
-                                <li><a class="dropdown-item" asp-area="" asp-page="/Functions/BracketBuilder">賽程表產生器</a></li>
-                            </ul>
-                        </li>
-                        @if (WebHostEnvironment.IsDevelopment())
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-info" asp-area="" asp-page="/Theme/Index">Theme</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </header>
+    <a class="skip-link visually-hidden-focusable" href="#main-content">跳到主要內容</a>
+    @await Component.InvokeAsync("AnnouncementBanner")
+    <partial name="_SiteHeaderPartial" />
     <div id="modal"></div>
-    <div aria-live="polite" aria-atomic="true" style="position: fixed; bottom: 30px; right: 30px; min-width: 300px; z-index: 1030;">
+    <div aria-live="polite" aria-atomic="true" style="position: fixed; bottom: calc(30px + var(--bottom-nav-offset, 0px)); right: 30px; min-width: 300px; z-index: 1030;">
         <div id="toast-container" style="position: absolute; bottom: 0; right: 0;">
         </div>
     </div>
     @* 管理員後台、創作者中心需要較寬的版面，以 ViewData["ContainerClass"] 指定 *@
-    <div class="@(ViewData["ContainerClass"] as string ?? "container") mb-5 pb-5">
-        <main role="main" class="pb-3">
+    <div class="@(ViewData["ContainerClass"] as string ?? "container") mb-4">
+        <main role="main" id="main-content" class="pb-3" tabindex="-1">
             <partial name="_CookieConsentPartial" />
             @await Component.InvokeAsync("Breadcrumb")
             @RenderBody()
         </main>
     </div>
-    <footer class="border-top footer text-body-secondary">
-        <div class="container-fluid text-center">
-            <div class="d-flex justify-content-center align-items-center flex-wrap">
-                <span class="mx-2">&copy; 2020 - Involver</span>
-                <a class="mx-2" asp-area="" asp-page="/Descriptions/Privacy">隱私權政策</a>
-                <a class="mx-2" asp-area="" asp-page="/Descriptions/Terms">服務條款</a>
-                <a class="mx-2" asp-area="" asp-page="/Descriptions/Content">內容政策</a>
-                <a class="mx-2" asp-area="" asp-page="/Descriptions/Index">說明中心</a>
-            </div>
-        </div>
-    </footer>
+    <partial name="_SiteFooterPartial" />
+    <partial name="_BottomNavPartial" />
 
     <environment include="Development">
         <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>

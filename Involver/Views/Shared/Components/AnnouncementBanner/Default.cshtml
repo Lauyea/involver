@@ -1,0 +1,21 @@
+@model Involver.Models.ViewModels.Navigation.AnnouncementBannerViewModel
+@* Views/ 底下沒有 _ViewImports，要在這裡註冊，asp-area／asp-page 才會產生 href *@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@*
+    最新公告橫幅（M3 的 banner）：放在頁首上方、不跟著捲動。
+    關閉按鈕由 site.js 的 initAnnouncementBanner 處理，把公告 ID 寫進 cookie。
+*@
+<section class="announcement-banner" aria-label="最新公告"
+         data-announcement-banner data-announcement-id="@Model.ArticleId">
+    <div class="container-fluid announcement-banner__inner">
+        <i class="fa-solid fa-bullhorn announcement-banner__icon" aria-hidden="true"></i>
+        <p class="announcement-banner__text">
+            <span class="announcement-banner__label">公告</span>
+            <a class="announcement-banner__link" asp-area="" asp-page="/Announcements/Details" asp-route-id="@Model.ArticleId">@Model.Title</a>
+        </p>
+        <button type="button" class="btn announcement-banner__close" aria-label="關閉公告" data-announcement-dismiss>
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+    </div>
+</section>
