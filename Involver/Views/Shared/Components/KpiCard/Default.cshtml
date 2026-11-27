@@ -18,7 +18,16 @@
 
 <div class="dashboard__card kpi-card h-100 p-3 position-relative">
     <div class="d-flex justify-content-between align-items-start gap-2">
-        <div class="kpi-card__label">@Model.Label</div>
+        <div class="kpi-card__label">
+            @if (!string.IsNullOrEmpty(Model.LabelTooltip))
+            {
+                <abbr class="abbr-tooltip" tabindex="0" data-bs-toggle="tooltip" data-bs-title="@Model.LabelTooltip">@Model.Label</abbr>
+            }
+            else
+            {
+                @Model.Label
+            }
+        </div>
         @if (!string.IsNullOrEmpty(Model.Icon))
         {
             <i class="fa-solid @Model.Icon text-body-secondary" aria-hidden="true"></i>

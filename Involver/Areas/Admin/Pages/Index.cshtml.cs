@@ -163,8 +163,11 @@ public class IndexModel(
             Card(KpiMetric.TotalUsers, "總用戶", totalUsers, periodStart?.TotalUsers, compare, "fa-users", targets, url: canUsers ? Url.Page("/Users/Index") : null),
             Card(KpiMetric.NewUsers, $"{Days} 日新註冊", newUsers, previousNewUsers, $"與前 {Days} 天相比", "fa-user-plus", targets),
             Card(KpiMetric.DailyActiveUsers, "DAU", dailyActive, previousDaily, compare, "fa-user-clock", targets,
-                hint: latest == null ? "今天到目前為止（依最後登入時間）" : $"{latest.Date:MM/dd} 登入的用戶"),
-            Card(KpiMetric.MonthlyActiveUsers, "MAU", monthlyActive, periodStart?.MonthlyActiveUsers, compare, "fa-calendar-check", targets, hint: "近 30 天有登入"),
+                hint: latest == null ? "今天到目前為止（依最後登入時間）" : $"{latest.Date:MM/dd} 登入的用戶",
+                labelTooltip: "每日活躍用戶（Daily Active Users）"),
+            Card(KpiMetric.MonthlyActiveUsers, "MAU", monthlyActive, periodStart?.MonthlyActiveUsers, compare, "fa-calendar-check", targets,
+                hint: "近 30 天有登入",
+                labelTooltip: "每月活躍用戶（Monthly Active Users）"),
             Card(KpiMetric.PrimeUsers, "Prime 會員", prime, periodStart?.PrimeUsers, compare, "fa-crown", targets),
             Card(KpiMetric.ProfessionalUsers, "特約作家", professional, periodStart?.ProfessionalUsers, compare, "fa-feather", targets),
             Card(KpiMetric.Novels, "作品數", novels, periodStart?.Novels, compare, "fa-book", targets),
@@ -245,11 +248,13 @@ public class IndexModel(
         Dictionary<KpiMetric, KpiTarget> targets,
         bool isCore = false,
         string hint = null,
-        string url = null)
+        string url = null,
+        string labelTooltip = null)
     {
         return new KpiCardViewModel
         {
             Label = label,
+            LabelTooltip = labelTooltip,
             Value = value,
             ChangePercent = DashboardMetrics.ChangePercent(value, previous),
             ComparisonLabel = comparisonLabel,
