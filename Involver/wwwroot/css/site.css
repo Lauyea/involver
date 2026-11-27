@@ -2624,6 +2624,20 @@ h6:hover .anchor-link {
     font-size: .875rem;
 }
 
+.abbr-tooltip {
+    cursor: help;
+    position: relative;
+    text-decoration: underline dotted;
+    text-underline-offset: .2em;
+    z-index: 2;
+}
+
+    .abbr-tooltip:focus-visible {
+        border-radius: .125rem;
+        outline: 2px solid var(--md-primary);
+        outline-offset: 2px;
+    }
+
 .kpi-card__value {
     font-size: 1.75rem;
     font-variant-numeric: tabular-nums;

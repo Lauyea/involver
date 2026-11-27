@@ -13,6 +13,11 @@ public class KpiCardViewModel
     public string Label { get; init; }
 
     /// <summary>
+    /// 指標名稱的 tooltip 說明（例如縮寫全名）；不需要時為 null
+    /// </summary>
+    public string LabelTooltip { get; init; }
+
+    /// <summary>
     /// 目前的值
     /// </summary>
     public decimal Value { get; init; }
